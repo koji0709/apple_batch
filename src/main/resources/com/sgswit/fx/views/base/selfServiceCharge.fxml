@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="165.0" prefWidth="385.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.base.SelfServiceChargeController">
+   <children>
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="165.0" prefWidth="385.0">
+         <children>
+            <Label layoutX="9.0" layoutY="14.0" prefHeight="66.0" prefWidth="364.0" style="-fx-border-color: #ffff; -fx-border-width: 2;" text="请输充值卡号,如果没有充值卡号,请点击在线购买点卡或联系客服购买!" wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="cardNoField" layoutX="8.0" layoutY="83.0" prefHeight="23.0" prefWidth="364.0" />
+            <Button fx:id="confirmBtn" layoutX="117.0" layoutY="119.0" mnemonicParsing="false" onAction="#onConfirmBtnClick" prefHeight="30.0" prefWidth="80.0" text="确定(O)">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font></Button>
+            <Button fx:id="cancelBtn" layoutX="206.0" layoutY="119.0" mnemonicParsing="false" onAction="#onCancelBtnClick" prefHeight="30.0" prefWidth="80.0" text="取消(C)">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </children>
+</HBox>
