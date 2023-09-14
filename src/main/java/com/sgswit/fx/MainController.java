@@ -1,35 +1,31 @@
 package com.sgswit.fx;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.application.Platform;
+import com.sgswit.fx.model.KeyValuePair;
+import com.sgswit.fx.utils.ProjectValues;
+import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Paint;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.StringConverter;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -39,50 +35,156 @@ import java.util.*;
  * @author DeZh
  */
 public class MainController implements Initializable {
-
     @FXML
-    private ChoiceBox<String> loginMode=new ChoiceBox<>();
+    public Pane rightMainPane;
+    @FXML
+    private ChoiceBox<KeyValuePair> loginMode = new ChoiceBox<KeyValuePair>();
     @FXML
     private CheckBox isAutoLogin;
-    private final String[] loginModeArr = { "本地登录", "远程服务登录" };
+    @FXML
+    private VBox leftMenu;
+    private Integer currentMenuIndex;
+    private Integer tempIndex;
 
 
+    private final List<KeyValuePair> loginModeList =new ArrayList<>(){{
+        add(new KeyValuePair("1","本地登录"));
+        add(new KeyValuePair("2","远程服务登录"));
+    }};
 
     /**
     　* @description:初始化页面数据
       * @param
-     * @param arg0
-     * @param arg1
     　* @return void
     　* @throws
     　* @author DeZh
     　* @date 2023/9/7 15:01
     */
     @Override
-    public void initialize(URL arg0, ResourceBundle arg1) {
-        //初始化登录模式
-        loginMode.getItems().addAll(loginModeArr);
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+//        //初始化登录模式
+        loginMode.getItems().addAll(loginModeList);
+        loginMode.converterProperty().set(new StringConverter<KeyValuePair>() {
+            @Override
+            public String toString(KeyValuePair object) {
+                return object.getValue();
+            }
+
+            @Override
+            public KeyValuePair fromString(String string) {
+                return null;
+            }
+        });
+
+
         int index=0;
         //从本地配置文件获取设置的登录模式
-        index=Arrays.asList(loginModeArr).indexOf("本地登录");
-        loginMode.getSelectionModel().select(index);
+//        index=Arrays.asList(loginModeArr).indexOf("本地登录");
+//        loginMode.getSelectionModel().select(index);
+        loginModeListener();
+
         //初始化是否自动登录
         isAutoLogin.setSelected(false);
-        //设置监听
-        loginModeListener();
         isAutoLoginModeListener();
+
+//        leftMenu = (VBox) getLeftMenu();
+        leftMenu.getChildren().add(getLeftMenu());
+        leftMenu.setBackground(Background.EMPTY);
     }
+
+    private Node getLeftMenu() {
+        double leftWidth = ProjectValues.leftMenuWidth;
+        VBox vbox = new VBox();
+        vbox.setMinHeight(30);
+        vbox.setMinWidth(leftWidth);
+        StyleUtil.setPaneBackground(vbox, Color.web(ProjectValues.COLOR_PRIMARY));
+        // 增加菜单中的项目
+        vbox.getChildren().addAll(getLeftMenuItemList(leftWidth));
+        return vbox;
+    }
+
+    /**
+     * 生成左侧菜单按钮
+     */
+    private List<Button> getLeftMenuItemList(double width) {
+        List<KeyValuePair> itemNameList=new ArrayList<>(){{
+            add(new KeyValuePair("iTunes","iTunes专区","views/iTunes/iTunes-items-list.fxml"));
+            add(new KeyValuePair("iCloud","iCloud专区","views/iCloud/iCloud-items-list.fxml"));
+            add(new KeyValuePair("operation","修改操作专区","views/operation/operation-items-list.fxml"));
+            add(new KeyValuePair("query","查询检测专区","views/query/query-items-list.fxml"));
+        }};
+        double buttonHeight = 30;
+        List<Button> buttonList = new ArrayList<>(3);
+        for (KeyValuePair keyValuePair : itemNameList) {
+            Button button = new Button(keyValuePair.getValue());
+            button.setMinWidth(width);
+            button.setMinHeight(buttonHeight);
+            button.setId(keyValuePair.getKey());
+            StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+            //增加鼠标移动到菜单上到hover效果
+            button.setOnMouseMoved(event->{
+                if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
+                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.WHITE);StyleUtil.setFont(button, Color.WHITE, -1);
+                }else {
+                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.web(ProjectValues.COLOR_SELECTED));
+                }
+            });
+            button.setOnMouseExited(event->{
+                if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
+                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+                }else {
+                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.web(ProjectValues.COLOR_SELECTED));
+                }
+            });
+            button.setOnMouseClicked(event->{
+                Optional<Integer> first = itemNameList.stream().filter(i -> Objects.equals(i.getKey(), button.getId())). map(itemNameList::indexOf).findFirst();
+                if (first.isPresent()) {
+                    currentMenuIndex= first.get();
+                }
+                if(rightMainPane.getChildren().size()>0){
+                    rightMainPane.getChildren().remove(0);
+                }
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader();
+                    Pane p = fxmlLoader.load(MainApplication.class.getResource(itemNameList.get(currentMenuIndex).getPath()).openStream());
+                    rightMainPane.getChildren().add(p);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                //选中状态逻辑
+                if(tempIndex!=null) {
+                    VBox vBox= (VBox) leftMenu.getChildren().get(0);
+                    Button node = (Button) vBox.getChildren().get(tempIndex);
+                    //清空选中状态样式
+                    StyleUtil.setFont(node, Color.WHITE, -1);
+                    StyleUtil.setButtonBackground(node, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+                }
+                //设置选中样式
+                StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                tempIndex = currentMenuIndex;
+            });
+            buttonList.add(button);
+        }
+        return buttonList;
+    }
+
+
+
+
 
     /**登录模式监听*/
     protected void loginModeListener(){
         loginMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
+
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("提示");
-                String msg= MessageFormat.format("{0}修改成功，配置已生效！",loginModeArr[Integer.valueOf(t1.toString())]);
+                String msg= MessageFormat.format("{0}修改成功，配置已生效！",loginModeList.get(Integer.valueOf(t1.toString())).getValue());
                 alert.setHeaderText(msg);
-                alert.showAndWait();
+                alert.show();
                 //修改本地配置文件
             }
         });
@@ -102,7 +204,7 @@ public class MainController implements Initializable {
                     msg= "已关闭自动登录模式，下次登录时将执行手动登录！";
                 }
                 alert.setHeaderText(msg);
-                alert.showAndWait();
+                alert.show();
                 //修改本地配置文件
             }
         });
@@ -147,39 +249,29 @@ public class MainController implements Initializable {
     }
     @FXML
     protected void onIpProxyAndThreadSettingsBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("account-querylog-popup.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 950, 550);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户查询记录");
-
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
     }
     /**打开自助充值页面**/
     @FXML
     protected void onSelfServiceTopUpBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("account-querylog-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/selfServiceCharge.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 950, 550);
+        Scene scene = new Scene(fxmlLoader.load(), 385, 170);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
         Stage popupStage = new Stage();
 
-        popupStage.setTitle("账户查询记录");
+        popupStage.setTitle("自助充值");
 
         popupStage.initModality(Modality.WINDOW_MODAL);
         popupStage.setScene(scene);
-        popupStage.showAndWait();
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
     }
     @FXML
     protected void callQQ(){
-//        String url = "http://wpa.qq.com/msgrd?v=3&uin=748895431&site=qq&menu=yes";
-        String url = "https://wpa.qq.com/msgrd?v=3&uin=748895431&site=qq&menu=yes&jumpflag=1";
+        String url = "http://wpa.qq.com/msgrd?v=3&uin=748895431&site=qq&menu=yes";
         browse(url);
     }
 }

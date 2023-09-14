@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.AccountInputPopupController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.AccountInputPopupController">
    <children>
       <GridPane maxHeight="450.0" maxWidth="600.0" prefHeight="450.0" prefWidth="600.0">
         <columnConstraints>
@@ -34,7 +34,7 @@
                         <Insets left="50.0" />
                      </VBox.margin>
                   </Label>
-                  <Label text="2.非双重认证格式为: 账号----密码-答案1-答案2-答案3。答案1针对朋友问题，答案2针对工作问题，答案3针对父母问题" wrapText="true">
+                  <Label text="2.非双重认证格式为: 账号----密码-答案1-答案2-答案3。" wrapText="true">
                      <VBox.margin>
                         <Insets left="50.0" right="40.0" />
                      </VBox.margin>

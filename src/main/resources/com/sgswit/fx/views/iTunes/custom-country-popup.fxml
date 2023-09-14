@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="390.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.CustomCountryPopupController">
+   <children>
+      <AnchorPane prefHeight="390.0" prefWidth="450.0">
+         <children>
+            <TableView layoutX="8.0" layoutY="50.0" prefHeight="335.0" prefWidth="435.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="序号" />
+                <TableColumn prefWidth="189.0" text="自定义国家" />
+              </columns>
+            </TableView>
+            <Button layoutX="30.0" layoutY="20.0" mnemonicParsing="false" onAction="#onAddCustomCountryDet" text="新增国家资料" />
+            <Button layoutX="150.0" layoutY="20.0" mnemonicParsing="false" text="删除" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>

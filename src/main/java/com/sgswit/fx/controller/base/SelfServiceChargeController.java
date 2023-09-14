@@ -1,43 +1,14 @@
 package com.sgswit.fx.controller.base;
 
-import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.SecuritycodePopupController;
-import com.sgswit.fx.controller.AccountInputPopupController;
-import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 
 

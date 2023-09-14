@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.MainController">
    <children>
       <MenuBar>
         <menus>
@@ -129,14 +129,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-          <Tab text="个人中心">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Label layoutX="425.0" layoutY="290.0" text="欢迎使用APPLE批量处理程序" />
-                     </children></AnchorPane>
-            </content>
-          </Tab>
+          <Tab text="个人中心" />
         </tabs>
       </TabPane>
    </children>

@@ -1,13 +1,19 @@
-package com.sgswit.fx;
+package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -15,21 +21,34 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.ResourceBundle;
 
 
-public class MainController_bak {
-
+/**
+ * @author DELL
+ */
+public class CountryModifyController implements Initializable {
+    @FXML
+    public ChoiceBox customCountryBox;
+    @FXML
+    public Label customCountryLabel;
     @FXML
     private TableView accountTableView;
     @FXML
@@ -48,7 +67,6 @@ public class MainController_bak {
     private TableColumn status;
     @FXML
     private TableColumn note;
-
     @FXML
     private TableColumn answer1;
     @FXML
@@ -62,36 +80,40 @@ public class MainController_bak {
     @FXML
     private Button accountExportBtn;
 
+    @FXML
+    private ChoiceBox<KeyValuePair> countryBox;
+    private List<KeyValuePair> countryList=new ArrayList<>(){{
+        add(new KeyValuePair("","请选择"));
+        add(new KeyValuePair("CHN","中国"));
+        add(new KeyValuePair("CHL","智利"));
+    }};
+
     private ObservableList<Account> list = FXCollections.observableArrayList();
 
-    public MainController_bak(){
+    public CountryModifyController(){
 
 
     }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+//        //初始化登录模式
+        countryBox.getItems().addAll(countryList);
+        countryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
+            @Override
+            public String toString(KeyValuePair object) {
+                return object.getValue();
+            }
 
-    @FXML
-    protected  void  onAppCloseBtnClick(){
-
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("系统退出");
-        alert.setContentText("您确认退出系统吗？");
-        Optional<ButtonType> option = alert.showAndWait();
-
-        if (option.get() == null) {
-            return;
-        } else if (option.get() == ButtonType.OK) {
-            System.exit(0);
-        } else if (option.get() == ButtonType.CANCEL) {
-            return;
-        } else {
-            return;
-        }
+            @Override
+            public KeyValuePair fromString(String string) {
+                return null;
+            }
+        });
     }
-
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("account-input-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 600, 450);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -104,17 +126,13 @@ public class MainController_bak {
         popupStage.setScene(scene);
         popupStage.showAndWait();
 
-
-        AccountInputPopupController c = (AccountInputPopupController)fxmlLoader.getController();
+        AccountInputPopupController c = fxmlLoader.getController();
         if(null == c.getAccounts() || "".equals(c.getAccounts())){
             return;
         }
-
         String[] lineArray = c.getAccounts().split("\n");
-
         for(String item : lineArray){
             String[] its = item.split("----");
-
             Account account = new Account();
             account.setSeq(list.size()+1);
             account.setAccount(its[0]);
@@ -130,31 +148,16 @@ public class MainController_bak {
             }
             list.add(account);
         }
-
-        initAccoutTableView();
+        initAccountTableView();
         accountTableView.setItems(list);
-
     }
 
     @FXML
     protected void onAccountExportBtnClick() throws Exception{
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//        alert.setTitle("友情提示");
-//        alert.setContentText("功能建设中，敬请期待");
-//        alert.show();
-
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("iTunes/country-update.fxml"));
-
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账号修改国家");
-
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("友情提示");
+        alert.setContentText("功能建设中，敬请期待");
+        alert.show();
     }
 
     @FXML
@@ -334,7 +337,8 @@ public class MainController_bak {
             HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
             HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
 
-            manager(account, step22Res);
+//            manager(account, step22Res);
+            countryModify(account, step22Res);
         }else if ("hsa2".equals(authType)) {
             account.setNote("该账户为双重认证模式，请清空密保信息后重试");
             accountTableView.refresh();
@@ -342,6 +346,44 @@ public class MainController_bak {
         return true;
     }
 
+    private void countryModify(Account account, HttpResponse step1Res) {
+        //step3 token
+        HttpResponse step3Res = AppleIDUtil.token(step1Res);
+
+        //step4 manager
+        if(step3Res.getStatus() != 200){
+            queryFail(account);
+        }
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step3Res.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(step3Res.header("scnt")));
+
+        StringBuilder cookieBuilder = new StringBuilder();
+        List<String> resCookies = step3Res.headerList("Set-Cookie");
+        for(String item : resCookies){
+            cookieBuilder.append(";").append(item);
+        }
+
+
+        HttpResponse res4 = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
+                .header(headers)
+//                .body("{\"billingAddress\":{\"countryCode\":\"CHL\"},\"id\":1}")
+                .body("{\"ownerName\":{\"firstName\":\"\",\"lastName\":\"\"},\"phoneNumber\":{\"areaCode\":\"\",\"number\":\"\",\"countryCode\":\"\"},\"billingAddress\":{\"line1\":\"\",\"line2\":\"\",\"line3\":\"\",\"suburb\":\"\",\"county\":\"\",\"city\":\"\",\"countryCode\":\"CHN\",\"postalCode\":\"\",\"stateProvinceName\":\"\"},\"id\":1}")
+                .cookie(cookieBuilder.toString())
+                .execute();
+        System.out.println(JSONUtil.toJsonStr(res4.body()));
+
+    }
     private void manager(Account account, HttpResponse step1Res) {
         //step3 token
         HttpResponse step3Res = AppleIDUtil.token(step1Res);
@@ -391,7 +433,7 @@ public class MainController_bak {
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("account-querylog-popup.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load(), 950, 550);
+        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
         Stage popupStage = new Stage();
@@ -404,7 +446,7 @@ public class MainController_bak {
 
     }
 
-    private void initAccoutTableView(){
+    private void initAccountTableView(){
         seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
         account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
         pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
@@ -418,4 +460,19 @@ public class MainController_bak {
         answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
     }
 
+    public void onAddCountryBtnClick(MouseEvent mouseEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/custom-country-popup.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 450, 390);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("新增国家");
+        //模块化，对应用里的所有窗口起作用
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
+
+    }
 }
