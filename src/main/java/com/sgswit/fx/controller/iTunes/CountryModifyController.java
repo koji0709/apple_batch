@@ -232,7 +232,7 @@ public class CountryModifyController implements Initializable {
             // 双重验证
             //step2.2 输入验证码
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("securitycode-popup.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/securitycode-popup.fxml"));
 
                 Scene scene = new Scene(fxmlLoader.load(), 600, 350);
                 scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -431,7 +431,7 @@ public class CountryModifyController implements Initializable {
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
 
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("account-querylog-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 950, 600);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");

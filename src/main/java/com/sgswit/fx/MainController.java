@@ -86,8 +86,7 @@ public class MainController implements Initializable {
         //初始化是否自动登录
         isAutoLogin.setSelected(false);
         isAutoLoginModeListener();
-
-//        leftMenu = (VBox) getLeftMenu();
+        //初始化左侧菜单
         leftMenu.getChildren().add(getLeftMenu());
         leftMenu.setBackground(Background.EMPTY);
     }

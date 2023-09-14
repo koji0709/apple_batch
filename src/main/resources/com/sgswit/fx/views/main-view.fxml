@@ -11,7 +11,10 @@
             <Pane prefHeight="130.0" prefWidth="400.0">
                <children>
                   <ChoiceBox fx:id="loginMode" layoutX="25.0" layoutY="65.0" prefHeight="23.0" prefWidth="95.0" />
-                  <CheckBox fx:id="isAutoLogin" layoutX="25.0" layoutY="101.0" mnemonicParsing="false" text="自动登录账号" textFill="WHITE" />
+                  <CheckBox fx:id="isAutoLogin" layoutX="25.0" layoutY="101.0" mnemonicParsing="false" text="自动登录账号" textFill="WHITE">
+                     <font>
+                        <Font size="13.0" />
+                     </font></CheckBox>
                   <Label layoutX="345.0" layoutY="18.0" text="￥" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="30.0" />
@@ -22,19 +25,19 @@
                         <Font size="20.0" />
                      </font>
                   </Label>
-                  <Hyperlink layoutX="230.0" layoutY="60.0" onAction="#onLineBuyBtnClick" text="在线购买">
+                  <Hyperlink layoutX="230.0" layoutY="60.0" onAction="#onLineBuyBtnClick" text="在线购买" textFill="YELLOW">
                      <font>
-                        <Font size="14.0" />
+                        <Font size="13.0" />
                      </font>
                   </Hyperlink>
-                  <Hyperlink layoutX="300.0" layoutY="60.0" onAction="#onSelfServiceTopUpBtnClick" text="自助充值">
+                  <Hyperlink layoutX="300.0" layoutY="60.0" onAction="#onSelfServiceTopUpBtnClick" text="自助充值" textFill="YELLOW">
                      <font>
-                        <Font size="14.0" />
+                        <Font size="13.0" />
                      </font>
                   </Hyperlink>
-                  <Hyperlink layoutX="230.0" layoutY="90.0" onAction="#onIpProxyAndThreadSettingsBtnClick" text="IP代理和线程设置【默认】">
+                  <Hyperlink layoutX="230.0" layoutY="90.0" onAction="#onIpProxyAndThreadSettingsBtnClick" text="IP代理和线程设置【默认】" textFill="WHITE">
                      <font>
-                        <Font size="14.0" />
+                        <Font size="13.0" />
                      </font>
                   </Hyperlink>
                </children>
