@@ -12,9 +12,11 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
+import com.sgswit.fx.controller.iTunes.model.UserNationalModel;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.StringUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +28,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -48,7 +51,7 @@ public class CountryModifyController implements Initializable {
     @FXML
     public ChoiceBox customCountryBox;
     @FXML
-    public Label customCountryLabel;
+    public HBox customCountrySelectId;
     @FXML
     private TableView accountTableView;
     @FXML
@@ -96,7 +99,7 @@ public class CountryModifyController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-//        //初始化登录模式
+       //初始化国家
         countryBox.getItems().addAll(countryList);
         countryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
             @Override
@@ -109,7 +112,29 @@ public class CountryModifyController implements Initializable {
                 return null;
             }
         });
+
+        setShowCustomCountryData();
+
     }
+    protected void setShowCustomCountryData(){
+        //判断是否显示 自定义国家下拉框
+        List<UserNationalModel> list=new ArrayList<>();
+        File jsonFile = new File("userNationalData.json");
+        if(!jsonFile.exists()){
+            customCountrySelectId.setVisible(false);
+            return;
+        }
+        String jsonString = FileUtil.readUtf8String(jsonFile);
+        if(!StringUtils.isEmpty(jsonString)){
+            list = JSONUtil.toList(jsonString,UserNationalModel.class);
+        }
+        if(list.size()>0){
+            customCountrySelectId.setVisible(true);
+        }else{
+            customCountrySelectId.setVisible(false);
+        }
+    }
+
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
@@ -430,20 +455,14 @@ public class CountryModifyController implements Initializable {
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-
         Scene scene = new Scene(fxmlLoader.load(), 950, 600);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
         Stage popupStage = new Stage();
-
         popupStage.setTitle("账户查询记录");
-
         popupStage.initModality(Modality.WINDOW_MODAL);
         popupStage.setScene(scene);
         popupStage.showAndWait();
-
     }
 
     private void initAccountTableView(){
@@ -472,7 +491,7 @@ public class CountryModifyController implements Initializable {
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.show();
-
+        popupStage.showAndWait();
+        setShowCustomCountryData();
     }
 }

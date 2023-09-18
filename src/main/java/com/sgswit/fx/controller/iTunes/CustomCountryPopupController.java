@@ -1,16 +1,30 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.iTunes.model.Country;
+import com.sgswit.fx.controller.iTunes.model.UserNationalModel;
+import com.sgswit.fx.utils.StringUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -21,9 +35,19 @@ import java.util.ResourceBundle;
  * @date 2023/9/1320:45
  */
 public class CustomCountryPopupController implements Initializable {
+    @FXML
+    public TableColumn countryName;
+    @FXML
+    public TableColumn seqNo;
+    @FXML
+    public TableView tableView;
+
+    private ObservableList<Country> countryObservableList = FXCollections.observableArrayList();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        togetherTableView();
+        //设置多选
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     public void onAddCustomCountryDet(ActionEvent actionEvent) throws IOException {
@@ -37,6 +61,70 @@ public class CustomCountryPopupController implements Initializable {
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.show();
+        popupStage.showAndWait();
+        togetherTableView();
+    }
+
+    private  void togetherTableView(){
+        this.countryObservableList.clear();
+        File userNationalDataFile = FileUtil.file("userNationalData.json");
+        if(!userNationalDataFile.exists()){
+            return;
+        }
+        // 创建json文件对象
+        List<UserNationalModel> list=new ArrayList<>();
+        File jsonFile = new File("userNationalData.json");
+        String jsonString = FileUtil.readUtf8String(jsonFile);
+        if(!StringUtils.isEmpty(jsonString)){
+            list = JSONUtil.toList(jsonString,UserNationalModel.class);
+        }
+        for(UserNationalModel userNationalModel:list){
+            Country country= new Country();
+            country.setCountryName(userNationalModel.getName());
+            country.setSeqNo(countryObservableList.size()+1);
+            countryObservableList.add(country);
+        }
+        initTableView();
+        tableView.setItems(countryObservableList);
+    }
+
+    private void initTableView(){
+        seqNo.setCellValueFactory(new PropertyValueFactory<Country,Integer>("seqNo"));
+        countryName.setCellValueFactory(new PropertyValueFactory<Country,String>("countryName"));
+    }
+    //删除选择的自定国家
+    public void onDeleteCustomCountry(ActionEvent actionEvent) {
+        int length=tableView.getSelectionModel().getSelectedCells().size();
+        if(length==0){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("提示");
+            alert.setHeaderText("请选中需要删除的资料");
+            alert.show();
+        }else{
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText("删除选中资料？");
+            Optional<ButtonType> option = alert.showAndWait();
+            if (option.get() == null) {
+                return;
+            } else if (option.get() == ButtonType.OK) {
+                if(countryObservableList.size()==length){
+                    File jsonFile = new File("userNationalData.json");
+                    jsonFile.delete();
+                    this.countryObservableList.clear();
+                }else{
+                    ObservableList<TablePosition> list=tableView.getSelectionModel().getSelectedCells();
+                    for(TablePosition country:list){
+                        String sn=country.getTableColumn().getCellObservableValue("seqNo").toString();
+                    }
+                }
+
+                tableView.refresh();
+            } else if (option.get() == ButtonType.CANCEL) {
+                return;
+            } else {
+                return;
+            }
+        }
     }
 }

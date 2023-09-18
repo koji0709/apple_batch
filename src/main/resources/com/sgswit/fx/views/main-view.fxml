@@ -11,7 +11,7 @@
             <Pane prefHeight="130.0" prefWidth="400.0">
                <children>
                   <ChoiceBox fx:id="loginMode" layoutX="25.0" layoutY="65.0" prefHeight="23.0" prefWidth="95.0" />
-                  <CheckBox fx:id="isAutoLogin" layoutX="25.0" layoutY="101.0" mnemonicParsing="false" text="自动登录账号" textFill="WHITE">
+                  <CheckBox fx:id="isAutoLogin" layoutX="25.0" layoutY="100.0" mnemonicParsing="false" text="自动登录账号" textFill="WHITE">
                      <font>
                         <Font size="13.0" />
                      </font></CheckBox>
@@ -44,7 +44,7 @@
             </Pane>
             <Pane layoutY="130.0" prefHeight="390.0" prefWidth="150.0">
                <children>
-                  <VBox fx:id="leftMenu" prefHeight="256.0" prefWidth="150.0" />
+                  <VBox fx:id="leftMenu" prefWidth="150.0" />
                </children>
             </Pane>
             <Pane fx:id="rightMainPane" layoutX="150.0" layoutY="130.0" prefHeight="385.0" prefWidth="245.0" style="-fx-background-color: #ffffff;" />

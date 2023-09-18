@@ -58,34 +58,36 @@
                   <TitledPane fx:id="accNum" layoutX="726.0" layoutY="14.0" prefHeight="165.0" prefWidth="360.0" text="操作说明">
                      <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="360.0">
-                           <children>
-                               <Label text="注：" />
-                               <Label text="1.双重认证账号在执行的过程中，将弹出验证码输入框,输入验证码后才能继续查询。" wrapText="true">
-                                 <VBox.margin>
-                                    <Insets left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                               <Label text="格式为: 账号----密码" wrapText="true">
-                                   <VBox.margin>
-                                       <Insets left="50.0" />
-                                   </VBox.margin>
-                              </Label>
-                               <Label text="2.非双重认证账户，需要输入密保信息。" wrapText="true">
-                                 <VBox.margin>
-                                    <Insets left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                               <Label text="格式为: 账号----密码-答案1-答案2-答案3" wrapText="true">
-                                   <VBox.margin>
-                                       <Insets left="50.0" />
-                                   </VBox.margin>
-                              </Label>
-                               <Label text="3.本示例程序可以添加多条账户信息，但只查询第一条账户信息。" wrapText="true">
-                                 <VBox.margin>
-                                    <Insets left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                           </children>
+                            <children>
+                                <Label text="注：" />
+                                <Label text="1.双重认证账号在执行的过程中，将弹出验证码输入框,输入验证码后才能继续查询【格式为: 账号----密码】。" wrapText="true">
+                                    <VBox.margin>
+                                        <Insets bottom="3.0" top="2.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <Label text="2.非双重认证账户，需要输入密保信息【格式为: 账号----密码-答案1-答案2-答案3】。" wrapText="true">
+                                    <VBox.margin>
+                                        <Insets bottom="3.0" top="2.0" />
+                                    </VBox.margin>
+                                </Label>
+                              <HBox prefHeight="35.0" prefWidth="340.0">
+                                 <children>
+                                    <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
+                                       <HBox.margin>
+                                          <Insets top="5.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                    <Label prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                       <HBox.margin>
+                                          <Insets top="5.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                 </children>
+                              </HBox>
+                            </children>
                         </VBox>
                      </content>
                   </TitledPane>
@@ -119,8 +121,20 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Label>
-                              <ChoiceBox fx:id="customCountryBox" layoutX="70.0" layoutY="80.0" prefHeight="23.0" prefWidth="134.0" visible="false" />
-                              <Label fx:id="customCountryLabel" layoutX="12.0" layoutY="84.0" text="自定国家" visible="false" />
+                              <HBox fx:id="customCountrySelectId"  layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="192.0">
+                                 <children>
+                                    <Label text="自定国家">
+                                       <HBox.margin>
+                                          <Insets top="3.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                    <ChoiceBox fx:id="customCountryBox" prefHeight="23.0" prefWidth="134.0">
+                                       <HBox.margin>
+                                          <Insets left="8.0" />
+                                       </HBox.margin>
+                                    </ChoiceBox>
+                                 </children>
+                              </HBox>
                            </children>
                         </AnchorPane>
                     </content>

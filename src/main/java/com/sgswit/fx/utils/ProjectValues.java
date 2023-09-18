@@ -11,6 +11,8 @@ public class ProjectValues {
 	/**被选中颜色**/
 	public static String COLOR_SELECTED  = "#3FB180";
 	public static String COLOR_HOVER = "#2B3C4C";
+
+	public static String WHITE = "#FFFFFF";
 	/**左侧菜单宽度**/
 	public static double leftMenuWidth = 150;
 }
