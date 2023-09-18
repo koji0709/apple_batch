@@ -20,8 +20,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +42,7 @@ public class CustomCountryPopupController implements Initializable {
     @FXML
     public TableColumn seqNo;
     @FXML
-    public TableView tableView;
+    public TableView<Country> tableView;
 
     private ObservableList<Country> countryObservableList = FXCollections.observableArrayList();
     @Override
@@ -74,12 +76,13 @@ public class CustomCountryPopupController implements Initializable {
         // 创建json文件对象
         List<UserNationalModel> list=new ArrayList<>();
         File jsonFile = new File("userNationalData.json");
-        String jsonString = FileUtil.readUtf8String(jsonFile);
+        String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
         if(!StringUtils.isEmpty(jsonString)){
             list = JSONUtil.toList(jsonString,UserNationalModel.class);
         }
         for(UserNationalModel userNationalModel:list){
             Country country= new Country();
+            country.setId(userNationalModel.getId());
             country.setCountryName(userNationalModel.getName());
             country.setSeqNo(countryObservableList.size()+1);
             countryObservableList.add(country);
@@ -93,7 +96,7 @@ public class CustomCountryPopupController implements Initializable {
         countryName.setCellValueFactory(new PropertyValueFactory<Country,String>("countryName"));
     }
     //删除选择的自定国家
-    public void onDeleteCustomCountry(ActionEvent actionEvent) {
+    public void onDeleteCustomCountry(ActionEvent actionEvent) throws IOException {
         int length=tableView.getSelectionModel().getSelectedCells().size();
         if(length==0){
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -113,13 +116,25 @@ public class CustomCountryPopupController implements Initializable {
                     jsonFile.delete();
                     this.countryObservableList.clear();
                 }else{
-                    ObservableList<TablePosition> list=tableView.getSelectionModel().getSelectedCells();
-                    for(TablePosition country:list){
-                        String sn=country.getTableColumn().getCellObservableValue("seqNo").toString();
+                    List<UserNationalModel> userNationalModels=new ArrayList<>();
+                    File jsonFile = new File("userNationalData.json");
+                    String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
+                    if(!StringUtils.isEmpty(jsonString)){
+                        userNationalModels = JSONUtil.toList(jsonString,UserNationalModel.class);
                     }
+                    ObservableList<Country> tempList=tableView.getSelectionModel().getSelectedItems();
+                    List<Country> list=new ArrayList();
+                    list.addAll(tempList);
+                    for(Country country:list){
+                        String sn=country.getId();
+                        userNationalModels.removeIf(p -> p.getId().equals(sn));
+                    }
+                    FileWriter fw = new FileWriter("userNationalData.json", Charset.defaultCharset(),false);
+                    fw.write(JSONUtil.toJsonStr(userNationalModels));
+                    fw.flush();
+                    fw.close();
                 }
-
-                tableView.refresh();
+                togetherTableView();
             } else if (option.get() == ButtonType.CANCEL) {
                 return;
             } else {

@@ -9,14 +9,15 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Country {
 
+    private final SimpleStringProperty id;
     private final SimpleIntegerProperty seqNo;
     private final SimpleStringProperty countryName;
 
     public Country(){
+        this.id = new SimpleStringProperty();
         this.seqNo = new SimpleIntegerProperty();
         this.countryName = new SimpleStringProperty();
     }
-
 
 
     public Integer getSeqNo() {
@@ -35,5 +36,11 @@ public class Country {
         countryName.set(a);
     }
 
+    public String getId() {
+        return id.get();
+    }
 
+    public void setId(String id) {
+        this.id.set(id);
+    }
 }

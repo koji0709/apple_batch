@@ -21,6 +21,7 @@ import javafx.util.StringConverter;
 import java.io.File;
 import java.io.FileWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -110,7 +111,7 @@ public class CustomCountryDetPopupController implements Initializable {
             }
             // 创建json文件对象
             File jsonFile = new File("userNationalData.json");
-            String jsonString = FileUtil.readUtf8String(jsonFile);
+            String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
             if(!StringUtils.isEmpty(jsonString)){
                 list = JSONUtil.toList(jsonString,UserNationalModel.class);
             }
@@ -142,7 +143,7 @@ public class CustomCountryDetPopupController implements Initializable {
             payment.setPhoneNumber(phoneNumber);
             userNationalModel.setPayment(payment);
             list.add(userNationalModel);
-            FileWriter fw = new FileWriter("userNationalData.json",false);
+            FileWriter fw = new FileWriter("userNationalData.json", Charset.defaultCharset(),false);
             fw.write(JSONUtil.toJsonStr(list));
             fw.flush();
             fw.close();
