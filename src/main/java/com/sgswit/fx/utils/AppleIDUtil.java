@@ -3,6 +3,7 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Question;
@@ -39,7 +40,7 @@ public class AppleIDUtil
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
         HttpResponse res2 = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth")
                 .header(headers)
-                .cookie(getCookie(res1))
+                //.cookie(getCookie(res1))
                 .execute();
 
         return res2;
@@ -70,7 +71,7 @@ public class AppleIDUtil
             res2 = HttpUtil.createPost(scUrl)
                     .header(headers)
                     .body(scBody)
-                    .cookie(getCookie(res1))
+                    //.cookie(getCookie(res1))
                     .execute();
         }
         return res2;
@@ -83,7 +84,7 @@ public class AppleIDUtil
 
         HttpResponse res3 = HttpUtil.createGet("https://appleid.apple.com/account/manage/gs/ws/token")
                 .header(headers)
-                .cookie(getCookie(res2))
+                //.cookie(getCookie(res2))
                 .execute();
         return res3;
     }
@@ -95,7 +96,7 @@ public class AppleIDUtil
 
         HttpResponse res4 = HttpUtil.createGet("https://appleid.apple.com/account/manage")
                 .header(headers)
-                .cookie(getCookie(res3))
+                //.cookie(getCookie(res3))
                 .execute();
         return res4;
     }
@@ -223,7 +224,6 @@ public class AppleIDUtil
         return res2;
     }
 
-
     public static HttpResponse securityUpgradeSetuplater(HttpResponse res1,String XAppleIDSessionId,String scnt){
         HashMap<String, List<String>> headers = buildHeader();
 
@@ -249,7 +249,6 @@ public class AppleIDUtil
 //        System.out.println("------------------securityUpgradeSetuplater-----------------------------------------------");
         return res2;
     }
-
 
     public static HttpResponse repareOptionsSecond(HttpResponse res1,String XAppleIDSessionId,String scnt){
         HashMap<String, List<String>> headers = buildHeader();
@@ -299,7 +298,26 @@ public class AppleIDUtil
         return res2;
     }
 
+    /**
+     * 修改用户生日信息
+     * @param birthday 生日 yyyy-MM-dd
+     */
+    public static HttpResponse updateBirthday(String sessionId,String scan,String birthday){
+        String url = "https://appleid.apple.com/account/manage/security/birthday";
 
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
+        headers.put("scnt",ListUtil.toList(scan));
+
+        String[] birthdayArr = birthday.split("-");
+        String format = "{\"dayOfMonth\":\"%s\",\"monthOfYear\":\"%s\",\"year\":\"%s\"}";
+        String body   = String.format(format,birthdayArr[2],birthdayArr[1],birthdayArr[0]);
+
+        return HttpUtil.createRequest(Method.PUT,url)
+                .body(body)
+                .header(headers)
+                .execute();
+    }
 
 
     private static HashMap<String, List<String>> buildHeader() {
@@ -332,12 +350,13 @@ public class AppleIDUtil
         return headers;
     }
 
-
     private static String getCookie(HttpResponse resp){
         StringBuilder cookieBuilder = new StringBuilder();
         List<String> res1Cookies = resp.headerList("Set-Cookie");
-        for(String item : res1Cookies){
-            cookieBuilder.append(";").append(item);
+        if (res1Cookies != null){
+            for(String item : res1Cookies){
+                cookieBuilder.append(";").append(item);
+            }
         }
         return cookieBuilder.toString();
     }
