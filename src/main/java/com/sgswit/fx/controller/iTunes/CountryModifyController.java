@@ -417,7 +417,7 @@ public class CountryModifyController implements Initializable {
         if(step3Res.getStatus() != 200){
             queryFail(account);
         }
-        HttpResponse step4Res = AppleIDUtil.manager(step3Res);
+        HttpResponse step4Res = AppleIDUtil.account(step3Res);
         String managerBody = step4Res.body();
         JSON manager = JSONUtil.parse(managerBody);
 

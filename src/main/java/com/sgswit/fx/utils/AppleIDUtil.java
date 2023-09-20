@@ -88,7 +88,7 @@ public class AppleIDUtil
         return res3;
     }
 
-    public static HttpResponse manager(HttpResponse res3){
+    public static HttpResponse account(HttpResponse res3){
         HashMap<String, List<String>> headers = buildHeader(false, res3);
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
