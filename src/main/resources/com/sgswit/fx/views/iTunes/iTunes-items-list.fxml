@@ -25,7 +25,8 @@
     <Button layoutX="10.0" mnemonicParsing="false" onAction="#onCountryModifyBtnClick" prefHeight="25.0" prefWidth="140.0" text="帐号修改国家" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
-         </GridPane.margin></Button>
+         </GridPane.margin>
+    </Button>
     <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="查询消费账单" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />

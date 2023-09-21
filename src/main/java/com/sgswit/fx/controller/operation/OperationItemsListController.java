@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes;
+package com.sgswit.fx.controller.operation;
 
 import com.sgswit.fx.MainApplication;
 import javafx.event.ActionEvent;
@@ -11,20 +11,16 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 
 /**
- * @author DeZh
- * @title: ITunesItemsController
- * @projectName appleBatch
- * @description: TODO
- * @date 2023/9/1321:39
+ * 修改操作专区list controller
  */
-public class ITunesItemsController {
+public class OperationItemsListController {
 
-    public void onCountryModifyBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/country-modify.fxml"));
+    public void onAccountInfoModifyBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/operation/account-info-modify.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
         Stage popupStage = new Stage();
-        popupStage.setTitle("账号国家修改");
+        popupStage.setTitle("官方修改资料");
         popupStage.initModality(Modality.WINDOW_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);

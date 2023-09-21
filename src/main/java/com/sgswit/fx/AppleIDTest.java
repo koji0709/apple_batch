@@ -60,6 +60,7 @@ public class AppleIDTest {
         HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(sessionId,scnt,"1996-08-10");
         Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
 
+
     }
 
 }
