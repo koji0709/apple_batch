@@ -2,15 +2,15 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.base.BaseTableViewController;
+import com.sgswit.fx.controller.base.BaseViewController;
 import com.sgswit.fx.model.Account;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.util.*;
@@ -19,9 +19,12 @@ import java.util.*;
 /**
  * 官网修改资料controller
  */
-public class AccountInfoModifyController extends BaseTableViewController {
+public class AccountInfoModifyController extends BaseViewController {
 
     private ObservableList<Account> accountList = FXCollections.observableArrayList();
+
+    @FXML
+    private Label accountNumLable;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -35,20 +38,27 @@ public class AccountInfoModifyController extends BaseTableViewController {
      * 刷新页面数据
      */
     public void refreshList(){
+        // 清空数据
+        accountList.clear();
+
         // 初始化表格数据
         List<Account> list = getList();
+
         if (!CollectionUtil.isEmpty(list)){
-            for (int i = 0; i < list.size(); i++) {
-                Account account = list.get(i);
+            accountList.addAll(list);
+        }
+        if (!CollectionUtil.isEmpty(list)){
+            for (int i = 0; i < accountList.size(); i++) {
+                Account account = accountList.get(i);
                 account.setSeq(i+1);
-                accountList.add(account);
             }
         }
         tableViewDataList.setItems(accountList);
+        accountNumLable.setText(accountList.size()+"");
     }
 
     /**
-     * 获取用户列表
+     * 获取账号列表
      */
     public List<Account> getList(){
         String accountStr = ResourceUtil.readUtf8Str("account.json");
@@ -69,7 +79,12 @@ public class AccountInfoModifyController extends BaseTableViewController {
         return accountList1;
     }
 
-
+    /**
+     * 清空账号列表
+     */
+    public void clearList(){
+        accountList.clear();
+    }
 
     /***************************************** 操作 *************************************/
 
@@ -84,6 +99,7 @@ public class AccountInfoModifyController extends BaseTableViewController {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(){
+
         refreshList();
     }
 
@@ -91,7 +107,7 @@ public class AccountInfoModifyController extends BaseTableViewController {
      * 清空列表按钮点击
      */
     public void clearAccountListButtonAction(){
-        accountList.clear();
+        clearList();
     }
 
     /**
@@ -114,15 +130,5 @@ public class AccountInfoModifyController extends BaseTableViewController {
     public void stopTaskButtonAction(){
         alert("停止任务按钮点击");
     }
-
-    public void alert(String message){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("提示信息");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-
 
 }

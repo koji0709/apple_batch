@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.base;
 import com.sgswit.fx.model.Account;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -13,7 +14,7 @@ import java.util.ResourceBundle;
 /**
  *
  */
-public class BaseTableViewController implements Initializable {
+public class BaseViewController implements Initializable {
 
     @FXML
     public TableView<Account> tableViewDataList;
@@ -68,6 +69,14 @@ public class BaseTableViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initAccountTableView();
+    }
+
+    public void alert(String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("提示信息");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }
