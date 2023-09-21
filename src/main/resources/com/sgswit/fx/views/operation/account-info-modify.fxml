@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox fx:controller="com.sgswit.fx.controller.operation.AccountInfoModifyController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" >
+<VBox fx:controller="com.sgswit.fx.controller.operation.AccountInfoModifyController" prefHeight="700.0" prefWidth="1100.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" >
    <children>
       <Pane prefHeight="200.0" prefWidth="200.0">
          <children>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0" prefWidth="1100.0">
+        <AnchorPane prefHeight="620.0" prefWidth="1100.0" minHeight="0.0" minWidth="0.0" >
                <children>
-
+                   <!--操作-->
                   <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="13.0" layoutY="14.0" prefHeight="165.0" prefWidth="409.0" text="操作">
                      <content>
                         <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
@@ -25,18 +24,23 @@
                             <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccoutQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
-                                 <font>
-                                    <Font name="System Bold" size="15.0" />
-                                 </font>
-                              </Button>
-                              <HBox fx:id="accountNumBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="245.0" GridPane.columnIndex="1">
+                               <!--列表总数-->
+                              <HBox GridPane.rowIndex="0" GridPane.columnIndex="1" prefHeight="30.0" prefWidth="245.0"
+                                    maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" >
                                  <children>
                                     <Label text="列表中账户数量：      " />
                                     <Label fx:id="accountNum" text="0" textFill="#e20404" />
                                  </children>
                               </HBox>
-                              <GridPane alignment="CENTER" prefHeight="95.0" prefWidth="290.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+
+                               <!--开始执行-->
+                               <Button  text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                       mnemonicParsing="false" prefHeight="60.0" prefWidth="100.0" textFill="#238142" >
+                                   <font><Font name="System Bold" size="15.0" /></font>
+                               </Button>
+
+                              <!--操作按钮-->
+                              <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1" prefHeight="95.0" prefWidth="290.0" alignment="CENTER">
                                 <columnConstraints>
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
@@ -46,18 +50,21 @@
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="区域查询记录" textAlignment="CENTER" />
-                                    <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出账户" GridPane.columnIndex="1" />
-                                    <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="账户输入" GridPane.rowIndex="1" />
-                                    <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空账户列表" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                     <Button text="导入账号" onAction="#importAccountButtonAction" GridPane.rowIndex="0" GridPane.columnIndex="0" mnemonicParsing="false" prefWidth="120.0" />
+                                     <Button text="清空列表" onAction="#clearAccountListButtonAction" GridPane.rowIndex="0" GridPane.columnIndex="1" mnemonicParsing="false" prefWidth="120.0"/>
+                                     <Button text="本地记录" onAction="#localHistoryButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0" mnemonicParsing="false" prefWidth="120.0"/>
+                                     <Button text="导出Excel" onAction="#exportExcelButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="1" mnemonicParsing="false" prefWidth="120.0"/>
+                                     <Button text="停止任务" onAction="#stopTaskButtonAction" GridPane.rowIndex="2" GridPane.columnIndex="0" mnemonicParsing="false" prefWidth="120.0"/>
                                  </children>
                               </GridPane>
+
                            </children>
                         </GridPane>
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="accNum" layoutX="726.0" layoutY="14.0" prefHeight="165.0" prefWidth="360.0" text="操作说明">
+                  <!--操作说明-->
+                  <TitledPane layoutX="726.0" layoutY="14.0" prefHeight="165.0" prefWidth="360.0" text="操作说明">
                      <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="360.0">
                             <children>
@@ -72,77 +79,39 @@
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
                                 </Label>
-                              <HBox prefHeight="35.0" prefWidth="340.0">
-                                 <children>
-                                    <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
-                                       <HBox.margin>
-                                          <Insets top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <Label prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
-                                       <font>
-                                          <Font name="System Bold" size="16.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                 </children>
-                              </HBox>
                             </children>
                         </VBox>
                      </content>
                   </TitledPane>
 
-                  <TitledPane layoutX="13.0" layoutY="197.0" prefHeight="427.0" prefWidth="1077.0" text="账号列表">
-                     <content>
-                        <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
-                          <columns>
-                            <TableColumn fx:id="seq" prefWidth="75.0" text="序号" />
-                            <TableColumn fx:id="account" prefWidth="150.0" text="账号" />
-                              <TableColumn fx:id="pwd" prefWidth="120.0" text="密码" />
-                              <TableColumn fx:id="answer1" prefWidth="80.0" text="问题1" />
-                              <TableColumn fx:id="answer2" prefWidth="80.0" text="问题2" />
-                              <TableColumn fx:id="answer3" prefWidth="80.0" text="问题3" />
-                              <TableColumn fx:id="state" prefWidth="75.0" text="国家" />
-                              <TableColumn fx:id="aera" prefWidth="75.0" text="区域" />
-                              <TableColumn fx:id="name" prefWidth="100.0" text="名称" />
-                              <TableColumn fx:id="status" prefWidth="75.0" text="状态" />
-                              <TableColumn fx:id="note" prefWidth="180.0" text="信息" />
-                          </columns>
-                        </TableView>
-                     </content>
-                  </TitledPane>
-
-                  <TitledPane animated="false" layoutX="431.0" layoutY="14.0" prefHeight="165.0" prefWidth="285.0" text="请设置需要修改的国家">
+                   <!--空行-->
+                  <TitledPane animated="false" layoutX="431.0" layoutY="14.0" prefHeight="165.0" prefWidth="285.0" text="tab2">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="254.0">
-                           <children>
-                              <Label layoutX="12.0" layoutY="40.0" text="选择国家" />
-                              <ChoiceBox fx:id="countryBox" layoutX="70.0" layoutY="36.0" prefHeight="23.0" prefWidth="134.0" />
-                              <Label layoutX="218.0" layoutY="84.0" onMouseClicked="#onAddCountryBtnClick" text="新增国家" textFill="#315efb" underline="true">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </Label>
-                              <HBox fx:id="customCountrySelectId"  layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="192.0">
-                                 <children>
-                                    <Label text="自定国家">
-                                       <HBox.margin>
-                                          <Insets top="3.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <ChoiceBox fx:id="customCountryBox" prefHeight="23.0" prefWidth="134.0">
-                                       <HBox.margin>
-                                          <Insets left="8.0" />
-                                       </HBox.margin>
-                                    </ChoiceBox>
-                                 </children>
-                              </HBox>
-                           </children>
                         </AnchorPane>
                     </content>
                   </TitledPane>
+
+                   <!--账号列表-->
+                   <TitledPane layoutX="13.0" layoutY="197.0" prefHeight="427.0" prefWidth="1077.0" text="账号列表">
+                       <content>
+                           <TableView fx:id="tableViewDataList" prefHeight="364.0" prefWidth="1066.0">
+                               <columns>
+                                   <TableColumn fx:id="seq" prefWidth="75.0" text="序号" />
+                                   <TableColumn fx:id="account" prefWidth="150.0" text="账号" />
+                                   <TableColumn fx:id="pwd" prefWidth="120.0" text="密码" />
+                                   <TableColumn fx:id="answer1" prefWidth="80.0" text="问题1" />
+                                   <TableColumn fx:id="answer2" prefWidth="80.0" text="问题2" />
+                                   <TableColumn fx:id="answer3" prefWidth="80.0" text="问题3" />
+                                   <TableColumn fx:id="state" prefWidth="75.0" text="国家" />
+                                   <TableColumn fx:id="aera" prefWidth="75.0" text="区域" />
+                                   <TableColumn fx:id="name" prefWidth="100.0" text="名称" />
+                                   <TableColumn fx:id="status" prefWidth="75.0" text="状态" />
+                                   <TableColumn fx:id="note" prefWidth="180.0" text="信息" />
+                               </columns>
+                           </TableView>
+                       </content>
+                   </TitledPane>
 
                </children>
             </AnchorPane>
