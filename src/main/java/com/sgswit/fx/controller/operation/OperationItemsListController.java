@@ -17,7 +17,7 @@ public class OperationItemsListController {
 
     public void onAccountInfoModifyBtnClick(ActionEvent actionEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/operation/account-info-modify.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
+        Scene scene = new Scene(fxmlLoader.load(), 1600, 800);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
         Stage popupStage = new Stage();
         popupStage.setTitle("官方修改资料");
