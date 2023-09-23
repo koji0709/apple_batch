@@ -9,13 +9,13 @@
             xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距13px-->
-        <VBox style="-fx-padding: 13 13 13 13;-fx-spacing: 13">
+        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
             <children>
                 <!--功能区-->
-                <HBox style="-fx-spacing: 13">
+                <HBox style="-fx-spacing: 14">
                     <children>
                         <!--操作-->
-                        <TitledPane text="操作" prefWidth="400" prefHeight="165" contentDisplay="CENTER" collapsible="false" animated="false">
+                        <TitledPane text="操作" prefWidth="380" prefHeight="165" contentDisplay="CENTER" collapsible="false" animated="false">
                             <content>
                                 <GridPane prefWidth="400" prefHeight="140" >
                                     <columnConstraints>
@@ -79,24 +79,114 @@
                             </content>
                         </TitledPane>
 
-                        <!--异常重试-->
-                        <TitledPane text="异常重试" prefWidth="130" prefHeight="165" collapsible="false" animated="false">
+                        <!--配置信息-->
+                        <TitledPane text="配置信息" prefWidth="180" prefHeight="165" collapsible="false" animated="false">
                             <content>
-                                <FlowPane alignment="CENTER_LEFT">
+                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
                                         <CheckBox fx:id="tryAgainCheckBox" text="修改失败继续" selected="true"/>
                                         <Label textFill="#169BD5" text="发生未知错误自动重新执行" />
+                                        <CheckBox text="使用随机IP代理" selected="true"/>
                                     </children>
-                                </FlowPane>
+                                </VBox>
                             </content>
                         </TitledPane>
 
                         <!--修改资料-->
-                        <TitledPane text="修改资料" prefWidth="780" prefHeight="165" collapsible="false" animated="false">
+                        <TitledPane text="修改资料" prefWidth="790" prefHeight="165" collapsible="false" animated="false" >
                             <content>
-                                <VBox>
+                                <GridPane alignment="CENTER_LEFT" style="-fx-hgap: 10; -fx-vgap: 10">
                                     <children>
+                                        <!--修改资料-->
+                                        <CheckBox text="修改密码" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <CheckBox text="修改生日" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <CheckBox text="修改姓名" selected="true" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+
+                                        <!--新资料-->
+                                        <HBox alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="1" >
+                                            <children>
+                                                <Label text="新密码"/><TextField/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                                            <children>
+                                                <Label text="新生日" /><TextField/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                                            <children>
+                                                <Label text="姓" /><TextField prefWidth="88"/>
+                                                <Label text="名" /><TextField prefWidth="88"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--修改密保-->
+                                        <CheckBox text="修改密保" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                        <CheckBox text="删除设备" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                                        <HBox GridPane.rowIndex="2" GridPane.columnIndex="2">
+                                            <children>
+                                                <ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--密保问题-->
+                                        <HBox alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="3" >
+                                            <children>
+                                                <Label text="新问题1"/><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                                            <children>
+                                                <Label text="新问题2" /><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="3">
+                                            <children>
+                                                <Label text="新问题3" /><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--密保答案-->
+                                        <HBox alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="4" >
+                                            <children>
+                                                <Label text="新答案1"/><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="4">
+                                            <children>
+                                                <Label text="新答案2" /><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="4">
+                                            <children>
+                                                <Label text="新答案3" /><ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--邮箱,语言-->
+                                        <CheckBox text="移除救援邮箱" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="5"/>
+                                        <CheckBox text="修改显示语言" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="5"/>
+                                        <HBox GridPane.rowIndex="2" GridPane.columnIndex="5">
+                                            <children>
+                                                <ChoiceBox prefWidth="80"/>
+                                            </children>
+                                        </HBox>
+
+
                                     </children>
+                                </GridPane>
+
+                            </content>
+                        </TitledPane>
+
+                        <!--执行结果-->
+                        <TitledPane text="执行结果" prefWidth="110" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+                                    <Label text="账号总数：--"/>
+                                    <Label text="成功数：--"/>
+                                    <Label text="失败数：--"/>
+                                    <Label text="消耗点数：30"/>
                                 </VBox>
                             </content>
                         </TitledPane>
@@ -107,7 +197,7 @@
                 <!--账号列表-->
                 <TitledPane text="账号列表" collapsible="false" animated="false">
                     <content>
-                        <TableView fx:id="tableViewDataList" prefHeight="364">
+                        <TableView fx:id="tableViewDataList" prefWidth="1500" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" text="账号"/>
