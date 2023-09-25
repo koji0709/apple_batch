@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.operation.ele;
 
-import com.sgswit.fx.controller.base.BaseView;
+import com.sgswit.fx.controller.base.TableView;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 /**
  * 官网修改资料view元素
  */
-public class AccountInfoModifyView extends BaseView {
+public class AccountInfoModifyView extends TableView {
     /**
      * 总账号数量
      */

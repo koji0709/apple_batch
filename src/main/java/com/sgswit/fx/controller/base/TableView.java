@@ -5,19 +5,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- *
+ * account表格视图
  */
-public class BaseView implements Initializable {
+public class TableView implements Initializable {
 
     @FXML
-    public TableView<Account> tableViewDataList;
+    public javafx.scene.control.TableView<Account> tableViewDataList;
 
     @FXML
     private TableColumn seq;

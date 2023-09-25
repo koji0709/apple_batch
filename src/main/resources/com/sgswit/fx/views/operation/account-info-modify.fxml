@@ -3,6 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.collections.*?>
+<?import java.lang.String?>
 
 <AnchorPane fx:controller="com.sgswit.fx.controller.operation.AccountInfoModifyController"
             maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
@@ -125,7 +127,15 @@
                                         <CheckBox text="删除设备" fx:id="removeDeviceCheckBox" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
                                         <HBox GridPane.rowIndex="2" GridPane.columnIndex="2">
                                             <children>
-                                                <ChoiceBox fx:id="nameGenerationTypeChoiceBox" prefWidth="80"/>
+                                                <ChoiceBox fx:id="nameGenerationTypeChoiceBox" prefWidth="80">
+                                                    <items>
+                                                        <FXCollections fx:factory="observableArrayList">
+                                                            <String fx:value="固定姓名"/>
+                                                            <String fx:value="随机中文"/>
+                                                            <String fx:value="随机英文"/>
+                                                        </FXCollections>
+                                                    </items>
+                                                </ChoiceBox>
                                             </children>
                                         </HBox>
 

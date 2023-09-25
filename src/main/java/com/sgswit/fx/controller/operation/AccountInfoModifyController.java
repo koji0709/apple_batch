@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -9,10 +10,10 @@ import com.sgswit.fx.controller.operation.ele.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 
 
@@ -26,6 +27,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
+        initViewData();
         refreshList();
     }
 
@@ -65,7 +67,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 获取账号列表
      */
     public List<Account> getList(){
-        String accountStr = ResourceUtil.readUtf8Str("account.json");
+        String accountStr = ResourceUtil.readUtf8Str("json/account.json");
         JSONArray jsonArray = JSONUtil.parseArray(accountStr);
         if (CollectionUtil.isEmpty(jsonArray)){
             return Collections.emptyList();
