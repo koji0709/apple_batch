@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 /**
  *
  */
-public class BaseViewController implements Initializable {
+public class BaseView implements Initializable {
 
     @FXML
     public TableView<Account> tableViewDataList;

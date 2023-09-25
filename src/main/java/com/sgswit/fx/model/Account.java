@@ -19,6 +19,8 @@ public class Account {
     private  final SimpleStringProperty answer1;
     private  final SimpleStringProperty answer2;
     private  final SimpleStringProperty answer3;
+    private  final SimpleStringProperty birthday;
+
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -33,6 +35,7 @@ public class Account {
         this.answer1 = new SimpleStringProperty();
         this.answer2 = new SimpleStringProperty();
         this.answer3 = new SimpleStringProperty();
+        this.birthday = new SimpleStringProperty();
     }
 
     public Integer getSeq() {
@@ -122,5 +125,17 @@ public class Account {
 
     public void setAnswer3(String answer3) {
         this.answer3.set(answer3);
+    }
+
+    public String getBirthday() {
+        return birthday.get();
+    }
+
+    public SimpleStringProperty birthdayProperty() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday.set(birthday);
     }
 }

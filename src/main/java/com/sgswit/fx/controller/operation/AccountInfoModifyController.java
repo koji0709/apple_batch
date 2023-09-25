@@ -5,7 +5,7 @@ import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.base.BaseViewController;
+import com.sgswit.fx.controller.operation.ele.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,17 +19,21 @@ import java.util.*;
 /**
  * 官网修改资料controller
  */
-public class AccountInfoModifyController extends BaseViewController {
+public class AccountInfoModifyController extends AccountInfoModifyView {
 
     private ObservableList<Account> accountList = FXCollections.observableArrayList();
-
-    @FXML
-    private Label accountNumLable;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
         refreshList();
+    }
+
+    /**
+     * 初始化视图数据
+     */
+    public void initViewData(){
+
     }
 
     /***************************************** 业务方法 *************************************/
