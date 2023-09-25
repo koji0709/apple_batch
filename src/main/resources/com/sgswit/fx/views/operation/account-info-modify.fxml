@@ -159,17 +159,17 @@
                                         <!--密保答案-->
                                         <HBox alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="4" >
                                             <children>
-                                                <Label text="新答案1"/><ChoiceBox fx:id="answer1ChoiceBox" prefWidth="80"/>
+                                                <Label text="新答案1"/><TextField fx:id="answer1TextField" prefWidth="80"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="4">
                                             <children>
-                                                <Label text="新答案2" /><ChoiceBox fx:id="answer2ChoiceBox" prefWidth="80"/>
+                                                <Label text="新答案2" /><TextField fx:id="answer2TextField" prefWidth="80"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="4">
                                             <children>
-                                                <Label text="新答案3" /><ChoiceBox fx:id="answer3ChoiceBox" prefWidth="80"/>
+                                                <Label text="新答案3" /><TextField fx:id="answer3TextField" prefWidth="80"/>
                                             </children>
                                         </HBox>
 

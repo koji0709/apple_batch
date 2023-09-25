@@ -1,19 +1,17 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.operation.ele.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.NbUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.io.File;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.*;
 
 
@@ -35,7 +33,13 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 初始化视图数据
      */
     public void initViewData(){
+        List<List<String>> questionList = NbUtil.getQuestionList();
+        question1ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(0)));
+        question2ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(1)));
+        question3ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(2)));
 
+        List<String> languageList = NbUtil.getLanguageList();
+        showLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
     }
 
     /***************************************** 业务方法 *************************************/
@@ -105,7 +109,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(){
-
         refreshList();
     }
 

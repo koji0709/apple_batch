@@ -111,19 +111,19 @@ public class AccountInfoModifyView extends TableView {
      * 答案1
      */
     @FXML
-    protected ChoiceBox answer1ChoiceBox;
+    protected TextField answer1TextField;
 
     /**
      * 答案2
      */
     @FXML
-    protected ChoiceBox answer2ChoiceBox;
+    protected TextField answer2TextField;
 
     /**
      * 答案3
      */
     @FXML
-    protected ChoiceBox answer3ChoiceBox;
+    protected TextField answer3TextField;
 
     /**
      * 移除救援邮箱
