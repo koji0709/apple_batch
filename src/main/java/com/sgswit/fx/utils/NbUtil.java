@@ -1,11 +1,14 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.model.Account;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +55,41 @@ public class NbUtil {
             }
         }
         return resultMap;
+    }
+
+    // todo 临时 之后可能会用数据库存储账号数据
+    public static List<Account> getAccountList(){
+        String accountStr = ResourceUtil.readUtf8Str("json/account.json");
+        JSONArray jsonArray = JSONUtil.parseArray(accountStr);
+        if (CollectionUtil.isEmpty(jsonArray)){
+            return Collections.emptyList();
+        }
+
+        List<Account> accountList1 = new ArrayList<>();
+        for (Object o : jsonArray) {
+            JSONObject json = (JSONObject) o;
+            Account account = new Account();
+            account.setAccount(json.getStr("account"));
+            account.setPwd(json.getStr("pwd"));
+            account.setState(json.getStr("state"));
+            account.setAera(json.getStr("aera"));
+            account.setName(json.getStr("name"));
+            account.setStatus(json.getStr("status"));
+            account.setNote(json.getStr("note"));
+            account.setLogtime(json.getStr("logtime"));
+            account.setAnswer1(json.getStr("answer1"));
+            account.setAnswer2(json.getStr("answer2"));
+            account.setAnswer3(json.getStr("answer3"));
+            account.setBirthday(json.getStr("birthday"));
+            accountList1.add(account);
+        }
+
+        return accountList1;
+    }
+
+    public static void main(String[] args) {
+        List<Account> accountList = getAccountList();
+        accountList.forEach(System.out::println);
     }
 
 }

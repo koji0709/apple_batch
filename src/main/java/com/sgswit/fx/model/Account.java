@@ -138,4 +138,23 @@ public class Account {
     public void setBirthday(String birthday) {
         this.birthday.set(birthday);
     }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "seq=" + seq +
+                ", account=" + account +
+                ", pwd=" + pwd +
+                ", state=" + state +
+                ", aera=" + aera +
+                ", name=" + name +
+                ", status=" + status +
+                ", note=" + note +
+                ", logtime=" + logtime +
+                ", answer1=" + answer1 +
+                ", answer2=" + answer2 +
+                ", answer3=" + answer3 +
+                ", birthday=" + birthday +
+                '}';
+    }
 }

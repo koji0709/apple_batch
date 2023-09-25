@@ -1,11 +1,8 @@
-package com.sgswit.fx.controller.operation.ele;
+package com.sgswit.fx.controller.operation.viewData;
 
 import com.sgswit.fx.controller.base.TableView;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 /**
  * 官网修改资料view元素
@@ -51,7 +48,7 @@ public class AccountInfoModifyView extends TableView {
      * 新生日
      */
     @FXML
-    protected TextField birthdayTextField;
+    protected DatePicker birthdayDatePicker;
 
     /**
      * 修改姓名
@@ -75,7 +72,7 @@ public class AccountInfoModifyView extends TableView {
      * 修改密保
      */
     @FXML
-    protected CheckBox passwordProtectionCheckBox;
+    protected CheckBox updatePasswordProtectionCheckBox;
 
     /**
      * 删除设备
@@ -141,6 +138,5 @@ public class AccountInfoModifyView extends TableView {
      * 显示语言
      */
     @FXML
-    protected ChoiceBox showLangChoiceBox;
-
+    protected ChoiceBox updateShowLangChoiceBox;
 }

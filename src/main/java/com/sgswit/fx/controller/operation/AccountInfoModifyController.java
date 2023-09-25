@@ -1,11 +1,8 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.operation.ele.AccountInfoModifyView;
+import cn.hutool.core.lang.Console;
+import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.NbUtil;
 import javafx.collections.FXCollections;
@@ -39,7 +36,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         question3ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(2)));
 
         List<String> languageList = NbUtil.getLanguageList();
-        showLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
+        updateShowLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
     }
 
     /***************************************** 业务方法 *************************************/
@@ -52,7 +49,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         accountList.clear();
 
         // 初始化表格数据
-        List<Account> list = getList();
+        List<Account> list = NbUtil.getAccountList();
 
         if (!CollectionUtil.isEmpty(list)){
             accountList.addAll(list);
@@ -68,28 +65,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     }
 
     /**
-     * 获取账号列表
-     */
-    public List<Account> getList(){
-        String accountStr = ResourceUtil.readUtf8Str("json/account.json");
-        JSONArray jsonArray = JSONUtil.parseArray(accountStr);
-        if (CollectionUtil.isEmpty(jsonArray)){
-            return Collections.emptyList();
-        }
-
-        List<Account> accountList1 = new ArrayList<>();
-        for (Object o : jsonArray) {
-            JSONObject json = (JSONObject) o;
-            Account account = new Account();
-            account.setAccount(json.getStr("account"));
-            account.setPwd(json.getStr("pwd"));
-            accountList1.add(account);
-        }
-
-        return accountList1;
-    }
-
-    /**
      * 清空账号列表
      */
     public void clearList(){
@@ -102,7 +77,25 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 开始执行按钮点击
      */
     public void executeButtonAction(){
-        alert("开始执行按钮点击");
+        boolean tryAgainCheckBoxSelected = tryAgainCheckBox.isSelected();
+        boolean randomIPProxyCheckBoxSelected = randomIPProxyCheckBox.isSelected();
+        boolean updatePwdCheckBoxSelected = updatePwdCheckBox.isSelected();
+        boolean updateBirthdayCheckBoxSelected = updateBirthdayCheckBox.isSelected();
+        boolean updateNameCheckBoxSelected = updateNameCheckBox.isSelected();
+        boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
+        boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
+
+        Object nameGenerationTypeChoiceBoxValue = nameGenerationTypeChoiceBox.getValue();
+        boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
+        boolean selected = updateShowLangCheckBox.isSelected();
+        Object updateShowLangChoiceBoxValue = updateShowLangChoiceBox.getValue();
+
+
+        String string = birthdayDatePicker.getValue().toString();
+
+        Console.log("--执行信息",tryAgainCheckBoxSelected,randomIPProxyCheckBoxSelected,updatePwdCheckBoxSelected,updateBirthdayCheckBoxSelected,updateNameCheckBoxSelected
+                ,updatePasswordProtectionCheckBoxSelected,removeDeviceCheckBoxSelected,nameGenerationTypeChoiceBoxValue,removeRescueEmailCheckBoxSelected,selected,updateShowLangChoiceBoxValue,string);
+
     }
 
     /**

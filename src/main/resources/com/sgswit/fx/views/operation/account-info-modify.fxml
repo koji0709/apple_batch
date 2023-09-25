@@ -11,7 +11,7 @@
             xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距14px-->
-        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+        <VBox style="-fx-padding: 14 0 14 14;-fx-spacing: 14">
             <children>
                 <!--功能区-->
                 <HBox style="-fx-spacing: 14">
@@ -112,7 +112,7 @@
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="1">
                                             <children>
-                                                <Label text="新生日" /><TextField fx:id="birthdayTextField"/>
+                                                <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" prefWidth="162"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="1">
@@ -123,7 +123,7 @@
                                         </HBox>
 
                                         <!--修改密保-->
-                                        <CheckBox text="修改密保" fx:id="passwordProtectionCheckBox" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                        <CheckBox text="修改密保" fx:id="updatePasswordProtectionCheckBox" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
                                         <CheckBox text="删除设备" fx:id="removeDeviceCheckBox" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
                                         <HBox GridPane.rowIndex="2" GridPane.columnIndex="2">
                                             <children>
@@ -178,7 +178,7 @@
                                         <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="5"/>
                                         <HBox GridPane.rowIndex="2" GridPane.columnIndex="5">
                                             <children>
-                                                <ChoiceBox fx:id="showLangChoiceBox" prefWidth="80"/>
+                                                <ChoiceBox fx:id="updateShowLangChoiceBox" prefWidth="80"/>
                                             </children>
                                         </HBox>
 
