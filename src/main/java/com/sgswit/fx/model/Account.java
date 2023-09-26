@@ -20,6 +20,8 @@ public class Account {
     private  final SimpleStringProperty answer2;
     private  final SimpleStringProperty answer3;
     private  final SimpleStringProperty birthday;
+    private  final SimpleStringProperty originalCountry;
+    private  final SimpleStringProperty targetCountry;
 
 
     public Account(){
@@ -36,6 +38,8 @@ public class Account {
         this.answer2 = new SimpleStringProperty();
         this.answer3 = new SimpleStringProperty();
         this.birthday = new SimpleStringProperty();
+        this.originalCountry = new SimpleStringProperty();
+        this.targetCountry = new SimpleStringProperty();
     }
 
     public Integer getSeq() {
@@ -137,6 +141,22 @@ public class Account {
 
     public void setBirthday(String birthday) {
         this.birthday.set(birthday);
+    }
+
+    public String getOriginalCountry() {
+        return originalCountry.get();
+    }
+
+    public void setOriginalCountry(String originalCountry) {
+        this.originalCountry.set(originalCountry);
+    }
+
+    public String getTargetCountry() {
+        return targetCountry.get();
+    }
+
+    public void setTargetCountry(String targetCountry) {
+        this.targetCountry.set(targetCountry);
     }
 
     @Override

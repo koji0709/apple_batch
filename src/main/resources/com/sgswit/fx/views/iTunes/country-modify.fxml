@@ -100,12 +100,10 @@
                               <TableColumn fx:id="pwd" prefWidth="120.0" text="密码" />
                               <TableColumn fx:id="answer1" prefWidth="80.0" text="问题1" />
                               <TableColumn fx:id="answer2" prefWidth="80.0" text="问题2" />
-                              <TableColumn fx:id="answer3" prefWidth="80.0" text="问题3" />
-                              <TableColumn fx:id="state" prefWidth="75.0" text="国家" />
-                              <TableColumn fx:id="aera" prefWidth="75.0" text="区域" />
-                              <TableColumn fx:id="name" prefWidth="100.0" text="名称" />
-                              <TableColumn fx:id="status" prefWidth="75.0" text="状态" />
-                              <TableColumn fx:id="note" prefWidth="180.0" text="信息" />
+                              <TableColumn fx:id="answer3" prefWidth="99.0" text="问题3" />
+                              <TableColumn fx:id="originalCountry" prefWidth="92.0" text="原国家" />
+                              <TableColumn fx:id="targetCountry" prefWidth="109.0" text="目标国家" />
+                              <TableColumn fx:id="note" prefWidth="266.0" text="执行信息" />
                           </columns>
                         </TableView>
                      </content>

@@ -54,6 +54,10 @@ import java.util.stream.Collectors;
  */
 public class CountryModifyController implements Initializable {
     @FXML
+    public TableColumn originalCountry;
+    @FXML
+    public TableColumn targetCountry;
+    @FXML
     private TableView accountTableView;
     @FXML
     private TableColumn seq;
@@ -61,14 +65,6 @@ public class CountryModifyController implements Initializable {
     private TableColumn account;
     @FXML
     private TableColumn pwd;
-    @FXML
-    private TableColumn name;
-    @FXML
-    private TableColumn state;
-    @FXML
-    private TableColumn aera;
-    @FXML
-    private TableColumn status;
     @FXML
     private TableColumn note;
     @FXML
@@ -392,11 +388,12 @@ public class CountryModifyController implements Initializable {
         }
 
 
-        //step2 获取认证信息 -- 需要输入密保
-        HttpResponse step21Res = AppleIDUtil.auth(step1Res);
+
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
             //非双重认证
+            //step2 获取认证信息 -- 需要输入密保
+            HttpResponse step21Res = AppleIDUtil.auth(step1Res);
             HttpResponse step211Res = AppleIDUtil.questions(step21Res, account);
             if (step211Res.getStatus() != 412) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -453,7 +450,7 @@ public class CountryModifyController implements Initializable {
         for(String item : resCookies){
             cookieBuilder.append(";").append(item);
         }
-        String body="";
+        String body="",targetCountry="";
         if(fromType.equals("2")){
             File userNationalDataFile = FileUtil.file("userNationalData.json");
             // 创建json文件对象
@@ -462,10 +459,22 @@ public class CountryModifyController implements Initializable {
             List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
             UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
             body=JSONUtil.toJsonStr(u.getPayment());
+
+            targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
+
+
+
         }
+        account.setTargetCountry(targetCountry);
+
+        HttpResponse step4Res = AppleIDUtil.account(step3Res);
+        String managerBody = step4Res.body();
+        JSON manager = JSONUtil.parse(managerBody);
+        String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
+        account.setOriginalCountry(area);
 
 
-        HttpResponse step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
+        step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
                 .header(headers)
                 .body(body)
                 .cookie(cookieBuilder.toString())
@@ -508,10 +517,8 @@ public class CountryModifyController implements Initializable {
         seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
         account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
         pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        state.setCellValueFactory(new PropertyValueFactory<Account,String>("state"));
-        aera.setCellValueFactory(new PropertyValueFactory<Account,String>("aera"));
-        name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));
-        status.setCellValueFactory(new PropertyValueFactory<Account,String>("status"));
+        originalCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("originalCountry"));
+        targetCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("targetCountry"));
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
         answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
         answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
