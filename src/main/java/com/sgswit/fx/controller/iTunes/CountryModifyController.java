@@ -140,6 +140,8 @@ public class CountryModifyController implements Initializable {
     }
     /**自定义国家信息下拉**/
     protected void customCountryDataFun(){
+        customCountryBox.getItems().clear();
+        customCountryList.clear();
         //判断是否显示 自定义国家下拉框
         List<UserNationalModel> list=new ArrayList<>();
         File jsonFile = new File("userNationalData.json");

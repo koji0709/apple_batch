@@ -210,7 +210,7 @@ public class CustomCountryDetPopupController implements Initializable {
 //                        }
                         json.putByPath(newId,value);
                     }else{
-                        int value=((ChoiceBox)node).getSelectionModel().getSelectedIndex();
+                        KeyValuePair keyValuePair=  (KeyValuePair)((ChoiceBox)node).getSelectionModel().getSelectedItem();
 //                        if(StringUtils.isEmpty(value)){
 //                            Alert alert = new Alert(Alert.AlertType.ERROR);
 //                            alert.setTitle("提示");
@@ -218,7 +218,7 @@ public class CustomCountryDetPopupController implements Initializable {
 //                            alert.show();
 //                            return;
 //                        }
-                        json.putByPath(newId,value);
+                        json.putByPath(newId,keyValuePair.getKey());
                     }
 
                 }
