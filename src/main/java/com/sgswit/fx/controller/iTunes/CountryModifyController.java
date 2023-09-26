@@ -468,9 +468,6 @@ public class CountryModifyController implements Initializable {
                 .body(body)
                 .cookie(cookieBuilder.toString())
                 .execute();
-        System.out.println(step4Res.body());
-
-
         if(step4Res.getStatus() != 200){
             String message="";
             JSONArray service_errors= JSONUtil.parseObj(step4Res.body()).getJSONArray("service_errors");
