@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="490.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.CustomCountryDetPopupController">
+   <children>
+      <AnchorPane prefHeight="600.0" prefWidth="490.0">
+         <children>
+            <ChoiceBox fx:id="countryBox" layoutX="110.0" layoutY="17.0" prefHeight="23.0" prefWidth="148.0" />
+            <Label layoutX="20.0" layoutY="20.0" text="选择国家或地区">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="290.0" layoutY="20.0" text="备注">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="name" layoutX="320.0" layoutY="17.0" prefHeight="23.0" prefWidth="148.0" />
+            <TitledPane fx:id="billMailingAddressPane" animated="false" layoutX="4.0" layoutY="55.0" prefHeight="472.0" prefWidth="481.0" text="账单邮寄地址">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+               <content>
+                  <TableView fx:id="tableView" prefHeight="448.0" prefWidth="469.0">
+                    <columns>
+                      <TableColumn fx:id="requiredDesc" minWidth="50.0" prefWidth="75.0" sortable="false" text="提示" />
+                      <TableColumn fx:id="title" minWidth="200.0" prefWidth="75.0" sortable="false" text="项目" />
+                        <TableColumn fx:id="value" minWidth="200.0" prefWidth="75.0" sortable="false" text="资料" />
+                        <TableColumn fx:id="id" maxWidth="1.0" minWidth="0.0" prefWidth="1.0" text="id" visible="false" />
+                        <TableColumn fx:id="type" maxWidth="1.0" minWidth="0.0" prefWidth="1.0" text="type" visible="false" />
+                        <TableColumn fx:id="required" maxWidth="1.0" minWidth="0.0" prefWidth="1.0" text="required" visible="false" />
+                    </columns>
+                  </TableView>
+               </content>
+            </TitledPane>
+            <Button layoutX="190.0" layoutY="545.0" mnemonicParsing="false" onAction="#onSaveUserNationalDataBtnClick" prefHeight="40.0" prefWidth="100.0" text="保存国家">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Button>
+            <Label layoutX="280.0" layoutY="20.0" text="*" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="11.0" layoutY="19.0" text="*" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>
