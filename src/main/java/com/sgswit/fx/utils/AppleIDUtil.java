@@ -107,10 +107,8 @@ public class AppleIDUtil
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
         String content = res1.body();
-        String questions = content.substring(content.indexOf("{\"direct\":{\"scriptSk7Url\""),content.indexOf("\"additional\":{\"canRoute2sv\":true}}")+35);
-
-        String qj = JSONUtil.parse(questions).getByPath("direct.twoSV.securityQuestions.questions").toString();
-        List<Question> qs = JSONUtil.toList(qj,Question.class);
+        String questions=JSONUtil.parseObj(content).getJSONObject("securityQuestions").get("questions").toString();
+        List<Question> qs = JSONUtil.toList(questions,Question.class);
         for (int i = 0 ; i < qs.size() ; i++){
             Question q = qs.get(i);
             if(q.getNumber() == 1){

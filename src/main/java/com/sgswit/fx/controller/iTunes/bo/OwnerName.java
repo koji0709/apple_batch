@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes.model;
+package com.sgswit.fx.controller.iTunes.bo;
 
 /**
  * @author DeZh

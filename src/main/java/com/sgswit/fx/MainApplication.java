@@ -1,5 +1,6 @@
 package com.sgswit.fx;
 
+import com.sgswit.fx.utils.DataUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -18,6 +19,18 @@ public class MainApplication extends Application {
         stage.setResizable(false);
         stage.show();
         System.out.println("start....");
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    DataUtil.getCountry();
+                }finally {
+
+                }
+            }
+        }).start();
     }
 
     @Override

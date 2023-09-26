@@ -8,7 +8,7 @@
    <children>
       <AnchorPane prefHeight="600.0" prefWidth="490.0">
          <children>
-            <ChoiceBox fx:id="countryListBox" layoutX="110.0" layoutY="17.0" prefHeight="23.0" prefWidth="148.0" />
+            <ChoiceBox fx:id="countryBox" layoutX="110.0" layoutY="17.0" prefHeight="23.0" prefWidth="148.0" />
             <Label layoutX="20.0" layoutY="20.0" text="选择国家或地区">
                <font>
                   <Font name="System Bold" size="12.0" />
@@ -20,87 +20,29 @@
                </font>
             </Label>
             <TextField fx:id="name" layoutX="320.0" layoutY="17.0" prefHeight="23.0" prefWidth="148.0" />
-            <TitledPane fx:id="billMailingAddressPane" animated="false" disable="true" layoutX="4.0" layoutY="55.0" prefHeight="472.0" prefWidth="481.0" text="账单邮寄地址">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="450.0" prefWidth="470.0">
-                     <children>
-                        <TextField fx:id="firstName" layoutX="105.0" layoutY="24.0" prefHeight="23.0" prefWidth="100.0" />
-                        <Label layoutX="53.0" layoutY="28.0" text="姓氏">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="lastName" layoutX="261.0" layoutY="24.0" prefHeight="23.0" prefWidth="190.0" />
-                        <Label layoutX="228.0" layoutY="28.0" text="名字">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="line1" layoutX="105.0" layoutY="67.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="39.0" layoutY="71.0" text="街道地址">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="line2" layoutX="105.0" layoutY="113.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="25.0" layoutY="118.0" text="楼号，单元号">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="suburb" layoutX="105.0" layoutY="161.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="60.0" layoutY="167.0" text="区">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="county" layoutX="106.0" layoutY="207.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="61.0" layoutY="212.0" text="县">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="city" layoutX="106.0" layoutY="253.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="55.0" layoutY="258.0" text="城市">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="postalCode" layoutX="106.0" layoutY="297.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="57.0" layoutY="302.0" text="邮编">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="stateProvinceName" layoutX="106.0" layoutY="343.0" prefHeight="23.0" prefWidth="346.0" />
-                        <Label layoutX="41.0" layoutY="347.0" text="选择省/市">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="areaCode" layoutX="106.0" layoutY="390.0" prefHeight="23.0" prefWidth="100.0" />
-                        <Label layoutX="53.0" layoutY="394.0" text="区号">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="number" layoutX="261.0" layoutY="390.0" prefHeight="23.0" prefWidth="190.0" />
-                        <Label layoutX="231.0" layoutY="390.0" text="电话">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
-                     </children></AnchorPane>
-              </content>
+            <TitledPane animated="false" layoutX="4.0" layoutY="55.0" prefHeight="472.0" prefWidth="481.0" text="账单邮寄地址">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
+               <content>
+                  <Pane fx:id="billMailingAddressPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="474.0" />
+               </content>
             </TitledPane>
             <Button layoutX="190.0" layoutY="545.0" mnemonicParsing="false" onAction="#onSaveUserNationalDataBtnClick" prefHeight="40.0" prefWidth="100.0" text="保存国家">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
             </Button>
+            <Label layoutX="280.0" layoutY="20.0" text="*" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="11.0" layoutY="19.0" text="*" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
    </children>

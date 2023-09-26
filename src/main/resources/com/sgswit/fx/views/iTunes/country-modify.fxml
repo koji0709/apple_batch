@@ -121,7 +121,7 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Label>
-                              <HBox fx:id="customCountrySelectId"  layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="192.0">
+                              <HBox fx:id="customCountrySelectId" layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="192.0">
                                  <children>
                                     <Label text="自定国家">
                                        <HBox.margin>

@@ -1,21 +1,16 @@
-package com.sgswit.fx.controller.iTunes.model;
+package com.sgswit.fx.controller.iTunes.bo;
 
 /**
  * @author DeZh
- * @title: Payment
+ * @title: PaymentModel
  * @projectName appleBatch
  * @description: TODO
- * @date 2023/9/159:57
+ * @date 2023/9/2520:50
  */
-public class Payment {
+public class PaymentModel {
     private OwnerName ownerName;
-
     private PhoneNumber phoneNumber;
-
     private BillingAddress billingAddress;
-
-    private int id;
-
     public void setOwnerName(OwnerName ownerName){
         this.ownerName = ownerName;
     }
@@ -33,11 +28,5 @@ public class Payment {
     }
     public BillingAddress getBillingAddress(){
         return this.billingAddress;
-    }
-    public void setId(int id){
-        this.id = id;
-    }
-    public int getId(){
-        return this.id;
     }
 }

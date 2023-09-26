@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes.model;
+package com.sgswit.fx.controller.iTunes.bo;
 
 /**
  * @author DeZh
@@ -10,7 +10,8 @@ package com.sgswit.fx.controller.iTunes.model;
 public class UserNationalModel {
     private String name;
     private String id;
-    private Payment payment;
+    private PaymentModel payment;
+
     public void setName(String name){
         this.name = name;
     }
@@ -23,11 +24,12 @@ public class UserNationalModel {
     public String getId(){
         return this.id;
     }
-    public void setPayment(Payment payment){
-        this.payment = payment;
-    }
-    public Payment getPayment(){
-        return this.payment;
+
+    public PaymentModel getPayment() {
+        return payment;
     }
 
+    public void setPayment(PaymentModel payment) {
+        this.payment = payment;
+    }
 }

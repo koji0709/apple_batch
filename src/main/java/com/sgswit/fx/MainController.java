@@ -62,7 +62,7 @@ public class MainController implements Initializable {
     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-//        //初始化登录模式
+        //初始化登录模式
         loginMode.getItems().addAll(loginModeList);
         loginMode.converterProperty().set(new StringConverter<KeyValuePair>() {
             @Override

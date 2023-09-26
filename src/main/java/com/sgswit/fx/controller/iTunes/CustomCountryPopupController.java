@@ -3,8 +3,8 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.controller.iTunes.model.Country;
-import com.sgswit.fx.controller.iTunes.model.UserNationalModel;
+import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
+import com.sgswit.fx.controller.iTunes.vo.CountryVo;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,9 +42,10 @@ public class CustomCountryPopupController implements Initializable {
     @FXML
     public TableColumn seqNo;
     @FXML
-    public TableView<Country> tableView;
+    public TableView<CountryVo> tableView;
 
-    private ObservableList<Country> countryObservableList = FXCollections.observableArrayList();
+    private ObservableList<CountryVo> countryObservableList = FXCollections.observableArrayList();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         togetherTableView();
@@ -81,7 +82,7 @@ public class CustomCountryPopupController implements Initializable {
             list = JSONUtil.toList(jsonString,UserNationalModel.class);
         }
         for(UserNationalModel userNationalModel:list){
-            Country country= new Country();
+            CountryVo country= new CountryVo();
             country.setId(userNationalModel.getId());
             country.setCountryName(userNationalModel.getName());
             country.setSeqNo(countryObservableList.size()+1);
@@ -92,8 +93,8 @@ public class CustomCountryPopupController implements Initializable {
     }
 
     private void initTableView(){
-        seqNo.setCellValueFactory(new PropertyValueFactory<Country,Integer>("seqNo"));
-        countryName.setCellValueFactory(new PropertyValueFactory<Country,String>("countryName"));
+        seqNo.setCellValueFactory(new PropertyValueFactory<CountryVo,Integer>("seqNo"));
+        countryName.setCellValueFactory(new PropertyValueFactory<CountryVo,String>("countryName"));
     }
     //删除选择的自定国家
     public void onDeleteCustomCountry(ActionEvent actionEvent) throws IOException {
@@ -122,10 +123,10 @@ public class CustomCountryPopupController implements Initializable {
                     if(!StringUtils.isEmpty(jsonString)){
                         userNationalModels = JSONUtil.toList(jsonString,UserNationalModel.class);
                     }
-                    ObservableList<Country> tempList=tableView.getSelectionModel().getSelectedItems();
-                    List<Country> list=new ArrayList();
+                    ObservableList<CountryVo> tempList=tableView.getSelectionModel().getSelectedItems();
+                    List<CountryVo> list=new ArrayList();
                     list.addAll(tempList);
-                    for(Country country:list){
+                    for(CountryVo country:list){
                         String sn=country.getId();
                         userNationalModels.removeIf(p -> p.getId().equals(sn));
                     }

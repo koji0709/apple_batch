@@ -1,23 +1,26 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
-import com.sgswit.fx.controller.iTunes.model.UserNationalModel;
+import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -38,20 +41,18 @@ import javafx.util.StringConverter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 
 /**
  * @author DELL
  */
 public class CountryModifyController implements Initializable {
-    @FXML
-    public ChoiceBox customCountryBox;
-    @FXML
-    public HBox customCountrySelectId;
     @FXML
     private TableView accountTableView;
     @FXML
@@ -85,11 +86,17 @@ public class CountryModifyController implements Initializable {
 
     @FXML
     private ChoiceBox<KeyValuePair> countryBox;
-    private List<KeyValuePair> countryList=new ArrayList<>(){{
-        add(new KeyValuePair("","请选择"));
-        add(new KeyValuePair("CHN","中国"));
-        add(new KeyValuePair("CHL","智利"));
-    }};
+
+    private List<KeyValuePair> countryList=new ArrayList<>();
+
+    @FXML
+    public ChoiceBox<KeyValuePair> customCountryBox;
+    private List<KeyValuePair> customCountryList=new ArrayList<>();
+    @FXML
+    public HBox customCountrySelectId;
+
+    private String fromType=null;
+
 
     private ObservableList<Account> list = FXCollections.observableArrayList();
 
@@ -99,7 +106,14 @@ public class CountryModifyController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-       //初始化国家
+        countryDataFun();
+        customCountryDataFun();
+    }
+    /**内置国家资料下拉**/
+    protected void countryDataFun(){
+        for(BaseAreaInfo baseAreaInfo: DataUtil.getCountry()){
+            countryList.add(new KeyValuePair(baseAreaInfo.getCode(),baseAreaInfo.getNameZh()));
+        }
         countryBox.getItems().addAll(countryList);
         countryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
             @Override
@@ -112,11 +126,20 @@ public class CountryModifyController implements Initializable {
                 return null;
             }
         });
+        countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object o, Object t1) {
+                if(!t1.toString().equals("-1")){
+                    customCountryBox.getSelectionModel().clearSelection();
+                    fromType="1";
+                }else{
 
-        setShowCustomCountryData();
-
+                }
+            }
+        });
     }
-    protected void setShowCustomCountryData(){
+    /**自定义国家信息下拉**/
+    protected void customCountryDataFun(){
         //判断是否显示 自定义国家下拉框
         List<UserNationalModel> list=new ArrayList<>();
         File jsonFile = new File("userNationalData.json");
@@ -124,22 +147,46 @@ public class CountryModifyController implements Initializable {
             customCountrySelectId.setVisible(false);
             return;
         }
-        String jsonString = FileUtil.readUtf8String(jsonFile);
+        String jsonString = FileUtil.readString(jsonFile, Charset.defaultCharset());
         if(!StringUtils.isEmpty(jsonString)){
             list = JSONUtil.toList(jsonString,UserNationalModel.class);
         }
         if(list.size()>0){
             customCountrySelectId.setVisible(true);
+            for(UserNationalModel baseAreaInfo: list){
+                customCountryList.add(new KeyValuePair(baseAreaInfo.getId(),baseAreaInfo.getName()));
+            }
+            customCountryBox.getItems().addAll(customCountryList);
         }else{
             customCountrySelectId.setVisible(false);
         }
+        customCountryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
+            @Override
+            public String toString(KeyValuePair object) {
+                return object.getValue();
+            }
+            @Override
+            public KeyValuePair fromString(String string) {
+                return null;
+            }
+        });
+        customCountryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object o, Object t1) {
+                if(!t1.toString().equals("-1")){
+                    countryBox.getSelectionModel().clearSelection();
+                    fromType="2";
+                }else{
+
+                }
+            }
+        });
     }
 
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-
         Scene scene = new Scene(fxmlLoader.load(), 600, 450);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
@@ -174,6 +221,7 @@ public class CountryModifyController implements Initializable {
             list.add(account);
         }
         initAccountTableView();
+        accountTableView.setEditable(true);
         accountTableView.setItems(list);
     }
 
@@ -197,39 +245,47 @@ public class CountryModifyController implements Initializable {
         if(list.size() < 1){
             return;
         }
+        if(StringUtils.isEmpty(fromType)){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText("请设置要修改的国家！");
+            alert.show();
+            return;
+        }
+        for(Account account:list){
+            if(StrUtil.hasEmpty(account.getAnswer1())){
+                //双重认证
+                secondSec(account);
+            }else{
+                //非双重认证
+                accoutQueryBtn.setText("正在查询");
+                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accoutQueryBtn.setDisable(true);
 
-        Account account = list.get(0);
-        if(StrUtil.hasEmpty(account.getAnswer1())){
-            //双重认证
-            secondSec(account);
-        }else{
-            //非双重认证
-            accoutQueryBtn.setText("正在查询");
-            accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            accoutQueryBtn.setDisable(true);
+                account.setNote("正在查询");
+                accountTableView.refresh();
 
-            account.setNote("正在查询");
-            accountTableView.refresh();
-
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
-                        noSecondSec(account);
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
-                            }
-                        });
+                new Thread(new Runnable() {
+                    @Override
+                    public void run(){
+                        try {
+                            noSecondSec(account);
+                        }finally {
+                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+                            Platform.runLater(new Task<Integer>() {
+                                @Override
+                                protected Integer call() {
+                                    accoutQueryBtn.setDisable(false);
+                                    accoutQueryBtn.setText("开始执行");
+                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    return 1;
+                                }
+                            });
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
+
         }
     }
 
@@ -286,11 +342,10 @@ public class CountryModifyController implements Initializable {
                     public void run(){
                         try {
                             HttpResponse step22Res = AppleIDUtil.securityCode(step21Res, type, code);
-
                             if (step22Res.getStatus() != 204 && step22Res.getStatus() != 200) {
                                 queryFail(account);
                             }
-                            manager(account, step22Res);
+                            countryModify(account, step22Res);
                         }finally {
                             //JavaFX Application Thread会逐个阻塞的执行这些任务
                             Platform.runLater(new Task<Integer>() {
@@ -361,8 +416,6 @@ public class CountryModifyController implements Initializable {
             HttpResponse step215Res = AppleIDUtil.securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
             HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
             HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
-
-//            manager(account, step22Res);
             countryModify(account, step22Res);
         }else if ("hsa2".equals(authType)) {
             account.setNote("该账户为双重认证模式，请清空密保信息后重试");
@@ -398,58 +451,45 @@ public class CountryModifyController implements Initializable {
         for(String item : resCookies){
             cookieBuilder.append(";").append(item);
         }
+        String body="";
+        if(fromType.equals("2")){
+            File userNationalDataFile = FileUtil.file("userNationalData.json");
+            // 创建json文件对象
+            File jsonFile = new File("userNationalData.json");
+            String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
+            List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
+            UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
+            body=JSONUtil.toJsonStr(u.getPayment());
+        }
 
 
-        HttpResponse res4 = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
+        HttpResponse step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
                 .header(headers)
-//                .body("{\"billingAddress\":{\"countryCode\":\"CHL\"},\"id\":1}")
-                .body("{\"ownerName\":{\"firstName\":\"\",\"lastName\":\"\"},\"phoneNumber\":{\"areaCode\":\"\",\"number\":\"\",\"countryCode\":\"\"},\"billingAddress\":{\"line1\":\"\",\"line2\":\"\",\"line3\":\"\",\"suburb\":\"\",\"county\":\"\",\"city\":\"\",\"countryCode\":\"CHN\",\"postalCode\":\"\",\"stateProvinceName\":\"\"},\"id\":1}")
+                .body(body)
                 .cookie(cookieBuilder.toString())
                 .execute();
-        System.out.println(JSONUtil.toJsonStr(res4.body()));
+        System.out.println(step4Res.body());
 
-    }
-    private void manager(Account account, HttpResponse step1Res) {
-        //step3 token
-        HttpResponse step3Res = AppleIDUtil.token(step1Res);
 
-        //step4 manager
-        if(step3Res.getStatus() != 200){
-            queryFail(account);
-        }
-        HttpResponse step4Res = AppleIDUtil.account(step3Res);
-        String managerBody = step4Res.body();
-        JSON manager = JSONUtil.parse(managerBody);
-
-        String state = (String) manager.getByPath("account.person.primaryAddress.countryCode");
-        String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
-        String name = (String) manager.getByPath("name.fullName");
-        String status = "正常";
-        String note = "查询成功";
-
-        account.setStatus(status);
-        account.setState(state);
-        account.setName(name);
-        account.setNote(note);
-        account.setAera(area);
-        account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
-
-        accountTableView.refresh();
-
-        try {
-            File file = FileUtil.file("qlog.txt");
-            FileAppender appender = new FileAppender(file, 16, true);
-            appender.append(JSONUtil.toJsonStr(list.get(0)));
-
-            appender.flush();
-        }catch (Exception e){
-            e.printStackTrace();
+        if(step4Res.getStatus() != 200){
+            String message="";
+            JSONArray service_errors= JSONUtil.parseObj(step4Res.body()).getJSONArray("service_errors");
+            for(Object jsonObject:service_errors){
+                message+= JSONUtil.parseObj(jsonObject).getStr("message");
+            }
+            messageFun(account,"修改失败,"+message);
+        }else{
+            messageFun(account,"修改成功");
         }
     }
 
     private void queryFail(Account account) {
         String note = "查询失败，请确认用户名密码是否正确";
         account.setNote(note);
+        accountTableView.refresh();
+    }
+    private void messageFun(Account account,String message) {
+        account.setNote(message);
         accountTableView.refresh();
     }
 
@@ -477,6 +517,7 @@ public class CountryModifyController implements Initializable {
         answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
         answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
         answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
+
     }
 
     public void onAddCountryBtnClick(MouseEvent mouseEvent) throws IOException {
@@ -492,6 +533,7 @@ public class CountryModifyController implements Initializable {
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
         popupStage.showAndWait();
-        setShowCustomCountryData();
+        customCountryDataFun();
     }
+
 }

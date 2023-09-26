@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes.model;
+package com.sgswit.fx.controller.iTunes.vo;
 
 
 import javafx.beans.property.SimpleIntegerProperty;
@@ -7,13 +7,13 @@ import javafx.beans.property.SimpleStringProperty;
 /**
  * @author DELL
  */
-public class Country {
+public class CountryVo {
 
     private final SimpleStringProperty id;
     private final SimpleIntegerProperty seqNo;
     private final SimpleStringProperty countryName;
 
-    public Country(){
+    public CountryVo(){
         this.id = new SimpleStringProperty();
         this.seqNo = new SimpleIntegerProperty();
         this.countryName = new SimpleStringProperty();

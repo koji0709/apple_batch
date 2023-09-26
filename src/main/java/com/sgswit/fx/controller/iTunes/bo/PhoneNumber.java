@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes.model;
+package com.sgswit.fx.controller.iTunes.bo;
 
 /**
  * @author DeZh
@@ -8,8 +8,11 @@ package com.sgswit.fx.controller.iTunes.model;
  * @date 2023/9/159:59
  */
 public class PhoneNumber {
+    /**区号**/
     private String areaCode;
+    /**电话**/
     private String number;
+    /**国家拨号**/
     private String countryCode;
 
     public void setAreaCode(String areaCode) {
@@ -35,4 +38,5 @@ public class PhoneNumber {
     public String getCountryCode() {
         return this.countryCode;
     }
+
 }
