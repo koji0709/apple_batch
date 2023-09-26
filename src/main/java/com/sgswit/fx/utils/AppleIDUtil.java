@@ -71,7 +71,7 @@ public class AppleIDUtil
             res2 = HttpUtil.createPost(scUrl)
                     .header(headers)
                     .body(scBody)
-                    //.cookie(getCookie(res1))
+                    .cookie(getCookie(res1))
                     .execute();
         }
         return res2;
@@ -84,7 +84,7 @@ public class AppleIDUtil
 
         HttpResponse res3 = HttpUtil.createGet("https://appleid.apple.com/account/manage/gs/ws/token")
                 .header(headers)
-                //.cookie(getCookie(res2))
+                .cookie(getCookie(res2))
                 .execute();
         return res3;
     }
@@ -146,7 +146,7 @@ public class AppleIDUtil
         headers.put("navigate",ListUtil.toList("same-site"));
 
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-
+        headers.remove("Content-Type");
         String location = res1.header("Location");
         HttpResponse res2 = HttpUtil.createGet(location)
                 .header(headers)
