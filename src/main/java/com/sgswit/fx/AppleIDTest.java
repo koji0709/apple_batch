@@ -142,8 +142,8 @@ public class AppleIDTest {
 //        String fullName = accountJSON.getByPath("name.fullName",String.class);
 //        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
 
-        //HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP5");
-        //Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
+        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP5");
+        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
     }
 

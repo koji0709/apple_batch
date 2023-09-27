@@ -305,10 +305,10 @@ public class AppleIDUtil {
      *
      * @param birthday 生日 yyyy-MM-dd
      */
-    public static HttpResponse updateBirthday(String scan, String birthday) {
+    public static HttpResponse updateBirthday(String tokenScnt, String birthday) {
         String url = "https://appleid.apple.com/account/manage/security/birthday";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scan));
+        headers.put("scnt", ListUtil.toList(tokenScnt));
 
         String[] birthdayArr = birthday.split("-");
         String format = "{\"dayOfMonth\":\"%s\",\"monthOfYear\":\"%s\",\"year\":\"%s\"}";
@@ -323,10 +323,10 @@ public class AppleIDUtil {
     /**
      * 移除救援邮箱
      */
-    public static HttpResponse deleteRescueEmail(String scnt,String password) {
+    public static HttpResponse deleteRescueEmail(String tokenScnt,String password) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
+        headers.put("scnt", ListUtil.toList(tokenScnt));
         HttpResponse rsp = HttpUtil.createRequest(Method.DELETE, url)
                 .header(headers)
                 .execute();
