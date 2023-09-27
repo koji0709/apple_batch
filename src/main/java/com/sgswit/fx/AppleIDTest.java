@@ -66,7 +66,7 @@ public class AppleIDTest {
         String scnt      = tokenRsp.header("scnt");
 
         // 修改用户生日信息
-        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(sessionId,scnt,"1996-08-10");
+        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(scnt,"1996-08-10");
         Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
 
         HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(scnt,"");
@@ -133,18 +133,17 @@ public class AppleIDTest {
         Console.log("tokenRsp status:{}",tokenRsp.getStatus());
 
         // 修改用户生日信息
-//        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(tokenRsp.header("X-Apple-ID-Session-Id")
-//                ,tokenRsp.header("scnt")
-//                ,"1996-08-10");
-//        Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
+        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(tokenRsp.header("scnt")
+                ,"1996-08-11");
+        Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
 //
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
 //        JSON accountJSON = JSONUtil.parse(accountRsp.body());
 //        String fullName = accountJSON.getByPath("name.fullName",String.class);
 //        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
 
-        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP5");
-        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
+        //HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP5");
+        //Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
     }
 

@@ -305,11 +305,9 @@ public class AppleIDUtil {
      *
      * @param birthday 生日 yyyy-MM-dd
      */
-    public static HttpResponse updateBirthday(String sessionId, String scan, String birthday) {
+    public static HttpResponse updateBirthday(String scan, String birthday) {
         String url = "https://appleid.apple.com/account/manage/security/birthday";
-
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(sessionId));
         headers.put("scnt", ListUtil.toList(scan));
 
         String[] birthdayArr = birthday.split("-");
