@@ -195,6 +195,7 @@ public class CustomCountryDetPopupController implements Initializable {
             String addressFormatListStr=DataUtil.getAddressFormat(countryBox.getSelectionModel().getSelectedItem().getKey());
 //            List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
             JSON json=JSONUtil.createObj();
+            boolean defaultPhoneNumberCountryCode=true;
             for(Node node:gridPane.getChildren()){
                 if(null!=node.getId() && BillingAddressParas.hasObjByPath(node.getId())){
                     String newId=node.getId().replace("_",".");
@@ -209,6 +210,9 @@ public class CustomCountryDetPopupController implements Initializable {
 //                            return;
 //                        }
                         json.putByPath(newId,value);
+                        if(newId.equals("phoneNumber.countryCode")){
+                            defaultPhoneNumberCountryCode=false;
+                        }
                     }else{
                         KeyValuePair keyValuePair=  (KeyValuePair)((ChoiceBox)node).getSelectionModel().getSelectedItem();
 //                        if(StringUtils.isEmpty(value)){
@@ -225,7 +229,9 @@ public class CustomCountryDetPopupController implements Initializable {
             }
             String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
             json.putByPath("billingAddress.countryCode",countryCode);
-            json.putByPath("phoneNumber.countryCode",DataUtil.getInfoByCountryCode(countryCode).getDialCode());
+            if(defaultPhoneNumberCountryCode){
+                json.putByPath("phoneNumber.countryCode",DataUtil.getInfoByCountryCode(countryCode).getDialCode());
+            }
 
             PaymentModel paymentModel=JSONUtil.toBean(json, PaymentModel.class,true);
             UserNationalModel u=  new UserNationalModel();
