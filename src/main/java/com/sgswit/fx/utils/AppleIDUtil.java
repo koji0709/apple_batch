@@ -342,13 +342,81 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            HttpResponse rsp2 = HttpUtil.createRequest(Method.DELETE, url)
-                    .header(headers)
-                    .execute();
-            rspLog(Method.DELETE,url,rsp2.getStatus());
-            return rsp2;
+            return deleteRescueEmail(tokenScnt,password);
         }
 
+        return rsp;
+    }
+
+    /**
+     * 修改名称
+     */
+    public static HttpResponse updateName(String tokenScnt,String password,String firstName,String lastName) {
+        String url = "https://appleid.apple.com/account/manage/name";
+        String body = String.format("{\"firstName\":\"%s\",\"middleName\":\"\",\"lastName\":\"%s\"}",firstName,lastName);
+
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt", ListUtil.toList(tokenScnt));
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .body(body)
+                .execute();
+
+        int status = rsp.getStatus();
+        rspLog(Method.PUT,url,status);
+
+        // 需要验证密码
+        if (status == 451){
+            verifyPassword(rsp,password);
+            return updateName(tokenScnt,password,firstName,lastName);
+        }
+        return rsp;
+    }
+
+    /**
+     * 修改密码
+     */
+    public static HttpResponse updatePassword(String tokenScnt,String password,String newPassword){
+        String url = "https://appleid.apple.com/account/manage/security/password";
+        String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
+
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt", ListUtil.toList(tokenScnt));
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .body(body)
+                .execute();
+
+        int status = rsp.getStatus();
+        rspLog(Method.PUT,url,status);
+
+        return rsp;
+    }
+
+    /**
+     * 修改密保
+     */
+    public static HttpResponse updateQuestions(String tokenScnt,String password,String body){
+        String url = "https://appleid.apple.com/account/manage/security/questions";
+
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt", ListUtil.toList(tokenScnt));
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .body(body)
+                .execute();
+
+        int status = rsp.getStatus();
+        rspLog(Method.PUT,url,status);
+
+        // 需要验证密码
+        if (status == 451){
+            verifyPassword(rsp,password);
+            return updateQuestions(tokenScnt,password,body);
+        }
         return rsp;
     }
 
