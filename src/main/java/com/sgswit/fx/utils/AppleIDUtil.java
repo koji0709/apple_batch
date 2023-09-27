@@ -332,6 +332,7 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.DELETE, url)
                 .header(headers)
                 .execute();
+
         int status = rsp.getStatus();
         rspLog(Method.DELETE,url,status);
 
@@ -342,13 +343,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            String verifyPasswordUrl = "https://appleid.apple.com" + rsp.header("Location");
-            HttpResponse rsp1 = HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
-                    .body("{\"password\":\""+password+"\"}")
-                    .header(rsp.headers())
-                    .execute();
-            rspLog(Method.POST,verifyPasswordUrl,rsp1.getStatus());
-
+            verifyPassword(rsp,password);
             HttpResponse rsp2 = HttpUtil.createRequest(Method.DELETE, url)
                     .header(headers)
                     .execute();
@@ -357,6 +352,19 @@ public class AppleIDUtil {
         }
 
         return rsp;
+    }
+
+    /**
+     * 验证密码
+     */
+    public static HttpResponse verifyPassword(HttpResponse rsp,String password){
+        String verifyPasswordUrl = "https://appleid.apple.com" + rsp.header("Location");
+        HttpResponse rsp1 = HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
+                .body("{\"password\":\""+password+"\"}")
+                .header(rsp.headers())
+                .execute();
+        rspLog(Method.POST,verifyPasswordUrl,rsp1.getStatus());
+        return rsp1;
     }
 
 
