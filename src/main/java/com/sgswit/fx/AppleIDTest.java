@@ -7,6 +7,9 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * AppleId测试类
  */
@@ -14,6 +17,12 @@ public class AppleIDTest {
 
 
     public static void main(String[] args) {
+        //securityCodeLoginDemo();
+        passwordProtectionDemo();
+    }
+
+    // 双重认证登陆
+    public static void securityCodeLoginDemo(){
         Console.log("请输入账号密码（账号-密码）：");
         String[] input = Console.input().split("-");
 
@@ -31,7 +40,7 @@ public class AppleIDTest {
 
         String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
         if (!"hsa2".equals(authType)) {
-            Console.error("不支持非双重验证逻辑");
+            Console.error("仅支持双重验证逻辑");
             return;
         }
 
@@ -60,7 +69,84 @@ public class AppleIDTest {
         HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(sessionId,scnt,"1996-08-10");
         Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
 
+        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(scnt,"");
+        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
+    }
+
+    // 密保登陆
+    public static void passwordProtectionDemo() {
+        Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
+        // wuyang0001@2980.com-blbgkKP5-猪-狗-牛
+        //List<String> input = Arrays.asList(Console.input().split("-"));
+        List<String> input = Arrays.asList("wuyang0001@2980.com","blbgkKP5","猪","狗","牛");
+
+        Account account = new Account();
+        account.setAccount(input.get(0));
+        account.setPwd(input.get(1));
+        account.setAnswer1(input.get(2));
+        account.setAnswer2(input.get(3));
+        account.setAnswer3(input.get(4));
+
+        // SignIn
+        HttpResponse signInRsp = AppleIDUtil.signin(account);
+        Console.log("SignInRsp status:{}",signInRsp.getStatus());
+
+        // Auth
+        HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
+        Console.log("AuthRsp status:{}",authRsp.getStatus());
+
+        String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
+        if (!"sa".equals(authType)) {
+            Console.error("仅支持密保验证逻辑");
+        }
+
+        // 密保认证
+        HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
+        if (questionRsp.getStatus() != 412) {
+            return;
+        }
+        HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
+        String XAppleIDSessionId = "";
+        String scnt = accountRepairRsp.header("scnt");
+        List<String> cookies = accountRepairRsp.headerList("Set-Cookie");
+        for (String item : cookies) {
+            if (item.startsWith("aidsp")) {
+                XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
+            }
+        }
+        HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(questionRsp, accountRepairRsp);
+        Console.log("repareOptionsRsp status:{}",signInRsp.getStatus());
+
+        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(repareOptionsRsp, XAppleIDSessionId, scnt);
+        Console.log("securityUpgradeRsp status:{}",signInRsp.getStatus());
+
+        HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(securityUpgradeRsp, XAppleIDSessionId, scnt);
+        Console.log("securityUpgradeSetuplaterRsp status:{}",signInRsp.getStatus());
+
+        HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
+        Console.log("repareOptionsSecondRsp status:{}",signInRsp.getStatus());
+
+        HttpResponse repareCompleteRsp  = AppleIDUtil.repareComplete(repareOptionsSecondRsp, questionRsp);
+        Console.log("repareCompleteRsp status:{}",signInRsp.getStatus());
+
+        HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
+        Console.log("tokenRsp status:{}",tokenRsp.getStatus());
+
+        // 修改用户生日信息
+//        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(tokenRsp.header("X-Apple-ID-Session-Id")
+//                ,tokenRsp.header("scnt")
+//                ,"1996-08-10");
+//        Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
+//
+//        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
+//        JSON accountJSON = JSONUtil.parse(accountRsp.body());
+//        String fullName = accountJSON.getByPath("name.fullName",String.class);
+//        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
+
+        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP5");
+        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
     }
+
 
 }
