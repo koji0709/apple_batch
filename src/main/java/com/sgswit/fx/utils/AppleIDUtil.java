@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Question;
@@ -302,7 +303,6 @@ public class AppleIDUtil {
 
     /**
      * 修改用户生日信息
-     *
      * @param birthday 生日 yyyy-MM-dd
      */
     public static HttpResponse updateBirthday(String tokenScnt, String birthday) {
@@ -433,6 +433,41 @@ public class AppleIDUtil {
         return rsp1;
     }
 
+    /**
+     * 获取设备列表
+     */
+    public static HttpResponse getDeviceList(String tokenScnt){
+        String url = "https://appleid.apple.com/account/manage/security/devices";
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt", ListUtil.toList(tokenScnt));
+
+        HttpResponse rsp = HttpUtil.createGet(url)
+                .header(headers)
+                .execute();
+        rspLog(Method.GET,url,rsp.getStatus());
+        return rsp;
+    }
+
+    public static HttpResponse removeDevices(String tokenScnt){
+        HttpResponse deviceListRsp = getDeviceList("");
+        String body = deviceListRsp.body();
+        JSONObject bodyJSON = JSONUtil.parseObj(body);
+        List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
+
+//        HashMap<String, List<String>> headers = buildHeader();
+//        headers.put("scnt", ListUtil.toList(tokenScnt));
+//
+//        String url = "https://appleid.apple.com/account/manage/security/devices/" + "xxx";
+//        HttpResponse rsp = HttpUtil.createRequest(Method.DELETE,url)
+//                .header(headers)
+//                .execute();
+        //rspLog(Method.GET,url,rsp.getStatus());
+        return null;
+    }
+
+    /**
+     * 移除设备
+     */
 
     private static HashMap<String, List<String>> buildHeader() {
         return buildHeader(true);

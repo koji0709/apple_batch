@@ -159,6 +159,8 @@ public class AppleIDTest {
 //        String body = "{\"questions\":[{\"answer\":\"朋友啊\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作啊\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母啊\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
 //        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
 
+        HttpResponse httpResponse = AppleIDUtil.removeDevices(tokenScnt);
+
     }
 
 
