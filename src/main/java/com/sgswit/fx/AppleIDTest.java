@@ -160,7 +160,7 @@ public class AppleIDTest {
 //        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
 
         // 删除所有设备
-        AppleIDUtil.removeDevices();
+        //AppleIDUtil.removeDevices();
 
     }
 
