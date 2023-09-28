@@ -76,7 +76,7 @@ public class AppleIDTest {
     // 密保登陆
     public static void passwordProtectionDemo() {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
-        // wuyang0001@2980.com-blbgkKP52-猪-狗-牛
+        // wuyang0001@2980.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
         List<String> input = Arrays.asList("wuyang0001@2980.com","blbgkKP52","朋友","工作","父母");
 
@@ -159,7 +159,8 @@ public class AppleIDTest {
 //        String body = "{\"questions\":[{\"answer\":\"朋友啊\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作啊\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母啊\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
 //        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
 
-        HttpResponse httpResponse = AppleIDUtil.removeDevices(tokenScnt);
+        // 删除所有设备
+        AppleIDUtil.removeDevices();
 
     }
 

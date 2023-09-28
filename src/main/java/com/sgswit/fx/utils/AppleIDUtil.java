@@ -1,5 +1,6 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
@@ -435,12 +436,11 @@ public class AppleIDUtil {
 
     /**
      * 获取设备列表
+     * todo ? 为什么啥参数都不传可以确定是哪一个Appleid账号啊！
      */
-    public static HttpResponse getDeviceList(String tokenScnt){
+    public static HttpResponse getDeviceList(){
         String url = "https://appleid.apple.com/account/manage/security/devices";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
-
         HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
@@ -448,21 +448,22 @@ public class AppleIDUtil {
         return rsp;
     }
 
-    public static HttpResponse removeDevices(String tokenScnt){
-        HttpResponse deviceListRsp = getDeviceList("");
+    public static void removeDevices(){
+        HttpResponse deviceListRsp = getDeviceList();
         String body = deviceListRsp.body();
         JSONObject bodyJSON = JSONUtil.parseObj(body);
         List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
 
-//        HashMap<String, List<String>> headers = buildHeader();
-//        headers.put("scnt", ListUtil.toList(tokenScnt));
-//
-//        String url = "https://appleid.apple.com/account/manage/security/devices/" + "xxx";
-//        HttpResponse rsp = HttpUtil.createRequest(Method.DELETE,url)
-//                .header(headers)
-//                .execute();
-        //rspLog(Method.GET,url,rsp.getStatus());
-        return null;
+        if (!CollUtil.isEmpty(deviceIdList)){
+            for (String deviceId : deviceIdList) {
+                String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
+                HttpResponse rsp = HttpUtil.createRequest(Method.DELETE,url)
+                        .header(deviceListRsp.headers())
+                        .execute();
+                rspLog(Method.GET,url,rsp.getStatus());
+            }
+        }
+
     }
 
     /**
