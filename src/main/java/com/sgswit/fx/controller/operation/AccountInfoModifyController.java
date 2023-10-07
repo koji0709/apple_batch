@@ -205,7 +205,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                             ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
                             ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
                             ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
-                AppleIDUtil.updateQuestions(getTokenScnt(account),account.getPwd(),body);
+                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(getTokenScnt(account), account.getPwd(), body);
+                if (updateQuestionsRsp.getStatus() != 200){
+                    account.appendNote("修改密保失败;");
+                }else{
+                    account.setAnswer1(answer1TextFieldText);
+                    account.setAnswer2(answer2TextFieldText);
+                    account.setAnswer3(answer3TextFieldText);
+                }
             }
 
             // 移除设备

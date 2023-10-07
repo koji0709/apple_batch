@@ -60,7 +60,6 @@ public class AppleIDTest {
         String fullName = accountJSON.getByPath("name.fullName",String.class);
         Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
 
-        // todo 可以简单理解为token? 那密保认证又是怎样的?
         String sessionId = tokenRsp.header("X-Apple-ID-Session-Id");
         String scnt      = tokenRsp.header("scnt");
 
@@ -149,14 +148,14 @@ public class AppleIDTest {
 //        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
 //         修改姓氏
-        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
+//        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
         
         // 修改密码
         // AppleIDUtil.updatePassword(tokenScnt,"blbgkKP52","--");
 
         // 修改密保
-//        String body = "{\"questions\":[{\"answer\":\"朋友啊\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作啊\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母啊\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
-//        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
+        String body = "{\"questions\":[{\"answer\":\"朋友\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
+        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
 
         // 删除所有设备
         //AppleIDUtil.removeDevices();
