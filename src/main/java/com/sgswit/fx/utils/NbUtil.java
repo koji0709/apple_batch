@@ -1,14 +1,11 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.model.Account;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,12 +20,12 @@ public class NbUtil {
     }
 
     public static LinkedHashMap<String,String> getLanguageMap(){
-        String lang = ResourceUtil.readUtf8Str("json/language.json");
+        String lang = ResourceUtil.readUtf8Str("data/language.json");
         return JSONUtil.parse(lang).toBean(LinkedHashMap.class);
     }
 
     public static List<List<String>> getQuestionList(){
-        String questions = ResourceUtil.readUtf8Str("json/questions.json");
+        String questions = ResourceUtil.readUtf8Str("data/questions.json");
         JSONArray jsonArray = JSONUtil.parseArray(questions);
         List<List<String>> resultList = new ArrayList<>();
         for (Object o : jsonArray) {
@@ -44,7 +41,7 @@ public class NbUtil {
     }
 
     public static LinkedHashMap<String,Integer> getQuestionMap(){
-        String questions = ResourceUtil.readUtf8Str("json/questions.json");
+        String questions = ResourceUtil.readUtf8Str("data/questions.json");
         JSONArray jsonArray = JSONUtil.parseArray(questions);
         LinkedHashMap<String,Integer> resultMap =  new LinkedHashMap<>();
         for (Object o : jsonArray) {
