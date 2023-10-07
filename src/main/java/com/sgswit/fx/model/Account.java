@@ -94,8 +94,8 @@ public class Account {
         return note.get();
     }
 
-    public void setNote(String n) {
-        note.set(n);
+    public void setNote(String note) {
+        this.note.set(note);
     }
 
     public String getName(){return this.name.get();}
@@ -157,6 +157,17 @@ public class Account {
 
     public void setTargetCountry(String targetCountry) {
         this.targetCountry.set(targetCountry);
+    }
+
+    public void appendNote(String n) {
+        if (n != null && n != ""){
+            String s = note.get();
+            if (s != null && s != ""){
+                note.set(s+n);
+            }else{
+                note.set(n);
+            }
+        }
     }
 
     @Override

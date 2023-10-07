@@ -8,5 +8,6 @@ open module com.sgswit.fx {
     requires cn.hutool;
     requires java.sql;
     requires jna;
+    requires javafaker;
     exports com.sgswit.fx;
 }

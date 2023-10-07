@@ -6,7 +6,6 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.NbUtil;
 
 import java.util.*;
 
@@ -149,8 +148,8 @@ public class AppleIDTest {
 //        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP52");
 //        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
-        // 修改姓氏
-        //AppleIDUtil.updateName(tokenScnt,"blbgkKP52","羊","伍");
+//         修改姓氏
+        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
         
         // 修改密码
         // AppleIDUtil.updatePassword(tokenScnt,"blbgkKP52","--");

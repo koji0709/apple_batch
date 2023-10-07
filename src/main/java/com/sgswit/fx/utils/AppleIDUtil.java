@@ -460,7 +460,7 @@ public class AppleIDUtil {
                 HttpResponse rsp = HttpUtil.createRequest(Method.DELETE,url)
                         .header(deviceListRsp.headers())
                         .execute();
-                rspLog(Method.GET,url,rsp.getStatus());
+                rspLog(Method.DELETE,url,rsp.getStatus());
             }
         }
 
