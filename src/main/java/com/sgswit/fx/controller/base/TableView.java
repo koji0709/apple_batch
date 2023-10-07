@@ -1,17 +1,31 @@
 package com.sgswit.fx.controller.base;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -22,6 +36,14 @@ public class TableView implements Initializable {
 
     @FXML
     public javafx.scene.control.TableView<Account> tableViewDataList;
+
+    /**
+     * 总账号数量
+     */
+    @FXML
+    protected Label accountNumLable;
+
+    protected ObservableList<Account> accountList = FXCollections.observableArrayList();
 
     @FXML
     private TableColumn seq;
@@ -56,6 +78,14 @@ public class TableView implements Initializable {
     @FXML
     private TableColumn answer3;
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        initAccountTableView();
+    }
+
+    /**
+     * 初始化字段绑定
+     */
     public void initAccountTableView(){
         seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
         account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
@@ -70,9 +100,61 @@ public class TableView implements Initializable {
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        initAccountTableView();
+    /**
+     * 导入账号按钮点击
+     */
+    public void importAccountButtonAction(){
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
+        Scene scene = null;
+        try {
+            scene = new Scene(fxmlLoader.load(), 600, 450);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+
+        Stage popupStage = new Stage();
+
+        popupStage.setTitle("账户导入");
+
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.showAndWait();
+
+        AccountInputPopupController viewCtr = fxmlLoader.getController();
+
+        String[] lineArray = viewCtr.getAccounts().split("\n");
+        for(String item : lineArray){
+            String[] its = item.split("----");
+            Account account = new Account();
+            account.setAccount(its[0]);
+
+            String[] pas = its[1].split("-");
+            if(pas.length == 4){
+                account.setPwd(pas[0]);
+                account.setAnswer1(pas[1]);
+                account.setAnswer2(pas[2]);
+                account.setAnswer3(pas[3]);
+            }else{
+                account.setPwd(its[1]);
+            }
+            accountList.add(account);
+        }
+        if (!CollectionUtil.isEmpty(accountList)){
+            for (int i = 0; i < accountList.size(); i++) {
+                Account account = accountList.get(i);
+                account.setSeq(i+1);
+            }
+        }
+        tableViewDataList.setItems(accountList);
+        accountNumLable.setText(accountList.size()+"");
+    }
+
+    /**
+     * 清空列表按钮点击
+     */
+    public void clearAccountListButtonAction(){
+        accountList.clear();
     }
 
     public void alert(String message){
@@ -133,6 +215,7 @@ public class TableView implements Initializable {
 
     public String getTokenScnt(Account account){
         HttpResponse tokenRsp = login(account);
+
         String tokenScnt = tokenRsp.header("scnt");
         return tokenScnt;
     }

@@ -1,16 +1,13 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import com.github.javafaker.Faker;
-import com.sgswit.fx.AppleIDTest;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.NbUtil;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -22,13 +19,11 @@ import java.util.*;
  */
 public class AccountInfoModifyController extends AccountInfoModifyView {
 
-    private ObservableList<Account> accountList = FXCollections.observableArrayList();
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
         initViewData();
-        refreshList();
+        //refreshList();
     }
 
     /**
@@ -47,36 +42,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     }
 
     /***************************************** 业务方法 *************************************/
-
-    /**
-     * 刷新页面数据
-     */
-    public void refreshList(){
-        // 清空数据
-        accountList.clear();
-
-        // 初始化表格数据
-        List<Account> list = NbUtil.getAccountList();
-
-        if (!CollectionUtil.isEmpty(list)){
-            accountList.addAll(list);
-        }
-        if (!CollectionUtil.isEmpty(list)){
-            for (int i = 0; i < accountList.size(); i++) {
-                Account account = accountList.get(i);
-                account.setSeq(i+1);
-            }
-        }
-        tableViewDataList.setItems(accountList);
-        accountNumLable.setText(accountList.size()+"");
-    }
-
-    /**
-     * 清空账号列表
-     */
-    public void clearList(){
-        accountList.clear();
-    }
 
     /***************************************** 操作 *************************************/
 
@@ -141,6 +106,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
 
         for (Account account : accountList) {
+            HttpResponse loginRsp = login(account);
+            if (loginRsp == null){
+                continue;
+            }
+
             // 修改密码
             if (updatePwdCheckBoxSelected){
                 String newPwd = pwdTextField.getText();
@@ -220,6 +190,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 getTokenScnt(account);
                 AppleIDUtil.removeDevices();
             }
+
             // 移除救援邮箱
             if (removeRescueEmailCheckBoxSelected){
                 HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(getTokenScnt(account), account.getPwd());
@@ -230,20 +201,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         }
         tableViewDataList.refresh();
-    }
-
-    /**
-     * 导入账号按钮点击
-     */
-    public void importAccountButtonAction(){
-        refreshList();
-    }
-
-    /**
-     * 清空列表按钮点击
-     */
-    public void clearAccountListButtonAction(){
-        clearList();
     }
 
     /**

@@ -8,11 +8,6 @@ import javafx.scene.control.*;
  * 官网修改资料view元素
  */
 public class AccountInfoModifyView extends TableView {
-    /**
-     * 总账号数量
-     */
-    @FXML
-    protected Label accountNumLable;
 
     /**
      * 失败重试
