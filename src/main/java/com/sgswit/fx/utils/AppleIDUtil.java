@@ -3,6 +3,8 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
@@ -448,6 +450,9 @@ public class AppleIDUtil {
         return rsp;
     }
 
+    /**
+     * 移除所有设备
+     */
     public static void removeDevices(){
         HttpResponse deviceListRsp = getDeviceList();
         String body = deviceListRsp.body();
@@ -464,6 +469,40 @@ public class AppleIDUtil {
             }
         }
 
+    }
+
+    /**
+     * 修改appleId
+     */
+    public static HttpResponse updateAppleIdSendVerifyCode(String tokenScnt,String password,String appleId){
+        String url = "https://appleid.apple.com/account/manage/appleid/verification";
+        HashMap<String, List<String>> header = buildHeader();
+        header.put("scnt",List.of(tokenScnt));
+        String body = "{\"name\":\""+appleId+"\"}";
+        HttpResponse verifyRsp = HttpUtil.createPost(url)
+                .header(header)
+                .body(body).execute();
+        rspLog(Method.POST,url,verifyRsp.getStatus());
+
+        int status = verifyRsp.getStatus();
+
+        // 需要验证密码
+        if (status == 451){
+            verifyPassword(verifyRsp,password);
+            return updateAppleIdSendVerifyCode(tokenScnt,password,appleId);
+        }
+        return verifyRsp;
+    }
+
+    public static HttpResponse updateAppleId(HttpResponse rsp,String appleId,String verifyId,String verifyCode){
+        String url = "https://appleid.apple.com/account/manage/appleid/verification";
+        String body = "{\"name\":\""+appleId+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
+        HttpResponse updateAppleIdRsp = HttpUtil.createRequest(Method.PUT,url)
+                .header(rsp.headers())
+                .body(body)
+                .execute();
+        rspLog(Method.PUT,url,updateAppleIdRsp.getStatus());
+        return updateAppleIdRsp;
     }
 
     /**

@@ -23,7 +23,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
         initViewData();
-        //refreshList();
     }
 
     /**
@@ -41,10 +40,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         nameGenerationTypeChoiceBox.setValue("固定姓名");
     }
 
-    /***************************************** 业务方法 *************************************/
-
-    /***************************************** 操作 *************************************/
-
     /**
      * 开始执行按钮点击
      */
@@ -58,6 +53,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
         boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
+
+        if (! (updatePwdCheckBoxSelected || updateBirthdayCheckBoxSelected || updateNameCheckBoxSelected
+            || updatePasswordProtectionCheckBoxSelected || removeDeviceCheckBoxSelected || removeRescueEmailCheckBoxSelected)){
+            return;
+        }
 
         // 校验
         if (accountList.isEmpty()){

@@ -74,9 +74,9 @@ public class AppleIDTest {
     // 密保登陆
     public static void passwordProtectionDemo() {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
-        // wuyang0001@2980.com-blbgkKP52-朋友-工作-父母
+        // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("wuyang0001@2980.com","blbgkKP52","朋友","工作","父母");
+        List<String> input = Arrays.asList("3631408@qq.com","blbgkKP52","朋友","工作","父母");
 
         Account account = new Account();
         account.setAccount(input.get(0));
@@ -154,11 +154,22 @@ public class AppleIDTest {
         // AppleIDUtil.updatePassword(tokenScnt,"blbgkKP52","--");
 
         // 修改密保
-        String body = "{\"questions\":[{\"answer\":\"朋友\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
-        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
+//        String body = "{\"questions\":[{\"answer\":\"朋友\",\"id\":\"130\",\"question\":\"你少年时代最好的朋友叫什么名字？\"},{\"answer\":\"工作\",\"id\":\"136\",\"question\":\"你的理想工作是什么？\"},{\"answer\":\"父母\",\"id\":\"142\",\"question\":\"你的父母是在哪里认识的？\"}]}";
+//        AppleIDUtil.updateQuestions(tokenScnt,"blbgkKP52",body);
 
         // 删除所有设备
         //AppleIDUtil.removeDevices();
+
+        String appleId = "3631408@qq.com";
+        // 修改appleId
+        HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(tokenScnt, account.getPwd(), appleId);
+        Console.log("请输入验证码：");
+//
+        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
+        String verifyCode = Console.input().trim();
+
+        // http status 302 200 都是成功
+        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, appleId, verifyId, verifyCode);
 
     }
 

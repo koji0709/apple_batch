@@ -86,9 +86,9 @@
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <CheckBox fx:id="tryAgainCheckBox" text="修改失败继续" selected="true"/>
+                                        <CheckBox fx:id="tryAgainCheckBox" text="修改失败继续" />
                                         <Label textFill="#169BD5" text="发生未知错误自动重新执行" />
-                                        <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" selected="true"/>
+                                        <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>
                             </content>
@@ -100,9 +100,9 @@
                                 <GridPane alignment="CENTER_LEFT" style="-fx-hgap: 10; -fx-vgap: 10">
                                     <children>
                                         <!--修改资料-->
-                                        <CheckBox fx:id="updatePwdCheckBox" text="修改密码" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                        <CheckBox fx:id="updateBirthdayCheckBox" text="修改生日" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                        <CheckBox fx:id="updateNameCheckBox" text="修改姓名" selected="true" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <CheckBox fx:id="updatePwdCheckBox" text="修改密码"  GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <CheckBox fx:id="updateBirthdayCheckBox" text="修改生日"  GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <CheckBox fx:id="updateNameCheckBox" text="修改姓名"  GridPane.rowIndex="2" GridPane.columnIndex="0"/>
 
                                         <!--新资料-->
                                         <HBox alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="1" >
@@ -123,8 +123,8 @@
                                         </HBox>
 
                                         <!--修改密保-->
-                                        <CheckBox text="修改密保" fx:id="updatePasswordProtectionCheckBox" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                                        <CheckBox text="删除设备" fx:id="removeDeviceCheckBox" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                                        <CheckBox text="修改密保" fx:id="updatePasswordProtectionCheckBox"  GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                        <CheckBox text="删除设备" fx:id="removeDeviceCheckBox"  GridPane.rowIndex="1" GridPane.columnIndex="2"/>
                                         <HBox GridPane.rowIndex="2" GridPane.columnIndex="2">
                                             <children>
                                                 <ChoiceBox fx:id="nameGenerationTypeChoiceBox" prefWidth="80">
@@ -174,8 +174,8 @@
                                         </HBox>
 
                                         <!--邮箱,语言-->
-                                        <CheckBox fx:id="removeRescueEmailCheckBox" text="移除救援邮箱" selected="true" GridPane.rowIndex="0" GridPane.columnIndex="5"/>
-                                        <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言" selected="true" GridPane.rowIndex="1" GridPane.columnIndex="5"/>
+                                        <CheckBox fx:id="removeRescueEmailCheckBox" text="移除救援邮箱"  GridPane.rowIndex="0" GridPane.columnIndex="5"/>
+                                        <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言"  GridPane.rowIndex="1" GridPane.columnIndex="5"/>
                                         <HBox GridPane.rowIndex="2" GridPane.columnIndex="5">
                                             <children>
                                                 <ChoiceBox fx:id="updateShowLangChoiceBox" prefWidth="80"/>
