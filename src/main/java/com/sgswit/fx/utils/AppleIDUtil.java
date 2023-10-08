@@ -472,7 +472,7 @@ public class AppleIDUtil {
     }
 
     /**
-     * 修改appleId
+     * 修改appleId发送邮箱
      */
     public static HttpResponse updateAppleIdSendVerifyCode(String tokenScnt,String password,String appleId){
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
@@ -494,6 +494,9 @@ public class AppleIDUtil {
         return verifyRsp;
     }
 
+    /**
+     * 修改appleId
+     */
     public static HttpResponse updateAppleId(HttpResponse rsp,String appleId,String verifyId,String verifyCode){
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+appleId+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
@@ -506,8 +509,43 @@ public class AppleIDUtil {
     }
 
     /**
-     * 移除设备
+     * 双重认证发送短信
+     * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
+    public static HttpResponse securityUpgradeVerifyPhone(String tokenScnt,String password,String body){
+        String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
+        HashMap<String, List<String>> header = buildHeader();
+        header.put("scnt",List.of(tokenScnt));
+
+        HttpResponse securityUpgradeVerifyPhoneRsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(header)
+                .body(body)
+                .execute();
+        int status = securityUpgradeVerifyPhoneRsp.getStatus();
+        rspLog(Method.PUT,url, status);
+
+        // 需要验证密码
+        if (status == 451){
+            verifyPassword(securityUpgradeVerifyPhoneRsp,password);
+            return securityUpgradeVerifyPhone(tokenScnt,password,body);
+        }
+
+        return securityUpgradeVerifyPhoneRsp;
+    }
+
+    /**
+     * 双重认证
+     * @param body {"phoneNumberVerification":{"phoneNumber":{"id":20101,"number":"17608177103","countryCode":"CN","nonFTEU":true},"securityCode":{"code":"563973"},"mode":"sms"}}
+     */
+    public static HttpResponse securityUpgrade(HttpResponse securityUpgradeVerifyPhoneRsp,String body){
+        String url = "https://appleid.apple.com/account/security/upgrade";
+        HttpResponse securityUpgradeRsp = HttpUtil.createRequest(Method.POST,url)
+                .header(securityUpgradeVerifyPhoneRsp.headers())
+                .body(body)
+                .execute();
+        rspLog(Method.POST,url,securityUpgradeRsp.getStatus());
+        return securityUpgradeRsp;
+    }
 
     private static HashMap<String, List<String>> buildHeader() {
         return buildHeader(true);

@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.base.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 
@@ -76,7 +77,7 @@ public class AppleIDTest {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("3631408@qq.com","blbgkKP52","朋友","工作","父母");
+        List<String> input = Arrays.asList("ywerzx12@2980.com","UZvNDw13","猪","狗","牛");
 
         Account account = new Account();
         account.setAccount(input.get(0));
@@ -85,52 +86,8 @@ public class AppleIDTest {
         account.setAnswer2(input.get(3));
         account.setAnswer3(input.get(4));
 
-        // SignIn
-        HttpResponse signInRsp = AppleIDUtil.signin(account);
-        Console.log("SignInRsp status:{}",signInRsp.getStatus());
-
-        // Auth
-        HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
-        Console.log("AuthRsp status:{}",authRsp.getStatus());
-
-        String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
-        if (!"sa".equals(authType)) {
-            Console.error("仅支持密保验证逻辑");
-        }
-
-        // 密保认证
-        HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
-        if (questionRsp.getStatus() != 412) {
-            return;
-        }
-        HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
-        String XAppleIDSessionId = "";
-        String scnt = accountRepairRsp.header("scnt");
-        List<String> cookies = accountRepairRsp.headerList("Set-Cookie");
-        for (String item : cookies) {
-            if (item.startsWith("aidsp")) {
-                XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
-            }
-        }
-        HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(questionRsp, accountRepairRsp);
-        Console.log("repareOptionsRsp status:{}",signInRsp.getStatus());
-
-        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(repareOptionsRsp, XAppleIDSessionId, scnt);
-        Console.log("securityUpgradeRsp status:{}",signInRsp.getStatus());
-
-        HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(securityUpgradeRsp, XAppleIDSessionId, scnt);
-        Console.log("securityUpgradeSetuplaterRsp status:{}",signInRsp.getStatus());
-
-        HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
-        Console.log("repareOptionsSecondRsp status:{}",signInRsp.getStatus());
-
-        HttpResponse repareCompleteRsp  = AppleIDUtil.repareComplete(repareOptionsSecondRsp, questionRsp);
-        Console.log("repareCompleteRsp status:{}",signInRsp.getStatus());
-
-        HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
-        Console.log("tokenRsp status:{}",tokenRsp.getStatus());
-
-        String tokenScnt = tokenRsp.header("scnt");
+        TableView tableView = new TableView();
+        String tokenScnt = tableView.getTokenScnt(account);
 
         // 查询账户信息
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
@@ -160,16 +117,28 @@ public class AppleIDTest {
         // 删除所有设备
         //AppleIDUtil.removeDevices();
 
-        String appleId = "3631408@qq.com";
-        // 修改appleId
-        HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(tokenScnt, account.getPwd(), appleId);
-        Console.log("请输入验证码：");
+//        String appleId = "3631408@qq.com";
+//        // 修改appleId
+//        HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(tokenScnt, account.getPwd(), appleId);
 //
-        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
+//        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
+//        Console.log("请输入验证码：");
+//        String verifyCode = Console.input().trim();
+//
+//        // http status 302 200 都是成功
+//        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, appleId, verifyId, verifyCode);
+
+        String phone = "17608177103";
+        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
+        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(tokenScnt, account.getPwd(), body);
+
+        Console.log("请输入验证码：");
         String verifyCode = Console.input().trim();
 
-        // http status 302 200 都是成功
-        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, appleId, verifyId, verifyCode);
+        // todo 要获取手机相关信息
+        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
+        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
 
     }
 
