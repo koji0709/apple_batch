@@ -547,6 +547,15 @@ public class AppleIDUtil {
         return securityUpgradeRsp;
     }
 
+    public static HttpResponse supportPin(String tokenScnt){
+        String url = "https://appleid.apple.com/account/manage/supportpin";
+        HttpResponse supportPinRsp = HttpUtil.createPost(url)
+                .header("scnt", tokenScnt)
+                .execute();
+        rspLog(Method.POST,url,supportPinRsp.getStatus());
+        return supportPinRsp;
+    }
+
     private static HashMap<String, List<String>> buildHeader() {
         return buildHeader(true);
     }
