@@ -556,6 +556,18 @@ public class AppleIDUtil {
         return supportPinRsp;
     }
 
+    public static HttpResponse paymentList(String tokenScnt){
+        String url = "https://appleid.apple.com/account/manage/payment";
+        HashMap<String, List<String>> header = buildHeader();
+        header.put("scnt",List.of(tokenScnt));
+
+        HttpResponse paymentRsp = HttpUtil.createGet(url)
+                .header(header)
+                .execute();
+        rspLog(Method.GET,url,paymentRsp.getStatus());
+        return paymentRsp;
+    }
+
     private static HashMap<String, List<String>> buildHeader() {
         return buildHeader(true);
     }

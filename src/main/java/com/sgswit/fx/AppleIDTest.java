@@ -56,10 +56,10 @@ public class AppleIDTest {
         Console.log("TokenRsp status:{} , Cookie:{}",tokenRsp.getStatus(),tokenRsp.getCookieStr());
 
         // Account
-        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
-        JSON accountJSON = JSONUtil.parse(accountRsp.body());
-        String fullName = accountJSON.getByPath("name.fullName",String.class);
-        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
+//        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
+//        JSON accountJSON = JSONUtil.parse(accountRsp.body());
+//        String fullName = accountJSON.getByPath("name.fullName",String.class);
+//        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
 
         String sessionId = tokenRsp.header("X-Apple-ID-Session-Id");
         String scnt      = tokenRsp.header("scnt");
@@ -71,13 +71,16 @@ public class AppleIDTest {
 //        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(scnt,"");
 //        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
-        HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
-        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
-        if (supportPinRsp.getStatus() == 200){
-            JSON parse = JSONUtil.parse(supportPinRsp.body());
-            String pin = parse.getByPath("pin", String.class);
-            System.err.println(pin);
-        }
+//        HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
+//        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
+//        if (supportPinRsp.getStatus() == 200){
+//            JSON parse = JSONUtil.parse(supportPinRsp.body());
+//            String pin = parse.getByPath("pin", String.class);
+//            System.err.println(pin);
+//        }
+
+        HttpResponse httpResponse = AppleIDUtil.paymentList(scnt);
+        System.err.println(httpResponse.body());
     }
 
     // 密保登陆
@@ -85,7 +88,7 @@ public class AppleIDTest {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("ywerzx12@2980.com","UZvNDw13","猪","狗","牛");
+        List<String> input = Arrays.asList("3631408@qq.com","blbgkKP52","猪","狗","牛");
 
         Account account = new Account();
         account.setAccount(input.get(0));
@@ -148,7 +151,13 @@ public class AppleIDTest {
 //        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
 //        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
 
-
+        HttpResponse supportPinRsp = AppleIDUtil.supportPin(tokenScnt);
+        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
+        if (supportPinRsp.getStatus() == 200){
+            JSON parse = JSONUtil.parse(supportPinRsp.body());
+            String pin = parse.getByPath("pin", String.class);
+            System.err.println(pin);
+        }
 
     }
 
