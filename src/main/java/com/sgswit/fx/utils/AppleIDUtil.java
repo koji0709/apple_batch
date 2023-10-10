@@ -547,6 +547,28 @@ public class AppleIDUtil {
         return securityUpgradeRsp;
     }
 
+    /**
+     * 关闭双重认证
+     * @return httpstatus == 302 代表成功
+     */
+    public static HttpResponse closeSecurityUpgrade(String key,String newPassword){
+        String base = "https://iforgot.apple.com";
+        HttpResponse rsp = HttpUtil.createGet(base + "/withdraw?key=" + key)
+                .execute();
+        if (rsp.getStatus() == 302){
+            HttpResponse unenrollmentRsp = HttpUtil.createPost(base + rsp.header("Location")).execute();
+            if (unenrollmentRsp.getStatus() == 302){
+                HttpResponse unenrollmentResetRsp = HttpUtil.createPost(base + unenrollmentRsp.header("Location"))
+                        .header(unenrollmentRsp.headers())
+                        .cookie(unenrollmentRsp.getCookies())
+                        .body("{\"password\":\""+newPassword+"\"}")
+                        .execute();
+                return unenrollmentResetRsp;
+            }
+        }
+        return null;
+    }
+
     public static HttpResponse supportPin(String tokenScnt){
         String url = "https://appleid.apple.com/account/manage/supportpin";
         HttpResponse supportPinRsp = HttpUtil.createPost(url)
