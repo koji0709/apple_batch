@@ -569,6 +569,9 @@ public class AppleIDUtil {
         return null;
     }
 
+    /**
+     * 生成支持pin
+     */
     public static HttpResponse supportPin(String tokenScnt){
         String url = "https://appleid.apple.com/account/manage/supportpin";
         HttpResponse supportPinRsp = HttpUtil.createPost(url)
@@ -578,6 +581,9 @@ public class AppleIDUtil {
         return supportPinRsp;
     }
 
+    /**
+     * 收款方式列表
+     */
     public static HttpResponse paymentList(String tokenScnt){
         String url = "https://appleid.apple.com/account/manage/payment";
         HashMap<String, List<String>> header = buildHeader();

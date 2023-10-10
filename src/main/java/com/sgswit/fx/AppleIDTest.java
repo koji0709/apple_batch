@@ -17,8 +17,8 @@ public class AppleIDTest {
 
 
     public static void main(String[] args) {
-        securityCodeLoginDemo();
-        //passwordProtectionDemo();
+        //securityCodeLoginDemo();
+        passwordProtectionDemo();
     }
 
     // 双重认证登陆
@@ -79,8 +79,8 @@ public class AppleIDTest {
 //            System.err.println(pin);
 //        }
 
-        HttpResponse httpResponse = AppleIDUtil.paymentList(scnt);
-        System.err.println(httpResponse.body());
+//        HttpResponse httpResponse = AppleIDUtil.paymentList(scnt);
+//        System.err.println(httpResponse.body());
     }
 
     // 密保登陆
@@ -88,7 +88,7 @@ public class AppleIDTest {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("3631408@qq.com","blbgkKP52","猪","狗","牛");
+        List<String> input = Arrays.asList("shabagga222@tutanota.com","Xx123456789.","猪","狗","牛");
 
         Account account = new Account();
         account.setAccount(input.get(0));
