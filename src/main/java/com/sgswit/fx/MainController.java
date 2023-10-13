@@ -111,6 +111,7 @@ public class MainController implements Initializable {
             add(new KeyValuePair("iCloud","iCloud专区","views/iCloud/iCloud-items-list.fxml"));
             add(new KeyValuePair("operation","修改操作专区","views/operation/operation-items-list.fxml"));
             add(new KeyValuePair("query","查询检测专区","views/query/query-items-list.fxml"));
+            add(new KeyValuePair("toolbox","工具箱","views/tool/toolbox-items-list.fxml"));
         }};
         double buttonHeight = 30;
         List<Button> buttonList = new ArrayList<>(3);

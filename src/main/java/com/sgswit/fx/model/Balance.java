@@ -4,13 +4,13 @@ package com.sgswit.fx.model;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Account {
+public class Balance {
 
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty account;
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty state;
-    private final SimpleStringProperty birthday;
+    private final SimpleStringProperty balance;
     private final SimpleStringProperty aera;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
@@ -20,15 +20,13 @@ public class Account {
     private  final SimpleStringProperty answer1;
     private  final SimpleStringProperty answer2;
     private  final SimpleStringProperty answer3;
-    private  final SimpleStringProperty originalCountry;
-    private  final SimpleStringProperty targetCountry;
 
-
-    public Account(){
+    public Balance(){
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
+        this.balance = new SimpleStringProperty();
         this.aera = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
@@ -37,9 +35,6 @@ public class Account {
         this.answer1 = new SimpleStringProperty();
         this.answer2 = new SimpleStringProperty();
         this.answer3 = new SimpleStringProperty();
-        this.birthday = new SimpleStringProperty();
-        this.originalCountry = new SimpleStringProperty();
-        this.targetCountry = new SimpleStringProperty();
     }
 
     public Integer getSeq() {
@@ -94,8 +89,8 @@ public class Account {
         return note.get();
     }
 
-    public void setNote(String note) {
-        this.note.set(note);
+    public void setNote(String n) {
+        note.set(n);
     }
 
     public String getName(){return this.name.get();}
@@ -131,58 +126,15 @@ public class Account {
         this.answer3.set(answer3);
     }
 
-    public String getOriginalCountry() {
-        return originalCountry.get();
+    public String getBalance() {
+        return balance.get();
     }
 
-    public void setOriginalCountry(String originalCountry) {
-        this.originalCountry.set(originalCountry);
+    public SimpleStringProperty balanceProperty() {
+        return balance;
     }
 
-    public String getTargetCountry() {
-        return targetCountry.get();
+    public void setBalance(String balance) {
+        this.balance.set(balance);
     }
-
-    public void setTargetCountry(String targetCountry) {
-        this.targetCountry.set(targetCountry);
-    }
-
-    public String getBirthday() {
-        return birthday.get();
-    }
-
-    public void setBirthday(String birthday) {
-        this.birthday.set(birthday);
-    }
-
-    public void appendNote(String n) {
-        if (n != null && n != ""){
-            String s = note.get();
-            if (s != null && s != ""){
-                note.set(s+n);
-            }else{
-                note.set(n);
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "seq=" + seq +
-                ", account=" + account +
-                ", pwd=" + pwd +
-                ", state=" + state +
-                ", aera=" + aera +
-                ", name=" + name +
-                ", status=" + status +
-                ", note=" + note +
-                ", logtime=" + logtime +
-                ", answer1=" + answer1 +
-                ", answer2=" + answer2 +
-                ", answer3=" + answer3 +
-                ", birthday=" + birthday +
-                '}';
-    }
-
 }

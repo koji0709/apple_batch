@@ -4,7 +4,7 @@ package com.sgswit.fx.model;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Account {
+public class Problem {
 
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty account;
@@ -16,7 +16,9 @@ public class Account {
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
     private final SimpleStringProperty logtime;
-
+    private  final SimpleStringProperty problem1;
+    private  final SimpleStringProperty problem2;
+    private  final SimpleStringProperty problem3;
     private  final SimpleStringProperty answer1;
     private  final SimpleStringProperty answer2;
     private  final SimpleStringProperty answer3;
@@ -24,7 +26,7 @@ public class Account {
     private  final SimpleStringProperty targetCountry;
 
 
-    public Account(){
+    public Problem(){
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
@@ -40,6 +42,9 @@ public class Account {
         this.birthday = new SimpleStringProperty();
         this.originalCountry = new SimpleStringProperty();
         this.targetCountry = new SimpleStringProperty();
+        this.problem1 = new SimpleStringProperty();
+        this.problem2 = new SimpleStringProperty();
+        this.problem3 = new SimpleStringProperty();
     }
 
     public Integer getSeq() {
@@ -155,6 +160,42 @@ public class Account {
         this.birthday.set(birthday);
     }
 
+    public String getProblem1() {
+        return problem1.get();
+    }
+
+    public SimpleStringProperty problem1Property() {
+        return problem1;
+    }
+
+    public void setProblem1(String problem1) {
+        this.problem1.set(problem1);
+    }
+
+    public String getProblem2() {
+        return problem2.get();
+    }
+
+    public SimpleStringProperty problem2Property() {
+        return problem2;
+    }
+
+    public void setProblem2(String problem2) {
+        this.problem2.set(problem2);
+    }
+
+    public String getProblem3() {
+        return problem3.get();
+    }
+
+    public SimpleStringProperty problem3Property() {
+        return problem3;
+    }
+
+    public void setProblem3(String problem3) {
+        this.problem3.set(problem3);
+    }
+
     public void appendNote(String n) {
         if (n != null && n != ""){
             String s = note.get();
@@ -178,6 +219,9 @@ public class Account {
                 ", status=" + status +
                 ", note=" + note +
                 ", logtime=" + logtime +
+                ", problem1=" + problem1 +
+                ", problem2=" + problem2 +
+                ", problem3=" + problem3 +
                 ", answer1=" + answer1 +
                 ", answer2=" + answer2 +
                 ", answer3=" + answer3 +

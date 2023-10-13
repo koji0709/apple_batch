@@ -9,5 +9,6 @@ open module com.sgswit.fx {
     requires java.sql;
     requires jna;
     requires javafaker;
+    requires jsoup;
     exports com.sgswit.fx;
 }
