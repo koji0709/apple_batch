@@ -8,6 +8,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
@@ -472,7 +473,7 @@ public class AppleIDUtil {
     }
 
     /**
-     * 修改appleId发送邮箱
+     * 修改appleId时发送邮件
      */
     public static HttpResponse updateAppleIdSendVerifyCode(String tokenScnt,String password,String appleId){
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
@@ -596,6 +597,103 @@ public class AppleIDUtil {
         return paymentRsp;
     }
 
+    /**
+     * 获取验证码
+     */
+    public static HttpResponse captcha(){
+        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
+        return HttpUtil.createGet(url)
+                .header(buildHeader())
+                .execute();
+    }
+
+    /**
+     * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
+     */
+    public static HttpResponse verifyAppleId(String body) {
+        String url = "https://iforgot.apple.com/password/verify/appleid";
+        HttpResponse verifyAppleIdRsp = HttpUtil.createPost(url)
+                .header(buildHeader())
+                .body(body)
+                .execute();
+        return verifyAppleIdRsp;
+    }
+
+    /**
+     * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
+     */
+    public static HttpResponse verifyAppleId(HttpResponse verifyAppleIdRsp) {
+        String host = "https://iforgot.apple.com/";
+        String options1Location = verifyAppleIdRsp.header("Location");
+
+        HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
+                .header(verifyAppleIdRsp.headers())
+                .execute();
+        List<String> recoveryOptions = JSONUtil.parse(options1Rsp).getByPath("recoveryOptions", List.class);
+        Console.log("recoveryOptions:", recoveryOptions);
+
+        HttpResponse options2Rsp = HttpUtil.createGet(host + "/recovery/options")
+                .header(options1Rsp.headers())
+                .execute();
+
+        HttpResponse options3Rsp = HttpUtil.createPost(host + "/recovery/options")
+                .header(options2Rsp.headers())
+                .body("{\"recoveryOption\":\"reset_password\"}")
+                .execute();
+
+        String authMethod1Location = options3Rsp.header("Location");
+        HttpResponse authMethod1Rsp = HttpUtil.createGet(host + authMethod1Location)
+                .execute();
+        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp).getByPath("options", List.class);
+        Console.log("authMethodOptions:", authMethodOptions);
+
+        HttpResponse authMethod2Rsp = HttpUtil.createPost(host + "/password/authenticationmethod")
+                .header(authMethod1Rsp.headers())
+                .body("{\"type\":\"questions\"}")
+                .execute();
+
+        String verifyBirthday1Location = authMethod2Rsp.header("Location");
+        HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
+                .execute();
+
+        HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/password/verify/birthday")
+                .header(verifyBirthday1Rsp.headers())
+                .body("{\"monthOfYear\":\"08\",\"dayOfMonth\":\"10\",\"year\":\"1996\"}")
+                .execute();
+
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
+                .execute();
+
+        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
+        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+        Map<Integer,String> answerMap = new HashMap<>(){{
+            put(1,"猪");
+            put(2,"狗");
+            put(3,"牛");
+        }};
+        for (JSONObject question : questions) {
+            question.remove("locale");
+            question.append("answer",answerMap.get(question.getInt("number")));
+        }
+        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
+        bodyMap.put("questions",questions);
+        HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/password/verify/questions")
+                .body(JSONUtil.toJsonStr(bodyMap))
+                .execute();
+
+        String passwordReset1Location = verifyQuestions2Rsp.header("Location");
+        HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
+                .execute();
+
+        HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
+                .header(passwordReset1Rsp.headers())
+                .body("{\"password\":\"Xx97595031..\"}")
+                .execute();
+
+        return passwordReset2Rsp;
+    }
+
     private static HashMap<String, List<String>> buildHeader() {
         return buildHeader(true);
     }
@@ -640,5 +738,4 @@ public class AppleIDUtil {
     private static void rspLog(Method method,String url,Integer status){
         Console.log("[{}] {}  Response status: {}",method.name(),url,status);
     }
-
 }

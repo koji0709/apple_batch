@@ -2,6 +2,7 @@ package com.sgswit.fx;
 
 import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.base.TableView;
@@ -18,7 +19,8 @@ public class AppleIDTest {
 
     public static void main(String[] args) {
         //securityCodeLoginDemo();
-        passwordProtectionDemo();
+        //passwordProtectionDemo();
+        notLoginDemo();
     }
 
     // 双重认证登陆
@@ -88,7 +90,7 @@ public class AppleIDTest {
         Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("shabagga222@tutanota.com","Xx123456789.","猪","狗","牛");
+        List<String> input = Arrays.asList("shabagga222@tutanota.com","Xx97595031.","猪","狗","牛");
 
         Account account = new Account();
         account.setAccount(input.get(0));
@@ -151,15 +153,39 @@ public class AppleIDTest {
 //        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
 //        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
 
-        HttpResponse supportPinRsp = AppleIDUtil.supportPin(tokenScnt);
-        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
-        if (supportPinRsp.getStatus() == 200){
-            JSON parse = JSONUtil.parse(supportPinRsp.body());
-            String pin = parse.getByPath("pin", String.class);
-            System.err.println(pin);
-        }
+//        HttpResponse supportPinRsp = AppleIDUtil.supportPin(tokenScnt);
+//        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
+//        if (supportPinRsp.getStatus() == 200){
+//            JSON parse = JSONUtil.parse(supportPinRsp.body());
+//            String pin = parse.getByPath("pin", String.class);
+//            System.err.println(pin);
+//        }
 
     }
 
+    // 不需要登陆(重置密码)
+    public static void notLoginDemo(){
+        // 获取验证码
+        HttpResponse captchaRsp = AppleIDUtil.captcha();
+        JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
+        String capContent = captchaRspJSON.getByPath("payload.content", String.class);
+        System.err.println("base64编码:");
+        System.err.println(capContent);
 
+        Console.log("请输入验证码:");
+        String  captAnswer   = Console.input();
+        Integer captId    = captchaRspJSON.getByPath("id", Integer.class);
+        String  captToken = captchaRspJSON.getByPath("token", String.class);
+
+        // 校验appleId
+        //String appleId = Console.input();
+        String appleId = "shabagga222@tutanota.com";
+
+        String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
+        verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+
+        HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleId(verifyAppleIdRsp);
+        Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
+    }
 }
