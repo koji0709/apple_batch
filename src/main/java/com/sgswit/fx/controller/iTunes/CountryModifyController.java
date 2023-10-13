@@ -503,7 +503,7 @@ public class CountryModifyController implements Initializable {
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-birthday-querylog-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 950, 600);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
         Stage popupStage = new Stage();
