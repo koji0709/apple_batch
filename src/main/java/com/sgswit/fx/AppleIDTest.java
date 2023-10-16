@@ -186,6 +186,6 @@ public class AppleIDTest {
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
         HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleId(verifyAppleIdRsp);
-        Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
+        //Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
     }
 }

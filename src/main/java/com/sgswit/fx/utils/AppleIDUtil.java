@@ -623,13 +623,13 @@ public class AppleIDUtil {
      * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
      */
     public static HttpResponse verifyAppleId(HttpResponse verifyAppleIdRsp) {
-        String host = "https://iforgot.apple.com/";
+        String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
 
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
-                .header(verifyAppleIdRsp.headers())
+                .header(buildHeader())
                 .execute();
-        List<String> recoveryOptions = JSONUtil.parse(options1Rsp).getByPath("recoveryOptions", List.class);
+        List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
         Console.log("recoveryOptions:", recoveryOptions);
 
         HttpResponse options2Rsp = HttpUtil.createGet(host + "/recovery/options")
@@ -638,31 +638,37 @@ public class AppleIDUtil {
 
         HttpResponse options3Rsp = HttpUtil.createPost(host + "/recovery/options")
                 .header(options2Rsp.headers())
+                .header("Content-Type","application/json")
                 .body("{\"recoveryOption\":\"reset_password\"}")
                 .execute();
 
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = HttpUtil.createGet(host + authMethod1Location)
+                .header(buildHeader())
                 .execute();
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp).getByPath("options", List.class);
+        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
         Console.log("authMethodOptions:", authMethodOptions);
 
         HttpResponse authMethod2Rsp = HttpUtil.createPost(host + "/password/authenticationmethod")
                 .header(authMethod1Rsp.headers())
+                .header("Content-Type","application/json")
                 .body("{\"type\":\"questions\"}")
                 .execute();
 
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
+                .header(buildHeader())
                 .execute();
 
         HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/password/verify/birthday")
                 .header(verifyBirthday1Rsp.headers())
+                .header("Content-Type","application/json")
                 .body("{\"monthOfYear\":\"08\",\"dayOfMonth\":\"10\",\"year\":\"1996\"}")
                 .execute();
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
+                .header(buildHeader())
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -674,21 +680,31 @@ public class AppleIDUtil {
         }};
         for (JSONObject question : questions) {
             question.remove("locale");
-            question.append("answer",answerMap.get(question.getInt("number")));
+            question.putOnce("answer",answerMap.get(question.getInt("number")));
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
         HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/password/verify/questions")
+                .header(verifyQuestions1Rsp.headers())
+                .header("Content-Type","application/json")
+                //.header("sstt",verifyQuestions1BodyJSON.getByPath("sstt",String.class))
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .execute();
 
-        String passwordReset1Location = verifyQuestions2Rsp.header("Location");
+        String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
+        HttpResponse resrtPasswordOptionRsp = HttpUtil.createGet(host + resrtPasswordOptionLocation)
+                .header(buildHeader())
+                .execute();
+
+        String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
         HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
+                .header(buildHeader())
                 .execute();
 
         HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
                 .header(passwordReset1Rsp.headers())
-                .body("{\"password\":\"Xx97595031..\"}")
+                .header("Content-Type","application/json")
+                .body("{\"password\":\"Xx97595031.2\"}")
                 .execute();
 
         return passwordReset2Rsp;
