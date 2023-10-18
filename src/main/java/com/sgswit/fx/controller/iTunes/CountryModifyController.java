@@ -8,9 +8,13 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.Address;
+import com.github.javafaker.Faker;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
+import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
@@ -42,10 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -260,7 +261,7 @@ public class CountryModifyController implements Initializable {
                 accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
                 accoutQueryBtn.setDisable(true);
 
-                account.setNote("正在查询");
+                account.setNote("正在登录");
                 accountTableView.refresh();
 
                 new Thread(new Runnable() {
@@ -332,7 +333,7 @@ public class CountryModifyController implements Initializable {
                 accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
                 accoutQueryBtn.setDisable(true);
 
-                account.setNote("正在查询");
+                account.setNote("正在验证验证码");
                 accountTableView.refresh();
 
                 new Thread(new Runnable() {
@@ -343,6 +344,8 @@ public class CountryModifyController implements Initializable {
                             if (step22Res.getStatus() != 204 && step22Res.getStatus() != 200) {
                                 queryFail(account);
                             }
+                            account.setNote("登录成功");
+                            accountTableView.refresh();
                             countryModify(account, step22Res);
                         }finally {
                             //JavaFX Application Thread会逐个阻塞的执行这些任务
@@ -394,6 +397,8 @@ public class CountryModifyController implements Initializable {
             //非双重认证
             //step2 获取认证信息 -- 需要输入密保
             HttpResponse step21Res = AppleIDUtil.auth(step1Res);
+            account.setNote("正在验证密保问题");
+            accountTableView.refresh();
             HttpResponse step211Res = AppleIDUtil.questions(step21Res, account);
             if (step211Res.getStatus() != 412) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -415,6 +420,8 @@ public class CountryModifyController implements Initializable {
             HttpResponse step215Res = AppleIDUtil.securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
             HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
             HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
+            account.setNote("登录成功");
+            accountTableView.refresh();
             countryModify(account, step22Res);
         }else if ("hsa2".equals(authType)) {
             account.setNote("该账户为双重认证模式，请清空密保信息后重试");
@@ -424,72 +431,155 @@ public class CountryModifyController implements Initializable {
     }
 
     private void countryModify(Account account, HttpResponse step1Res) {
-        //step3 token
-        HttpResponse step3Res = AppleIDUtil.token(step1Res);
+        try {
+            account.setNote("正在修改");
+            accountTableView.refresh();
+            //step3 token
+            HttpResponse step3Res = AppleIDUtil.token(step1Res);
 
-        //step4 manager
-        if(step3Res.getStatus() != 200){
-            queryFail(account);
-        }
-        HashMap<String, List<String>> headers = new HashMap<>();
-
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-
-        headers.put("Host", ListUtil.toList("appleid.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step3Res.header("X-Apple-ID-Session-Id")));
-        headers.put("scnt",ListUtil.toList(step3Res.header("scnt")));
-
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> resCookies = step3Res.headerList("Set-Cookie");
-        for(String item : resCookies){
-            cookieBuilder.append(";").append(item);
-        }
-        String body="",targetCountry="";
-        if(fromType.equals("2")){
-            File userNationalDataFile = FileUtil.file("userNationalData.json");
-            // 创建json文件对象
-            File jsonFile = new File("userNationalData.json");
-            String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
-            List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
-            UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
-            body=JSONUtil.toJsonStr(u.getPayment());
-
-            targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
-
-
-
-        }
-        account.setTargetCountry(targetCountry);
-
-        HttpResponse step4Res = AppleIDUtil.account(step3Res);
-        String managerBody = step4Res.body();
-        JSON manager = JSONUtil.parse(managerBody);
-        String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
-        account.setOriginalCountry(area);
-
-
-        step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
-                .header(headers)
-                .body(body)
-                .cookie(cookieBuilder.toString())
-                .execute();
-        if(step4Res.getStatus() != 200){
-            String message="";
-            JSONArray service_errors= JSONUtil.parseObj(step4Res.body()).getJSONArray("service_errors");
-            for(Object jsonObject:service_errors){
-                message+= JSONUtil.parseObj(jsonObject).getStr("message");
+            //step4 manager
+            if(step3Res.getStatus() != 200){
+                queryFail(account);
             }
-            messageFun(account,"修改失败,"+message);
-        }else{
-            messageFun(account,"修改成功");
+            HashMap<String, List<String>> headers = new HashMap<>();
+
+            headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+            headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+            headers.put("Content-Type", ListUtil.toList("application/json"));
+
+            headers.put("Host", ListUtil.toList("appleid.apple.com"));
+            headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+            headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+
+            headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step3Res.header("X-Apple-ID-Session-Id")));
+            headers.put("scnt",ListUtil.toList(step3Res.header("scnt")));
+
+            StringBuilder cookieBuilder = new StringBuilder();
+            List<String> resCookies = step3Res.headerList("Set-Cookie");
+            for(String item : resCookies){
+                cookieBuilder.append(";").append(item);
+            }
+            String body="",targetCountry="";
+            //自定义国家信息
+            if(fromType.equals("2")){
+                // 创建json文件对象
+                File jsonFile = new File("userNationalData.json");
+                String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
+                List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
+                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
+                body=JSONUtil.toJsonStr(u.getPayment());
+                targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
+            }else{
+                //快捷国家信息
+                targetCountry=countryBox.getSelectionModel().getSelectedItem().getValue();
+                String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
+                //生成填充数据
+                body=generateFillData(countryCode);
+            }
+            HttpResponse step4Res = AppleIDUtil.account(step3Res);
+            String managerBody = step4Res.body();
+            JSON manager = JSONUtil.parse(managerBody);
+            String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
+            account.setOriginalCountry(area);
+            accountTableView.refresh();
+
+            step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
+                    .header(headers)
+                    .body(body)
+                    .cookie(cookieBuilder.toString())
+                    .execute();
+            if(step4Res.getStatus() == 400){
+                String message="";
+                JSONObject response= JSONUtil.parseObj(step4Res.body());
+                String messageJsonStr="";
+                if(!StringUtils.isEmpty(response.getStr("service_errors"))){
+                    messageJsonStr=response.getStr("service_errors");
+                }else{
+                    messageJsonStr=response.getStr("validationErrors");
+                }
+                JSONArray service_errors= JSONUtil.parseArray(messageJsonStr);
+                for(Object jsonObject:service_errors){
+                    message+= JSONUtil.parseObj(jsonObject).getStr("message");
+                }
+                messageFun(account,"修改失败,"+message);
+            }else if(step4Res.getStatus() != 200){
+                messageFun(account,"修改失败");
+            }else{
+                messageFun(account,"修改成功");
+            }
+            account.setTargetCountry(targetCountry);
+            accountTableView.refresh();
+        }catch (Exception e){
+            messageFun(account,"修改失败");
         }
     }
+    /**
+    　*生成填充数据
+      * @param
+    　* @return java.lang.String
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/10/8 15:37
+    */
+    private String generateFillData (String countryCode){
+        String body="";
+        try {
+            JSON json=JSONUtil.createObj();
+            json.putByPath("billingAddress.countryCode",countryCode);
+            json.putByPath("phoneNumber.countryCode",DataUtil.getInfoByCountryCode(countryCode).getDialCode());
+            String addressFormatListStr=DataUtil.getAddressFormat(countryCode);
+            List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
+            Faker faker = new Faker(new Locale("en-"+countryCode));
+            Address address  =faker.address();
+            for(FieldModel fieldModel:addressFormatList){
+                String fieldId=fieldModel.getId();
+                if(fieldId.equals("firstName")){
+                    json.putByPath("ownerName.firstName",faker.name().firstName());
+                }else if(fieldId.equals("lastName")){
+                    json.putByPath("ownerName.lastName",faker.name().lastName());
+                }else if(fieldId.equals("line1")){
+                    json.putByPath("billingAddress.line1",address.streetAddress());
+                }else if(fieldId.equals("line2")){
+                    json.putByPath("billingAddress.line2",address.buildingNumber());
+                }else if(fieldId.equals("line3")){
+                    json.putByPath("billingAddress.line3",address.streetName());
+                }else if(fieldId.equals("city")){
+                    json.putByPath("billingAddress.city",address.cityName());
+                }else if(fieldId.equals("suburb")){
+                    json.putByPath("billingAddress.suburb",address.streetAddress());
+                }else if(fieldId.equals("county")){
+                    json.putByPath("billingAddress.county",address.citySuffix());
+                }else if(fieldId.equals("stateProvince")){
+                    int size=fieldModel.getValues().size();
+                    if(fieldModel.getValues().size()>0){
+                        int r= (int) (Math.random()*(size-1));
+                        json.putByPath("billingAddress.stateProvinceName",fieldModel.getValues().get(r).get("name"));
+                    }else{
+                        json.putByPath("billingAddress.stateProvinceName","");
+                    }
+                }else if(fieldId.equals("postalCode")){
+                    json.putByPath("billingAddress.postalCode",address.zipCode());
+                }else if(fieldId.equals("phoneNumber")){
+                    json.putByPath("phoneNumber.number",faker.phoneNumber().cellPhone());
+                }else if(fieldId.equals("phoneAreaCode")){
+                    json.putByPath("phoneNumber.areaCode",faker.phoneNumber().subscriberNumber());
+                }
+            }
+           body= JSONUtil.toJsonStr(json);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+        return body;
+    }
+
+
+
+
+
 
     private void queryFail(Account account) {
         String note = "查询失败，请确认用户名密码是否正确";

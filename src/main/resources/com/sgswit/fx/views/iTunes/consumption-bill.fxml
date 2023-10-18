@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.ConsumptionBillController">
+    <children>
+        <Pane prefHeight="200.0" prefWidth="200.0">
+            <children>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0">
+                    <children>
+                        <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="10.0" layoutY="14.0" prefHeight="165.0" prefWidth="375.0" text="操作">
+                            <content>
+                                <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="102.0" prefWidth="102.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="10.0" prefWidth="285.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccoutQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
+                                            <font>
+                                                <Font name="System Bold" size="15.0" />
+                                            </font>
+                                 <GridPane.margin>
+                                    <Insets right="2.0" />
+                                 </GridPane.margin>
+                                        </Button>
+                                        <HBox fx:id="accountNumBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="245.0" GridPane.columnIndex="1">
+                                            <children>
+                                                <Label text="列表中账户数量：      " />
+                                                <Label fx:id="accountNum" text="0" textFill="#e20404" />
+                                            </children>
+                                        </HBox>
+                                        <GridPane alignment="CENTER" prefHeight="95.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                            <children>
+                                                <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="区域查询记录" textAlignment="CENTER">
+                                       <GridPane.margin>
+                                          <Insets left="5.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出账户" GridPane.columnIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="15.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="账户输入" GridPane.rowIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="5.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空账户列表" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="15.0" />
+                                       </GridPane.margin></Button>
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane fx:id="accNum" layoutX="985.0" layoutY="14.0" prefHeight="165.0" prefWidth="300.0" text="操作说明">
+                            <content>
+                                <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="300.0">
+                                    <children>
+                                        <Label text="注：" />
+                                        <Label prefWidth="280.0" text="1.【格式为: 账号----密码】，双重认证账号在执行的过程中，将弹出验证码输入框,输入验证码后才能继续查询" wrapText="true">
+                                            <VBox.margin>
+                                                <Insets bottom="3.0" top="2.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <HBox prefHeight="35.0" prefWidth="340.0">
+                                            <children>
+                                                <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <Label prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                                    <font>
+                                                        <Font name="System Bold" size="16.0" />
+                                                    </font>
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+                        <TitledPane layoutX="6.0" layoutY="197.0" prefHeight="427.0" prefWidth="1280.0" text="账号列表">
+                            <content>
+                                <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
+                                    <columns>
+                                        <TableColumn fx:id="seq" prefWidth="75.0" text="序号" />
+                                        <TableColumn fx:id="account" prefWidth="150.0" text="账号" />
+                                        <TableColumn fx:id="pwd" prefWidth="150.0" text="密码" />
+                                        <TableColumn fx:id="notes" prefWidth="150.0" text="执行信息" />
+                                        <TableColumn fx:id="area" prefWidth="120.0" text="账号地区" />
+                                        <TableColumn fx:id="accountBalance" prefWidth="80.0" text="账号余额" />
+                                        <TableColumn fx:id="status" prefWidth="80.0" text="禁用状态" />
+                                        <TableColumn fx:id="lastPurchaseDate" prefWidth="99.0" text="最新购买日期" />
+                                        <TableColumn fx:id="earliestPurchaseDate" prefWidth="92.0" text="最早购买日期" />
+                                        <TableColumn fx:id="totalConsumption" prefWidth="109.0" text="消费总额" />
+                                        <TableColumn fx:id="totalRefundAmount" prefWidth="266.0" text="退款总额" />
+                                        <TableColumn fx:id="purchaseRecord" prefWidth="109.0" text="购买记录" />
+                                        <TableColumn fx:id="paymentInformation" prefWidth="109.0" text="付款信息" />
+                                        <TableColumn fx:id="shippingAddress" prefWidth="109.0" text="寄送地址" />
+                                    </columns>
+                                </TableView>
+                            </content>
+                        </TitledPane>
+                        <TitledPane animated="false" layoutX="395.0" layoutY="14.0" prefHeight="165.0" prefWidth="290.0">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="286.0">
+                                    <children>
+                                        <Label layoutX="6.0" layoutY="40.0" text="选择查询范围" />
+                                        <ChoiceBox layoutX="81.0" layoutY="36.0" prefHeight="23.0" prefWidth="90.0" />
+                              <CheckBox layoutX="185.0" layoutY="39.0" mnemonicParsing="false" text="过滤免费项目" />
+                              <CheckBox layoutX="7.0" layoutY="77.0" mnemonicParsing="false" text="自定义查询范围" />
+                              <TextField layoutX="120.0" layoutY="74.0" prefHeight="23.0" prefWidth="51.0" />
+                              <Label layoutX="186.0" layoutY="78.0" text="天" />
+                              <Label layoutX="205.0" layoutY="77.0" text="(0=查询全部)" />
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
+                  <TitledPane layoutX="695.0" layoutY="14.0" prefHeight="165.0" prefWidth="260.0">
+                     <content>
+                        <AnchorPane prefHeight="141.0" prefWidth="270.0">
+                           <children>
+                              <Label layoutX="5.0" layoutY="25.0" text="搜素关键字" />
+                              <TextField layoutX="68.0" layoutY="21.0" prefHeight="23.0" prefWidth="141.0" />
+                              <Button layoutX="216.0" layoutY="21.0" mnemonicParsing="false" text="查询" />
+                              <Label disable="true" layoutX="5.0" layoutY="63.0" prefWidth="165.0" text="搜索列表中已保存CSV文件内容，多个关键字请用“-&quot; (杠号)隔开" wrapText="true" />
+                              <Button layoutX="170.0" layoutY="67.0" mnemonicParsing="false" text="打开匹配目录" />
+                              <CheckBox layoutX="153.0" layoutY="102.0" mnemonicParsing="false" text="使用随机IP代理" textFill="#ee1717" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </TitledPane>
+                    </children>
+                </AnchorPane>
+            </children></Pane>
+    </children>
+</VBox>

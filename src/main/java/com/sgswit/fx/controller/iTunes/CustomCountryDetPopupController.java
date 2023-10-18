@@ -36,6 +36,7 @@ import java.io.FileWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author DeZh
@@ -181,10 +182,6 @@ public class CustomCountryDetPopupController implements Initializable {
             if(!StringUtils.isEmpty(jsonString)){
                 list = JSONUtil.toList(jsonString,UserNationalModel.class);
             }
-            userNationalModel.setId(IdUtil.simpleUUID());
-            userNationalModel.setName(name.getText());
-
-            GridPane gridPane= (GridPane) billMailingAddressPane.getChildren().get(0);
             if(StringUtils.isEmpty(name.getText())){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("提示");
@@ -192,36 +189,43 @@ public class CustomCountryDetPopupController implements Initializable {
                 alert.show();
                 return;
             }
+            userNationalModel.setId(IdUtil.simpleUUID());
+            userNationalModel.setName(name.getText());
+
+            GridPane gridPane= (GridPane) billMailingAddressPane.getChildren().get(0);
+
             String addressFormatListStr=DataUtil.getAddressFormat(countryBox.getSelectionModel().getSelectedItem().getKey());
-//            List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
+            List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
             JSON json=JSONUtil.createObj();
             boolean defaultPhoneNumberCountryCode=true;
             for(Node node:gridPane.getChildren()){
                 if(null!=node.getId() && BillingAddressParas.hasObjByPath(node.getId())){
                     String newId=node.getId().replace("_",".");
+                    String fieldId=node.getId().split("_")[1];
                     BillingAddressParas.Paras parasObj=BillingAddressParas.getParasInfoByPath(node.getId());
+                    List<FieldModel> fieldModelList= addressFormatList.stream().filter(n->n.getId().equals(fieldId)).collect(Collectors.toList());
                     if(parasObj.getType().equals("text")){
                         String value=((TextField)node).getText();
-//                        if(StringUtils.isEmpty(value)){
-//                            Alert alert = new Alert(Alert.AlertType.ERROR);
-//                            alert.setTitle("提示");
-//                            alert.setHeaderText("请检查必填项");
-//                            alert.show();
-//                            return;
-//                        }
+                        if(StringUtils.isEmpty(value) && fieldModelList.get(0).isRequired()){
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("提示");
+                            alert.setHeaderText("请检查必填项");
+                            alert.show();
+                            return;
+                        }
                         json.putByPath(newId,value);
                         if(newId.equals("phoneNumber.countryCode")){
                             defaultPhoneNumberCountryCode=false;
                         }
                     }else{
                         KeyValuePair keyValuePair=  (KeyValuePair)((ChoiceBox)node).getSelectionModel().getSelectedItem();
-//                        if(StringUtils.isEmpty(value)){
-//                            Alert alert = new Alert(Alert.AlertType.ERROR);
-//                            alert.setTitle("提示");
-//                            alert.setHeaderText("请检查必填项");
-//                            alert.show();
-//                            return;
-//                        }
+                        if(StringUtils.isEmpty(keyValuePair) && fieldModelList.get(0).isRequired()){
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("提示");
+                            alert.setHeaderText("请检查必填项");
+                            alert.show();
+                            return;
+                        }
                         json.putByPath(newId,keyValuePair.getKey());
                     }
 

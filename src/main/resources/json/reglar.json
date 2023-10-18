@@ -1,0 +1,1404 @@
+{
+  "data": [
+    {
+      "code2": "AE",
+      "phoneAreaCodeRreg": "",
+      "en": "United Arab Emirates",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿拉伯联合酋长国"
+    },
+    {
+      "code2": "AF",
+      "phoneAreaCodeRreg": "",
+      "en": "Afghanistan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿富汗"
+    },
+    {
+      "code2": "AG",
+      "phoneAreaCodeRreg": "",
+      "en": "Antigua and Barbuda",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "安提瓜和巴布达"
+    },
+    {
+      "code2": "AI",
+      "phoneAreaCodeRreg": "",
+      "en": "Anguilla",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "安圭拉岛"
+    },
+    {
+      "code2": "AL",
+      "phoneAreaCodeRreg": "",
+      "en": "Albania",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿尔巴尼亚"
+    },
+    {
+      "code2": "AM",
+      "phoneAreaCodeRreg": "",
+      "en": "Armenia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "亚美尼亚"
+    },
+    {
+      "code2": "AO",
+      "phoneAreaCodeRreg": "",
+      "en": "Angola",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "安哥拉"
+    },
+    {
+      "code2": "AR",
+      "phoneAreaCodeRreg": "",
+      "en": "Argentina",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿根廷"
+    },
+    {
+      "code2": "AT",
+      "phoneAreaCodeRreg": "",
+      "en": "Austria",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "奥地利"
+    },
+    {
+      "code2": "AU",
+      "phoneAreaCodeRreg": "",
+      "en": "Australia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "澳大利亚"
+    },
+    {
+      "code2": "AZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Azerbaijan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿塞拜疆"
+    },
+    {
+      "code2": "BA",
+      "phoneAreaCodeRreg": "",
+      "en": "Bosnia and Herzegovina",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "波斯尼亚和黑塞哥维那"
+    },
+    {
+      "code2": "BB",
+      "phoneAreaCodeRreg": "",
+      "en": "Barbados",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴巴多斯"
+    },
+    {
+      "code2": "BE",
+      "phoneAreaCodeRreg": "",
+      "en": "Belgium",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "比利时"
+    },
+    {
+      "code2": "BF",
+      "phoneAreaCodeRreg": "",
+      "en": "Burkina Faso",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "布基纳法索"
+    },
+    {
+      "code2": "BG",
+      "phoneAreaCodeRreg": "",
+      "en": "Bulgaria",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "保加利亚"
+    },
+    {
+      "code2": "BH",
+      "phoneAreaCodeRreg": "",
+      "en": "Bahrain",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴林"
+    },
+    {
+      "code2": "BJ",
+      "phoneAreaCodeRreg": "",
+      "en": "Benin",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "贝宁"
+    },
+    {
+      "code2": "BM",
+      "phoneAreaCodeRreg": "",
+      "en": "Bermuda",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "百慕大"
+    },
+    {
+      "code2": "BN",
+      "phoneAreaCodeRreg": "",
+      "en": "Brunei",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "文莱"
+    },
+    {
+      "code2": "BO",
+      "phoneAreaCodeRreg": "",
+      "en": "Bolivia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "玻利维亚"
+    },
+    {
+      "code2": "BR",
+      "phoneAreaCodeRreg": "",
+      "en": "Brazil",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴西"
+    },
+    {
+      "code2": "BS",
+      "phoneAreaCodeRreg": "",
+      "en": "Bahamas",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴哈马"
+    },
+    {
+      "code2": "BT",
+      "phoneAreaCodeRreg": "",
+      "en": "Bhutan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "不丹"
+    },
+    {
+      "code2": "BW",
+      "phoneAreaCodeRreg": "",
+      "en": "Botswana",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "博茨瓦纳"
+    },
+    {
+      "code2": "BY",
+      "phoneAreaCodeRreg": "",
+      "en": "Belarus",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "白俄罗斯"
+    },
+    {
+      "code2": "BZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Belize",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "伯利兹"
+    },
+    {
+      "code2": "CA",
+      "phoneAreaCodeRreg": "",
+      "en": "Canada",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "加拿大"
+    },
+    {
+      "code2": "CD",
+      "phoneAreaCodeRreg": "",
+      "en": "Congo, Democratic Republic of",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "刚果民主共和国"
+    },
+    {
+      "code2": "CG",
+      "phoneAreaCodeRreg": "",
+      "en": "Congo, Republic of",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "刚果共和国"
+    },
+    {
+      "code2": "CH",
+      "phoneAreaCodeRreg": "",
+      "en": "Switzerland",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "瑞士"
+    },
+    {
+      "code2": "CI",
+      "phoneAreaCodeRreg": "",
+      "en": "Cote D'Ivoire",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "科特迪瓦"
+    },
+    {
+      "code2": "CL",
+      "phoneAreaCodeRreg": "",
+      "en": "Chile",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "智利"
+    },
+    {
+      "code2": "CM",
+      "phoneAreaCodeRreg": "",
+      "en": "Cameroon",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "喀麦隆"
+    },
+    {
+      "code2": "CN",
+      "phoneAreaCodeRreg": "",
+      "en": "China",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "中国大陆"
+    },
+    {
+      "code2": "CO",
+      "phoneAreaCodeRreg": "",
+      "en": "Colombia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "哥伦比亚"
+    },
+    {
+      "code2": "CR",
+      "phoneAreaCodeRreg": "",
+      "en": "Costa Rica",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "哥斯达黎加"
+    },
+    {
+      "code2": "CV",
+      "phoneAreaCodeRreg": "",
+      "en": "Cape Verde",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "佛得角"
+    },
+    {
+      "code2": "CY",
+      "phoneAreaCodeRreg": "",
+      "en": "Cyprus",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塞浦路斯"
+    },
+    {
+      "code2": "CZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Czechia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "捷克"
+    },
+    {
+      "code2": "DE",
+      "phoneAreaCodeRreg": "",
+      "en": "Germany",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "德国"
+    },
+    {
+      "code2": "DK",
+      "phoneAreaCodeRreg": "",
+      "en": "Denmark",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "丹麦"
+    },
+    {
+      "code2": "DM",
+      "phoneAreaCodeRreg": "",
+      "en": "Dominica",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "多米尼克"
+    },
+    {
+      "code2": "DO",
+      "phoneAreaCodeRreg": "",
+      "en": "Dominican Republic",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "多米尼加共和国"
+    },
+    {
+      "code2": "DZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Algeria",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿尔及利亚"
+    },
+    {
+      "code2": "EC",
+      "phoneAreaCodeRreg": "",
+      "en": "Ecuador",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "厄瓜多尔"
+    },
+    {
+      "code2": "EE",
+      "phoneAreaCodeRreg": "",
+      "en": "Estonia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "爱沙尼亚"
+    },
+    {
+      "code2": "EG",
+      "phoneAreaCodeRreg": "",
+      "en": "Egypt",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "埃及"
+    },
+    {
+      "code2": "ES",
+      "phoneAreaCodeRreg": "",
+      "en": "Spain",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "西班牙"
+    },
+    {
+      "code2": "FI",
+      "phoneAreaCodeRreg": "",
+      "en": "Finland",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "芬兰"
+    },
+    {
+      "code2": "FJ",
+      "phoneAreaCodeRreg": "",
+      "en": "Fiji",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "斐济"
+    },
+    {
+      "code2": "FM",
+      "phoneAreaCodeRreg": "",
+      "en": "Micronesia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "密克罗尼西亚"
+    },
+    {
+      "code2": "FR",
+      "phoneAreaCodeRreg": "",
+      "en": "France",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "法国"
+    },
+    {
+      "code2": "GA",
+      "phoneAreaCodeRreg": "",
+      "en": "Gabon",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "加蓬"
+    },
+    {
+      "code2": "GB",
+      "phoneAreaCodeRreg": "",
+      "en": "United Kingdom",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "英国"
+    },
+    {
+      "code2": "GD",
+      "phoneAreaCodeRreg": "",
+      "en": "Grenada",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "格林纳达"
+    },
+    {
+      "code2": "GE",
+      "phoneAreaCodeRreg": "",
+      "en": "Georgia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "格鲁吉亚"
+    },
+    {
+      "code2": "GH",
+      "phoneAreaCodeRreg": "",
+      "en": "Ghana",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "加纳"
+    },
+    {
+      "code2": "GM",
+      "phoneAreaCodeRreg": "",
+      "en": "Gambia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "冈比亚"
+    },
+    {
+      "code2": "GR",
+      "phoneAreaCodeRreg": "",
+      "en": "Greece",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "希腊"
+    },
+    {
+      "code2": "GT",
+      "phoneAreaCodeRreg": "",
+      "en": "Guatemala",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "危地马拉"
+    },
+    {
+      "code2": "GW",
+      "phoneAreaCodeRreg": "",
+      "en": "Guinea-Bissau",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "几内亚比绍"
+    },
+    {
+      "code2": "GY",
+      "phoneAreaCodeRreg": "",
+      "en": "Guyana",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "圭亚那"
+    },
+    {
+      "code2": "HK",
+      "phoneAreaCodeRreg": "",
+      "en": "Hong Kong",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "香港"
+    },
+    {
+      "code2": "HN",
+      "phoneAreaCodeRreg": "",
+      "en": "Honduras",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "洪都拉斯"
+    },
+    {
+      "code2": "HR",
+      "phoneAreaCodeRreg": "",
+      "en": "Croatia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "克罗地亚"
+    },
+    {
+      "code2": "HU",
+      "phoneAreaCodeRreg": "",
+      "en": "Hungary",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "匈牙利"
+    },
+    {
+      "code2": "ID",
+      "phoneAreaCodeRreg": "",
+      "en": "Indonesia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "印度尼西亚"
+    },
+    {
+      "code2": "IE",
+      "phoneAreaCodeRreg": "",
+      "en": "Ireland",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "爱尔兰"
+    },
+    {
+      "code2": "IL",
+      "phoneAreaCodeRreg": "",
+      "en": "Israel",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "以色列"
+    },
+    {
+      "code2": "IN",
+      "phoneAreaCodeRreg": "",
+      "en": "India",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "印度"
+    },
+    {
+      "code2": "IQ",
+      "phoneAreaCodeRreg": "",
+      "en": "Iraq",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "伊拉克"
+    },
+    {
+      "code2": "IS",
+      "phoneAreaCodeRreg": "",
+      "en": "Iceland",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "冰岛"
+    },
+    {
+      "code2": "IT",
+      "phoneAreaCodeRreg": "",
+      "en": "Italy",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "意大利"
+    },
+    {
+      "code2": "JM",
+      "phoneAreaCodeRreg": "",
+      "en": "Jamaica",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "牙买加"
+    },
+    {
+      "code2": "JO",
+      "phoneAreaCodeRreg": "",
+      "en": "Jordan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "约旦"
+    },
+    {
+      "code2": "JP",
+      "phoneAreaCodeRreg": "",
+      "en": "Japan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "日本"
+    },
+    {
+      "code2": "KE",
+      "phoneAreaCodeRreg": "",
+      "en": "Kenya",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "肯尼亚"
+    },
+    {
+      "code2": "KG",
+      "phoneAreaCodeRreg": "",
+      "en": "Kyrgyzstan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "吉尔吉斯斯坦"
+    },
+    {
+      "code2": "KH",
+      "phoneAreaCodeRreg": "",
+      "en": "Cambodia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "柬埔寨"
+    },
+    {
+      "code2": "KN",
+      "phoneAreaCodeRreg": "",
+      "en": "Saint Kitts and Nevis",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "圣基茨和尼维斯"
+    },
+    {
+      "code2": "KR",
+      "phoneAreaCodeRreg": "",
+      "en": "South Korea",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "韩国"
+    },
+    {
+      "code2": "KW",
+      "phoneAreaCodeRreg": "",
+      "en": "Kuwait",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "科威特"
+    },
+    {
+      "code2": "KY",
+      "phoneAreaCodeRreg": "",
+      "en": "Cayman Islands",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "开曼群岛"
+    },
+    {
+      "code2": "KZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Kazakhstan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "哈萨克斯坦"
+    },
+    {
+      "code2": "LA",
+      "phoneAreaCodeRreg": "",
+      "en": "Laos",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "老挝"
+    },
+    {
+      "code2": "LB",
+      "phoneAreaCodeRreg": "",
+      "en": "Lebanon",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "黎巴嫩"
+    },
+    {
+      "code2": "LC",
+      "phoneAreaCodeRreg": "",
+      "en": "Saint Lucia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "圣卢西亚"
+    },
+    {
+      "code2": "LK",
+      "phoneAreaCodeRreg": "",
+      "en": "Sri Lanka",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "斯里兰卡"
+    },
+    {
+      "code2": "LR",
+      "phoneAreaCodeRreg": "",
+      "en": "Liberia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "利比里亚"
+    },
+    {
+      "code2": "LT",
+      "phoneAreaCodeRreg": "",
+      "en": "Lithuania",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "立陶宛"
+    },
+    {
+      "code2": "LU",
+      "phoneAreaCodeRreg": "",
+      "en": "Luxembourg",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "卢森堡"
+    },
+    {
+      "code2": "LV",
+      "phoneAreaCodeRreg": "",
+      "en": "Latvia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "拉脱维亚"
+    },
+    {
+      "code2": "LY",
+      "phoneAreaCodeRreg": "",
+      "en": "Libya",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "利比亚"
+    },
+    {
+      "code2": "MA",
+      "phoneAreaCodeRreg": "",
+      "en": "Morocco",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "摩洛哥"
+    },
+    {
+      "code2": "MD",
+      "phoneAreaCodeRreg": "",
+      "en": "Moldova",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "摩尔多瓦"
+    },
+    {
+      "code2": "ME",
+      "phoneAreaCodeRreg": "",
+      "en": "Montenegro",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "黑山"
+    },
+    {
+      "code2": "MG",
+      "phoneAreaCodeRreg": "",
+      "en": "Madagascar",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马达加斯加"
+    },
+    {
+      "code2": "MK",
+      "phoneAreaCodeRreg": "",
+      "en": "North Macedonia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "北马其顿"
+    },
+    {
+      "code2": "ML",
+      "phoneAreaCodeRreg": "",
+      "en": "Mali",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马里"
+    },
+    {
+      "code2": "MM",
+      "phoneAreaCodeRreg": "",
+      "en": "Myanmar",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "缅甸"
+    },
+    {
+      "code2": "MN",
+      "phoneAreaCodeRreg": "",
+      "en": "Mongolia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "蒙古"
+    },
+    {
+      "code2": "MO",
+      "phoneAreaCodeRreg": "",
+      "en": "Macau",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "澳门"
+    },
+    {
+      "code2": "MR",
+      "phoneAreaCodeRreg": "",
+      "en": "Mauritania",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "毛里塔尼亚"
+    },
+    {
+      "code2": "MS",
+      "phoneAreaCodeRreg": "",
+      "en": "Montserrat",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "蒙特塞拉特"
+    },
+    {
+      "code2": "MT",
+      "phoneAreaCodeRreg": "",
+      "en": "Malta",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马耳他"
+    },
+    {
+      "code2": "MU",
+      "phoneAreaCodeRreg": "",
+      "en": "Mauritius",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "毛里求斯"
+    },
+    {
+      "code2": "MV",
+      "phoneAreaCodeRreg": "",
+      "en": "Maldives",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马尔代夫"
+    },
+    {
+      "code2": "MW",
+      "phoneAreaCodeRreg": "",
+      "en": "Malawi",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马拉维"
+    },
+    {
+      "code2": "MX",
+      "phoneAreaCodeRreg": "",
+      "en": "Mexico",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "墨西哥"
+    },
+    {
+      "code2": "MY",
+      "phoneAreaCodeRreg": "",
+      "en": "Malaysia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "马来西亚"
+    },
+    {
+      "code2": "MZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Mozambique",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "莫桑比克"
+    },
+    {
+      "code2": "NA",
+      "phoneAreaCodeRreg": "",
+      "en": "Namibia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "纳米比亚"
+    },
+    {
+      "code2": "NE",
+      "phoneAreaCodeRreg": "",
+      "en": "Niger",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "尼日尔"
+    },
+    {
+      "code2": "NG",
+      "phoneAreaCodeRreg": "",
+      "en": "Nigeria",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "尼日利亚"
+    },
+    {
+      "code2": "NI",
+      "phoneAreaCodeRreg": "",
+      "en": "Nicaragua",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "尼加拉瓜"
+    },
+    {
+      "code2": "NL",
+      "phoneAreaCodeRreg": "",
+      "en": "Netherlands",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "荷兰"
+    },
+    {
+      "code2": "NO",
+      "phoneAreaCodeRreg": "",
+      "en": "Norway",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "挪威"
+    },
+    {
+      "code2": "NP",
+      "phoneAreaCodeRreg": "",
+      "en": "Nepal",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "尼泊尔"
+    },
+    {
+      "code2": "NR",
+      "phoneAreaCodeRreg": "",
+      "en": "Nauru",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "瑙鲁"
+    },
+    {
+      "code2": "NZ",
+      "phoneAreaCodeRreg": "",
+      "en": "New Zealand",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "新西兰"
+    },
+    {
+      "code2": "OM",
+      "phoneAreaCodeRreg": "",
+      "en": "Oman",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "阿曼"
+    },
+    {
+      "code2": "PA",
+      "phoneAreaCodeRreg": "",
+      "en": "Panama",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴拿马"
+    },
+    {
+      "code2": "PE",
+      "phoneAreaCodeRreg": "",
+      "en": "Peru",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "秘鲁"
+    },
+    {
+      "code2": "PG",
+      "phoneAreaCodeRreg": "",
+      "en": "Papua New Guinea",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴布亚新几内亚"
+    },
+    {
+      "code2": "PH",
+      "phoneAreaCodeRreg": "",
+      "en": "Philippines",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "菲律宾"
+    },
+    {
+      "code2": "PK",
+      "phoneAreaCodeRreg": "",
+      "en": "Pakistan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴基斯坦"
+    },
+    {
+      "code2": "PL",
+      "phoneAreaCodeRreg": "",
+      "en": "Poland",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "波兰"
+    },
+    {
+      "code2": "PT",
+      "phoneAreaCodeRreg": "",
+      "en": "Portugal",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "葡萄牙"
+    },
+    {
+      "code2": "PW",
+      "phoneAreaCodeRreg": "",
+      "en": "Palau",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "帕劳"
+    },
+    {
+      "code2": "PY",
+      "phoneAreaCodeRreg": "",
+      "en": "Paraguay",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "巴拉圭"
+    },
+    {
+      "code2": "QA",
+      "phoneAreaCodeRreg": "",
+      "en": "Qatar",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "卡塔尔"
+    },
+    {
+      "code2": "RO",
+      "phoneAreaCodeRreg": "",
+      "en": "Romania",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "罗马尼亚"
+    },
+    {
+      "code2": "RS",
+      "phoneAreaCodeRreg": "",
+      "en": "Serbia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塞尔维亚"
+    },
+    {
+      "code2": "RU",
+      "phoneAreaCodeRreg": "",
+      "en": "Russia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "俄罗斯"
+    },
+    {
+      "code2": "RW",
+      "phoneAreaCodeRreg": "",
+      "en": "Rwanda",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "卢旺达"
+    },
+    {
+      "code2": "SA",
+      "phoneAreaCodeRreg": "",
+      "en": "Saudi Arabia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "沙特阿拉伯"
+    },
+    {
+      "code2": "SB",
+      "phoneAreaCodeRreg": "",
+      "en": "Solomon Islands",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "所罗门群岛"
+    },
+    {
+      "code2": "SC",
+      "phoneAreaCodeRreg": "",
+      "en": "Seychelles",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塞舌尔"
+    },
+    {
+      "code2": "SE",
+      "phoneAreaCodeRreg": "",
+      "en": "Sweden",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "瑞典"
+    },
+    {
+      "code2": "SG",
+      "phoneAreaCodeRreg": "",
+      "en": "Singapore",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "新加坡"
+    },
+    {
+      "code2": "SI",
+      "phoneAreaCodeRreg": "",
+      "en": "Slovenia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "斯洛文尼亚"
+    },
+    {
+      "code2": "SK",
+      "phoneAreaCodeRreg": "",
+      "en": "Slovakia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "斯洛伐克"
+    },
+    {
+      "code2": "SL",
+      "phoneAreaCodeRreg": "",
+      "en": "Sierra Leone",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塞拉利昂"
+    },
+    {
+      "code2": "SN",
+      "phoneAreaCodeRreg": "",
+      "en": "Senegal",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塞内加尔"
+    },
+    {
+      "code2": "SR",
+      "phoneAreaCodeRreg": "",
+      "en": "Suriname",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "苏里南"
+    },
+    {
+      "code2": "ST",
+      "phoneAreaCodeRreg": "",
+      "en": "The Democratic Republic of Sao Tome and Principe",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "圣多美和普林西比"
+    },
+    {
+      "code2": "SV",
+      "phoneAreaCodeRreg": "",
+      "en": "El Salvador",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "萨尔瓦多"
+    },
+    {
+      "code2": "SZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Eswatini",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "斯威士兰"
+    },
+    {
+      "code2": "TC",
+      "phoneAreaCodeRreg": "",
+      "en": "Turks and Caicos",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "特克斯和凯科斯群岛"
+    },
+    {
+      "code2": "TD",
+      "phoneAreaCodeRreg": "",
+      "en": "Chad",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "乍得"
+    },
+    {
+      "code2": "TH",
+      "phoneAreaCodeRreg": "",
+      "en": "Thailand",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "泰国"
+    },
+    {
+      "code2": "TJ",
+      "phoneAreaCodeRreg": "",
+      "en": "Tajikistan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "塔吉克斯坦"
+    },
+    {
+      "code2": "TM",
+      "phoneAreaCodeRreg": "",
+      "en": "Turkmenistan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "土库曼斯坦"
+    },
+    {
+      "code2": "TN",
+      "phoneAreaCodeRreg": "",
+      "en": "Tunisia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "突尼斯"
+    },
+    {
+      "code2": "TO",
+      "phoneAreaCodeRreg": "",
+      "en": "Tonga",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "汤加"
+    },
+    {
+      "code2": "TR",
+      "phoneAreaCodeRreg": "",
+      "en": "Turkey",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "土耳其"
+    },
+    {
+      "code2": "TT",
+      "phoneAreaCodeRreg": "",
+      "en": "Trinidad and Tobago",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "特立尼达和多巴哥"
+    },
+    {
+      "code2": "TW",
+      "phoneAreaCodeRreg": "",
+      "en": "Taiwan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "台湾"
+    },
+    {
+      "code2": "TZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Tanzania",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "坦桑尼亚"
+    },
+    {
+      "code2": "UA",
+      "phoneAreaCodeRreg": "",
+      "en": "Ukraine",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "乌克兰"
+    },
+    {
+      "code2": "UG",
+      "phoneAreaCodeRreg": "",
+      "en": "Uganda",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "乌干达"
+    },
+    {
+      "code2": "US",
+      "phoneAreaCodeRreg": "",
+      "en": "United States",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "美国"
+    },
+    {
+      "code2": "UY",
+      "phoneAreaCodeRreg": "",
+      "en": "Uruguay",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "乌拉圭"
+    },
+    {
+      "code2": "UZ",
+      "phoneAreaCodeRreg": "",
+      "en": "Uzbekistan",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "乌兹别克斯坦"
+    },
+    {
+      "code2": "VC",
+      "phoneAreaCodeRreg": "",
+      "en": "Saint Vincent and the Grenadines",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "圣文森特和格林纳丁斯"
+    },
+    {
+      "code2": "VE",
+      "phoneAreaCodeRreg": "",
+      "en": "Venezuela",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "委内瑞拉"
+    },
+    {
+      "code2": "VG",
+      "phoneAreaCodeRreg": "",
+      "en": "British Virgin Islands",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "英属维尔京群岛"
+    },
+    {
+      "code2": "VN",
+      "phoneAreaCodeRreg": "",
+      "en": "Vietnam",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "越南"
+    },
+    {
+      "code2": "VU",
+      "phoneAreaCodeRreg": "",
+      "en": "Vanuatu",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "瓦努阿图"
+    },
+    {
+      "code2": "XK",
+      "phoneAreaCodeRreg": "",
+      "en": "Kosovo",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "科索沃"
+    },
+    {
+      "code2": "YE",
+      "phoneAreaCodeRreg": "",
+      "en": "Yemen",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "也门"
+    },
+    {
+      "code2": "ZA",
+      "phoneAreaCodeRreg": "",
+      "en": "South Africa",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "南非"
+    },
+    {
+      "code2": "ZM",
+      "phoneAreaCodeRreg": "",
+      "en": "Zambia",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "赞比亚"
+    },
+    {
+      "code2": "ZW",
+      "phoneAreaCodeRreg": "",
+      "en": "Zimbabwe",
+      "phoneRreg": "",
+      "postRreg": "",
+      "zh": "津巴布韦"
+    }
+  ]
+}
