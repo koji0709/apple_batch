@@ -622,7 +622,7 @@ public class AppleIDUtil {
     /**
      * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
      */
-    public static HttpResponse verifyAppleId(HttpResponse verifyAppleIdRsp) {
+    public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp) {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
 

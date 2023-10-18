@@ -21,7 +21,7 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="帐号解锁改密" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+    <Button onAction="#onUnlockChangePasswordBtnClick" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="帐号解锁改密" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

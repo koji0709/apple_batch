@@ -87,17 +87,39 @@ public class TableView implements Initializable {
      * 初始化字段绑定
      */
     public void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        state.setCellValueFactory(new PropertyValueFactory<Account,String>("state"));
-        aera.setCellValueFactory(new PropertyValueFactory<Account,String>("aera"));
-        name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));
-        status.setCellValueFactory(new PropertyValueFactory<Account,String>("status"));
-        answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
-        answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
-        answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
-        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+        if (seq != null){
+            seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
+        }
+        if (account != null){
+            account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
+        }
+        if (pwd != null){
+            pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
+        }
+        if (state != null){
+            state.setCellValueFactory(new PropertyValueFactory<Account,String>("state"));
+        }
+        if (aera != null){
+            aera.setCellValueFactory(new PropertyValueFactory<Account,String>("aera"));
+        }
+        if (name != null){
+            name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));
+        }
+        if (status != null){
+            status.setCellValueFactory(new PropertyValueFactory<Account,String>("status"));
+        }
+        if (answer1 != null){
+            answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
+        }
+        if (answer2 != null){
+            answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
+        }
+        if (answer3 != null){
+            answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
+        }
+        if (note != null){
+            note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+        }
     }
 
     /**
@@ -122,32 +144,34 @@ public class TableView implements Initializable {
         popupStage.showAndWait();
 
         AccountInputPopupController viewCtr = fxmlLoader.getController();
+        String accounts = viewCtr.getAccounts();
+        if (!StrUtil.isEmpty(accounts)){
+            String[] lineArray = accounts.split("\n");
+            for(String item : lineArray){
+                String[] its = item.split("----");
+                Account account = new Account();
+                account.setAccount(its[0]);
 
-        String[] lineArray = viewCtr.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setAccount(its[0]);
-
-            String[] pas = its[1].split("-");
-            if(pas.length == 4){
-                account.setPwd(pas[0]);
-                account.setAnswer1(pas[1]);
-                account.setAnswer2(pas[2]);
-                account.setAnswer3(pas[3]);
-            }else{
-                account.setPwd(its[1]);
+                String[] pas = its[1].split("-");
+                if(pas.length == 4){
+                    account.setPwd(pas[0]);
+                    account.setAnswer1(pas[1]);
+                    account.setAnswer2(pas[2]);
+                    account.setAnswer3(pas[3]);
+                }else{
+                    account.setPwd(its[1]);
+                }
+                accountList.add(account);
             }
-            accountList.add(account);
-        }
-        if (!CollectionUtil.isEmpty(accountList)){
-            for (int i = 0; i < accountList.size(); i++) {
-                Account account = accountList.get(i);
-                account.setSeq(i+1);
+            if (!CollectionUtil.isEmpty(accountList)){
+                for (int i = 0; i < accountList.size(); i++) {
+                    Account account = accountList.get(i);
+                    account.setSeq(i+1);
+                }
             }
+            tableViewDataList.setItems(accountList);
+            accountNumLable.setText(accountList.size()+"");
         }
-        tableViewDataList.setItems(accountList);
-        accountNumLable.setText(accountList.size()+"");
     }
 
     /**

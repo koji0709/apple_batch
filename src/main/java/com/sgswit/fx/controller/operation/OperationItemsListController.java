@@ -28,4 +28,17 @@ public class OperationItemsListController {
         popupStage.show();
     }
 
+    public void onUnlockChangePasswordBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/operation/unlock-change-password.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1260, 760);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("账号解锁改密");
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
+    }
+
 }
