@@ -32,7 +32,7 @@
                         <Font size="13.0" />
                      </font>
                   </Hyperlink>
-                  <Hyperlink layoutX="230.0" layoutY="90.0" onAction="#onIpProxyAndThreadSettingsBtnClick" text="IP代理和线程设置【默认】" textFill="WHITE">
+                  <Hyperlink layoutX="230.0" layoutY="90.0" onAction="#onIpProxyAndThreadSettingsBtnClick" text="综合设置" textFill="WHITE">
                      <font>
                         <Font size="13.0" />
                      </font>
