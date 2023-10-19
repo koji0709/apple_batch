@@ -552,7 +552,7 @@ public class AppleIDUtil {
      * 关闭双重认证
      * @return httpstatus == 302 代表成功
      */
-    public static HttpResponse closeSecurityUpgrade(String key,String newPassword){
+    public static HttpResponse securityDowngrade(String key,String newPassword){
         String base = "https://iforgot.apple.com";
         HttpResponse rsp = HttpUtil.createGet(base + "/withdraw?key=" + key)
                 .execute();
