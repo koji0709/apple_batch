@@ -571,6 +571,96 @@ public class AppleIDUtil {
     }
 
     /**
+     * 密保关闭双重认证
+     */
+    public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,String newPassword) {
+        String host = "https://iforgot.apple.com";
+        String verifyPhone1Location = verifyAppleIdRsp.header("Location");
+
+        HttpResponse verifyPhone1Rsp = HttpUtil.createGet(host + verifyPhone1Location)
+                .header(buildHeader())
+                .execute();
+
+        Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
+        if (recoverable == null || !recoverable){
+            Console.log("该账号不能使用双重认证");
+            return null;
+        }
+
+        HttpResponse verifyPhone2Rsp = HttpUtil.createGet(host + "/password/verify/phone")
+                .header(verifyPhone1Rsp.headers())
+                .execute();
+
+        HttpResponse unenrollmentRsp = HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
+                .header(verifyPhone2Rsp.headers())
+                .execute();
+
+        System.err.println(unenrollmentRsp.header("Location"));
+
+        String verifyBirthday1Location = unenrollmentRsp.header("Location");
+        HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
+                .header(buildHeader())
+                .execute();
+
+        HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/unenrollment/verify/birthday")
+                .header(verifyBirthday1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"monthOfYear\":\"08\",\"dayOfMonth\":\"10\",\"year\":\"1996\"}")
+                .execute();
+
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
+                .header(buildHeader())
+                .execute();
+
+        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
+        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+        Map<Integer,String> answerMap = new HashMap<>(){{
+            put(1,"猪");
+            put(2,"狗");
+            put(3,"牛");
+        }};
+        for (JSONObject question : questions) {
+            question.remove("locale");
+            question.putOnce("answer",answerMap.get(question.getInt("number")));
+        }
+        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
+        bodyMap.put("questions",questions);
+        HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/unenrollment/verify/questions")
+                .header(verifyQuestions1Rsp.headers())
+                .header("Content-Type","application/json")
+                //.header("sstt",verifyQuestions1BodyJSON.getByPath("sstt",String.class))
+                .body(JSONUtil.toJsonStr(bodyMap))
+                .execute();
+
+        /// ===================
+
+
+        String unenrollment1Location = verifyQuestions2Rsp.header("Location");
+        HttpResponse unenrollment1Rsp = HttpUtil.createGet(host + unenrollment1Location)
+                .header(buildHeader())
+                .execute();
+
+        HttpResponse unenrollment2Rsp = HttpUtil.createPost(host + "/unenrollment")
+                .header(unenrollment1Rsp.headers())
+                .execute();
+
+        String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
+        HttpResponse unenrollmentReset1Rsp = HttpUtil.createGet(host + unenrollmentReset1Location)
+                .header(buildHeader())
+                .execute();
+
+        HttpResponse unenrollmentReset2Rsp = HttpUtil.createPost(host + "/unenrollment/reset")
+                .header(unenrollmentReset1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"password\":\"Xx97595031.259\"}")
+                .execute();
+
+        return unenrollmentReset2Rsp;
+    }
+
+
+    /**
      * 生成支持pin
      */
     public static HttpResponse supportPin(String tokenScnt){
