@@ -2,6 +2,9 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
@@ -602,10 +605,12 @@ public class AppleIDUtil {
                 .header(buildHeader())
                 .execute();
 
+        DateTime birthday = DateUtil.parse(account.getBirthday());
+
         HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/unenrollment/verify/birthday")
                 .header(verifyBirthday1Rsp.headers())
                 .header("Content-Type","application/json")
-                .body("{\"monthOfYear\":\"08\",\"dayOfMonth\":\"10\",\"year\":\"1996\"}")
+                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .execute();
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
