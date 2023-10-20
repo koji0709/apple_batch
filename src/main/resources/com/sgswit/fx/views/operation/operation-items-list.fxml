@@ -29,11 +29,11 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="开通双重认证" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+    <Button onAction="#onSecurityUpgradeBtnClick" layoutX="10.0" layoutY="74.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="开通双重认证" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="关闭双重认证" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+    <Button onAction="#onSecurityDowngradeBtnClick" layoutX="10.0" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="关闭双重认证" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

@@ -40,5 +40,30 @@ public class OperationItemsListController {
         popupStage.initStyle(StageStyle.UTILITY);
         popupStage.show();
     }
+    public void onSecurityUpgradeBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/operation/security-upgrade.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1260, 760);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("开通双重认证");
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
+    }
+
+    public void onSecurityDowngradeBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/operation/security-downgrade.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1260, 760);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("关闭双重认证");
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
+    }
 
 }
