@@ -76,7 +76,7 @@ public class QuerylogWhetherAppleController {
     private void onQueryBtnClick() throws Exception{
         ObservableList<Problem> list = FXCollections.observableArrayList();
 
-        FileReader reader = new FileReader("whetherAppleQuery.txt");
+        FileReader reader = new FileReader("appleIDVerify.txt");
 
         List<String> logs = reader.readLines();
         int i = 1;
