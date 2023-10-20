@@ -37,7 +37,7 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="生成支持PIN" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+    <Button onAction="#onSupportPinBtnClick" layoutX="10.0" layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="生成支持PIN" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
