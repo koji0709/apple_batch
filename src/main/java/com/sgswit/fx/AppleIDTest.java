@@ -2,7 +2,6 @@ package com.sgswit.fx;
 
 import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.base.TableView;
@@ -163,7 +162,7 @@ public class AppleIDTest {
 
     }
 
-    // 不需要登陆(重置密码)
+    // 不需要登陆(重置密码/关闭双重认证)
     public static void notLoginDemo(){
         // 获取验证码
         HttpResponse captchaRsp = AppleIDUtil.captcha();
@@ -178,16 +177,19 @@ public class AppleIDTest {
         String  captToken = captchaRspJSON.getByPath("token", String.class);
 
         // 校验appleId
-        //String appleId = Console.input();
-        String appleId = "shabagga222@tutanota.com";
-//        String appleId = "cncots@gmail.com";
+        Account account = new Account();
+        account.setName("shabagga222@tutanota.com");
+        account.setAnswer1("猪");
+        account.setAnswer2("狗");
+        account.setAnswer3("牛");
+        account.setPwd("");//新密码
+        //account.setName(Console.input());
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-        verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
+        verifyAppleIdBody = String.format(verifyAppleIdBody,account.getName(),captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
-        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp, "Xx97595031...");
+        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
         Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
-
 
         //HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);
         //Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
