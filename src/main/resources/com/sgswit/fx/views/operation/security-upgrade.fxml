@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:controller="com.sgswit.fx.controller.operation.UnlockChangePasswordController"
+<AnchorPane fx:controller="com.sgswit.fx.controller.operation.SecurityUpgradeController"
             maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -123,7 +123,7 @@
                 <!--账号列表-->
                 <TitledPane text="账号列表" collapsible="false" animated="false">
                     <content>
-                        <TableView fx:id="tableViewDataList" prefWidth="1230" prefHeight="500">
+                        <TableView fx:id="accountTableView" prefWidth="1230" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" text="账号"/>

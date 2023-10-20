@@ -21,4 +21,5 @@ public class SecurityDowngradeView extends TableView {
      */
     @FXML
     protected TextField pwdTextField;
+
 }

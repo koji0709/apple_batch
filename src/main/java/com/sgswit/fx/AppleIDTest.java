@@ -178,14 +178,14 @@ public class AppleIDTest {
 
         // 校验appleId
         Account account = new Account();
-        account.setName("shabagga222@tutanota.com");
+        account.setAccount("shabagga222@tutanota.com");
         account.setAnswer1("猪");
         account.setAnswer2("狗");
         account.setAnswer3("牛");
         account.setPwd("");//新密码
         //account.setName(Console.input());
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-        verifyAppleIdBody = String.format(verifyAppleIdBody,account.getName(),captId,captAnswer,captToken);
+        verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
         HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
@@ -196,4 +196,5 @@ public class AppleIDTest {
 
 
     }
+
 }

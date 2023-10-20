@@ -29,7 +29,7 @@ public class SupportPinController extends TableView {
 
         // todo
 
-        tableViewDataList.refresh();
+        accountTableView.refresh();
     }
 
     /**

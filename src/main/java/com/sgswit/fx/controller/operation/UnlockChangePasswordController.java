@@ -36,7 +36,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
 
         // todo 讯果不需要验证码 我们需要?
 
-        tableViewDataList.refresh();
+        accountTableView.refresh();
     }
 
     /**

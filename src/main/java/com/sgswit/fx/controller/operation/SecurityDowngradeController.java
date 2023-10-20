@@ -2,7 +2,13 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
-import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
+import com.sgswit.fx.model.Account;
+import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -16,6 +22,18 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
+    }
+
+    @FXML
+    protected void handleClickTableView(MouseEvent event) {
+        Account selectedItem = accountTableView.getSelectionModel().getSelectedItem();
+
+        ContextMenu menu = new ContextMenu();
+        MenuItem delete = new MenuItem("验证码");
+
+        delete.setOnAction(e -> alert(selectedItem.getAccount()));
+        menu.getItems().add(delete);
+        menu.show(accountTableView, event.getScreenX(), event.getScreenY());
     }
 
     /**
@@ -36,7 +54,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
         // todo
 
-        tableViewDataList.refresh();
+        accountTableView.refresh();
     }
 
     /**
