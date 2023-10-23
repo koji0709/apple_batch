@@ -34,6 +34,8 @@ import java.util.*;
  */
 public class TableView implements Initializable {
 
+    public static final String ACTION_COLUMN_NAME = "操作";
+
     @FXML
     public javafx.scene.control.TableView<Account> accountTableView;
 
@@ -78,6 +80,9 @@ public class TableView implements Initializable {
     @FXML
     private TableColumn answer3;
 
+    @FXML
+    private TableColumn actions;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initAccountTableView();
@@ -119,6 +124,9 @@ public class TableView implements Initializable {
         }
         if (note != null){
             note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+        }
+        if (actions != null){
+            actions.setCellValueFactory(new PropertyValueFactory<Account,Button>("actions"));
         }
     }
 
@@ -171,7 +179,6 @@ public class TableView implements Initializable {
             }
             accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
-
         }
     }
 
@@ -260,8 +267,7 @@ public class TableView implements Initializable {
         ImageView imageView = new ImageView();
         imageView.setImage(new Image(new ByteArrayInputStream(decode)));
         TextInputDialog dialog = new TextInputDialog("");
-        dialog.setTitle("验证码");
-//        dialog.setHeaderText("验证码为：");
+        dialog.setHeaderText("验证码:");
         root.setCenter(imageView);
         dialog.setContentText("请输入验证码:");
         dialog.setGraphic(root);
