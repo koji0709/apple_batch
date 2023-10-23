@@ -1,6 +1,5 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -31,11 +30,12 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
     @Override
     public void importAccountButtonAction() {
         super.importAccountButtonAction();
-        bindButton();
+        this.bindButton();
     }
 
     /**
      * 绑定按钮
+     * shabagga222@tutanota.com----Xx97595031.257-猪-狗-牛
      */
     public void bindButton(){
         Set<String> columnSet = accountTableView.getColumns().stream()
@@ -58,15 +58,19 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                             String  captAnswer = captchaDialog(captBase64);
 
                             Account account = getTableView().getItems().get(getIndex());
-                            System.out.println("selectedData: " + account);
-
-                            //String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-                            //verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
-                            //HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-
-                            //HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
+                            if (StrUtil.isEmpty(captAnswer)){
+                                account.setNote("未输入验证码");
+                                return;
+                            }
+                            account.setBirthday("1996-08-10");
+                            String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
+                            verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
+                            HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+                            HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
+                            System.err.println(securityDowngradeRsp.getStatus());
                         });
                     }
+
                     @Override
                     public void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);

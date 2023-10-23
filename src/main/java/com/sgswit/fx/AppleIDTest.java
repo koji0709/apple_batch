@@ -182,7 +182,8 @@ public class AppleIDTest {
         account.setAnswer1("猪");
         account.setAnswer2("狗");
         account.setAnswer3("牛");
-        account.setPwd("");//新密码
+        account.setBirthday("1996-08-10");
+        account.setPwd("Xx97595031.21222");//新密码
         //account.setName(Console.input());
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);

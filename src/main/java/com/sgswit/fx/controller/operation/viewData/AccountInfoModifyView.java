@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.operation.viewData;
 
+import com.sgswit.fx.controller.base.AppleIdView;
 import com.sgswit.fx.controller.base.TableView;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -7,7 +8,7 @@ import javafx.scene.control.*;
 /**
  * 官网修改资料view元素
  */
-public class AccountInfoModifyView extends TableView {
+public class AccountInfoModifyView extends AppleIdView {
 
     /**
      * 失败重试

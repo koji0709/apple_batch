@@ -586,7 +586,7 @@ public class AppleIDUtil {
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
         if (recoverable == null || !recoverable){
-            Console.log("该账号不能使用双重认证");
+            account.setNote("该账号不能关闭双重认证");
             return null;
         }
 
@@ -597,8 +597,6 @@ public class AppleIDUtil {
         HttpResponse unenrollmentRsp = HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
                 .header(verifyPhone2Rsp.headers())
                 .execute();
-
-        System.err.println(unenrollmentRsp.header("Location"));
 
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)

@@ -1,7 +1,9 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
@@ -223,5 +225,4 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     public void stopTaskButtonAction(){
         alert("停止任务按钮点击");
     }
-
 }
