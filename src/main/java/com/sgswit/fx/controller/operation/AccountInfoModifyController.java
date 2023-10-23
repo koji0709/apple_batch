@@ -200,7 +200,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }
 
         }
-        tableViewDataList.refresh();
+        accountTableView.refresh();
     }
 
     /**

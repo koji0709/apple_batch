@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * <p>
- *
+ * 查询密保问题
  * </p>
  *
  * @author yanggang
@@ -207,16 +207,7 @@ public class SecurityQuestionQueryController {
             Problem account = new Problem();
             account.setSeq(list.size() + 1);
             account.setAccount(its[0]);
-
-            String[] pas = its[1].split("-");
-            if (pas.length == 4) {
-                account.setPwd(pas[0]);
-                account.setAnswer1(pas[1]);
-                account.setAnswer2(pas[2]);
-                account.setAnswer3(pas[3]);
-            } else {
-                account.setPwd(its[1]);
-            }
+            account.setPwd(its[1]);
             list.add(account);
         }
         initAccountTableView();

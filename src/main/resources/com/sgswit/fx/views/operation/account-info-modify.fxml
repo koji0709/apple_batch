@@ -206,7 +206,7 @@
                 <!--账号列表-->
                 <TitledPane text="账号列表" collapsible="false" animated="false">
                     <content>
-                        <TableView fx:id="tableViewDataList" prefWidth="1500" prefHeight="500">
+                        <TableView fx:id="accountTableView" prefWidth="1500" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" text="账号"/>
@@ -219,7 +219,7 @@
                                 <TableColumn fx:id="state" prefWidth="75" text="地区"/>
                                 <TableColumn fx:id="name" prefWidth="100" text="姓名"/>
                                 <TableColumn fx:id="status" prefWidth="75" text="状态"/>
-                                <TableColumn fx:id="note" prefWidth="180" text="执行信息"/>
+                                <TableColumn fx:id="note" prefWidth="180" text="执行信息" />
                             </columns>
                         </TableView>
                     </content>

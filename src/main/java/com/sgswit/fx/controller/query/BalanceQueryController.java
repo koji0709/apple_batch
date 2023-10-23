@@ -34,10 +34,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
- *  余额查询
+ *  密保查询余额
  * </p>
  *
  * @author yanggang
@@ -243,8 +244,8 @@ public class BalanceQueryController {
             HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
             HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
 
-            manager(account, step22Res);
-//            queryBirhdyCountry(account, step22Res);
+//            manager(account, step22Res);
+            queryBirhdyCountry(account, step216Res,step211Res);
         }else if ("hsa2".equals(authType)) {
             account.setNote("该账户为双重认证模式，请清空密保信息后重试");
             accountTableView.refresh();
@@ -252,39 +253,61 @@ public class BalanceQueryController {
         return true;
     }
 
-    private void queryBirhdyCountry(Account account, HttpResponse step1Res) {
+    private void queryBirhdyCountry(Account account, HttpResponse step1Res, HttpResponse step211Res) {
         //step3 token
-        HttpResponse step3Res = AppleIDUtil.token(step1Res);
+//        HashMap<String, List<String>> headers = new HashMap<>();
+//        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+//        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+//        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+//        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+//        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+//        headers.put("X-Apple-Authentication",ListUtil.toList(step1Res.header("X-Apple-Auth-Attributes")));
+//        StringBuilder cookieBuilders = new StringBuilder();
+//        List<String> resCookies1 = step1Res.headerList("Set-Cookie");
+//        for(String item : resCookies1){
+//            cookieBuilders.append(";").append(item);
+//        }
+
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.putAll(step1Res.headers());
+        StringBuilder cookieBuilder1 = new StringBuilder();
+        List<String> resCookies1 = step1Res.headerList("Set-Cookie");
+        for(String item : resCookies1){
+            cookieBuilder1.append(";").append(item);
+        }
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"));
+        headers.put("Host", ListUtil.toList("privacy.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://privacy.apple.com/"));
+        headers.put("X-Csrf-Token", ListUtil.toList(step1Res.header("X-Apple-Auth-Attributes")));
+        HttpResponse res3 = HttpUtil.createGet("https://privacy.apple.com/session/create")
+                .header(headers)
+                .cookie(cookieBuilder1.toString())
+                .execute();
 
         //step4 manager
-        if(step3Res.getStatus() != 200){
+        if(res3.getStatus() != 200){
             queryFail(account);
         }
-        HashMap<String, List<String>> headers = new HashMap<>();
 
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+
+
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step3Res.header("X-Apple-ID-Session-Id")));
-        headers.put("scnt",ListUtil.toList(step3Res.header("scnt")));
 
         StringBuilder cookieBuilder = new StringBuilder();
-        List<String> resCookies = step3Res.headerList("Set-Cookie");
+        List<String> resCookies = step1Res.headerList("Set-Cookie");
         for(String item : resCookies){
             cookieBuilder.append(";").append(item);
         }
 
 
-        HttpResponse res4 = HttpUtil.createRequest(Method.PUT,"https://https://appleid.apple.com/account/manage/section/information")
+        HttpResponse res4 = HttpUtil.createGet("https://privacy.apple.com/section/delete-account")
                 .header(headers)
-//                .body("{\"billingAddress\":{\"countryCode\":\"CHL\"},\"id\":1}")
-                .body("{\"ownerName\":{\"firstName\":\"\",\"lastName\":\"\"},\"phoneNumber\":{\"areaCode\":\"\",\"number\":\"\",\"countryCode\":\"\"},\"billingAddress\":{\"line1\":\"\",\"line2\":\"\",\"line3\":\"\",\"suburb\":\"\",\"county\":\"\",\"city\":\"\",\"countryCode\":\"CHN\",\"postalCode\":\"\",\"stateProvinceName\":\"\"},\"id\":1}")
                 .cookie(cookieBuilder.toString())
                 .execute();
         System.out.println(JSONUtil.toJsonStr(res4.body()));

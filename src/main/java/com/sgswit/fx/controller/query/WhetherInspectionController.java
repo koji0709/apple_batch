@@ -37,7 +37,7 @@ import java.util.List;
 
 /**
  * <p>
- *  余额查询
+ *  检测是否过检
  * </p>
  *
  * @author yanggang

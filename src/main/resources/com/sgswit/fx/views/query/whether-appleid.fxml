@@ -65,7 +65,7 @@
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
                                 </Label>
-                                <Label text="操作提示：快速区分是否是AppleID" wrapText="true">
+                                <Label text="操作提示： 快速区分是否ApplelD、 帐号是否锁定、是否双重认证、是否未激活等等" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
@@ -99,10 +99,6 @@
                             <TableColumn fx:id="account" style="-fx-alignment: CENTER" prefWidth="550.0" text="账号" />
                             <TableColumn fx:id="status" style="-fx-alignment: CENTER" prefWidth="175.0" text="状态" />
                             <TableColumn fx:id="note" style="-fx-alignment: CENTER" prefWidth="280.0" text="信息" />
-                            <TableColumn fx:id="pwd" style="-fx-alignment: CENTER" prefWidth="280.0" text="密码" />
-                            <TableColumn fx:id="answer1" style="-fx-alignment: CENTER" prefWidth="100.0" text="问题1" />
-                            <TableColumn fx:id="answer2" style="-fx-alignment: CENTER" prefWidth="90.0" text="问题2" />
-                            <TableColumn fx:id="answer3" style="-fx-alignment: CENTER" prefWidth="90.0" text="问题3" />
                           </columns>
                         </TableView>
                      </content>

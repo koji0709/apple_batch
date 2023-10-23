@@ -28,7 +28,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
         // todo
 
-        tableViewDataList.refresh();
+        accountTableView.refresh();
     }
 
     /**

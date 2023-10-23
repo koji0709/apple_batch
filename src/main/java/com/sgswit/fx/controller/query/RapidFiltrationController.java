@@ -41,7 +41,7 @@ import java.util.List;
 
 /**
  * <p>
- *  余额查询
+ *  急速过滤密正
  * </p>
  *
  * @author yanggang
@@ -213,14 +213,13 @@ public class RapidFiltrationController {
     private void queryFail(Account account,Object body) {
         JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
         String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
-        if(message.startsWith("锁定")){
+        if(message.contains("锁定")){
             account.setNote("账号已锁定");
-        }
-        if(message.startsWith("密码")){
+        }else
+        if(message.contains("密码")){
             account.setNote("Apple ID 或密码不正确");
-        }
-        if(message.startsWith("冻结")){
-            account.setNote("Apple ID 账号已冻结");
+        }else{
+            account.setNote("Apple ID 未激活");
         }
         accountTableView.refresh();
         txt(account);

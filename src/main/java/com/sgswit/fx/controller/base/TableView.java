@@ -16,26 +16,28 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * account表格视图
  */
 public class TableView implements Initializable {
 
+    public static final String ACTION_COLUMN_NAME = "操作";
+
     @FXML
-    public javafx.scene.control.TableView<Account> tableViewDataList;
+    public javafx.scene.control.TableView<Account> accountTableView;
 
     /**
      * 总账号数量
@@ -78,6 +80,9 @@ public class TableView implements Initializable {
     @FXML
     private TableColumn answer3;
 
+    @FXML
+    private TableColumn actions;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initAccountTableView();
@@ -119,6 +124,9 @@ public class TableView implements Initializable {
         }
         if (note != null){
             note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+        }
+        if (actions != null){
+            actions.setCellValueFactory(new PropertyValueFactory<Account,Button>("actions"));
         }
     }
 
@@ -169,10 +177,11 @@ public class TableView implements Initializable {
                     account.setSeq(i+1);
                 }
             }
-            tableViewDataList.setItems(accountList);
+            accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
         }
     }
+
 
     /**
      * 清空列表按钮点击
@@ -181,6 +190,9 @@ public class TableView implements Initializable {
         accountList.clear();
     }
 
+    /**
+     * 消息框
+     */
     public void alert(String message){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("提示信息");
@@ -189,6 +201,9 @@ public class TableView implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * appleid官网登陆
+     */
     public HttpResponse login(Account account){
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
@@ -236,11 +251,28 @@ public class TableView implements Initializable {
         }
         return tokenRsp;
     }
-
     public String getTokenScnt(Account account){
         HttpResponse tokenRsp = login(account);
 
         String tokenScnt = tokenRsp.header("scnt");
         return tokenScnt;
     }
+
+    /**
+     * 弹出验证码框
+     */
+    public String captchaDialog(String base64){
+        byte[] decode = Base64.getDecoder().decode(base64);
+        BorderPane root = new BorderPane();
+        ImageView imageView = new ImageView();
+        imageView.setImage(new Image(new ByteArrayInputStream(decode)));
+        TextInputDialog dialog = new TextInputDialog("");
+        dialog.setHeaderText("验证码:");
+        root.setCenter(imageView);
+        dialog.setContentText("请输入验证码:");
+        dialog.setGraphic(root);
+        Optional<String> result = dialog.showAndWait();
+        return result.isPresent() ? result.get() : "";
+    }
+
 }

@@ -1,17 +1,16 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
-import com.sgswit.fx.utils.StringUtils;
+import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 
 /**
- * 账号解锁改密controller
+ * 生成支持PIN controller
  */
-public class UnlockChangePasswordController extends UnlockChangePasswordView {
+public class SupportPinController extends TableView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -28,13 +27,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
             return;
         }
 
-        String newPassword = pwdTextField.getText();
-        if (StrUtil.isEmpty(newPassword)){
-            alert("必须填写新密码！");
-            return;
-        }
-
-        // todo 讯果不需要验证码 我们需要?
+        // todo
 
         accountTableView.refresh();
     }
