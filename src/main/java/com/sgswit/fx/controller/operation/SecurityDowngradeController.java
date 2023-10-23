@@ -29,7 +29,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction();
+        super.importAccountButtonAction("account-answer1-answer2-answer3-birthday");
         this.bindButton();
     }
 
@@ -38,6 +38,11 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
      * shabagga222@tutanota.com----Xx97595031.257-猪-狗-牛
      */
     public void bindButton(){
+        String newPassword = pwdTextField.getText();
+        if (StrUtil.isEmpty(newPassword)){
+            alert("必须填写新密码！");
+            return;
+        }
         Set<String> columnSet = accountTableView.getColumns().stream()
                 .map(TableColumn::getText)
                 .collect(Collectors.toSet());
@@ -62,11 +67,10 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                                 account.setNote("未输入验证码");
                                 return;
                             }
-                            account.setBirthday("1996-08-10");
                             String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
                             verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
                             HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-                            HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
+                            HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
                             System.err.println(securityDowngradeRsp.getStatus());
                         });
                     }

@@ -576,7 +576,7 @@ public class AppleIDUtil {
     /**
      * 密保关闭双重认证
      */
-    public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account) {
+    public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
@@ -653,7 +653,7 @@ public class AppleIDUtil {
         HttpResponse unenrollmentReset2Rsp = HttpUtil.createPost(host + "/unenrollment/reset")
                 .header(unenrollmentReset1Rsp.headers())
                 .header("Content-Type","application/json")
-                .body("{\"password\":\""+account.getPwd()+"\"}")
+                .body("{\"password\":\""+newPwd+"\"}")
                 .execute();
 
         return unenrollmentReset2Rsp;

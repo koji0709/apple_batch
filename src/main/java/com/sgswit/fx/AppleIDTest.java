@@ -184,13 +184,12 @@ public class AppleIDTest {
         account.setAnswer2("狗");
         account.setAnswer3("牛");
         account.setBirthday("1996-08-10");
-        account.setPwd("Xx97595031.21222");//新密码
         //account.setName(Console.input());
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
-        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
+        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
         Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
         //HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);
