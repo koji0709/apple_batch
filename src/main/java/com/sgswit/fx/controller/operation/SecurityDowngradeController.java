@@ -6,8 +6,6 @@ import com.sgswit.fx.model.Account;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
@@ -26,14 +24,16 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
     @FXML
     protected void handleClickTableView(MouseEvent event) {
-        Account selectedItem = accountTableView.getSelectionModel().getSelectedItem();
-
-        ContextMenu menu = new ContextMenu();
-        MenuItem delete = new MenuItem("验证码");
-
-        delete.setOnAction(e -> alert(selectedItem.getAccount()));
-        menu.getItems().add(delete);
-        menu.show(accountTableView, event.getScreenX(), event.getScreenY());
+        if (event.getClickCount() == 2){
+            Account account = accountTableView.getSelectionModel().getSelectedItem();
+            if (account != null){
+                ContextMenu menu = new ContextMenu();
+                MenuItem delete = new MenuItem("验证码");
+                delete.setOnAction(e -> alert(account.getAccount()));
+                menu.getItems().add(delete);
+                menu.show(accountTableView, event.getScreenX(), event.getScreenY());
+            }
+        }
     }
 
     /**
