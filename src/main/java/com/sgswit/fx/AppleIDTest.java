@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.base.AppleIdView;
 import com.sgswit.fx.controller.base.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -98,8 +99,8 @@ public class AppleIDTest {
         account.setAnswer2(input.get(3));
         account.setAnswer3(input.get(4));
 
-        TableView tableView = new TableView();
-        String tokenScnt = tableView.getTokenScnt(account);
+        AppleIdView appleIdView = new AppleIdView();
+        String tokenScnt = appleIdView.getTokenScnt(account);
 
         // 查询账户信息
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
