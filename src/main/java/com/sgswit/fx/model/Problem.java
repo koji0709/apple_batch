@@ -196,15 +196,8 @@ public class Problem {
         this.problem3.set(problem3);
     }
 
-    public void appendNote(String n) {
-        if (n != null && n != ""){
-            String s = note.get();
-            if (s != null && s != ""){
-                note.set(s+n);
-            }else{
-                note.set(n);
-            }
-        }
+    public SimpleStringProperty noteProperty() {
+        return note;
     }
 
     @Override

@@ -241,6 +241,13 @@ public class TableView implements Initializable {
 
 
     /**
+     * 刷新列表数据
+     */
+    public void refresh(){
+        accountTableView.refresh();
+    }
+
+    /**
      * 清空列表按钮点击
      */
     public void clearAccountListButtonAction(){
@@ -259,6 +266,18 @@ public class TableView implements Initializable {
     }
 
     /**
+     * 输入框
+     */
+    public String dialog(String title,String contentText){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setHeaderText("");
+        dialog.setTitle(title);
+        dialog.setContentText(contentText);
+        Optional<String> result = dialog.showAndWait();
+        return result.isPresent() ? result.get() : "";
+    }
+
+    /**
      * 弹出验证码框
      */
     public String captchaDialog(String base64){
@@ -266,7 +285,7 @@ public class TableView implements Initializable {
         BorderPane root = new BorderPane();
         ImageView imageView = new ImageView();
         imageView.setImage(new Image(new ByteArrayInputStream(decode)));
-        TextInputDialog dialog = new TextInputDialog("");
+        TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("验证码:");
         root.setCenter(imageView);
         dialog.setContentText("请输入验证码:");
@@ -275,4 +294,24 @@ public class TableView implements Initializable {
         return result.isPresent() ? result.get() : "";
     }
 
+    /**
+     * 本地记录按钮点击
+     */
+    public void localHistoryButtonAction(){
+        alert("本地记录按钮点击");
+    }
+
+    /**
+     * 导出Excel按钮点击
+     */
+    public void exportExcelButtonAction(){
+        alert("导出Excel按钮点击");
+    }
+
+    /**
+     * 停止任务按钮点击
+     */
+    public void stopTaskButtonAction(){
+        alert("停止任务按钮点击");
+    }
 }

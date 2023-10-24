@@ -169,17 +169,6 @@ public class Account {
         this.phone.set(phone);
     }
 
-    public void appendNote(String n) {
-        if (n != null && n != ""){
-            String s = note.get();
-            if (s != null && s != ""){
-                note.set(s+n);
-            }else{
-                note.set(n);
-            }
-        }
-    }
-
     @Override
     public String toString() {
         return "Account{" +

@@ -112,26 +112,4 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
         accountTableView.refresh();
     }
-
-    /**
-     * 本地记录按钮点击
-     */
-    public void localHistoryButtonAction(){
-        alert("本地记录按钮点击");
-    }
-
-    /**
-     * 导出Excel按钮点击
-     */
-    public void exportExcelButtonAction(){
-        alert("导出Excel按钮点击");
-    }
-
-    /**
-     * 停止任务按钮点击
-     */
-    public void stopTaskButtonAction(){
-        alert("停止任务按钮点击");
-    }
-
 }

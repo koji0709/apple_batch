@@ -11,7 +11,7 @@ import java.util.List;
 /**
  *
  */
-public class AppleIdView extends TableView{
+public class AppleIdView extends TableView {
 
     /**
      * appleid官网登陆
@@ -26,7 +26,8 @@ public class AppleIdView extends TableView{
         String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
         if (!"sa".equals(authType)) {
             Console.error("仅支持密保验证逻辑");
-            account.appendNote("仅支持密保验证逻辑;");
+            account.setNote("仅支持密保验证逻辑");
+            refresh();
             return null;
         }
 
@@ -34,7 +35,8 @@ public class AppleIdView extends TableView{
         HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
         if (questionRsp.getStatus() != 412) {
             Console.error("密保认证异常！");
-            account.appendNote("密保认证异常;");
+            account.setNote("密保认证异常");
+            refresh();
             return null;
         }
         HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
@@ -58,7 +60,8 @@ public class AppleIdView extends TableView{
 
         HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
         if (tokenRsp.getStatus() != 200){
-            account.appendNote("登陆异常;");
+            account.setNote("登陆异常");
+            refresh();
             return null;
         }
         return tokenRsp;
@@ -66,6 +69,11 @@ public class AppleIdView extends TableView{
 
     public String getTokenScnt(Account account){
         HttpResponse tokenRsp = login(account);
+        if (tokenRsp == null){
+            account.setNote("登陆失败");
+            refresh();
+            return null;
+        }
         String tokenScnt = tokenRsp.header("scnt");
         return tokenScnt;
     }
