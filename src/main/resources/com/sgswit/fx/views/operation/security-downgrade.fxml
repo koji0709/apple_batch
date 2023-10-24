@@ -80,7 +80,7 @@
                         </TitledPane>
 
                         <!--配置信息-->
-                        <TitledPane text="配置信息" prefWidth="200" prefHeight="165" collapsible="false" animated="false">
+                        <TitledPane text="配置信息" prefWidth="210" prefHeight="165" collapsible="false" animated="false">
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
@@ -93,7 +93,7 @@
                         </TitledPane>
 
                         <!--说明-->
-                        <TitledPane text="说明" prefWidth="500" prefHeight="165" collapsible="false" animated="false" >
+                        <TitledPane text="说明" prefWidth="490" prefHeight="165" collapsible="false" animated="false" >
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>

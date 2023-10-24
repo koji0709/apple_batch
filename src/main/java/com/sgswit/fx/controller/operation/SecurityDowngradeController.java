@@ -116,7 +116,9 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             return;
         }
 
-        // todo
+        for (Account account : accountList) {
+            account.setNote("请输入验证码并执行");
+        }
 
         accountTableView.refresh();
     }
