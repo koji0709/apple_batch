@@ -113,11 +113,11 @@
                         <TableView fx:id="accountTableView" prefWidth="1230" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
-                                <TableColumn fx:id="account" text="账号"/>
-                                <TableColumn fx:id="pwd" prefWidth="120" text="密码"/>
-                                <TableColumn fx:id="answer1" prefWidth="80" text="答案1"/>
-                                <TableColumn fx:id="answer2" prefWidth="80" text="答案2"/>
-                                <TableColumn fx:id="answer3" prefWidth="80" text="答案3"/>
+                                <TableColumn fx:id="account" prefWidth="150" text="账号"/>
+                                <TableColumn fx:id="pwd" prefWidth="150" text="密码"/>
+                                <TableColumn fx:id="answer1" prefWidth="100" text="答案1"/>
+                                <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
+                                <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
                                 <TableColumn  prefWidth="80" text="支持PIN"/>
                                 <TableColumn  prefWidth="80" text="到期时间"/>
                                 <TableColumn fx:id="note" prefWidth="180" text="执行信息"/>
