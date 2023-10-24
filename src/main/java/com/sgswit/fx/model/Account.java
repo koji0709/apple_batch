@@ -12,6 +12,7 @@ public class Account {
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
     private final SimpleStringProperty aera;
+    private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
@@ -30,6 +31,7 @@ public class Account {
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
         this.aera = new SimpleStringProperty();
+        this.phone = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
@@ -155,6 +157,18 @@ public class Account {
         this.birthday.set(birthday);
     }
 
+    public String getPhone() {
+        return phone.get();
+    }
+
+    public SimpleStringProperty phoneProperty() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone.set(phone);
+    }
+
     public void appendNote(String n) {
         if (n != null && n != ""){
             String s = note.get();
@@ -173,7 +187,9 @@ public class Account {
                 ", account=" + account +
                 ", pwd=" + pwd +
                 ", state=" + state +
+                ", birthday=" + birthday +
                 ", aera=" + aera +
+                ", phone=" + phone +
                 ", name=" + name +
                 ", status=" + status +
                 ", note=" + note +
@@ -181,8 +197,8 @@ public class Account {
                 ", answer1=" + answer1 +
                 ", answer2=" + answer2 +
                 ", answer3=" + answer3 +
-                ", birthday=" + birthday +
+                ", originalCountry=" + originalCountry +
+                ", targetCountry=" + targetCountry +
                 '}';
     }
-
 }

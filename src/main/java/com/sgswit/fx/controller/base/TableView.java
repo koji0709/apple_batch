@@ -3,12 +3,14 @@ package com.sgswit.fx.controller.base;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -22,10 +24,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * account表格视图
@@ -81,6 +85,9 @@ public class TableView implements Initializable {
     @FXML
     private TableColumn birthday;
 
+    @FXML
+    private TableColumn phone;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initAccountTableView();
@@ -126,13 +133,22 @@ public class TableView implements Initializable {
         if (birthday != null){
             birthday.setCellValueFactory(new PropertyValueFactory<Account,String>("birthday"));
         }
+        if (phone != null){
+            phone.setCellValueFactory(new PropertyValueFactory<Account,String>("phone"));
+        }
     }
 
+    /**
+     * 导入账号
+     */
     public void importAccountButtonAction(){
         // 给一种默认导入格式
         importAccountButtonAction("account-pwd-answer1-answer2-answer3");
     }
 
+    /**
+     * 导入账号
+     */
     public void importAccountButtonAction(String format){
         Stage stage = new Stage();
         Label label1 = new Label("说明：");
@@ -177,6 +193,52 @@ public class TableView implements Initializable {
         stage.setScene(new Scene(root, 600, 450));
         stage.showAndWait();
     }
+
+    /**
+     * 绑定按钮
+     * @apiNote ⚠️如果使用这个方法必须重写父类的buildTableCell方法！
+     */
+    public void bindActions(){
+        Set<String> columnSet = accountTableView.getColumns().stream()
+                .map(TableColumn::getText)
+                .collect(Collectors.toSet());
+        if (!columnSet.contains(ACTION_COLUMN_NAME)){
+            TableColumn<Account, Void> actionsColumn = new TableColumn(ACTION_COLUMN_NAME);
+            accountTableView.getColumns().add(actionsColumn);
+            Callback<TableColumn<Account, Void>, TableCell<Account, Void>> cellFactory = params -> buildTableCell();
+            actionsColumn.setCellFactory(cellFactory);
+        }
+    }
+
+    /**
+     * 结合bindActions()使用
+     */
+    public TableCell<Account, Void> buildTableCell(){
+//        TableCell<Account,Void> cell = new TableCell<>() {
+//            private final Button btn1 = new Button("按钮1");
+//            private final VBox vBox = new VBox(btn1);
+//            {
+//                btn1.setOnAction((ActionEvent event) -> {
+//                    // 按钮所在行账号
+//                    // Account account = getTableView().getItems().get(getIndex());
+//
+//                    // todo
+//                });
+//            }
+//            @Override
+//            public void updateItem(Void item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (empty) {
+//                    setGraphic(null);
+//                } else {
+//                    setGraphic(vBox);
+//                }
+//            }
+//        };
+//        return cell;
+        return new TableCell<>();
+    }
+
 
     /**
      * 清空列表按钮点击
