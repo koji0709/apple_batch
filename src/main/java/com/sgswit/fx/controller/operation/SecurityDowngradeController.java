@@ -35,14 +35,9 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
     /**
      * 绑定按钮
-     * shabagga222@tutanota.com----Xx97595031.257-猪-狗-牛
+     * shabagga222@tutanota.com-猪-狗-牛-19960810
      */
     public void bindButton(){
-        String newPassword = pwdTextField.getText();
-        if (StrUtil.isEmpty(newPassword)){
-            alert("必须填写新密码！");
-            return;
-        }
         Set<String> columnSet = accountTableView.getColumns().stream()
                 .map(TableColumn::getText)
                 .collect(Collectors.toSet());
@@ -54,6 +49,12 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                     private final Button captBtn = new Button("输入验证码并执行");
                     {
                         captBtn.setOnAction((ActionEvent event) -> {
+                            String newPassword = pwdTextField.getText();
+                            if (StrUtil.isEmpty(newPassword)){
+                                alert("必须填写新密码！");
+                                return;
+                            }
+
                             HttpResponse captchaRsp = AppleIDUtil.captcha();
                             JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
                             String captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
@@ -70,8 +71,16 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                             String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
                             verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
                             HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+                            if (verifyAppleIdRsp.getStatus() == 302){
+                                account.setNote("验证验证码成功");
+                            }
                             HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
-                            System.err.println(securityDowngradeRsp.getStatus());
+                            if (securityDowngradeRsp.getStatus() == 302){
+                                account.setNote("关闭双重验证成功");
+                                account.setPwd(newPassword);
+                            }else{
+                                account.setNote("关闭双重验证失败");
+                            }
                         });
                     }
 

@@ -21,6 +21,7 @@ public class AccountImportUtil {
         put("answer2","问题2");
         put("answer3","问题3");
         put("phone","手机号");
+        put("birthday","生日");
     }};
 
     public static String buildNote(String format){

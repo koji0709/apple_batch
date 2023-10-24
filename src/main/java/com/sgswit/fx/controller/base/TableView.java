@@ -78,6 +78,9 @@ public class TableView implements Initializable {
     @FXML
     private TableColumn answer3;
 
+    @FXML
+    private TableColumn birthday;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initAccountTableView();
@@ -120,6 +123,9 @@ public class TableView implements Initializable {
         if (note != null){
             note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
         }
+        if (birthday != null){
+            birthday.setCellValueFactory(new PropertyValueFactory<Account,String>("birthday"));
+        }
     }
 
     public void importAccountButtonAction(){
@@ -155,6 +161,8 @@ public class TableView implements Initializable {
         button.setOnAction(event -> {
             List<Account> accountList1 = AccountImportUtil.parseAccount(format, area.getText());
             accountList.addAll(accountList1);
+            accountTableView.setItems(accountList);
+            accountNumLable.setText(accountList.size()+"");
             stage.close();
         });
         vBox2.getChildren().addAll(button);
