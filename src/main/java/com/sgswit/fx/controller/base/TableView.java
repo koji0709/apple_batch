@@ -1,33 +1,35 @@
 package com.sgswit.fx.controller.base;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Modality;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * account表格视图
@@ -81,7 +83,10 @@ public class TableView implements Initializable {
     private TableColumn answer3;
 
     @FXML
-    private TableColumn actions;
+    private TableColumn birthday;
+
+    @FXML
+    private TableColumn phone;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -125,63 +130,122 @@ public class TableView implements Initializable {
         if (note != null){
             note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
         }
-        if (actions != null){
-            actions.setCellValueFactory(new PropertyValueFactory<Account,Button>("actions"));
+        if (birthday != null){
+            birthday.setCellValueFactory(new PropertyValueFactory<Account,String>("birthday"));
+        }
+        if (phone != null){
+            phone.setCellValueFactory(new PropertyValueFactory<Account,String>("phone"));
         }
     }
 
     /**
-     * 导入账号按钮点击
+     * 导入账号
      */
     public void importAccountButtonAction(){
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = null;
-        try {
-            scene = new Scene(fxmlLoader.load(), 600, 450);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        // 给一种默认导入格式
+        importAccountButtonAction("account-pwd-answer1-answer2-answer3");
+    }
 
-        Stage popupStage = new Stage();
+    /**
+     * 导入账号
+     */
+    public void importAccountButtonAction(String format){
+        Stage stage = new Stage();
+        Label label1 = new Label("说明：");
+        Insets padding = new Insets(0, 0, 0, 20);
+        Label label2 = new Label("1.导入格式为: " + AccountImportUtil.buildNote(format) +"; 如果数据中有“-”符号,则使用{-}替换。");
+        label2.setPadding(padding);
+        Label label3 = new Label("2.一次可以输入多条账户信息，每条账户单独一行");
+        label3.setPadding(padding);
 
-        popupStage.setTitle("账户导入");
+        VBox vBox = new VBox();
+        vBox.setSpacing(5);
+        vBox.setPadding(new Insets(5, 5, 5, 5));
+        vBox.getChildren().addAll(label1,label2,label3);
 
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        TextArea area = new TextArea();
+        area.setPrefHeight(250);
+        area.setPrefWidth(560);
 
-        AccountInputPopupController viewCtr = fxmlLoader.getController();
-        String accounts = viewCtr.getAccounts();
-        if (!StrUtil.isEmpty(accounts)){
-            String[] lineArray = accounts.split("\n");
-            for(String item : lineArray){
-                String[] its = item.split("----");
-                Account account = new Account();
-                account.setAccount(its[0]);
+        VBox vBox2 = new VBox();
+        vBox2.setPadding(new Insets(0,0,0,205));
+        Button button = new Button("导入账号");
+        button.setTextFill(Paint.valueOf("#067019"));
+        button.setPrefWidth(150);
+        button.setPrefHeight(50);
 
-                String[] pas = its[1].split("-");
-                if(pas.length == 4){
-                    account.setPwd(pas[0]);
-                    account.setAnswer1(pas[1]);
-                    account.setAnswer2(pas[2]);
-                    account.setAnswer3(pas[3]);
-                }else{
-                    account.setPwd(its[1]);
-                }
-                accountList.add(account);
-            }
-            if (!CollectionUtil.isEmpty(accountList)){
-                for (int i = 0; i < accountList.size(); i++) {
-                    Account account = accountList.get(i);
-                    account.setSeq(i+1);
-                }
-            }
+        button.setOnAction(event -> {
+            List<Account> accountList1 = AccountImportUtil.parseAccount(format, area.getText());
+            accountList.addAll(accountList1);
             accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
+            stage.close();
+        });
+        vBox2.getChildren().addAll(button);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(20);
+        mainVbox.setPadding(new Insets(20));
+        mainVbox.getChildren().addAll(vBox,area,vBox2);
+
+        Group root = new Group(mainVbox);
+        stage.setTitle("账号导入");
+        stage.setScene(new Scene(root, 600, 450));
+        stage.showAndWait();
+    }
+
+    /**
+     * 绑定按钮
+     * @apiNote ⚠️如果使用这个方法必须重写父类的buildTableCell方法！
+     */
+    public void bindActions(){
+        Set<String> columnSet = accountTableView.getColumns().stream()
+                .map(TableColumn::getText)
+                .collect(Collectors.toSet());
+        if (!columnSet.contains(ACTION_COLUMN_NAME)){
+            TableColumn<Account, Void> actionsColumn = new TableColumn(ACTION_COLUMN_NAME);
+            accountTableView.getColumns().add(actionsColumn);
+            Callback<TableColumn<Account, Void>, TableCell<Account, Void>> cellFactory = params -> buildTableCell();
+            actionsColumn.setCellFactory(cellFactory);
         }
     }
 
+    /**
+     * 结合bindActions()使用
+     */
+    public TableCell<Account, Void> buildTableCell(){
+//        TableCell<Account,Void> cell = new TableCell<>() {
+//            private final Button btn1 = new Button("按钮1");
+//            private final VBox vBox = new VBox(btn1);
+//            {
+//                btn1.setOnAction((ActionEvent event) -> {
+//                    // 按钮所在行账号
+//                    // Account account = getTableView().getItems().get(getIndex());
+//
+//                    // todo
+//                });
+//            }
+//            @Override
+//            public void updateItem(Void item, boolean empty) {
+//                super.updateItem(item, empty);
+//                if (empty) {
+//                    setGraphic(null);
+//                } else {
+//                    setGraphic(vBox);
+//                }
+//            }
+//        };
+//        return cell;
+        return new TableCell<>();
+    }
+
+
+    /**
+     * 刷新列表数据
+     */
+    public void refresh(){
+        accountTableView.refresh();
+    }
 
     /**
      * 清空列表按钮点击
@@ -202,60 +266,15 @@ public class TableView implements Initializable {
     }
 
     /**
-     * appleid官网登陆
+     * 输入框
      */
-    public HttpResponse login(Account account){
-        // SignIn
-        HttpResponse signInRsp = AppleIDUtil.signin(account);
-
-        // Auth
-        HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
-
-        String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
-        if (!"sa".equals(authType)) {
-            Console.error("仅支持密保验证逻辑");
-            account.appendNote("仅支持密保验证逻辑;");
-            return null;
-        }
-
-        // 密保认证
-        HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
-        if (questionRsp.getStatus() != 412) {
-            Console.error("密保认证异常！");
-            account.appendNote("密保认证异常;");
-            return null;
-        }
-        HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
-        String XAppleIDSessionId = "";
-        String scnt = accountRepairRsp.header("scnt");
-        List<String> cookies = accountRepairRsp.headerList("Set-Cookie");
-        for (String item : cookies) {
-            if (item.startsWith("aidsp")) {
-                XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
-            }
-        }
-        HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(questionRsp, accountRepairRsp);
-
-        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(repareOptionsRsp, XAppleIDSessionId, scnt);
-
-        HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(securityUpgradeRsp, XAppleIDSessionId, scnt);
-
-        HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
-
-        HttpResponse repareCompleteRsp  = AppleIDUtil.repareComplete(repareOptionsSecondRsp, questionRsp);
-
-        HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
-        if (tokenRsp.getStatus() != 200){
-            account.appendNote("登陆异常;");
-            return null;
-        }
-        return tokenRsp;
-    }
-    public String getTokenScnt(Account account){
-        HttpResponse tokenRsp = login(account);
-
-        String tokenScnt = tokenRsp.header("scnt");
-        return tokenScnt;
+    public String dialog(String title,String contentText){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setHeaderText("");
+        dialog.setTitle(title);
+        dialog.setContentText(contentText);
+        Optional<String> result = dialog.showAndWait();
+        return result.isPresent() ? result.get() : "";
     }
 
     /**
@@ -266,7 +285,7 @@ public class TableView implements Initializable {
         BorderPane root = new BorderPane();
         ImageView imageView = new ImageView();
         imageView.setImage(new Image(new ByteArrayInputStream(decode)));
-        TextInputDialog dialog = new TextInputDialog("");
+        TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText("验证码:");
         root.setCenter(imageView);
         dialog.setContentText("请输入验证码:");
@@ -275,4 +294,24 @@ public class TableView implements Initializable {
         return result.isPresent() ? result.get() : "";
     }
 
+    /**
+     * 本地记录按钮点击
+     */
+    public void localHistoryButtonAction(){
+        alert("本地记录按钮点击");
+    }
+
+    /**
+     * 导出Excel按钮点击
+     */
+    public void exportExcelButtonAction(){
+        alert("导出Excel按钮点击");
+    }
+
+    /**
+     * 停止任务按钮点击
+     */
+    public void stopTaskButtonAction(){
+        alert("停止任务按钮点击");
+    }
 }

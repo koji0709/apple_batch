@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.base.AppleIdView;
 import com.sgswit.fx.controller.base.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -98,8 +99,8 @@ public class AppleIDTest {
         account.setAnswer2(input.get(3));
         account.setAnswer3(input.get(4));
 
-        TableView tableView = new TableView();
-        String tokenScnt = tableView.getTokenScnt(account);
+        AppleIdView appleIdView = new AppleIdView();
+        String tokenScnt = appleIdView.getTokenScnt(account);
 
         // 查询账户信息
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
@@ -140,17 +141,17 @@ public class AppleIDTest {
 //        // http status 302 200 都是成功
 //        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, appleId, verifyId, verifyCode);
 
-//        String phone = "17608177103";
-//        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-//        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(tokenScnt, account.getPwd(), body);
+        String phone = "17608177103";
+        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
+        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(tokenScnt, account.getPwd(), body);
 //
-//        Console.log("请输入验证码：");
-//        String verifyCode = Console.input().trim();
+        Console.log("请输入验证码：");
+        String verifyCode = Console.input().trim();
 //
 //        // todo 要获取手机相关信息
-//        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-//        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
-//        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
+        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
+        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
 
 //        HttpResponse supportPinRsp = AppleIDUtil.supportPin(tokenScnt);
 //        Console.log("supportPinRsp Body: {}",supportPinRsp.body());
@@ -182,13 +183,13 @@ public class AppleIDTest {
         account.setAnswer1("猪");
         account.setAnswer2("狗");
         account.setAnswer3("牛");
-        account.setPwd("");//新密码
+        account.setBirthday("1996-08-10");
         //account.setName(Console.input());
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
-        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account);
+        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
         Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
         //HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);

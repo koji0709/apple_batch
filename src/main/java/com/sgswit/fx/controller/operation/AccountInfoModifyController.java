@@ -1,7 +1,9 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
@@ -116,7 +118,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String newPwd = pwdTextField.getText();
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(getTokenScnt(account), account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    account.appendNote("修改密码失败;");
+                    account.setNote("修改密码失败;");
                 }else{
                     account.setPwd(newPwd);
                 }
@@ -127,7 +129,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(getTokenScnt(account), birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
-                    account.appendNote("修改生日失败;");
+                    account.setNote("修改生日失败;");
                 }else{
                     account.setBirthday(birthdayDatePickerValue.toString());
                 }
@@ -151,7 +153,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
                 HttpResponse updateNameRsp = AppleIDUtil.updateName(getTokenScnt(account), account.getPwd(), firstName, lastName);
                 if (updateNameRsp.getStatus() != 200){
-                    account.appendNote("姓名修改失败;");
+                    account.setNote("姓名修改失败;");
                 }else{
                     account.setName(firstName + lastName);
                 }
@@ -177,7 +179,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                             ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(getTokenScnt(account), account.getPwd(), body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    account.appendNote("修改密保失败;");
+                    account.setNote("修改密保失败;");
                 }else{
                     account.setAnswer1(answer1TextFieldText);
                     account.setAnswer2(answer2TextFieldText);
@@ -195,33 +197,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             if (removeRescueEmailCheckBoxSelected){
                 HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(getTokenScnt(account), account.getPwd());
                 if (deleteRescueEmailRsp.getStatus() != 204){
-                    account.appendNote("移除救援邮箱失败;");
+                    account.setNote("移除救援邮箱失败;");
                 }
             }
 
         }
         accountTableView.refresh();
     }
-
-    /**
-     * 本地记录按钮点击
-     */
-    public void localHistoryButtonAction(){
-        alert("本地记录按钮点击");
-    }
-
-    /**
-     * 导出Excel按钮点击
-     */
-    public void exportExcelButtonAction(){
-        alert("导出Excel按钮点击");
-    }
-
-    /**
-     * 停止任务按钮点击
-     */
-    public void stopTaskButtonAction(){
-        alert("停止任务按钮点击");
-    }
-
 }
