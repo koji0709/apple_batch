@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
@@ -13,7 +12,7 @@ import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.SecuritycodePopupController;
+import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.model.Account;
@@ -22,12 +21,10 @@ import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.StringUtils;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -36,7 +33,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -53,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * @author DELL
  */
-public class CountryModifyController implements Initializable {
+public class CountryModifyController extends CommController<Account> implements Initializable  {
     @FXML
     public TableColumn originalCountry;
     @FXML
@@ -251,186 +247,14 @@ public class CountryModifyController implements Initializable {
             alert.show();
             return;
         }
-        for(Account account:list){
-            if(StrUtil.hasEmpty(account.getAnswer1())){
-                //双重认证
-                secondSec(account);
-            }else{
-                //非双重认证
-                accoutQueryBtn.setText("正在查询");
-                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accoutQueryBtn.setDisable(true);
-
-                account.setNote("正在登录");
-                accountTableView.refresh();
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run(){
-                        try {
-                            noSecondSec(account);
-                        }finally {
-                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-                            Platform.runLater(new Task<Integer>() {
-                                @Override
-                                protected Integer call() {
-                                    accoutQueryBtn.setDisable(false);
-                                    accoutQueryBtn.setText("开始执行");
-                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    return 1;
-                                }
-                            });
-                        }
-                    }
-                }).start();
-            }
-
-        }
+        super.onAccoutQueryBtnClick(accoutQueryBtn,accountTableView,list);
     }
 
 
 
-    private boolean secondSec(Account account) {
-        //step1 sign 登录
-        HttpResponse step1Res = AppleIDUtil.signin(account);
 
-        if (step1Res.getStatus() != 409) {
-            queryFail(account);
-            return false;
-        }
-        String step1Body = step1Res.body();
-        JSON json = JSONUtil.parse(step1Body);
-        if (json == null) {
-            queryFail(account);
-            return false;
-        }
-
-        //step2 auth 获取认证信息
-        HttpResponse step21Res = AppleIDUtil.auth(step1Res);
-        String authType = (String) json.getByPath("authType");
-        if ("hsa2".equals(authType)) {
-            // 双重验证
-            //step2.2 输入验证码
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/securitycode-popup.fxml"));
-
-                Scene scene = new Scene(fxmlLoader.load(), 600, 350);
-                scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-                SecuritycodePopupController s = (SecuritycodePopupController) fxmlLoader.getController();
-                s.setAccount(account.getAccount());
-
-                Stage popupStage = new Stage();
-                popupStage.setTitle("双重验证码输入页面");
-                popupStage.initModality(Modality.WINDOW_MODAL);
-                popupStage.setScene(scene);
-                popupStage.showAndWait();
-
-                String type = s.getSecurityType();
-                String code = s.getSecurityCode();
-
-                accoutQueryBtn.setText("正在查询");
-                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accoutQueryBtn.setDisable(true);
-
-                account.setNote("正在验证验证码");
-                accountTableView.refresh();
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run(){
-                        try {
-                            HttpResponse step22Res = AppleIDUtil.securityCode(step21Res, type, code);
-                            if (step22Res.getStatus() != 204 && step22Res.getStatus() != 200) {
-                                queryFail(account);
-                            }
-                            account.setNote("登录成功");
-                            accountTableView.refresh();
-                            countryModify(account, step22Res);
-                        }finally {
-                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-                            Platform.runLater(new Task<Integer>() {
-                                @Override
-                                protected Integer call() {
-                                    accoutQueryBtn.setDisable(false);
-                                    accoutQueryBtn.setText("开始执行");
-                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    return 1;
-                                }
-                            });
-                        }
-                    }
-                }).start();
-
-
-            }catch (Exception e){
-                return false;
-            }
-
-        }else if ("sa".equals(authType)) {
-            account.setNote("该账户为非双重认证模式，请输入密保信息后重试");
-            accountTableView.refresh();
-        }
-        return true;
-    }
-
-    private boolean noSecondSec(Account account) {
-        //step1 sign 登录
-
-        HttpResponse step1Res = AppleIDUtil.signin(account);
-
-        if (step1Res.getStatus() != 409) {
-            queryFail(account);
-            return false;
-        }
-        String step1Body = step1Res.body();
-        JSON json = JSONUtil.parse(step1Body);
-        if (json == null) {
-            queryFail(account);
-            return false;
-        }
-
-
-
-        String authType = (String) json.getByPath("authType");
-        if ("sa".equals(authType)) {
-            //非双重认证
-            //step2 获取认证信息 -- 需要输入密保
-            HttpResponse step21Res = AppleIDUtil.auth(step1Res);
-            account.setNote("正在验证密保问题");
-            accountTableView.refresh();
-            HttpResponse step211Res = AppleIDUtil.questions(step21Res, account);
-            if (step211Res.getStatus() != 412) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("密保信息有误，请确认");
-                alert.show();
-                return false;
-            }
-            HttpResponse step212Res = AppleIDUtil.accountRepair(step211Res);
-            String XAppleIDSessionId = "";
-            String scnt = step212Res.header("scnt");
-            List<String> cookies = step212Res.headerList("Set-Cookie");
-            for (String item : cookies) {
-                if (item.startsWith("aidsp")) {
-                    XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
-                }
-            }
-            HttpResponse step213Res = AppleIDUtil.repareOptions(step211Res, step212Res);
-            HttpResponse step214Res = AppleIDUtil.securityUpgrade(step213Res, XAppleIDSessionId, scnt);
-            HttpResponse step215Res = AppleIDUtil.securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
-            HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
-            HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
-            account.setNote("登录成功");
-            accountTableView.refresh();
-            countryModify(account, step22Res);
-        }else if ("hsa2".equals(authType)) {
-            account.setNote("该账户为双重认证模式，请清空密保信息后重试");
-            accountTableView.refresh();
-        }
-        return true;
-    }
-
-    private void countryModify(Account account, HttpResponse step1Res) {
+    @Override
+    protected void queryOrUpdate(Account account, HttpResponse step1Res) {
         try {
             account.setNote("正在修改");
             accountTableView.refresh();
@@ -515,13 +339,13 @@ public class CountryModifyController implements Initializable {
         }
     }
     /**
-    　*生成填充数据
-      * @param
+     　*生成填充数据
+     * @param
     　* @return java.lang.String
     　* @throws
     　* @author DeZh
     　* @date 2023/10/8 15:37
-    */
+     */
     private String generateFillData (String countryCode){
         String body="";
         try {
@@ -566,7 +390,7 @@ public class CountryModifyController implements Initializable {
                     json.putByPath("phoneNumber.areaCode",faker.phoneNumber().subscriberNumber());
                 }
             }
-           body= JSONUtil.toJsonStr(json);
+            body= JSONUtil.toJsonStr(json);
         }catch (Exception e){
             e.printStackTrace();
         }
