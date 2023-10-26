@@ -177,6 +177,9 @@ public class TableView implements Initializable {
         button.setOnAction(event -> {
             List<Account> accountList1 = AccountImportUtil.parseAccount(format, area.getText());
             accountList.addAll(accountList1);
+            for (int i = 0; i < accountList.size(); i++) {
+                accountList.get(i).setSeq(i+1);
+            }
             accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
             stage.close();

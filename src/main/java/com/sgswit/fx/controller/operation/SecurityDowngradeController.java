@@ -9,13 +9,9 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**

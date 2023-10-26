@@ -501,11 +501,12 @@ public class AppleIDUtil {
     /**
      * 修改appleId
      */
-    public static HttpResponse updateAppleId(HttpResponse rsp,String appleId,String verifyId,String verifyCode){
+    public static HttpResponse updateAppleId(HttpResponse verifyRsp,String appleId,String verifyCode){
+        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+appleId+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
         HttpResponse updateAppleIdRsp = HttpUtil.createRequest(Method.PUT,url)
-                .header(rsp.headers())
+                .header(verifyRsp.headers())
                 .body(body)
                 .execute();
         rspLog(Method.PUT,url,updateAppleIdRsp.getStatus());
