@@ -189,11 +189,12 @@ public class AppleIDTest {
         verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
-        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
-        Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
+//        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
+//        Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
-        //HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);
-        //Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
+        // 解锁改密
+        HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);
+        Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
 
 
     }

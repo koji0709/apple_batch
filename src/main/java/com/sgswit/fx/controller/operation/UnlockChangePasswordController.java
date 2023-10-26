@@ -18,6 +18,11 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         super.initialize(url,resourceBundle);
     }
 
+    @Override
+    public void importAccountButtonAction() {
+        super.importAccountButtonAction("account-pwd-answer1-answer2-answer3-birthday");
+    }
+
     /**
      * 开始执行按钮点击
      */

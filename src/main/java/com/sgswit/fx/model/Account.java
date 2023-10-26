@@ -24,6 +24,17 @@ public class Account {
     private  final SimpleStringProperty originalCountry;
     private  final SimpleStringProperty targetCountry;
 
+    // 页面临时参数
+    /**
+     * 新邮箱(账号)或救援邮箱
+     */
+    private  final SimpleStringProperty email;
+
+    /**
+     * POP密钥
+     */
+    private  final SimpleStringProperty popKey;
+
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -42,7 +53,10 @@ public class Account {
         this.birthday = new SimpleStringProperty();
         this.originalCountry = new SimpleStringProperty();
         this.targetCountry = new SimpleStringProperty();
+        this.email = new SimpleStringProperty();
+        this.popKey = new SimpleStringProperty();
     }
+
 
     public Integer getSeq() {
         return seq.get();
@@ -169,6 +183,30 @@ public class Account {
         this.phone.set(phone);
     }
 
+    public String getEmail() {
+        return email.get();
+    }
+
+    public SimpleStringProperty emailProperty() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email.set(email);
+    }
+
+    public String getPopKey() {
+        return popKey.get();
+    }
+
+    public SimpleStringProperty popKeyProperty() {
+        return popKey;
+    }
+
+    public void setPopKey(String popKey) {
+        this.popKey.set(popKey);
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -188,6 +226,8 @@ public class Account {
                 ", answer3=" + answer3 +
                 ", originalCountry=" + originalCountry +
                 ", targetCountry=" + targetCountry +
+                ", email=" + email +
+                ", popKey=" + popKey +
                 '}';
     }
 }

@@ -6,7 +6,7 @@
 <?import javafx.collections.*?>
 <?import java.lang.String?>
 
-<AnchorPane fx:controller="com.sgswit.fx.controller.operation.UnlockChangePasswordController"
+<AnchorPane fx:controller="com.sgswit.fx.controller.operation.UpdateAppleIdController"
             maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <children>
@@ -82,29 +82,82 @@
                         </TitledPane>
 
                         <!--配置信息-->
-                        <TitledPane text="配置信息" prefWidth="200" prefHeight="165" collapsible="false" animated="false">
+                        <TitledPane text="配置信息" prefWidth="180" prefHeight="165" collapsible="false" animated="false">
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <Label text="解锁改密需要设置一个新密码" />
-                                        <TextField fx:id="pwdTextField"/>
+                                        <Label text="工作模式"/>
+                                        <ChoiceBox fx:id="opTypeChoiceBox">
+                                            <items>
+                                                <FXCollections fx:factory="observableArrayList">
+                                                    <String fx:value="更改AppleId"/>
+                                                    <String fx:value="新增救援邮件"/>
+                                                </FXCollections>
+                                            </items>
+                                        </ChoiceBox>
                                         <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>
                             </content>
                         </TitledPane>
 
-                        <!--说明-->
-                        <TitledPane text="说明" prefWidth="500" prefHeight="165" collapsible="false" animated="false" >
+                        <!--修改资料-->
+                        <TitledPane text="修改资料" prefWidth="790" prefHeight="165" collapsible="false" animated="false" >
                             <content>
-                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
+                                <HBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                     <children>
-                                        <Label textFill="#169BD5" text="导入格式：帐号-密码-答案1-答案2-答案3-生日" />
-                                        <Label textFill="#169BD5" text="功能说明：帐号解除锁定、找回密码。" />
-                                        <Label textFill="#169BD5" text="操作提示：解除锁定和找回密码都需要设置一个新密码，请按照指定格式导入。" />
+                                        <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
+                                            <children>
+                                                <Label text="[打开POP配置文件] 搭建的邮箱需要自行设定POP地址"/>
+                                                <HBox alignment="CENTER_LEFT" >
+                                                    <children>
+                                                        <Label text="验证码等待延时"/>
+                                                        <TextField fx:id="verifyCodeDelayTextField" prefWidth="30"/>
+                                                        <Label text="秒  重新执行时建议填10-15秒"/>
+                                                    </children>
+                                                </HBox>
+                                                <Label/>
+                                            </children>
+                                        </VBox>
+                                        <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
+                                            <children>
+                                                <CheckBox fx:id="updateAccountInfoCheckBox" text="同时修改账号其他资料" />
+                                                <HBox alignment="CENTER" >
+                                                    <children>
+                                                        <Label text="新密码"/><TextField fx:id="pwdTextField"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER">
+                                                    <children>
+                                                        <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" prefWidth="162"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                        <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
+                                            <children>
+                                                <HBox alignment="CENTER" >
+                                                    <children>
+                                                        <Label text="新密保朋友"/><TextField fx:id="answer1TextField"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER">
+                                                    <children>
+                                                        <Label text="新密保工作" /><TextField fx:id="answer2TextField"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" >
+                                                    <children>
+                                                        <Label text="新密保父母"/><TextField fx:id="answer3TextField"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
                                     </children>
-                                </VBox>
+                                    <children>
 
+                                    </children>
+                                </HBox>
                             </content>
                         </TitledPane>
 
@@ -125,16 +178,19 @@
                 <!--账号列表-->
                 <TitledPane text="账号列表" collapsible="false" animated="false">
                     <content>
-                        <TableView fx:id="accountTableView" prefWidth="1230" prefHeight="500">
+                        <TableView fx:id="accountTableView" prefWidth="1500" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
-                                <TableColumn fx:id="account" prefWidth="150" text="账号"/>
-                                <TableColumn fx:id="pwd" prefWidth="150" text="密码"/>
+                                <TableColumn fx:id="account" prefWidth="180" text="账号"/>
+                                <TableColumn fx:id="pwd" prefWidth="130" text="密码"/>
                                 <TableColumn fx:id="answer1" prefWidth="100" text="答案1"/>
                                 <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
                                 <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
                                 <TableColumn fx:id="birthday" prefWidth="80" text="生日"/>
-                                <TableColumn fx:id="note" prefWidth="180" text="执行信息"/>
+                                <TableColumn fx:id="aera" prefWidth="75" text="国家"/>
+                                <TableColumn fx:id="email" prefWidth="160" text="新邮箱或救援邮箱"/>
+                                <TableColumn fx:id="popKey" prefWidth="160" text="POP密钥"/>
+                                <TableColumn fx:id="note" prefWidth="180" text="执行信息" />
                             </columns>
                         </TableView>
                     </content>
