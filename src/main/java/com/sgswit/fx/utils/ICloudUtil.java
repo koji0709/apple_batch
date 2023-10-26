@@ -1,11 +1,15 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author DeZh
@@ -16,12 +20,16 @@ import java.util.List;
  */
 public class ICloudUtil {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"whjyvmbwyym@hotmail.com","Gao100287." );
-//        loginCloud(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","@B0527s0207" );
-        getFamilyDetails("djli0506@163.com","@B0527s0207" );
+        loginCloud(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
+//        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
+//        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.212129" );
+//        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
+//        checkAccountInit("djli0506@163.com");
+//        checkAccountInit("17319139610");
     }
-    public static void loginCloud(String clientId,String appleId,String password){
+    public static void loginCloud(String clientId, String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Referer", ListUtil.toList("https://setup.icloud.com/setup/iosbuddy/loginDelegates"));
@@ -58,33 +66,16 @@ public class ICloudUtil {
 
         System.out.println(res.body());
     }
-    public static void getFamilyDetails(String appleId,String password){
+    public static void getFamilyDetails(String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language", ListUtil.toList(" zh-cn"));
-//        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/1.0 CFNetwork/711.2.23 Darwin/14.0.0"));
+        headers.put("Accept-Language", ListUtil.toList("zh-cn"));
+        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0"));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
-//        headers.put("X-Mme-Device-Id",ListUtil.toList("1862cdf18ff0c9eafe779607316445a42b1e91d6"));
-//        headers.put("X-Apple-MD-M",ListUtil.toList("hjt4iCJS8FShZJLeRUFB4FXhptUdLQcE8qLV7XX+f9AqH3cliCfnatAsN7B5y5TGuF8i2ns7JV5vzDGP"));
-//        headers.put("X-Apple-GS-Token",ListUtil.toList("ODEzNTQ0ODY1ODpHZHFEaDhSay93VDhma3VVc3c4ekhpbWVab3BHeHh1MVM2clROOHpRQld3SlJHQnh3RDcyTlNmVFg0WVlhT09JT2V3bVFmVnNTTzlKczRYUXd3eGJqTnVEQlQ2aDZ2VnRiN09BRFRScE5wYlp6dEVLdm1WQWxjbUZyZVlEYVl3d1htdElpOWpGTE9pMHVvdUlidEU5blNDUy9HSlRNREoxcWQ5d01FaUpJRnVZNWZZVWF6WDFqbXR6UjVDT0h4ODN6WlR5NnJNPQ=="));
-//        headers.put("X-GS-Token",ListUtil.toList("ODEzNTQ0ODY1ODpHZHFEaDhSay93VDhma3VVc3c4ekhpbWVab3BHeHh1MVM2clROOHpRQld3SlJHQnh3RDcyTlNmVFg0WVlhT09JT2V3bVFmVnNTTzlKczRYUXd3eGJqTnVEQlQ2aDZ2VnRiN09BRFRScE5wYlp6dEVLdm1WQWxjbUZyZVlEYVl3d1htdElpOWpGTE9pMHVvdUlidEU5blNDUy9HSlRNREoxcWQ5d01FaUpJRnVZNWZZVWF6WDFqbXR6UjVDT0h4ODN6WlR5NnJNPQ=="));
-//        headers.put("X-Apple-ADSID",ListUtil.toList("001871-10-204fce36-9315-42c7-9291-a020931cb9d3"));
-//        headers.put("X-MMe-FMFAllowed",ListUtil.toList("true"));
         headers.put("Accept",ListUtil.toList("*/*"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<iPhone5,3> <iPhone OS;8.2;12D508> <com.apple.AppleAccount/1.0 (com.apple.Preferences/1.0)>"));
-//        headers.put("X-Apple-MD",ListUtil.toList("AAAABAAAABBgyHg8C/0k0kaea2mlp8Tb"));
-//        headers.put("X-MMe-Country",ListUtil.toList("CN"));
-        headers.put("Authorization",ListUtil.toList("Basic ODEzNTQ0ODY1ODpJQUFBQUFBQUJMd0lBQUFBQUdVdDdEd1JEbWR6TG1samJHOTFaQzVoZFhSb3ZRQkZra1NROWJRT3hlUmxxWHVUOW43Z0kycEZDeHBLR200Ylc5NVRQZXREd3ZDbHVhc2tXa3ZtczdBczZ6V1k5T0RBdFRUNUVlczdOT1JSVTRJZk5HZ3FLRkJycHJ6OWFUT1lLNkpGQ1daOFZrQlkyelp6TmtBN2xyU2dhQ1lCMlNnTjZidDlIazZrL0tvV3N0UkJzd1ZNRElod21nPT0="));
-
-
-
-
-
-
-
-
-
+        headers.put("X-MMe-Client-Info",ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AppleAccount/1.0 (com.apple.Preferences/198)>"));
+        headers.put("Authorization",ListUtil.toList("Basic MjUwMzY4MjIwMDQ6SUFBQUFBQUFCTHdJQUFBQUFGOHIxN01SRG1kekxtbGpiRzkxWkM1aGRYUm92UUM3WWl4aDhsL2NyMzV6Y0VObXgwZ1hEaWdNMWhEMmtDd0piQVp3bU0zUXJ6K0NBdTdjK3U3eEJ5WjVOU3ZvbWdNS1kyMHY5RzcvTlhMbmNPUDlWZlVacUNuazl3RVhnUDluS3dxYlAvV0lFZis5TkxmU1c1WDNvZjF1eHNidlowdVhzZ09od1MwMXVzRTdKOVNuSDMyMUpMeTBVZz09"));
         HttpResponse res = HttpUtil.createPost("https://setup.icloud.com/setup/family/getFamilyDetails")
                 .header(headers)
                 .execute();
@@ -92,6 +83,96 @@ public class ICloudUtil {
         System.out.println(res.body());
     }
 
-    private static class CN {
+    public static String checkAccountInit(String appleId) throws Exception {
+//        HashMap<String, List<String>> headers = new HashMap<>();
+//        headers.put("Host", ListUtil.toList("gsa.apple.com"));
+//        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
+//        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
+//        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
+//        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
+//        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
+//        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
+//        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
+//        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
+        HttpResponse initRes = HttpUtil.createGet("https://gsa.apple.com/iforgot/password/verify/appleid")
+                .header(getHeader())
+                .execute();
+        if(initRes.getStatus()!=200){
+            return "系统错误";
+        }else{
+            return checkAccount(appleId,initRes);
+        }
+    }
+    public static String checkAccount(String appleId, HttpResponse response) throws Exception {
+        String message="";
+
+        String text=response.body();
+        ////正则表达式提取链接
+        String LINK_REGEX = "<linkBarItem\\s+(?:[^>]*?\\s+)?url=\"([^\"]*)\"";
+        Pattern pattern = Pattern.compile(LINK_REGEX);
+        Matcher matcher = pattern.matcher(text);
+        String checkUrl="https://gsa.apple.com";
+        while (matcher.find()) {
+            checkUrl+=matcher.group(1);
+        }
+        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
+                "<plist version=\"1.0\">" +
+                "<dict>" +
+                "<key>id</key>" +
+                "<string>qwweeee</string>" +
+                "</dict>" +
+                "</plist>";
+
+        HttpResponse res = HttpUtil.createPost(checkUrl)
+                .header(getHeader())
+//                .body(body)
+                .execute();
+
+
+
+
+
+
+
+
+
+//        if(res.getStatus()==200){
+//            String MESSAGE_REGEX = "<alert\\s+(?:[^>]*?\\s+)?message=\"([^\"]*)\"";
+//            Pattern p = Pattern.compile(MESSAGE_REGEX);
+//            Matcher m = p.matcher(res.body());
+//            while (m.find()) {
+//                message=matcher.group(1);
+//            }
+//            Console.error(message);
+//        }else if(res.getStatus()==302){
+//            System.out.println("----开始-------");
+//            System.out.println(res.header("Location"));
+//            System.out.println("----结束-------");
+//        }
+
+
+
+
+        System.out.println(res.getStatus());
+//        System.out.println(res.body());
+
+        return message;
+    }
+    private static Map<String, List<String>> getHeader(){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("Host", ListUtil.toList("gsa.apple.com"));
+        headers.put("X-Apple-iOS-SLA-Version", ListUtil.toList("1636" ));
+        headers.put("X-Apple-I-Locale", ListUtil.toList("zh_CN" ));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br" ));
+        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
+        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
+        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
+        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
+        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
+        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
+        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
+        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
+        return headers;
     }
 }

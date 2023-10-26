@@ -9,6 +9,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,9 @@ import java.util.Map;
 public class ITunesUtil {
     public static void main(String[] args) {
 //        accountPurchasesCount(null);
-        getPurchases(null);
+//        getPurchases(null);
+//        getPaymentInfos(null);
+        addOrEditBillingInfoSrv(null);
 //        Faker faker = new Faker(Locale.CHINA);
 //
 //        Address address = faker.address();
@@ -129,6 +132,111 @@ public class ITunesUtil {
                 result.add(new HashMap<>(){{
                     put(key,value);
                 }});
+            }
+        }
+        return result;
+    }
+    /**
+    　* 删除所有支付方式
+      * @param
+     * @param response
+    　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/10/25 11:49
+    */
+    public  static Map<String,String> getPaymentInfos(HttpResponse response){
+        Map<String,String> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Content-Type", ListUtil.toList("application/json; charset=UTF-8"));
+        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
+        headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
+        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
+        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("84215040"));
+        headers.put("X-Apple-I-MD-M",ListUtil.toList("Q2OtXd0fi23JpGxDq05FG3ROgkEVQu92XZBrKZZSA2DlFswLisjD31ycS05u7hliBihILZlRF2bCOwq2"));
+        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABDi8d9/9w4AeM0Z1VLqcbepAAAAAg=="));
+        headers.put("X-Dsid",ListUtil.toList("8135448658"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZegAAAABlOJfilEK2op9puR0mWkNMNbkQemE67dE="));
+        String cookie="amp=oz+QsprugugNdH1dOqMziD+7NvCu3VFV2kRYPsMiEIlb3hzkd/PsiDnk4JV67cWA5Je3PwIHiUiPIdGoCN0PJhtoUBNgSfNoxyITDAAzXtw=; itst=0; mt-tkn-8135448658=Ai3J5B6alaoTmz6Vm48bshOWYZhNUFol2BoFDaOs3JfvzKabPxOauNjBsex20hTmVDQi9Fx3bnfeG8u35zUhEFoLy7XNrr4yKAh1Bveid2muByG4G/coH1ocF2qA5qykNzSBEbvhHNadzQyDs7dRbk2uuB6GpnDKPdGcEwrS9k2WnOYoenymHasURo9geVUuetLqf2I=; mz_mt0-8135448658=AgW7tbN1lanI9hjtOLDaVbhkN6ni8hxRqgEI7SCiqCIFz5Gc1WSKVo4SMHGjkbsKNGykyDIU1FHNVEf6ThJwxR3P5ZHSgt3MHDEZSjQswhQ3LRBzt/asKQLyf1qEqUl2Y+f4LrQ6tWQOqL0lzzS9C+819PUZEyNviBxvQX05XDcp5wntHBk1AleGft1q2mqWWEnNmJA=; ampsc=1S1xXEF743014EgN2zwVoC1uUCvWW8kEvrQM29Lq7Pg=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZegAAAABlOJfjEwDr2i1W4JUHHV0HeCJRCoQjdDc=; mz_at_ssl-8135448658=AwUAAAECAAHZegAAAABlOJfjHk0UnNC2UHDOJ7R0KmUj7LBhnfE=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=SMrDJXV7QMq7HJtEIv3zKw; X-Dsid=8135448658; xp_ab=1#WqjkRLH+-2+p9nsgcq0#isj11bm+-2+oE0ebSx03#yNFpB6B+-2+EZQVyff00; xp_abc=oE0ebSx03; xp_ci=3z4Kdsj1zCuGz551z950zj3FC7lDW";
+        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
+                .header(headers)
+                .cookie(cookie)
+                .execute();
+        if(httpResponse.getStatus()==401){
+            result.put("code","-1");
+            result.put("message","未登录或登录超时");
+        }else if(httpResponse.getStatus()==200){
+            String paymentInfosJsonString= JSONUtil.parseObj(httpResponse.body()).getByPath("data.attributes.paymentInfos").toString();
+            JSONArray jsonArray=JSONUtil.parseArray(paymentInfosJsonString);
+            for(Object jsonObject:jsonArray){
+                String paymentId= (String) ((JSONObject)jsonObject).getByPath("paymentId");
+                String paymentMethodType= (String) ((JSONObject)jsonObject).getByPath("paymentMethodType");
+                if(!"None".equalsIgnoreCase(paymentMethodType)){
+                    String url= MessageFormat.format("https://p30-buy.itunes.apple.com/account/stackable/paymentInfos/{0}/delete",paymentId);
+                    HttpResponse delHttpResponse = HttpUtil.createRequest(Method.POST,url)
+                            .header(headers)
+                            .cookie(cookie)
+                            .execute();
+                }
+            }
+            result.put("code","0");
+            result.put("message","操作成功");
+        }
+        return result;
+    }
+
+    public  static Map<String,String> addOrEditBillingInfoSrv(HttpResponse response){
+        Map<String,String> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
+        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
+        headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
+        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
+        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("84215040"));
+        headers.put("X-Apple-I-MD-M",ListUtil.toList("Q2OtXd0fi23JpGxDq05FG3ROgkEVQu92XZBrKZZSA2DlFswLisjD31ycS05u7hliBihILZlRF2bCOwq2"));
+        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABDi8d9/9w4AeM0Z1VLqcbepAAAAAg=="));
+        headers.put("X-Dsid",ListUtil.toList("8135448658"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZegAAAABlOLXoltoOFu3Mj1DFABkqWdcFo7tV7Rc="));
+        String cookie="amia-8135448658=VbD6WfraX7qNPxiqXkGNeborLN/fKBZLIig2ZBquHUIfEAmgEkWIICpHO2T45z2NnivzJkUEtNVYefzyO3Qecg==; amp=dc7TigY0wSfgYzXi2RZwVAFXNDCYHv79584bpDKdacvAr+hDMWPZ5Gikvo6EN1iDmqCNmnUY1lTXAls/m1hFcRpyG7te50J3g00xQnWU+fc=; itst=0; mt-tkn-8135448658=AiERWD12++HIPsVY8Yu0OQd+4I4ffVkiNSp2/ydvXPfIqSbFQxvun0fOquelALrMd+mOPn/jQqCJc+X/5Xk3oioeMUL4m3GXnZ+2eGKuNUlSK1QdSR3mRh08tPYlwn8y7Kw5B2FuqrOuRh8UqdeNJ5jIDPMNOdPc4ElYwtI7qf8jQ/WRSfx0Iml8P/kXAZKS95Tbnps=; mz_mt0-8135448658=AkACU2Dzl5d1EaWKqQfgllH3ED5YfkoO9ltKvPqwL91we0a0eeU5JjTX0zSNdGvP/pTOX4uCgKCzl1NM+woJD9Sn/o1KsyZDs2W72wqeN+bnxjoKuZR4JKlv5JGopsBHPoWl3I08N7ZpsmEX/EY2na0lQxflPHeD0KNlejSBum9tmBKoCat8dHR/bHQ133ML7dez7Nk=; woinst=-1; wosid=TZ7hkqUbKXVoxfoabjLiRM; ns-mzf-inst=240-29-443-113-14-9041-3300019-30-mr30; hsaccnt=1; mzf_in=3300019; session-store-id=3A65CBB1CB654F4BE485A647BB95BD4E; ampsc=6p3fFPeDyggHqtPRNIwzzIGDP7U/8HVg/Vr4ptu5mg0=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZegAAAABlOLXoKQCwc4VyKu95DjkHFQXejTShp/o=; mz_at_ssl-8135448658=AwUAAAECAAHZegAAAABlOLXonXa9vKGzDKhHIOaOdRafsSoz9Xk=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=bihHyQCVFFaFe8hIMYGAXw; X-Dsid=8135448658; xp_ab=1#WqjkRLH+-2+p9nsgcq0#isj11bm+-2+oE0ebSx03#yNFpB6B+-2+EZQVyff00; xp_abc=oE0ebSx03; xp_ci=3z4Kdsj1zCuGz551z950zj3FC7lDW";
+        String creditCardNumber="4737029072047856";
+        String creditCardExpirationMonth="10";
+        String creditCardExpirationYear="2024";
+        String creditVerificationNumber="350";
+        String body=MessageFormat.format("paymentMethodType=CreditCard&needsTopUp=false&creditCardNumber={0}&isCameraInput=false&creditCardExpirationMonth={1}&creditCardExpirationYear={2}&creditVerificationNumber={3}",
+                creditCardNumber,creditCardExpirationMonth,creditCardExpirationYear,creditVerificationNumber);
+        HttpResponse httpResponse = HttpUtil.createRequest(Method.POST,"https://p30-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv")
+                .header(headers)
+                .cookie(cookie)
+                .body(body)
+                .execute();
+        if(httpResponse.getStatus()==401){
+            result.put("code","-1");
+            result.put("message","未登录或登录超时");
+        }else if(httpResponse.getStatus()==200){
+            String bodyJson=httpResponse.body();
+            int status= (int) JSONUtil.parseObj(bodyJson).getByPath("status");
+            if(status==0){
+                result.put("code","0");
+                result.put("message","成功");
+            }else{
+                String validationResults= JSONUtil.parseObj(bodyJson).getByPath("result.validationResults").toString();
+                JSONArray jsonArray=JSONUtil.parseArray(validationResults);
+                StringBuffer stringBuffer=new StringBuffer();
+                for(Object jsonObject:jsonArray){
+                    String errorString= (String) ((JSONObject)jsonObject).getByPath("errorString");
+                    stringBuffer.append(errorString);
+                    stringBuffer.append("\n");
+                }
+                result.put("code","-1");
+                result.put("message",stringBuffer.toString());
             }
         }
         return result;
