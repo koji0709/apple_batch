@@ -9,6 +9,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.CommController;
+import com.sgswit.fx.controller.iTunes.bo.BillingAddress;
+import com.sgswit.fx.controller.iTunes.bo.OwnerName;
+import com.sgswit.fx.controller.iTunes.bo.PaymentModel;
+import com.sgswit.fx.controller.iTunes.bo.PhoneNumber;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.StringUtils;
@@ -186,18 +190,27 @@ public class PaymentMethodController extends CommController<Account> implements 
             }
             String bodyString=paymentRes.body();
             Object id=JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.id");
-            Object phoneNumber=JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.phoneNumber");
-            Object ownerName=JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.ownerName");
+            Object phoneNumberObj=JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.phoneNumber");
+            PhoneNumber phoneNumber=new PhoneNumber();
+            if(null!=phoneNumber){
+                phoneNumber=JSONUtil.toBean(phoneNumberObj.toString(),PhoneNumber.class);
+            }
+            Object ownerNameObj=JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.ownerName");
+            OwnerName ownerName=new OwnerName();
+            if(null!=ownerName){
+                ownerName=JSONUtil.toBean(ownerNameObj.toString(),OwnerName.class);
+            }
             JSONObject billingAddressJson= (JSONObject) JSONUtil.parse(bodyString).getByPath("primaryPaymentMethod.billingAddress");
             billingAddressJson.putByPath("stateProvinceName",billingAddressJson.getByPath("stateProvinceCode"));
-            JSONObject bodyJson=JSONUtil.createObj();
-            bodyJson.putByPath("id",id);
-            bodyJson.putByPath("phoneNumber",phoneNumber);
-            bodyJson.putByPath("ownerName",ownerName);
-            bodyJson.putByPath("billingAddress",billingAddressJson);
+            BillingAddress billingAddress=JSONUtil.toBean(billingAddressJson.toString(),BillingAddress.class);
+
+            PaymentModel paymentModel=new PaymentModel();
+            paymentModel.setBillingAddress(billingAddress);
+            paymentModel.setPhoneNumber(phoneNumber);
+            paymentModel.setOwnerName(ownerName);
             HttpResponse step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
                     .header(headers)
-                    .body(JSONUtil.toJsonStr(bodyJson))
+                    .body(JSONUtil.toJsonStr(paymentModel))
                     .cookie(cookieBuilder.toString())
                     .execute();
             if(step4Res.getStatus() == 400){
@@ -225,7 +238,6 @@ public class PaymentMethodController extends CommController<Account> implements 
             messageFun(account,"修改失败");
         }
     }
-
     private void queryFail(Account account) {
         String note = "查询失败，请确认用户名密码是否正确";
         account.setNote(note);

@@ -33,9 +33,7 @@ import java.util.List;
  * @date 2023/10/2615:27
  */
 public class CommController<T> {
-
     protected void queryOrUpdate(T account, HttpResponse step1Res){
-        System.out.println("执行了父类方法");
     }
 
     /**
@@ -52,6 +50,11 @@ public class CommController<T> {
     protected void onAccoutQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
 
         for(T account:list){
+            //判断是否已执行或执行中,避免重复执行
+            Object note=getFieldValueByObject(account,"note");
+            if(!StrUtil.isEmptyIfStr(note)){
+                continue;
+            }
             Object answer1=getFieldValueByObject(account,"answer1");
             if(StrUtil.isEmptyIfStr(answer1)){
                 //双重认证
