@@ -634,7 +634,6 @@ public class AppleIDUtil {
         HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/unenrollment/verify/questions")
                 .header(verifyQuestions1Rsp.headers())
                 .header("Content-Type","application/json")
-                //.header("sstt",verifyQuestions1BodyJSON.getByPath("sstt",String.class))
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .execute();
 
@@ -714,7 +713,7 @@ public class AppleIDUtil {
     /**
      * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
      */
-    public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp) {
+    public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
 
@@ -752,10 +751,11 @@ public class AppleIDUtil {
                 .header(buildHeader())
                 .execute();
 
+        DateTime birthday = DateUtil.parse(account.getBirthday());
         HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/password/verify/birthday")
                 .header(verifyBirthday1Rsp.headers())
                 .header("Content-Type","application/json")
-                .body("{\"monthOfYear\":\"08\",\"dayOfMonth\":\"10\",\"year\":\"1996\"}")
+                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .execute();
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
@@ -766,9 +766,9 @@ public class AppleIDUtil {
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
         List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
         Map<Integer,String> answerMap = new HashMap<>(){{
-            put(1,"猪");
-            put(2,"狗");
-            put(3,"牛");
+            put(1,account.getAnswer1());
+            put(2,account.getAnswer2());
+            put(3,account.getAnswer3());
         }};
         for (JSONObject question : questions) {
             question.remove("locale");
@@ -779,7 +779,6 @@ public class AppleIDUtil {
         HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/password/verify/questions")
                 .header(verifyQuestions1Rsp.headers())
                 .header("Content-Type","application/json")
-                //.header("sstt",verifyQuestions1BodyJSON.getByPath("sstt",String.class))
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .execute();
 
@@ -796,7 +795,7 @@ public class AppleIDUtil {
         HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
                 .header(passwordReset1Rsp.headers())
                 .header("Content-Type","application/json")
-                .body("{\"password\":\"Xx97595031.2\"}")
+                .body("{\"password\":\""+newPwd+"\"}")
                 .execute();
 
         return passwordReset2Rsp;
