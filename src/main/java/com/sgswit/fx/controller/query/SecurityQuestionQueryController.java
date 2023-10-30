@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.query;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
@@ -77,36 +78,36 @@ public class SecurityQuestionQueryController {
         if (list.size() < 1) {
             return;
         }
-
-        Problem problem = list.get(0);
-
-        //非双重认证
         questionCountryQueryBtn.setText("正在查询");
         questionCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
         questionCountryQueryBtn.setDisable(true);
-
-        problem.setNote("正在查询");
-        questionTableView.refresh();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    noSecondSec(problem);
-                } finally {
-                    //JavaFX Application Thread会逐个阻塞的执行这些任务
-                    Platform.runLater(new Task<Integer>() {
-                        @Override
-                        protected Integer call() {
-                            questionCountryQueryBtn.setDisable(false);
-                            questionCountryQueryBtn.setText("开始执行");
-                            questionCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            return 1;
-                        }
-                    });
-                }
+        for(Problem problem:list){
+            if(!StrUtil.isEmptyIfStr(problem.getNote())){
+                continue;
             }
-        }).start();
+            problem.setNote("正在查询...");
+            questionTableView.refresh();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        noSecondSec(problem);
+                    } finally {
+                        //JavaFX Application Thread会逐个阻塞的执行这些任务
+                        Platform.runLater(new Task<Integer>() {
+                            @Override
+                            protected Integer call() {
+                                questionCountryQueryBtn.setDisable(false);
+                                questionCountryQueryBtn.setText("开始执行");
+                                questionCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                return 1;
+                            }
+                        });
+                    }
+                }
+            }).start();
+        }
     }
 
 
@@ -115,9 +116,6 @@ public class SecurityQuestionQueryController {
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
-        account.setAnswer1(problem.getAnswer1());
-        account.setAnswer2(problem.getAnswer2());
-        account.setAnswer3(problem.getAnswer3());
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
         if (step1Res.getStatus() != 409) {
@@ -130,8 +128,6 @@ public class SecurityQuestionQueryController {
             queryFail(problem);
             return false;
         }
-
-
         //step2 获取认证信息 -- 需要输入密保
         HttpResponse step21Res = AppleIDUtil.auth(step1Res);
         String authType = (String) json.getByPath("authType");
