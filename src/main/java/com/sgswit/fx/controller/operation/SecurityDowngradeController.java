@@ -29,7 +29,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account-answer1-answer2-answer3-birthday");
+        super.importAccountButtonAction("account-pwd-answer1-answer2-answer3-birthday");
         super.bindActions();
     }
 
@@ -71,6 +71,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                     }else{
                         account.setNote("关闭双重验证失败");
                     }
+                    accountTableView.refresh();
                 });
             }
             @Override
