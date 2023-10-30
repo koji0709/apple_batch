@@ -11,7 +11,7 @@ public class Balance {
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty state;
     private final SimpleStringProperty balance;
-    private final SimpleStringProperty aera;
+    private final SimpleStringProperty area;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
@@ -27,7 +27,7 @@ public class Balance {
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
         this.balance = new SimpleStringProperty();
-        this.aera = new SimpleStringProperty();
+        this.area = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
@@ -69,12 +69,12 @@ public class Balance {
         state.set(s);
     }
 
-    public String getAera() {
-        return aera.get();
+    public String getArea() {
+        return area.get();
     }
 
-    public void setAera(String a) {
-        aera.set(a);
+    public void setArea(String a) {
+        area.set(a);
     }
 
     public String getStatus() {

@@ -10,6 +10,6 @@ open module com.sgswit.fx {
     requires jna;
     requires javafaker;
     requires jsoup;
-    requires generex;
+    requires dd.plist;
     exports com.sgswit.fx;
 }

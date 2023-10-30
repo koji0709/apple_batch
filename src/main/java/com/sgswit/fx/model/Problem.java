@@ -11,7 +11,7 @@ public class Problem {
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
-    private final SimpleStringProperty aera;
+    private final SimpleStringProperty area;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
@@ -31,7 +31,7 @@ public class Problem {
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
-        this.aera = new SimpleStringProperty();
+        this.area = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
@@ -79,12 +79,12 @@ public class Problem {
         state.set(s);
     }
 
-    public String getAera() {
-        return aera.get();
+    public String getArea() {
+        return area.get();
     }
 
-    public void setAera(String a) {
-        aera.set(a);
+    public void setArea(String a) {
+        area.set(a);
     }
 
     public String getStatus() {
@@ -207,7 +207,7 @@ public class Problem {
                 ", account=" + account +
                 ", pwd=" + pwd +
                 ", state=" + state +
-                ", aera=" + aera +
+                ", area=" + area +
                 ", name=" + name +
                 ", status=" + status +
                 ", note=" + note +

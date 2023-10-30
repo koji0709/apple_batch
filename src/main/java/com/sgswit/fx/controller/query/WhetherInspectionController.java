@@ -322,7 +322,7 @@ public class WhetherInspectionController {
         balance.setState(state);
         balance.setName(name);
         balance.setNote(note);
-        balance.setAera(area);
+        balance.setArea(area);
         balance.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
 
         accountTableView.refresh();

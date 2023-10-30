@@ -11,7 +11,7 @@ public class Account {
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
-    private final SimpleStringProperty aera;
+    private final SimpleStringProperty area;
     private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
@@ -23,6 +23,8 @@ public class Account {
     private  final SimpleStringProperty answer3;
     private  final SimpleStringProperty originalCountry;
     private  final SimpleStringProperty targetCountry;
+    private  final SimpleStringProperty dsid;
+    private  final SimpleStringProperty support;
 
     // 页面临时参数
     /**
@@ -41,7 +43,7 @@ public class Account {
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
-        this.aera = new SimpleStringProperty();
+        this.area = new SimpleStringProperty();
         this.phone = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
@@ -55,6 +57,8 @@ public class Account {
         this.targetCountry = new SimpleStringProperty();
         this.email = new SimpleStringProperty();
         this.popKey = new SimpleStringProperty();
+        this.dsid = new SimpleStringProperty();
+        this.support = new SimpleStringProperty();
     }
 
 
@@ -90,12 +94,12 @@ public class Account {
         state.set(s);
     }
 
-    public String getAera() {
-        return aera.get();
+    public String getArea() {
+        return area.get();
     }
 
-    public void setAera(String a) {
-        aera.set(a);
+    public void setArea(String a) {
+        area.set(a);
     }
 
     public String getStatus() {
@@ -207,6 +211,24 @@ public class Account {
         this.popKey.set(popKey);
     }
 
+    public String getDsid() {
+        return dsid.get();
+    }
+
+
+    public void setDsid(String dsid) {
+        this.dsid.set(dsid);
+    }
+
+    public String getSupport() {
+        return support.get();
+    }
+
+
+    public void setSupport(String support) {
+        this.support.set(support);
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -215,7 +237,7 @@ public class Account {
                 ", pwd=" + pwd +
                 ", state=" + state +
                 ", birthday=" + birthday +
-                ", aera=" + aera +
+                ", area=" + area +
                 ", phone=" + phone +
                 ", name=" + name +
                 ", status=" + status +
@@ -228,6 +250,8 @@ public class Account {
                 ", targetCountry=" + targetCountry +
                 ", email=" + email +
                 ", popKey=" + popKey +
+                ", dsid=" + dsid +
+                ", support=" + support +
                 '}';
     }
 }

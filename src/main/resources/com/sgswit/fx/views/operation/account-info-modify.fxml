@@ -215,7 +215,7 @@
                                 <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
                                 <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
                                 <TableColumn fx:id="birthday" prefWidth="80" text="生日"/>
-                                <TableColumn fx:id="aera" prefWidth="75" text="国家"/>
+                                <TableColumn fx:id="area" prefWidth="75" text="国家"/>
                                 <TableColumn fx:id="state" prefWidth="75" text="地区"/>
                                 <TableColumn fx:id="name" prefWidth="100" text="姓名"/>
                                 <TableColumn fx:id="status" prefWidth="75" text="状态"/>

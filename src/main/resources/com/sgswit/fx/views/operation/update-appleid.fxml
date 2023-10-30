@@ -187,7 +187,7 @@
                                 <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
                                 <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
                                 <TableColumn fx:id="birthday" prefWidth="80" text="生日"/>
-                                <TableColumn fx:id="aera" prefWidth="75" text="国家"/>
+                                <TableColumn fx:id="area" prefWidth="75" text="国家"/>
                                 <TableColumn fx:id="email" prefWidth="160" text="新邮箱或救援邮箱"/>
                                 <TableColumn fx:id="popKey" prefWidth="160" text="POP密钥"/>
                                 <TableColumn fx:id="note" prefWidth="180" text="执行信息" />

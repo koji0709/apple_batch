@@ -9,7 +9,7 @@ public class AccountLog {
     private  String answer2;
     private  String answer3;
     private  String state;
-    private  String aera;
+    private  String area;
     private  String name;
     private  String status;
     private  String note;
@@ -51,12 +51,12 @@ public class AccountLog {
         this.state = state;
     }
 
-    public String getAera() {
-        return aera;
+    public String getArea() {
+        return area;
     }
 
-    public void setAera(String aera) {
-        this.aera = aera;
+    public void setArea(String area) {
+        this.area = area;
     }
 
     public String getName() {

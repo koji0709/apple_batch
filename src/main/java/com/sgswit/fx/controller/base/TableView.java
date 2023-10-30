@@ -1,16 +1,9 @@
 package com.sgswit.fx.controller.base;
 
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -65,7 +58,7 @@ public class TableView implements Initializable {
     private TableColumn state;
 
     @FXML
-    private TableColumn aera;
+    private TableColumn area;
 
     @FXML
     private TableColumn status;
@@ -109,8 +102,8 @@ public class TableView implements Initializable {
         if (state != null){
             state.setCellValueFactory(new PropertyValueFactory<Account,String>("state"));
         }
-        if (aera != null){
-            aera.setCellValueFactory(new PropertyValueFactory<Account,String>("aera"));
+        if (area != null){
+            area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
         }
         if (name != null){
             name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));

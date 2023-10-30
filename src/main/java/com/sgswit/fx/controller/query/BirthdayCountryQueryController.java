@@ -99,7 +99,7 @@ public class BirthdayCountryQueryController extends CommController<Account> {
         account.setName(name);
         account.setBirthday(birthday);
         account.setNote(note);
-        account.setAera(area);
+        account.setArea(area);
         account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
 
         accountTableView.refresh();

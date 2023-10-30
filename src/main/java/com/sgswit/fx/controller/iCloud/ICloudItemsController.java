@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.iTunes;
+package com.sgswit.fx.controller.iCloud;
 
 import com.sgswit.fx.MainApplication;
 import javafx.event.ActionEvent;
@@ -17,18 +17,19 @@ import java.io.IOException;
  * @description: TODO
  * @date 2023/9/1321:39
  */
-public class ITunesItemsController {
+public class ICloudItemsController {
 
-    public void onCountryModifyBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/country-modify.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
+    public void onCheckWhetherIcloudBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iCloud/check-whether-icloud.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1000, 650);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
         Stage popupStage = new Stage();
-        popupStage.setTitle("账号国家修改");
+        popupStage.setTitle("能否登录iCloud");
         popupStage.initModality(Modality.WINDOW_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
         popupStage.show();
     }
+
 }

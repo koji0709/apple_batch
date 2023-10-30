@@ -21,15 +21,16 @@ import java.util.regex.Pattern;
 public class ICloudUtil {
 
     public static void main(String[] args) throws Exception {
-//        loginCloud(IdUtil.fastUUID().toUpperCase(),"whjyvmbwyym@hotmail.com","Gao100287." );
-        loginCloud(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
+//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"whjyvmbwyym@hotmail.com","Gao100287." );
+        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
+//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"qinqian@163.com","!!B0527s0207" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.212129" );
 //        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
 //        checkAccountInit("djli0506@163.com");
 //        checkAccountInit("17319139610");
     }
-    public static void loginCloud(String clientId, String appleId, String password){
+    public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Referer", ListUtil.toList("https://setup.icloud.com/setup/iosbuddy/loginDelegates"));
@@ -59,12 +60,11 @@ public class ICloudUtil {
                 "<string>"+password+"</string>" +
                 "</dict>" +
                 "</plist>";
-        HttpResponse res = HttpUtil.createPost("https://setup.icloud.com/setup/iosbuddy/loginDelegates")
+        HttpResponse response = HttpUtil.createPost("https://setup.icloud.com/setup/iosbuddy/loginDelegates")
                 .header(headers)
                 .body(body)
                 .execute();
-
-        System.out.println(res.body());
+        return response;
     }
     public static void getFamilyDetails(String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();
