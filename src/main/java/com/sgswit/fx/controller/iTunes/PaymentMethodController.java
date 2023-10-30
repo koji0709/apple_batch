@@ -143,10 +143,6 @@ public class PaymentMethodController extends CommController<Account> implements 
         }
         super.onAccoutQueryBtnClick(accoutQueryBtn,accountTableView,list);
     }
-
-
-
-
     @Override
     protected void queryOrUpdate(Account account, HttpResponse step1Res) {
         try {
@@ -178,11 +174,9 @@ public class PaymentMethodController extends CommController<Account> implements 
             for(String item : resCookies){
                 cookieBuilder.append(";").append(item);
             }
-            String body="",targetCountry="";
             //查询付款方式信息
             HttpResponse paymentRes = HttpUtil.createRequest(Method.GET,"https://appleid.apple.com/account/manage/payment")
                     .header(headers)
-                    .body(body)
                     .cookie(cookieBuilder.toString())
                     .execute();
             if(paymentRes.getStatus()!=200){
@@ -232,7 +226,6 @@ public class PaymentMethodController extends CommController<Account> implements 
             }else{
                 messageFun(account,"修改成功");
             }
-            account.setTargetCountry(targetCountry);
             accountTableView.refresh();
         }catch (Exception e){
             messageFun(account,"修改失败");

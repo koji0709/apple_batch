@@ -63,7 +63,7 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="删除付款方式" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#onDeletePaymentBtnClick" prefHeight="25.0" prefWidth="140.0" text="删除付款方式" GridPane.halignment="CENTER" GridPane.rowIndex="10" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>

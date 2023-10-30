@@ -31,4 +31,16 @@ public class ITunesItemsController {
         popupStage.initStyle(StageStyle.UTILITY);
         popupStage.show();
     }
+    public void onDeletePaymentBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/payment-method.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("删除付款方式");
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
+    }
 }

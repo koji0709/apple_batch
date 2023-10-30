@@ -11,22 +11,28 @@ public class PaymentModel {
     private OwnerName ownerName;
     private PhoneNumber phoneNumber;
     private BillingAddress billingAddress;
-    public void setOwnerName(OwnerName ownerName){
+
+    public OwnerName getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(OwnerName ownerName) {
         this.ownerName = ownerName;
     }
-    public OwnerName getOwnerName(){
-        return this.ownerName;
+
+    public PhoneNumber getPhoneNumber() {
+        return phoneNumber;
     }
-    public void setPhoneNumber(PhoneNumber phoneNumber){
+
+    public void setPhoneNumber(PhoneNumber phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-    public PhoneNumber getPhoneNumber(){
-        return this.phoneNumber;
+
+    public BillingAddress getBillingAddress() {
+        return billingAddress;
     }
-    public void setBillingAddress(BillingAddress billingAddress){
+
+    public void setBillingAddress(BillingAddress billingAddress) {
         this.billingAddress = billingAddress;
-    }
-    public BillingAddress getBillingAddress(){
-        return this.billingAddress;
     }
 }

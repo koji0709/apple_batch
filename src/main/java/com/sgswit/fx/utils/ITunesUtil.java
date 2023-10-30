@@ -137,7 +137,7 @@ public class ITunesUtil {
         return result;
     }
     /**
-    　* 删除所有支付方式
+    　* 删除所有支付方式（iTunes版）
       * @param
      * @param response
     　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
@@ -188,7 +188,15 @@ public class ITunesUtil {
         }
         return result;
     }
-
+   /**
+   　* 添加信用卡支付方式
+     * @param
+    * @param response
+   　* @return java.util.Map<java.lang.String,java.lang.String>
+   　* @throws
+   　* @author DeZh
+   　* @date 2023/10/30 9:27
+   */
     public  static Map<String,String> addOrEditBillingInfoSrv(HttpResponse response){
         Map<String,String> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
