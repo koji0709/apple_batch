@@ -193,7 +193,7 @@ public class AppleIDTest {
 //        Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
         // 解锁改密
-        HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp);
+        HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,"");
         Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
 
 
