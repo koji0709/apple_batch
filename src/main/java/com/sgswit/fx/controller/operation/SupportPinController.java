@@ -1,20 +1,39 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.base.AppleIdView;
 import com.sgswit.fx.controller.base.TableView;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
+import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.AppleIDUtil;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 
 /**
  * 生成支持PIN controller
  */
-public class SupportPinController extends TableView {
+public class SupportPinController extends AppleIdView {
+
+    @FXML
+    private TableColumn pin;
+
+    @FXML
+    private TableColumn pinExpir;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
+        pin.setCellValueFactory(new PropertyValueFactory<Account,String>("pin"));
+        pinExpir.setCellValueFactory(new PropertyValueFactory<Account,String>("pinExpir"));
     }
 
     /**
@@ -27,8 +46,19 @@ public class SupportPinController extends TableView {
             return;
         }
 
-        // todo
-
+        for (Account account : accountList) {
+            HttpResponse supportPinRsp = AppleIDUtil.supportPin(getTokenScnt(account));
+            if (supportPinRsp.getStatus() == 200){
+                JSON parse = JSONUtil.parse(supportPinRsp.body());
+                String pin = parse.getByPath("pin", String.class);
+                account.setPin(pin);
+                account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
+                account.setNote("生成成功");
+            }else{
+                account.setNote("生成失败！");
+            }
+        }
         accountTableView.refresh();
     }
+
 }
