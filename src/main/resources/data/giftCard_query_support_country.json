@@ -1,0 +1,158 @@
+[
+  {
+    "name": "美国",
+    "code": "US"
+  },
+  {
+    "name": "香港",
+    "code": "HK"
+  },
+  {
+    "name": "日本",
+    "code": "JP"
+  },
+  {
+    "name": "法国",
+    "code": "FR"
+  },
+  {
+    "name": "丹麦",
+    "code": "DK"
+  },
+  {
+    "name": "加拿大",
+    "code": "CA"
+  },
+  {
+    "name": "匈牙利",
+    "code": "HU"
+  },
+  {
+    "name": "南非",
+    "code": "ZA"
+  },
+  {
+    "name": "卢森堡",
+    "code": "LU"
+  },
+  {
+    "name": "印度",
+    "code": "IN"
+  },
+  {
+    "name": "台湾",
+    "code": "TW"
+  },
+  {
+    "name": "土耳其",
+    "code": "TR"
+  },
+  {
+    "name": "墨西哥",
+    "code": "MX"
+  },
+  {
+    "name": "奥地利",
+    "code": "AT"
+  },
+  {
+    "name": "巴西",
+    "code": "BR"
+  },
+  {
+    "name": "德国",
+    "code": "DE"
+  },
+  {
+    "name": "意大利",
+    "code": "IT"
+  },
+  {
+    "name": "挪威",
+    "code": "NO"
+  },
+  {
+    "name": "捷克",
+    "code": "CZ"
+  },
+  {
+    "name": "新加坡",
+    "code": "SG"
+  },
+  {
+    "name": "新西兰",
+    "code": "NZ"
+  },
+  {
+    "name": "沙特阿拉伯",
+    "code": "SA"
+  },
+  {
+    "name": "波兰",
+    "code": "PL"
+  },
+  {
+    "name": "泰国",
+    "code": "TH"
+  },
+  {
+    "name": "澳大利亚",
+    "code": "AU"
+  },
+  {
+    "name": "爱尔兰",
+    "code": "IE"
+  },
+  {
+    "name": "瑞典",
+    "code": "SE"
+  },
+  {
+    "name": "老挝",
+    "code": "LA"
+  },
+  {
+    "name": "芬兰",
+    "code": "FI"
+  },
+  {
+    "name": "英国",
+    "code": "GB"
+  },
+  {
+    "name": "荷兰",
+    "code": "NL"
+  },
+  {
+    "name": "菲律宾",
+    "code": "PH"
+  },
+  {
+    "name": "葡萄牙",
+    "code": "PT"
+  },
+  {
+    "name": "西班牙",
+    "code": "ES"
+  },
+  {
+    "name": "越南",
+    "code": "VN"
+  },
+  {
+    "name": "阿联酋",
+    "code": "AE"
+  },
+  {
+    "name": "韩国",
+    "code": "KR"
+  },
+  {
+    "name": "瑞士(法国)",
+    "code": "CH-FR"
+  },
+  {
+    "name": "瑞士(德国)",
+    "code": "CH-DE"
+  }
+]
