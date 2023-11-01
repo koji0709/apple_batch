@@ -237,7 +237,7 @@ public class CommController<T> {
             HttpResponse step211Res = AppleIDUtil.questions(step21Res, a);
             if (step211Res.getStatus() != 412) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("密保信息有误，请确认");
+                alert.setHeaderText("密保信息有误，请确认");
                 alert.show();
                 return false;
             }

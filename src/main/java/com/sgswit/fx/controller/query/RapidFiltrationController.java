@@ -1,23 +1,15 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.Balance;
-import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.application.Platform;
@@ -36,7 +28,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -157,7 +148,7 @@ public class RapidFiltrationController {
     protected void onAccountExportBtnClick() throws Exception{
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("友情提示");
-        alert.setContentText("功能建设中，敬请期待");
+        alert.setHeaderText("功能建设中，敬请期待");
         alert.show();
     }
 

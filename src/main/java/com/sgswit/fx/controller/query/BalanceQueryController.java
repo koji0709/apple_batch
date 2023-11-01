@@ -7,7 +7,6 @@ import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -225,7 +224,7 @@ public class BalanceQueryController {
             HttpResponse step211Res = AppleIDUtil.questions(step21Res, account);
             if (step211Res.getStatus() != 412) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("密保信息有误，请确认");
+                alert.setHeaderText("密保信息有误，请确认");
                 alert.show();
                 return false;
             }
@@ -378,7 +377,7 @@ public class BalanceQueryController {
     protected void onAccountExportBtnClick() throws Exception{
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("友情提示");
-        alert.setContentText("功能建设中，敬请期待");
+        alert.setHeaderText("功能建设中，敬请期待");
         alert.show();
     }
 

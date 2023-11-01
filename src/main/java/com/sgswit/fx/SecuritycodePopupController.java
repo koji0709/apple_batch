@@ -45,7 +45,7 @@ public class SecuritycodePopupController {
 
         if("".equals(securityCode)){
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setContentText("验证码不能为空");
+            alert.setHeaderText("验证码不能为空");
             alert.show();
 
         }else{

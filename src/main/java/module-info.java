@@ -11,5 +11,7 @@ open module com.sgswit.fx {
     requires javafaker;
     requires jsoup;
     requires dd.plist;
+    requires org.bouncycastle.provider;
+    requires JsoupXpath;
     exports com.sgswit.fx;
 }

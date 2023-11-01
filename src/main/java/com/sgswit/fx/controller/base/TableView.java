@@ -256,8 +256,7 @@ public class TableView implements Initializable {
     public void alert(String message){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("提示信息");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setHeaderText(message);
         alert.showAndWait();
     }
 

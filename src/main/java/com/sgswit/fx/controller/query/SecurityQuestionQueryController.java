@@ -173,7 +173,7 @@ public class SecurityQuestionQueryController {
     protected void onAccountExportBtnClick() throws Exception {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("友情提示");
-        alert.setContentText("功能建设中，敬请期待");
+        alert.setHeaderText("功能建设中，敬请期待");
         alert.show();
     }
 

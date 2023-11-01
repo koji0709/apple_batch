@@ -35,7 +35,7 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="礼品卡查余额" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" onAction="#onGiftCardBlanceCheck" prefHeight="25.0" prefWidth="140.0" text="礼品卡查余额" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
