@@ -84,7 +84,7 @@
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <Label textFill="#169BD5" text="导入格式：帐号----密码----答案1-答案2-答案3" />
+                                        <Label textFill="#169BD5" text="导入格式：帐号-密码-答案1-答案2-答案3" />
                                         <Label textFill="#169BD5" text="功能说明：生成支持PIN。" />
                                         <Label textFill="#169BD5" text="操作提示：生成一个临时支持PIN，该PIN有效期为半小时，请按照指定格式导入后执行任务。" />
                                     </children>
@@ -118,8 +118,8 @@
                                 <TableColumn fx:id="answer1" prefWidth="100" text="答案1"/>
                                 <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
                                 <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
-                                <TableColumn  prefWidth="80" text="支持PIN"/>
-                                <TableColumn  prefWidth="80" text="到期时间"/>
+                                <TableColumn fx:id="pin"  prefWidth="80" text="支持PIN"/>
+                                <TableColumn fx:id="pinExpir"  prefWidth="80" text="到期时间"/>
                                 <TableColumn fx:id="note" prefWidth="180" text="执行信息"/>
                             </columns>
                         </TableView>

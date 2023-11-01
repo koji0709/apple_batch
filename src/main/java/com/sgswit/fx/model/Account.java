@@ -37,6 +37,15 @@ public class Account {
      */
     private  final SimpleStringProperty popKey;
 
+    /**
+     * 支持pin
+     */
+    private final SimpleStringProperty pin;
+
+    /**
+     * 支持pin过期时间
+     */
+    private final SimpleStringProperty pinExpir;
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -59,6 +68,8 @@ public class Account {
         this.popKey = new SimpleStringProperty();
         this.dsid = new SimpleStringProperty();
         this.support = new SimpleStringProperty();
+        this.pin = new SimpleStringProperty();
+        this.pinExpir = new SimpleStringProperty();
     }
 
 
@@ -229,6 +240,30 @@ public class Account {
         this.support.set(support);
     }
 
+    public String getPin() {
+        return pin.get();
+    }
+
+    public SimpleStringProperty pinProperty() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin.set(pin);
+    }
+
+    public String getPinExpir() {
+        return pinExpir.get();
+    }
+
+    public SimpleStringProperty pinExpirProperty() {
+        return pinExpir;
+    }
+
+    public void setPinExpir(String pinExpir) {
+        this.pinExpir.set(pinExpir);
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -248,10 +283,12 @@ public class Account {
                 ", answer3=" + answer3 +
                 ", originalCountry=" + originalCountry +
                 ", targetCountry=" + targetCountry +
-                ", email=" + email +
-                ", popKey=" + popKey +
                 ", dsid=" + dsid +
                 ", support=" + support +
+                ", email=" + email +
+                ", popKey=" + popKey +
+                ", pin=" + pin +
+                ", pinExpir=" + pinExpir +
                 '}';
     }
 }
