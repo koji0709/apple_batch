@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import com.github.javafaker.App;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -52,17 +53,22 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             {
                 captBtn.setOnAction((ActionEvent event) -> {
                     String opType = opTypeChoiceBox.getValue().toString();
+                    Account account = getTableView().getItems().get(getIndex());
                     if ("更改AppleId".equals(opType)){
-                        Account account = getTableView().getItems().get(getIndex());
 //                        HttpResponse verifyRsp = AppleIDUtil
 //                                .updateAppleIdSendVerifyCode(getTokenScnt(account), account.getPwd(), account.getEmail());
                         String verifyCode = dialog("验证码","请输入邮件验证码：");
 //                        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
 //                        System.err.println(updateAppleIdRsp);
-                        // todo
+                        // todo 待测试响应码
                     }
                     if ("新增救援邮件".equals(opType)){
-                        // todo
+                        HttpResponse verifyRsp = AppleIDUtil.addRescueEmailVerify(getTokenScnt(account), account.getPwd(), account.getEmail());
+                        String verifyCode = dialog("验证码","请输入邮件验证码：");
+                        HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
+                        System.err.println(addRescueEmailRsp);
+                        // todo 待测试响应码
+
                     }
                 });
             }

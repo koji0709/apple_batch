@@ -358,7 +358,7 @@ public class AppleIDUtil {
     /**
      * 新增救援邮箱前置
      */
-    public static HttpResponse addRescueEmailVerify(String tokenScnt,String rescueEmail,String password) {
+    public static HttpResponse addRescueEmailVerify(String tokenScnt,String password,String rescueEmail) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
         HashMap<String, List<String>> headers = buildHeader();
         headers.put("scnt", ListUtil.toList(tokenScnt));
@@ -374,7 +374,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return addRescueEmailVerify(tokenScnt,rescueEmail,password);
+            return addRescueEmailVerify(tokenScnt,password,rescueEmail);
         }
         return rsp;
     }
