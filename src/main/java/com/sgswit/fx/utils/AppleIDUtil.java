@@ -356,6 +356,46 @@ public class AppleIDUtil {
     }
 
     /**
+     * 新增救援邮箱前置
+     */
+    public static HttpResponse addRescueEmailVerify(String tokenScnt,String rescueEmail,String password) {
+        String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt", ListUtil.toList(tokenScnt));
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.POST, url)
+                .header(headers)
+                .body("{\"address\":\""+rescueEmail+"\"}")
+                .execute();
+
+        int status = rsp.getStatus();
+        rspLog(Method.POST,url,status);
+
+        // 需要验证密码
+        if (status == 451){
+            verifyPassword(rsp,password);
+            return addRescueEmailVerify(tokenScnt,rescueEmail,password);
+        }
+        return rsp;
+    }
+
+    /**
+     * 新增救援邮箱
+     */
+    public static HttpResponse addRescueEmail(HttpResponse verifyRsp,String rescueEmail,String answer) {
+        String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
+        String body = "{\"address\":\""+rescueEmail+"\",\"verificationInfo\":{\"id\":\""+JSONUtil.parse(verifyRsp.body()).getByPath("verificationId")+"\",\"answer\":\""+answer+"\"}}";
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(verifyRsp.headers())
+                .body(body)
+                .execute();
+        int status = rsp.getStatus();
+        rspLog(Method.PUT,url,status);
+        return rsp;
+    }
+
+
+    /**
      * 修改名称
      */
     public static HttpResponse updateName(String tokenScnt,String password,String firstName,String lastName) {

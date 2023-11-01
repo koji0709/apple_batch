@@ -25,7 +25,7 @@ public class ICloudUtil {
         checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
 //        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"qinqian@163.com","!!B0527s0207" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
-//        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.212129" );
+//        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031..2" );
 //        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
 //        checkAccountInit("djli0506@163.com");
 //        checkAccountInit("17319139610");

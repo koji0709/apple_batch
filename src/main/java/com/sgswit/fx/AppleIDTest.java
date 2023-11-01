@@ -19,8 +19,8 @@ public class AppleIDTest {
 
     public static void main(String[] args) {
         //securityCodeLoginDemo();
-        //passwordProtectionDemo();
-        notLoginDemo();
+        passwordProtectionDemo();
+        //notLoginDemo();
     }
 
     // 双重认证登陆
@@ -87,10 +87,10 @@ public class AppleIDTest {
 
     // 密保登陆
     public static void passwordProtectionDemo() {
-        Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
+        //Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
         //List<String> input = Arrays.asList(Console.input().split("-"));
-        List<String> input = Arrays.asList("shabagga222@tutanota.com","Xx97595031.","猪","狗","牛");
+        List<String> input = Arrays.asList("shabagga222@tutanota.com","Xx97595031..2","猪","狗","牛");
 
         Account account = new Account();
         account.setAccount(input.get(0));
@@ -98,6 +98,7 @@ public class AppleIDTest {
         account.setAnswer1(input.get(2));
         account.setAnswer2(input.get(3));
         account.setAnswer3(input.get(4));
+        account.setEmail("cncots@gmail.com");
 
         AppleIdView appleIdView = new AppleIdView();
         String tokenScnt = appleIdView.getTokenScnt(account);
@@ -114,8 +115,16 @@ public class AppleIDTest {
 //                ,"1996-08-11");
 //        Console.log("UpdateBirthdayRsp status:{} body:{}",updateBirthdayRsp.getStatus(),updateBirthdayRsp.body());
 
-//        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenRsp.header("scnt"),"blbgkKP52");
+//        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenScnt,account.getPwd());
 //        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
+
+        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailVerify(tokenScnt,account.getEmail(),account.getPwd());
+        Console.log("addRescueEmailVerifyRsp status:{}",addRescueEmailVerifyRsp.getStatus());
+
+        System.err.println("请输入验证码：");
+        String answer1 = Console.input().trim();
+        HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(addRescueEmailVerifyRsp,account.getEmail(),answer1);
+        Console.log("addRescueEmailRsp status:{}",addRescueEmailRsp.getStatus());
 
 //         修改姓氏
 //        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
@@ -141,17 +150,17 @@ public class AppleIDTest {
 //        // http status 302 200 都是成功
 //        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, appleId, verifyId, verifyCode);
 
-        String phone = "17608177103";
-        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(tokenScnt, account.getPwd(), body);
+//        String phone = "17608177103";
+//        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
+//        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(tokenScnt, account.getPwd(), body);
 //
-        Console.log("请输入验证码：");
-        String verifyCode = Console.input().trim();
+//        Console.log("请输入验证码：");
+//        String verifyCode = Console.input().trim();
 //
 //        // todo 要获取手机相关信息
-        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
-        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
+//        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+//        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":20101,\"number\":\""+phone+"\",\"countryCode\":\"CN\",\"nonFTEU\":true},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
+//        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
 
 //        HttpResponse supportPinRsp = AppleIDUtil.supportPin(tokenScnt);
 //        Console.log("supportPinRsp Body: {}",supportPinRsp.body());

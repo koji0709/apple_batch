@@ -25,7 +25,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     }
 
     /**
-     * shabagga222@tutanota.com-Xx97595031.212129-猪-狗-牛-17608177103
+     * shabagga222@tutanota.com-Xx97595031..2-猪-狗-牛-17608177103
      */
     @Override
     public void importAccountButtonAction() {
