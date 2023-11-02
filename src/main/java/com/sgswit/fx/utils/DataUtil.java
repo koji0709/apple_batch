@@ -1,12 +1,16 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.model.BaseAreaInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -29,18 +33,17 @@ public class DataUtil {
     public static List<BaseAreaInfo> getCountry(){
         try {
             if(null==baseAreaInfoList || baseAreaInfoList.size()==0){
-                HttpResponse res = HttpUtil.createGet("http://localhost:8094/api/data/getCountry").execute();
-                if(res.getStatus()==200){
-                    String jsonString= JSONUtil.parseObj(res.body()).getStr("list");
-                    baseAreaInfoList= JSONUtil.toList(jsonString, BaseAreaInfo.class);
-                }else{
-                    baseAreaInfoList=new ArrayList<>();
-                }
+                String jsonString = ResourceUtil.readUtf8Str("data/support_all_country.json");
+                baseAreaInfoList= JSONUtil.toList(jsonString, BaseAreaInfo.class);
             }
         }catch (Exception e){
             baseAreaInfoList=new ArrayList<>();
         }
         return baseAreaInfoList;
+    }
+    public static List<BaseAreaInfo> getFastCountry(){
+        String jsonString = ResourceUtil.readUtf8Str("data/support_fast_country.json");
+        return JSONUtil.toList(jsonString, BaseAreaInfo.class);
     }
 
     public static BaseAreaInfo getInfoByCountryCode(String countryCode){
@@ -48,17 +51,47 @@ public class DataUtil {
         return (list.size()==0)?null:list.get(0);
     }
 
-
-
     public static String getAddressFormat(String countryCode){
+        Map<String,Object> result= new HashMap<>();
         try {
-            String url="http://localhost:8094/api/data/getAddressFormat/"+countryCode;
-            HttpResponse res = HttpUtil.createGet(url).execute();
-            if(res.getStatus()==200){
-                return res.body();
+            List<String> fieldsList=new ArrayList<>();
+            List<FieldModel> addressFormatList=new ArrayList<>();
+            String jsonString = ResourceUtil.readUtf8Str("data/address_format.json");
+            for(Object object:JSONUtil.parseArray(jsonString)){
+                JSON json= (JSON) object;
+                if(countryCode.equalsIgnoreCase(json.getByPath("code").toString())){
+
+                    JSONObject addressFormat=JSONUtil.parseObj((json.getByPath("json")));
+                    JSONObject fieldsJSONObject=addressFormat.getJSONObject("fields");
+                    JSONObject sectionsJSONObject=addressFormat.getJSONObject("sections");
+                    //主要字段
+                    String primaryAddress=sectionsJSONObject.getByPath("primaryAddress.lines").toString();
+                    List<String[]> primaryAddressList=JSONUtil.toList(primaryAddress,String[].class);
+                    for( String[] arr:primaryAddressList){
+                        for(String s:arr){
+                            fieldsList.add(s);
+                        }
+                    }
+                    //手机
+                    String phone=sectionsJSONObject.getByPath("phone.lines").toString();
+                    List<String[]> phoneList=JSONUtil.toList(phone,String[].class);
+                    for( String[] arr:phoneList){
+                        for(String s:arr){
+                            fieldsList.add(s);
+                        }
+                    }
+                    for(String key:fieldsList){
+                        FieldModel fieldModel=JSONUtil.toBean(fieldsJSONObject.getStr(key), FieldModel.class);
+                        addressFormatList.add(fieldModel);
+                    }
+                    result.put("addressFormatList",addressFormatList);
+                    result.put("fieldsList",fieldsList);
+                    break;
+                }
             }
         }catch (Exception e){
+
         }
-        return null;
+        return JSONUtil.toJsonStr(result);
     }
 }

@@ -106,9 +106,9 @@ public class CountryModifyController extends CommController<Account> implements 
         countryDataFun();
         customCountryDataFun();
     }
-    /**内置国家资料下拉**/
+    /**快捷国家资料下拉**/
     protected void countryDataFun(){
-        for(BaseAreaInfo baseAreaInfo: DataUtil.getCountry()){
+        for(BaseAreaInfo baseAreaInfo: DataUtil.getFastCountry()){
             countryList.add(new KeyValuePair(baseAreaInfo.getCode(),baseAreaInfo.getNameZh()));
         }
         countryBox.getItems().addAll(countryList);
