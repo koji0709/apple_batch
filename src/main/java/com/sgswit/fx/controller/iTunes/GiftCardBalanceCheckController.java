@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -10,6 +11,8 @@ import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.GiftCardUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -25,13 +28,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import org.seimicrawler.xpath.JXDocument;
+import org.seimicrawler.xpath.JXNode;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author DeZh
@@ -68,8 +72,12 @@ public class GiftCardBalanceCheckController implements Initializable {
     @FXML
     private TableView accountTableView;
 
+    private HttpResponse httpResponse;
+
     private ObservableList<GiftCard> list = FXCollections.observableArrayList();
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    private static HashMap<String, String> paras = new HashMap<>();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         getCountry();
@@ -96,6 +104,12 @@ public class GiftCardBalanceCheckController implements Initializable {
             @Override
             public Map<String, String> fromString(String string) {
                 return null;
+            }
+        });
+        countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object o, Object t1) {
+                loginAndInit();
             }
         });
     }
@@ -167,7 +181,9 @@ public class GiftCardBalanceCheckController implements Initializable {
         if(list.size() < 1){
             return;
         }
-        HttpResponse response=loginAndInit();
+        if(null==httpResponse){
+            loginAndInit();
+        }
         for(GiftCard giftCard:list){
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
@@ -178,33 +194,51 @@ public class GiftCardBalanceCheckController implements Initializable {
             accoutQueryBtn.setDisable(true);
             giftCard.setNote("正在登录...");
             accountTableView.refresh();
-
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
-                        try {
-                            checkBalance(giftCard,response);
-                        } catch (Exception e) {
-                            accoutQueryBtn.setDisable(false);
-                            accoutQueryBtn.setText("开始执行");
-                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            e.printStackTrace();
-                        }
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
-                            }
-                        });
+            try {
+                checkBalance(giftCard);
+            } catch (Exception e) {
+                accoutQueryBtn.setDisable(false);
+                accoutQueryBtn.setText("开始执行");
+                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                e.printStackTrace();
+            }finally {
+                //JavaFX Application Thread会逐个阻塞的执行这些任务
+                Platform.runLater(new Task<Integer>() {
+                    @Override
+                    protected Integer call() {
+                        accoutQueryBtn.setDisable(false);
+                        accoutQueryBtn.setText("开始执行");
+                        accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                        return 1;
                     }
-                }
-            }).start();
+                });
+            }
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run(){
+//                    try {
+//                        try {
+//                            checkBalance(giftCard);
+//                        } catch (Exception e) {
+//                            accoutQueryBtn.setDisable(false);
+//                            accoutQueryBtn.setText("开始执行");
+//                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+//                            e.printStackTrace();
+//                        }
+//                    }finally {
+//                        //JavaFX Application Thread会逐个阻塞的执行这些任务
+//                        Platform.runLater(new Task<Integer>() {
+//                            @Override
+//                            protected Integer call() {
+//                                accoutQueryBtn.setDisable(false);
+//                                accoutQueryBtn.setText("开始执行");
+//                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+//                                return 1;
+//                            }
+//                        });
+//                    }
+//                }
+//            }).start();
         }
     }
     /**
@@ -215,13 +249,13 @@ public class GiftCardBalanceCheckController implements Initializable {
     　* @author DeZh
     　* @date 2023/11/1 11:15
     */
-    protected  HttpResponse loginAndInit(){
+    protected void loginAndInit(){
         if(StringUtils.isEmpty(account_pwd.getText())){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
             alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
             alert.show();
-            return null;
+            return;
         }
         String[] its =account_pwd.getText().split("----");
         String account=its[0];
@@ -233,7 +267,7 @@ public class GiftCardBalanceCheckController implements Initializable {
         if(pre1.getStatus() != 303){
             alertMessage.setText("网络错误");
             alertMessage.setTextFill(Paint.valueOf("red"));;
-            return null;
+            return ;
         }
 
         //https://secure4.store.apple.com/shop/giftcard/balance
@@ -241,11 +275,26 @@ public class GiftCardBalanceCheckController implements Initializable {
         if(pre2.getStatus() != 302){
             alertMessage.setText("网络错误");
             alertMessage.setTextFill(Paint.valueOf("red"));;
-            return null;
+            return ;
         }
 
         //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
         HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
+        String location = pre2.header("Location");
+        String locationBase = location.substring(0,location.indexOf("shop"));
+        JXDocument underTest = JXDocument.create(pre3.body());
+        List<JXNode> nodes = underTest.selN("//script");
+        String metaXml = nodes.get(nodes.size()-1).value().toString();
+        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
+        JSON meta = JSONUtil.parse(metaJson);
+        String modelVersion = (String) meta.getByPath("meta.h.modelVersion");
+        String syntax = (String) meta.getByPath("meta.h.syntax");
+        String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
+        paras.put("location",location);
+        paras.put("syntax",syntax);
+        paras.put("x_aos_stk",x_aos_stk);
+        paras.put("modelVersion",modelVersion);
+        paras.put("locationBase",locationBase);
         Map<String,Object> jx=GiftCardUtil.jXDocument(pre2, pre3);
         String a=jx.get("a").toString();
         BigInteger n=new BigInteger(jx.get("n").toString());
@@ -261,28 +310,37 @@ public class GiftCardBalanceCheckController implements Initializable {
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             alertMessage.setText(JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message").toString());
             alertMessage.setTextFill(Paint.valueOf("red"));
-            return null;
+            return ;
         }
         //step3 shop signin
         HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1);
         alertMessage.setText("初始化成功，下次启动将自动执行初始化");
         alertMessage.setTextFill(Paint.valueOf("#238142"));
-        return step3Res;
+        httpResponse=step3Res;
+
     }
-    protected void checkBalance(GiftCard giftCard,HttpResponse response) {
+    protected void checkBalance(GiftCard giftCard) {
+        Date nowDate=new Date();
         tableRefresh(giftCard,"正在登录...");
-        HttpResponse step4Res = GiftCardUtil.checkBalance(response,giftCard.getGiftCardCode());
+        HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
             giftCard.setNote("网络错误");
             accountTableView.refresh();
         }else{
-            System.out.println(step4Res.body());
-            Object balance=JSONUtil.parse(step4Res.body()).getByPath("d.balance");
-            Object giftCardNumber=JSONUtil.parse(step4Res.body()).getByPath("d.giftCardNumber");
+            JSON bodyJson= JSONUtil.parse(step4Res.body());
+            String status=bodyJson.getByPath("head.status").toString();
+            if(!"200".equals(status)){
+                giftCard.setNote("网络错误");
+                accountTableView.refresh();
+                return;
+            }
+            Object balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance");
+            Object giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber");
             if(null==balance){
                 giftCard.setNote("这不是有效的礼品");
                 accountTableView.refresh();
             }else{
+                giftCard.setLogTime(sdf.format(nowDate));
                 giftCard.setBalance(balance.toString());
                 giftCard.setGiftCardNumber(giftCardNumber.toString().split(";")[1]);
                 giftCard.setNote("查询成功");
@@ -290,6 +348,7 @@ public class GiftCardBalanceCheckController implements Initializable {
             }
         }
     }
+
     private void initAccountTableView(){
         seq.setCellValueFactory(new PropertyValueFactory<GiftCard,Integer>("seq"));
         giftCardCode.setCellValueFactory(new PropertyValueFactory<GiftCard,String>("giftCardCode"));

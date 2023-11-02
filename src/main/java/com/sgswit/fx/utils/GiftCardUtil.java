@@ -32,26 +32,26 @@ import java.util.TimeZone;
 
 public class GiftCardUtil {
 
-    private static String callbackSignInUrl = "";
-    private static String serviceURL = "";
-    private static String serviceKey = "";
+    public static String callbackSignInUrl = "";
+    public static String serviceURL = "";
+    public static String serviceKey = "";
 
-    private static String as_sfa_cookie = "";
+    public static String as_sfa_cookie = "";
 
-    private static String x_aos_stk="";
-    private static String x_aos_model_page="";
-    private static String modelVersion="";
-    private static String syntax="";
+    public static String x_aos_stk="";
+    public static String x_aos_model_page="";
+    public static String modelVersion="";
+    public static String syntax="";
 
-    private static String location = "";
-    private static String locationBase = "";
-    private static String locationSSi  = "";
+    public static String location = "";
+    public static String locationBase = "";
+    public static String locationSSi  = "";
 
-    private static String frameId = "";
-    private static String clientId = "";
+    public static String frameId = "";
+    public static String clientId = "";
 
-    private static Integer xAppleHcBits = 0;
-    private static String xAppleHcChallenge = "";
+    public static Integer xAppleHcBits = 0;
+    public static String xAppleHcChallenge = "";
 
     public static void main( String[] args ){
         //https://secure.store.apple.com/shop/giftcard/balance
@@ -88,18 +88,10 @@ public class GiftCardUtil {
         HttpResponse step3Res = shopSignin(step2Res,pre1);
 
 
-        HttpResponse step4Res = checkBalance(step3Res,"XGXR W4FG WD3L 4LZJ");
-//        HttpResponse step4Res = checkBalance(step3Res,"XMPC 3HRM NM6K 5FXP");
+        HttpResponse step4Res = checkBalance(null,"XGXR W4FG WD3L 4LZJ");
         if(step4Res.getStatus()!=200){
             System.out.println("网络错误");
         }else{
-            Object balance=JSONUtil.parse(step4Res.body()).getByPath("d.balance");
-            Object giftCardNumber=JSONUtil.parse(step4Res.body()).getByPath("d.giftCardNumber");
-            if(null==balance){
-                System.out.println("这不是有效的礼品");
-            }else{
-
-            }
         }
 
         System.out.println(step4Res.getStatus());
@@ -440,7 +432,7 @@ public class GiftCardUtil {
         return res3;
     }
 
-    public static HttpResponse checkBalance(HttpResponse res1,String giftCardPin){
+    public static HttpResponse checkBalance( HashMap<String, String> paras,String giftCardPin){
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
@@ -448,15 +440,15 @@ public class GiftCardUtil {
         headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
-        headers.put("referer",ListUtil.toList(locationBase+ "shop/giftcard/balance"));
-        headers.put("origin",ListUtil.toList(locationBase));
+        headers.put("referer",ListUtil.toList(paras.get("locationBase")+ "shop/giftcard/balance"));
+        headers.put("origin",ListUtil.toList(paras.get("locationBase")));
 
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         headers.put("x-aos-model-page", ListUtil.toList("giftCardBalancePage"));
-        headers.put("x-aos-stk",ListUtil.toList(x_aos_stk));
-        headers.put("modelVersion",ListUtil.toList(modelVersion));
-        headers.put("syntax",ListUtil.toList(syntax));
+        headers.put("x-aos-stk",ListUtil.toList(paras.get("x_aos_stk")));
+        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion")));
+        headers.put("syntax",ListUtil.toList( paras.get("syntax")));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -465,20 +457,14 @@ public class GiftCardUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> resCookies = res1.headerList("Set-Cookie");
-        for(String item : resCookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        cookieBuilder.append(";").append(as_sfa_cookie);
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
 
-        HttpResponse res4 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
+        HttpResponse res4 = HttpUtil.createPost(paras.get("location").substring(0,paras.get("location").indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
                 .header(headers)
                 .form(data)
                 .execute();
+        System.out.println(res4.body());
         return res4;
     }
 
