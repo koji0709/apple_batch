@@ -66,7 +66,6 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                         account.setNote("验证验证码成功");
                     }
                     HttpResponse securityDowngradeRsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPassword);
-                    // todo 测试状态码
                     if (securityDowngradeRsp.getStatus() == 302){
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);

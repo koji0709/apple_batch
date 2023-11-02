@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.App;
 import com.sgswit.fx.controller.base.AppleIdView;
 import com.sgswit.fx.controller.base.TableView;
 import com.sgswit.fx.model.Account;
@@ -18,19 +19,22 @@ public class AppleIDTest {
 
 
     public static void main(String[] args) {
-        //securityCodeLoginDemo();
-        passwordProtectionDemo();
+        securityCodeLoginDemo();
+//        passwordProtectionDemo();
         //notLoginDemo();
     }
 
     // 双重认证登陆
     public static void securityCodeLoginDemo(){
         Console.log("请输入账号密码（账号-密码）：");
-        String[] input = Console.input().split("-");
+//        String[] input = Console.input().split("-");
 
         Account account = new Account();
-        account.setAccount(input[0]);
-        account.setPwd(input[1]);
+//        account.setAccount(input[0]);
+//        account.setPwd(input[1]);
+        account.setAccount("cncots@gmail.com");
+        account.setPwd("Xx97595031.");
+        account.setEmail("1351089393@qq.com");
 
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
@@ -57,14 +61,24 @@ public class AppleIDTest {
         HttpResponse tokenRsp = AppleIDUtil.token(securityCodeRsp);
         Console.log("TokenRsp status:{} , Cookie:{}",tokenRsp.getStatus(),tokenRsp.getCookieStr());
 
+        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailVerify(tokenRsp.header("scnt"),account.getPwd(),account.getEmail());
+        Console.log("addRescueEmailVerifyRsp status:{} body:{}",addRescueEmailVerifyRsp.getStatus(),addRescueEmailVerifyRsp.body());
+
+        if (addRescueEmailVerifyRsp.getStatus() == 201){
+            System.err.println("请输入验证码：");
+            String answer1 = Console.input().trim();
+            HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(addRescueEmailVerifyRsp,account.getEmail(),answer1);
+            Console.log("addRescueEmailRsp status:{}",addRescueEmailRsp.getStatus());
+        }
+
         // Account
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
 //        JSON accountJSON = JSONUtil.parse(accountRsp.body());
 //        String fullName = accountJSON.getByPath("name.fullName",String.class);
 //        Console.log("accountRsp status:{} fullName:{}",accountRsp.getStatus(),fullName);
 
-        String sessionId = tokenRsp.header("X-Apple-ID-Session-Id");
-        String scnt      = tokenRsp.header("scnt");
+//        String sessionId = tokenRsp.header("X-Apple-ID-Session-Id");
+//        String scnt      = tokenRsp.header("scnt");
 
         // 修改用户生日信息
 //        HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(scnt,"1996-08-10");
@@ -98,7 +112,6 @@ public class AppleIDTest {
         account.setAnswer1(input.get(2));
         account.setAnswer2(input.get(3));
         account.setAnswer3(input.get(4));
-        account.setEmail("3631408@qq.com");
 
         AppleIdView appleIdView = new AppleIdView();
         String tokenScnt = appleIdView.getTokenScnt(account);
@@ -118,14 +131,17 @@ public class AppleIDTest {
 //        HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(tokenScnt,account.getPwd());
 //        Console.log("deleteRescueEmailRsp status:{}",deleteRescueEmailRsp.getStatus());
 
+
+        account.setEmail("3631408@qq.com");
         HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailVerify(tokenScnt,account.getPwd(),account.getEmail());
-        Console.log("addRescueEmailVerifyRsp status:{}",addRescueEmailVerifyRsp.getStatus());
+        Console.log("addRescueEmailVerifyRsp status:{} body:{}",addRescueEmailVerifyRsp.getStatus(),addRescueEmailVerifyRsp.body());
 
-        System.err.println("请输入验证码：");
-        String answer1 = Console.input().trim();
-        //HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(addRescueEmailVerifyRsp,account.getEmail(),answer1);
-        //Console.log("addRescueEmailRsp status:{}",addRescueEmailRsp.getStatus());
-
+        if (addRescueEmailVerifyRsp.getStatus() == 201){
+            System.err.println("请输入验证码：");
+            String answer1 = Console.input().trim();
+            HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(addRescueEmailVerifyRsp,account.getEmail(),answer1);
+            Console.log("addRescueEmailRsp status:{}",addRescueEmailRsp.getStatus());
+        }
 //         修改姓氏
 //        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
         
