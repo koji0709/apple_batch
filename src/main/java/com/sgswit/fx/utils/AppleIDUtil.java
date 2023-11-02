@@ -386,14 +386,34 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
         String body = "{\"address\":\""+rescueEmail+"\",\"verificationInfo\":{\"id\":\""+JSONUtil.parse(verifyRsp.body()).getByPath("verificationId")+"\",\"answer\":\""+answer+"\"}}";
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
-                .header(verifyRsp.headers())
+                .header("Accept","application/json, text/plain, */*")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Cache-Control","no-cache")
+                .header("Connection","keep-alive")
+                .header("Content-Type","application/json")
+                .header("Host","appleid.apple.com")
+                .header("Origin"," https://appleid.apple.com")
+                .header("Pragma","no-cache")
+                .header("Referer","https://appleid.apple.com/")
+                .header("Sec-Fetch-Dest","empty")
+                .header("Sec-Fetch-Mode","cors")
+                .header("Sec-Fetch-Site","same-origin")
+                .header("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36")
+                .header("X-Apple-Api-Key","cbf64fd6843ee630b463f358ea0b707b")
+                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}")
+                .header("X-Apple-I-Request-Context","ca")
+                .header("X-Apple-I-TimeZone","Asia/Shanghai")
+                .header("scnt",verifyRsp.header("scnt"))
+                .header("sec-ch-ua"," \"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"")
+                .header("sec-ch-ua-mobile","?0")
+                .header("sec-ch-ua-platform","macOS")
                 .body(body)
                 .execute();
         int status = rsp.getStatus();
         rspLog(Method.PUT,url,status);
         return rsp;
     }
-
 
     /**
      * 修改名称

@@ -64,11 +64,15 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                     }
                     if ("新增救援邮件".equals(opType)){
                         HttpResponse verifyRsp = AppleIDUtil.addRescueEmailVerify(getTokenScnt(account), account.getPwd(), account.getEmail());
-                        String verifyCode = dialog("验证码","请输入邮件验证码：");
-                        HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
-                        System.err.println(addRescueEmailRsp);
-                        // todo 待测试响应码
-
+                        if (verifyRsp.getStatus() == 201){
+                            String verifyCode = dialog("验证码","请输入邮件验证码：");
+                            HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
+                            if (addRescueEmailRsp.getStatus() == 200){
+                                account.setNote("新增救援邮箱成功");
+                            }else{
+                                account.setNote("新增救援邮箱失败");
+                            }
+                        }
                     }
                 });
             }
