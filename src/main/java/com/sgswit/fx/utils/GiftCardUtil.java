@@ -452,7 +452,6 @@ public class GiftCardUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));

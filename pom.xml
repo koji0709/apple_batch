@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sgswit</groupId>
-    <artifactId>fx</artifactId>
+    <artifactId>appleBatch</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>appleBatch</name>
 
@@ -74,11 +74,6 @@
             <version>3.0.9</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.13</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
@@ -145,28 +140,36 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-shade-plugin</artifactId>-->
-<!--                <version>3.0.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>shade</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <transformers>-->
-<!--                                <transformer-->
-<!--                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-<!--                                    &lt;!&ndash; 加载主类 &ndash;&gt;-->
-<!--                                    <mainClass>com.sgswit.fx.AppLauncher</mainClass>-->
-<!--                                </transformer>-->
-<!--                            </transformers>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!-- javapackager  -->
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.6.7</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <version>3.4.2</version>
+                            <organizationName>组织名称</organizationName>
+                            <name>Apple批量处理</name>
+                            <!-- mandatory -->
+                            <mainClass>com.sgswit.fx.AppLauncher</mainClass>
+                            <!--是否绑定默认jre-->
+                            <bundleJre>true</bundleJre>
+                            <!--是否绑自定义jre-->
+                            <customizedJre>false</customizedJre>
+                            <generateInstaller>false</generateInstaller>
+                            <!--是否需要管理员权限安装-->
+                            <administratorRequired>false</administratorRequired>
+                            <platform>windows</platform>
+<!--                            <platform>mac|windows</platform>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
