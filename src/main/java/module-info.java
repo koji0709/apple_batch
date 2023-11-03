@@ -13,5 +13,6 @@ open module com.sgswit.fx {
     requires dd.plist;
     requires org.bouncycastle.provider;
     requires JsoupXpath;
+    requires generex;
     exports com.sgswit.fx;
 }
