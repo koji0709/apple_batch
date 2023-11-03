@@ -51,7 +51,7 @@ public class StageUtil {
 
 
     public static void close(StageEnum stageEnum){
-        Stage stage = stageMap.get(stageEnum.getView());
+        Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
             stage.close();
         }
