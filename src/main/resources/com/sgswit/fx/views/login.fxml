@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<AnchorPane fx:controller="com.sgswit.fx.controller.LoginController"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <TabPane fx:id="tabPane" prefWidth="320">
+            <tabs>
+                <Tab text="用户登陆" closable="false">
+                    <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
+                        <children>
+                            <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <children>
+                                    <Label text="登陆账号"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <children>
+                                    <Label text="登陆密码"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <children>
+                                    <CheckBox text="记住用户"/>
+                                    <CheckBox text="自动登陆"/>
+                                    <Button text="登陆" prefWidth="53" onAction="#login"/>
+                                </children>
+                            </HBox>
+                            <VBox alignment="CENTER"
+                                  style="-fx-padding: 5; -fx-spacing: 12; -fx-background-color: #edf3fc">
+                                <children>
+                                    <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                        <children>
+                                            <Label text="在线QQ"/>
+                                            <ChoiceBox>
+                                                <items>
+                                                    <FXCollections fx:factory="observableArrayList">
+                                                        <String fx:value="3631408"/>
+                                                        <String fx:value="97595031"/>
+                                                    </FXCollections>
+                                                </items>
+                                            </ChoiceBox>
+                                            <Button text="QQ一键登陆"/>
+                                        </children>
+                                    </HBox>
+                                    <Label text="Xx拥有版权保护, 非法篡Xx程序将承担法律责任。"/>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+                </Tab>
+                <Tab text="用户注册" closable="false" >
+                    <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
+                        <children>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="注册账号"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="注册密码"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="安全邮箱"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="绑定 Q Q"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="注册卡密"/>
+                                    <TextField promptText="可空"/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0">
+                                <children>
+                                    <Button text="注册用户"/>
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </Tab>
+                <Tab text="修改密码" closable="false">
+                    <VBox alignment="CENTER" style="-fx-spacing: 7;">
+                        <children>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="需修改账号"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="邮箱验证码"/>
+                                    <TextField prefWidth="68"/>
+                                    <Button prefWidth="83" text="发送验证码"/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER" style="-fx-spacing: 12">
+                                <children>
+                                    <Label text="设置新密码"/>
+                                    <TextField/>
+                                </children>
+                            </HBox>
+                            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0;">
+                                <children>
+                                    <Button prefWidth="165" text="修改密码"/>
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </Tab>
+                <Tab text="联系客服" closable="false">
+                    <VBox alignment="CENTER" style="-fx-spacing: 14;">
+                        <children>
+                            <Hyperlink onAction="#showDocument" text="点击联系客服QQ" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;"/>
+                            <ImageView fitWidth="100" fitHeight="100">
+                                <image >
+                                    <Image url="/image/qrcode.jpeg"/>
+                                </image>
+                            </ImageView>
+                            <Label text="扫一扫添加客服一号微信" style="-fx-font-size: 11;"/>
+                        </children>
+                    </VBox>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>
