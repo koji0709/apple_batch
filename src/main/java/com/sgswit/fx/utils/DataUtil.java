@@ -47,6 +47,7 @@ public class DataUtil {
     }
 
     public static BaseAreaInfo getInfoByCountryCode(String countryCode){
+        getCountry();
         List<BaseAreaInfo> list= baseAreaInfoList.stream().filter(n->n.getCode().equals(countryCode)).collect(Collectors.toList());
         return (list.size()==0)?null:list.get(0);
     }

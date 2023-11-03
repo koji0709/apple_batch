@@ -15,6 +15,7 @@ public class LoginController {
 
         // login success
         StageUtil.show(StageEnum.MAIN);
+        StageUtil.close(StageEnum.LOGIN);
     }
 
     public void showDocument(){

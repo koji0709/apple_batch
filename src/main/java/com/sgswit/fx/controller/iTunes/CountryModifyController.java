@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
+import com.mifmif.common.regex.Generex;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
@@ -350,7 +351,7 @@ public class CountryModifyController extends CommController<Account> implements 
     　* @author DeZh
     　* @date 2023/10/8 15:37
      */
-    private String generateFillData (String countryCode){
+    private static String generateFillData(String countryCode){
         String body="";
         try {
             JSON json=JSONUtil.createObj();
@@ -387,27 +388,26 @@ public class CountryModifyController extends CommController<Account> implements 
                         json.putByPath("billingAddress.stateProvinceName","");
                     }
                 }else if(fieldId.equals("postalCode")){
-                    json.putByPath("billingAddress.postalCode",address.zipCode());
+//                    json.putByPath("billingAddress.postalCode",address.zipCode());
+                    String regExp="[012345789]\\d{6}";
+                    Generex generex = new Generex(regExp);
+                    json.putByPath("billingAddress.postalCode",generex.random());
                 }else if(fieldId.equals("phoneNumber")){
-                    json.putByPath("phoneNumber.number",faker.phoneNumber().cellPhone());
+//                    json.putByPath("phoneNumber.number",faker.phoneNumber().cellPhone());
+                    String regExp="1[345789]\\d{9}";
+                    Generex generex = new Generex(regExp);
+                    json.putByPath("phoneNumber.number",generex.random());
                 }else if(fieldId.equals("phoneAreaCode")){
-                    json.putByPath("phoneNumber.areaCode",faker.phoneNumber().subscriberNumber());
+//                    json.putByPath("phoneNumber.areaCode",faker.phoneNumber().subscriberNumber());
+                    json.putByPath("phoneNumber.areaCode","");
                 }
             }
             body= JSONUtil.toJsonStr(json);
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
         return body;
     }
-
-
-
-
-
 
     private void queryFail(Account account) {
         String note = "查询失败，请确认用户名密码是否正确";
@@ -441,9 +441,7 @@ public class CountryModifyController extends CommController<Account> implements 
         answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
         answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
         answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
-
     }
-
     public void onAddCountryBtnClick(MouseEvent mouseEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/custom-country-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 450, 390);
@@ -452,7 +450,6 @@ public class CountryModifyController extends CommController<Account> implements 
         popupStage.setTitle("新增国家");
         //模块化，对应用里的所有窗口起作用
         popupStage.initModality(Modality.APPLICATION_MODAL);
-
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);

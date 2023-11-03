@@ -1,7 +1,6 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 
@@ -22,12 +21,12 @@ public class ICloudUtil {
 
     public static void main(String[] args) throws Exception {
 //        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"whjyvmbwyym@hotmail.com","Gao100287." );
-        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
+//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
 //        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"qinqian@163.com","!!B0527s0207" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031..2" );
 //        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
-//        checkAccountInit("djli0506@163.com");
+        checkAccountInit("djli0506@163.com");
 //        checkAccountInit("17319139610");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
@@ -84,16 +83,16 @@ public class ICloudUtil {
     }
 
     public static String checkAccountInit(String appleId) throws Exception {
-//        HashMap<String, List<String>> headers = new HashMap<>();
-//        headers.put("Host", ListUtil.toList("gsa.apple.com"));
-//        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
-//        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
-//        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
-//        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
-//        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
-//        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
-//        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
-//        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Host", ListUtil.toList("gsa.apple.com"));
+        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
+        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
+        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
+        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
+        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
+        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
+        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
+        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
         HttpResponse initRes = HttpUtil.createGet("https://gsa.apple.com/iforgot/password/verify/appleid")
                 .header(getHeader())
                 .execute();
@@ -120,13 +119,13 @@ public class ICloudUtil {
                 "<plist version=\"1.0\">" +
                 "<dict>" +
                 "<key>id</key>" +
-                "<string>qwweeee</string>" +
+                "<string>"+appleId+"</string>" +
                 "</dict>" +
                 "</plist>";
 
         HttpResponse res = HttpUtil.createPost(checkUrl)
                 .header(getHeader())
-//                .body(body)
+                .body(body)
                 .execute();
 
 
@@ -155,7 +154,7 @@ public class ICloudUtil {
 
 
         System.out.println(res.getStatus());
-//        System.out.println(res.body());
+        System.out.println(res.body());
 
         return message;
     }
