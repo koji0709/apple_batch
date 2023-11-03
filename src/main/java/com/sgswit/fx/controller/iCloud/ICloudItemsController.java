@@ -1,6 +1,8 @@
 package com.sgswit.fx.controller.iCloud;
 
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.utils.StageUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,16 +22,7 @@ import java.io.IOException;
 public class ICloudItemsController {
 
     public void onCheckWhetherIcloudBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iCloud/check-whether-icloud.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1000, 650);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("能否登录iCloud");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.show();
+        StageUtil.show(StageEnum.CHECK_WHETHER);
     }
 
 }
