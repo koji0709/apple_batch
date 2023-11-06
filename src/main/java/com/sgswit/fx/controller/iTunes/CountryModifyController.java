@@ -195,6 +195,7 @@ public class CountryModifyController extends CommController<Account> implements 
         popupStage.setTitle("账户导入");
 
         popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.initStyle(StageStyle.UTILITY);
         popupStage.setScene(scene);
         popupStage.showAndWait();
 

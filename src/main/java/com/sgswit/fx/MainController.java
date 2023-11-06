@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -38,7 +37,7 @@ public class MainController implements Initializable {
     @FXML
     public Pane rightMainPane;
     @FXML
-    private ChoiceBox<KeyValuePair> loginMode = new ChoiceBox<KeyValuePair>();
+    private ChoiceBox<KeyValuePair> agencyMode = new ChoiceBox<KeyValuePair>();
     @FXML
     private CheckBox isAutoLogin;
     @FXML
@@ -47,7 +46,7 @@ public class MainController implements Initializable {
     private Integer tempIndex;
 
 
-    private final List<KeyValuePair> loginModeList =new ArrayList<>(){{
+    private final List<KeyValuePair> agencyModeList =new ArrayList<>(){{
         add(new KeyValuePair("none","不使用代理"));
         add(new KeyValuePair("api","API或导入代理"));
         add(new KeyValuePair("tunnel","使用隧道代理"));
@@ -65,8 +64,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //初始化登录模式
-        loginMode.getItems().addAll(loginModeList);
-        loginMode.converterProperty().set(new StringConverter<KeyValuePair>() {
+        agencyMode.getItems().addAll(agencyModeList);
+        agencyMode.converterProperty().set(new StringConverter<KeyValuePair>() {
             @Override
             public String toString(KeyValuePair object) {
                 return object.getValue();
@@ -77,13 +76,8 @@ public class MainController implements Initializable {
                 return null;
             }
         });
-
-
-        int index=0;
-        //从本地配置文件获取设置的登录模式
-//        index=Arrays.asList(loginModeArr).indexOf("本地登录");
-//        loginMode.getSelectionModel().select(index);
-        loginModeListener();
+        agencyMode.getSelectionModel().select(0);
+        agencyModeListener();
 
         //初始化是否自动登录
         isAutoLogin.setSelected(false);
@@ -177,19 +171,19 @@ public class MainController implements Initializable {
 
 
     /**登录模式监听*/
-    protected void loginModeListener(){
-        loginMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observableValue, Object o, Object t1) {
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("提示");
-                String msg= MessageFormat.format("{0}修改成功，配置已生效！",loginModeList.get(Integer.valueOf(t1.toString())).getValue());
-                alert.setHeaderText(msg);
-                alert.show();
-                //修改本地配置文件
-            }
-        });
+    protected void agencyModeListener(){
+//        loginMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ObservableValue observableValue, Object o, Object t1) {
+//
+//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                alert.setTitle("提示");
+//                String msg= MessageFormat.format("{0}修改成功，配置已生效！",loginModeList.get(Integer.valueOf(t1.toString())).getValue());
+//                alert.setHeaderText(msg);
+//                alert.show();
+//                //修改本地配置文件
+//            }
+//        });
 
     }
     /**是否自动登录监听*/
