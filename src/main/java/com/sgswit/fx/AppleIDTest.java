@@ -24,7 +24,7 @@ public class AppleIDTest {
         //notLoginDemo();
     }
 
-    // 双重认证登陆
+    // 双重认证登录
     public static void securityCodeLoginDemo(){
         Console.log("请输入账号密码（账号-密码）：");
 //        String[] input = Console.input().split("-");
@@ -99,7 +99,7 @@ public class AppleIDTest {
 //        System.err.println(httpResponse.body());
     }
 
-    // 密保登陆
+    // 密保登录
     public static void passwordProtectionDemo() {
         //Console.log("请输入账号密码（账号-密码-密保答案1-密保答案2-密保问题3）：");
         // 3631408@qq.com-blbgkKP52-朋友-工作-父母
@@ -144,7 +144,7 @@ public class AppleIDTest {
         }
 //         修改姓氏
 //        AppleIDUtil.updateName(tokenScnt,"blbgkKP52","洋","伍");
-        
+
         // 修改密码
         // AppleIDUtil.updatePassword(tokenScnt,"blbgkKP52","--");
 
@@ -188,7 +188,7 @@ public class AppleIDTest {
 
     }
 
-    // 不需要登陆(重置密码/关闭双重认证)
+    // 不需要登录(重置密码/关闭双重认证)
     public static void notLoginDemo(){
         // 获取验证码
         HttpResponse captchaRsp = AppleIDUtil.captcha();

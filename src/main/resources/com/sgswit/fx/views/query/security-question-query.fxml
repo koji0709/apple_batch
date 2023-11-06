@@ -71,7 +71,7 @@
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
                                 </Label>
-                                <Label text="3.操作提示：通过登陆AppleID来查询AppleID的密保问题" wrapText="true">
+                                <Label text="3.操作提示：通过登录AppleID来查询AppleID的密保问题" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>

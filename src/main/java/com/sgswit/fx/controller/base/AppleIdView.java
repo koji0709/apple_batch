@@ -14,7 +14,7 @@ import java.util.List;
 public class AppleIdView extends TableView {
 
     /**
-     * appleid官网登陆
+     * appleid官网登录
      */
     public HttpResponse login(Account account){
         // SignIn
@@ -60,7 +60,7 @@ public class AppleIdView extends TableView {
 
         HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
         if (tokenRsp.getStatus() != 200){
-            account.setNote("登陆异常");
+            account.setNote("登录异常");
             refresh();
             return null;
         }
@@ -70,7 +70,7 @@ public class AppleIdView extends TableView {
     public String getTokenScnt(Account account){
         HttpResponse tokenRsp = login(account);
         if (tokenRsp == null){
-            account.setNote("登陆失败");
+            account.setNote("登录失败");
             refresh();
             return null;
         }

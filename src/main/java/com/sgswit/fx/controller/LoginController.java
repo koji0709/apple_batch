@@ -5,7 +5,7 @@ import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.StageUtil;
 
 /**
- * 登陆controller
+ * 登录controller
  */
 public class LoginController {
 

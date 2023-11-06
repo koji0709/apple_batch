@@ -14,26 +14,26 @@
     <children>
         <TabPane fx:id="tabPane" prefWidth="320">
             <tabs>
-                <Tab text="用户登陆" closable="false">
+                <Tab text="用户登录" closable="false">
                     <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
                         <children>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <Label text="登陆账号"/>
+                                    <Label text="登录账号"/>
                                     <TextField/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <Label text="登陆密码"/>
+                                    <Label text="登录密码"/>
                                     <TextField/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
                                     <CheckBox text="记住用户"/>
-                                    <CheckBox text="自动登陆"/>
-                                    <Button text="登陆" prefWidth="53" onAction="#login"/>
+                                    <CheckBox text="自动登录"/>
+                                    <Button text="登录" prefWidth="53" onAction="#login"/>
                                 </children>
                             </HBox>
                             <VBox alignment="CENTER"
@@ -50,7 +50,7 @@
                                                     </FXCollections>
                                                 </items>
                                             </ChoiceBox>
-                                            <Button text="QQ一键登陆"/>
+                                            <Button text="QQ一键登录"/>
                                         </children>
                                     </HBox>
                                     <Label text="Xx拥有版权保护, 非法篡Xx程序将承担法律责任。"/>

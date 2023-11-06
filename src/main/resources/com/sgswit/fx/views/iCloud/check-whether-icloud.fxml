@@ -58,7 +58,7 @@
                      <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="360.0">
                             <children>
-                                <Label text="功能说明：能否登陆iCloud" wrapText="true">
+                                <Label text="功能说明：能否登录iCloud" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
@@ -81,7 +81,7 @@
                      <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="179.0">
                             <children>
-                                <Label text="功能说明：能否登陆iCloud" wrapText="true">
+                                <Label text="功能说明：能否登录iCloud" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>

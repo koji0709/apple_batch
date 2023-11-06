@@ -20,7 +20,7 @@
     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
   </rowConstraints>
   <children>
-    <Button layoutX="10.0" mnemonicParsing="false" onAction="#onCheckWhetherIcloudBtnClick" prefHeight="25.0" prefWidth="140.0" text="能否登陆iCloud" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" mnemonicParsing="false" onAction="#onCheckWhetherIcloudBtnClick" prefHeight="25.0" prefWidth="140.0" text="能否登录iCloud" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

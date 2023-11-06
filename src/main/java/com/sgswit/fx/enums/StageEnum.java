@@ -5,7 +5,7 @@ import javafx.stage.StageStyle;
 
 public enum StageEnum {
     /********** MAIN区 ***********/
-    LOGIN("APPLE批量处理程序 - 登陆","views/login.fxml"),
+    LOGIN("APPLE批量处理程序 - 登录","views/login.fxml"),
     MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520),
 
     /********** OPERATION区 ***********/
