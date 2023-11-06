@@ -48,8 +48,10 @@ public class MainController implements Initializable {
 
 
     private final List<KeyValuePair> loginModeList =new ArrayList<>(){{
-        add(new KeyValuePair("1","本地登录"));
-        add(new KeyValuePair("2","远程服务登录"));
+        add(new KeyValuePair("none","不使用代理"));
+        add(new KeyValuePair("api","API或导入代理"));
+        add(new KeyValuePair("tunnel","使用隧道代理"));
+        add(new KeyValuePair("in","使用内置代理"));
     }};
 
     /**
