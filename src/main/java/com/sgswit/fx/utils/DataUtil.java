@@ -55,7 +55,7 @@ public class DataUtil {
     public static String getAddressFormat(String countryCode){
         Map<String,Object> result= new HashMap<>();
         try {
-            List<String> fieldsList=new ArrayList<>();
+                    List<String> fieldsList=new ArrayList<>();
             List<FieldModel> addressFormatList=new ArrayList<>();
             String jsonString = ResourceUtil.readUtf8Str("data/address_format.json");
             for(Object object:JSONUtil.parseArray(jsonString)){

@@ -389,7 +389,7 @@ public class CountryModifyController extends CommController<Account> implements 
                     }
                 }else if(fieldId.equals("postalCode")){
 //                    json.putByPath("billingAddress.postalCode",address.zipCode());
-                    String regExp="[012345789]\\d{6}";
+                    String regExp="[012345789]{6}";
                     Generex generex = new Generex(regExp);
                     json.putByPath("billingAddress.postalCode",generex.random());
                 }else if(fieldId.equals("phoneNumber")){
