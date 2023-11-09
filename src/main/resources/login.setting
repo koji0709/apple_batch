@@ -1,0 +1,7 @@
+service.url      = http://localhost:8094
+service.enable   = true
+
+login.auto       = true
+login.remenberMe = true
+login.userName   = admin
+login.pwd        = 123321

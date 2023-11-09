@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * account表格视图
  */
-public class TableView implements Initializable {
+public class TableView extends CommonView implements Initializable{
 
     public static final String ACTION_COLUMN_NAME = "操作";
 
@@ -250,44 +250,7 @@ public class TableView implements Initializable {
         accountList.clear();
     }
 
-    /**
-     * 消息框
-     */
-    public void alert(String message){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("提示信息");
-        alert.setHeaderText(message);
-        alert.showAndWait();
-    }
 
-    /**
-     * 输入框
-     */
-    public String dialog(String title,String contentText){
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setHeaderText("");
-        dialog.setTitle(title);
-        dialog.setContentText(contentText);
-        Optional<String> result = dialog.showAndWait();
-        return result.isPresent() ? result.get() : "";
-    }
-
-    /**
-     * 弹出验证码框
-     */
-    public String captchaDialog(String base64){
-        byte[] decode = Base64.getDecoder().decode(base64);
-        BorderPane root = new BorderPane();
-        ImageView imageView = new ImageView();
-        imageView.setImage(new Image(new ByteArrayInputStream(decode)));
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setHeaderText("验证码:");
-        root.setCenter(imageView);
-        dialog.setContentText("请输入验证码:");
-        dialog.setGraphic(root);
-        Optional<String> result = dialog.showAndWait();
-        return result.isPresent() ? result.get() : "";
-    }
 
     /**
      * 本地记录按钮点击

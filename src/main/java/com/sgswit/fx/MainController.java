@@ -1,7 +1,9 @@
 package com.sgswit.fx;
 
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.ProjectValues;
+import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

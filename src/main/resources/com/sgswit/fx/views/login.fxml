@@ -20,19 +20,19 @@
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
                                     <Label text="登录账号"/>
-                                    <TextField/>
+                                    <TextField fx:id="loginUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
                                     <Label text="登录密码"/>
-                                    <TextField/>
+                                    <TextField fx:id="loginPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <CheckBox text="记住用户"/>
-                                    <CheckBox text="自动登录"/>
+                                    <CheckBox fx:id="remenberMeCheckBox" text="记住用户"/>
+                                    <CheckBox fx:id="autoLoginCheckBox" text="自动登录"/>
                                     <Button text="登录" prefWidth="53" onAction="#login"/>
                                 </children>
                             </HBox>
@@ -42,7 +42,7 @@
                                     <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                         <children>
                                             <Label text="在线QQ"/>
-                                            <ChoiceBox>
+                                            <ChoiceBox fx:id="qqChiceBox">
                                                 <items>
                                                     <FXCollections fx:factory="observableArrayList">
                                                         <String fx:value="3631408"/>
@@ -50,7 +50,7 @@
                                                     </FXCollections>
                                                 </items>
                                             </ChoiceBox>
-                                            <Button text="QQ一键登录"/>
+                                            <Button text="QQ一键登录" onAction="#qqLogin"/>
                                         </children>
                                     </HBox>
                                     <Label text="Xx拥有版权保护, 非法篡Xx程序将承担法律责任。"/>
@@ -65,36 +65,36 @@
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="注册账号"/>
-                                    <TextField/>
+                                    <TextField fx:id="registerUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="注册密码"/>
-                                    <TextField/>
+                                    <TextField fx:id="registerPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="安全邮箱"/>
-                                    <TextField/>
+                                    <TextField fx:id="registerEmailTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="绑定 Q Q"/>
-                                    <TextField/>
+                                    <TextField fx:id="registerQQTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="注册卡密"/>
-                                    <TextField promptText="可空"/>
+                                    <TextField fx:id="registerCardNoTextField" promptText="可空"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0">
                                 <children>
-                                    <Button text="注册用户"/>
+                                    <Button text="注册用户" onAction="#register"/>
                                 </children>
                             </HBox>
                         </children>
@@ -106,25 +106,25 @@
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="需修改账号"/>
-                                    <TextField/>
+                                    <TextField fx:id="editUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="邮箱验证码"/>
-                                    <TextField prefWidth="68"/>
-                                    <Button prefWidth="83" text="发送验证码"/>
+                                    <TextField fx:id="verifyCodeTextField" prefWidth="68"/>
+                                    <Button onAction="#sendVerifyCode" prefWidth="83" text="发送验证码"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="设置新密码"/>
-                                    <TextField/>
+                                    <TextField fx:id="newPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0;">
                                 <children>
-                                    <Button prefWidth="165" text="修改密码"/>
+                                    <Button onAction="#updatePwd" prefWidth="165" text="修改密码"/>
                                 </children>
                             </HBox>
                         </children>

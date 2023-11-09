@@ -27,6 +27,9 @@ public class StageUtil {
         if (stage != null && stage.isShowing()){
             return;
         }
+        stage = new Stage();
+        stageMap.put(stageEnum,stage);
+
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(stageEnum.getView()));
         Scene scene = null;
         try {
@@ -35,7 +38,6 @@ public class StageUtil {
             throw new RuntimeException(e);
         }
         scene.getRoot().setStyle("-fx-font-family: '"+stageEnum.getFontStyle()+"'");
-        stage = new Stage();
         stage.setTitle(stageEnum.getTitle());
         stage.initModality(stageEnum.getInitModality());
         stage.setScene(scene);
@@ -46,7 +48,6 @@ public class StageUtil {
         }else{
             stage.show();
         }
-        stageMap.put(stageEnum,stage);
     }
 
 
