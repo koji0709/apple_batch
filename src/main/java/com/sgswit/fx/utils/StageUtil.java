@@ -50,12 +50,16 @@ public class StageUtil {
         }
     }
 
-
     public static void close(StageEnum stageEnum){
         Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
             stage.close();
         }
+    }
+
+    public static Stage get(StageEnum stageEnum){
+        Stage stage = stageMap.get(stageEnum);
+        return stage;
     }
 
 }

@@ -2,7 +2,6 @@ package com.sgswit.fx.controller;
 
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -19,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -128,6 +128,11 @@ public class LoginController extends CommonView implements Initializable {
         Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
 
         StageUtil.show(StageEnum.MAIN);
+        // 将登陆页面设置为透明,然后关闭
+        Stage stage = StageUtil.get(StageEnum.LOGIN);
+        stage.setOpacity(0);
+        stage.setMaxWidth(0);
+        stage.setMinHeight(0);
         StageUtil.close(StageEnum.LOGIN);
     }
 
