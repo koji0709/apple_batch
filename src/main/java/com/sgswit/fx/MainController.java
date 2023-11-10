@@ -1,5 +1,7 @@
 package com.sgswit.fx;
 
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.setting.Setting;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.ProjectValues;
@@ -82,7 +84,10 @@ public class MainController implements Initializable {
         agencyModeListener();
 
         //初始化是否自动登录
-        isAutoLogin.setSelected(false);
+        Setting loginSetting = new Setting("login.setting");
+        Boolean autoLogin = loginSetting.getBool("login.auto",false);
+        isAutoLogin.setSelected(autoLogin);
+
         isAutoLoginModeListener();
         //初始化左侧菜单
         leftMenu.getChildren().add(getLeftMenu());
@@ -192,18 +197,28 @@ public class MainController implements Initializable {
     protected void isAutoLoginModeListener(){
         isAutoLogin.selectedProperty().addListener(new ChangeListener() {
             @Override
-            public void changed(ObservableValue observableValue, Object o, Object t1) {
+            public void changed(ObservableValue observableValue, Object o, Object autoLogin) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("提示");
                 String msg="";
-                if((boolean)t1){
+                if((boolean)autoLogin){
                     msg= "已开启自动登录模式，下次登录时将自动登录软件！";
                 }else{
                     msg= "已关闭自动登录模式，下次登录时将执行手动登录！";
                 }
                 alert.setHeaderText(msg);
                 alert.show();
+
                 //修改本地配置文件
+                Setting loginSetting = new Setting("login.setting");
+                loginSetting.set("login.auto",autoLogin.toString());
+                // 如果自动登陆,则默认记住用户
+                if ((boolean)autoLogin){
+                    loginSetting.set("login.remenberMe","true");
+                }
+
+                loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
+
             }
         });
 

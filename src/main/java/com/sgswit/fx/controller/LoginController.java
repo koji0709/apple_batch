@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller;
 
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
@@ -114,9 +115,15 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // todo 记住我,自动登陆
-        boolean remenberMe = remenberMeCheckBox.isSelected();
-        boolean autoLogin= autoLoginCheckBox.isSelected();
+        Boolean remenberMe = remenberMeCheckBox.isSelected();
+        Boolean autoLogin= autoLoginCheckBox.isSelected();
 
+        Setting loginSetting = new Setting("login.setting");
+        loginSetting.set("login.auto",autoLogin.toString());
+        loginSetting.set("login.remenberMe",remenberMe.toString());
+        loginSetting.set("login.userName",userName);
+        loginSetting.set("login.pwd",pwd);
+        loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
 
         Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
 
