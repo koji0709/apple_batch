@@ -2,20 +2,139 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.tool.ToolController">
-    <children>
-        <!--上下布局。上面功能区，下面表格，设置内边距13px-->
-        <VBox style="-fx-padding: 0 0 0 0;-fx-spacing: 0">
-            <HBox style="-fx-spacing: 0">
-                <children>
-                    <Button style="-fx-background-color: bule" text="个人中心"></Button>
-                    <Button text="文本比较去重"></Button>
-                    <Button text="超大文件分割"></Button>
-                    <Button text="去除重复文本"></Button>
-                </children>
-            </HBox>
-        </VBox>
-    </children>
+    <VBox prefHeight="700" prefWidth="1100">
+        <HBox prefHeight="670" prefWidth="1100">
+            <children>
+                <TabPane layoutX="-9.0" prefWidth="1100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-9.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <tabs>
+                        <Tab text="个人中心">
+                            <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220;-fx-border-color: blue">
+                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                    <children>
+                                        <Label text="登录账号：" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                    <children>
+                                        <Label text="绑定QQ号：" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                    <children>
+                                        <Label text="注册时间：" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                    <children>
+                                        <Label text="本机地址：" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                    <children>
+                                        <Label text="卡号信息：" />
+                                    </children>
+                                </HBox>
+                            </VBox>
+                        </Tab>
+                        <Tab text="文本比较去重">
+                            <VBox alignment="CENTER" spacing="30" style="-fx-padding: 15;-fx-border-color: blue">
+                                <children>
+                                    <HBox spacing="15">
+                                        <children>
+                                            <VBox>
+                                                <children>
+                                                    <Label alignment="CENTER" prefHeight="20" prefWidth="450" style="-fx-background-color: #BBFFBB" text="再次下方输入源文本(一行一条)" />
+                                                    <TextArea fx:id="sourceText" prefHeight="500" prefWidth="450" />
+                                                </children>
+                                            </VBox>
+                                            <VBox>
+                                                <children>
+                                                    <Label alignment="CENTER" prefHeight="20" prefWidth="450" style="-fx-background-color: #BBFFBB" text="在此下方输入要去除的文本(一行一条)" />
+                                                    <TextArea fx:id="compareText" prefHeight="500" prefWidth="450" />
+                                                </children>
+                                            </VBox>
+                                            <VBox alignment="CENTER" spacing="15">
+                                                <children>
+                                                    <Button onAction="#distinct" text="执行比较去重复" />
+                                                    <RadioButton fx:id="box" text="去重后复制到剪切板" />
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                    </HBox>
+                                    </children>
+                            </VBox>
+
+                        </Tab>
+                        <Tab text="超大文件分割">
+                            <VBox style="-fx-padding: 50 100 0 100;-fx-border-color: blue">
+                                <children>
+                                    <VBox alignment="CENTER" onDragExited="#getFiles" prefHeight="300" prefWidth="900" style="-fx-border-style: dashed;-fx-border-radius: 20px">
+                                        <children>
+                                            <Label fx:id="segmentation" text="拖拽需要分割的Txt文件至此导入" />
+                                        </children>
+                                    </VBox>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="90" prefWidth="900" style="-fx-padding: 30 0 30 0">
+                                        <children>
+                                            <VBox prefHeight="90" prefWidth="300" spacing="15">
+                                                <children>
+                                                    <HBox alignment="CENTER_LEFT" spacing="5">
+                                                        <children>
+                                                            <Label text="每份文件分割" />
+                                                            <TextField fx:id="textField" text="1000" />
+                                                            <Label text="行" />
+                                                        </children>
+                                                    </HBox>
+                                                    <CheckBox text="删除空行" />
+                                                </children>
+                                            </VBox>
+                                            <VBox alignment="TOP_CENTER" prefHeight="90" prefWidth="300">
+                                                <children>
+                                                    <Button onAction="#splitDataToSaveFile" text="执行分割" />
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100" prefWidth="900">
+                                        <children>
+                                            <Label text="当前：" />
+                                            <Label fx:id="current" text="等待分割..."/>
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                        </Tab>
+                        <Tab text="去除重复文本">
+                            <VBox style="-fx-padding: 50 100 0 100;-fx-border-color: blue">
+                                <children>
+                                    <VBox alignment="CENTER" onDragExited="#getFile" prefHeight="300" prefWidth="900" style="-fx-border-style: dashed;-fx-border-radius: 20px">
+                                        <children>
+                                            <Label fx:id="repeat" text="拖拽需要去除重复的Txt文件至此导入"></Label>
+                                        </children>
+                                    </VBox>
+                                    <HBox alignment="CENTER" prefHeight="90" prefWidth="900" style="-fx-padding: 30 0 30 0">
+                                        <children>
+                                            <Button onAction="#current" text="去除重复脚本" />
+                                        </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100" prefWidth="900">
+                                        <children>
+                                            <Label fx:id="current1" text="当前：等待去重复.." />
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+
+            </children>
+        </HBox>
+        <HBox alignment="CENTER" prefHeight="50" prefWidth="1100">
+            <children>
+                <Hyperlink visited="C:" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;" text="打开【文本处理】文件夹" />
+            </children>
+        </HBox>
+    </VBox>
 </AnchorPane>
