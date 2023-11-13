@@ -48,7 +48,20 @@ public class CommController<T> {
     　* @date 2023/10/26 23:00
     */
     protected void onAccoutQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
-
+        int n=0;
+        //判断是否有待执行的数据
+        for(T account:list) {
+            //判断是否已执行或执行中,避免重复执行
+            Object note = getFieldValueByObject(account, "note");
+            if (!StrUtil.isEmptyIfStr(note)) {
+                continue;
+            }else{
+                n++;
+            }
+        }
+        if(n==0){
+            return;
+        }
         for(T account:list){
             //判断是否已执行或执行中,避免重复执行
             Object note=getFieldValueByObject(account,"note");
