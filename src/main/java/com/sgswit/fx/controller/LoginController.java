@@ -13,6 +13,7 @@ import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.HostServicesUtil;
+import com.sgswit.fx.utils.MD5Util;
 import com.sgswit.fx.utils.StageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -123,7 +124,7 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\"}";
-        body = String.format(body,userName,pwd);
+        body = String.format(body,userName, MD5Util.encrypt(pwd));
         try{
             HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/login"))
                     .header("Content-Type", "application/json")
@@ -207,7 +208,7 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
-        body = String.format(body,userName,pwd,email,qq,cardNo);
+        body = String.format(body,userName,MD5Util.encrypt(pwd),email,qq,cardNo);
         HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/register"))
                 .header("Content-Type", "application/json")
                 .body(body);
@@ -248,7 +249,7 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
-        body = String.format(body,userName,newPwd,verifyCode);
+        body = String.format(body,userName,MD5Util.encrypt(newPwd),verifyCode);
         HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/updatePwd"))
                 .header("Content-Type", "application/json")
                 .body(body);
