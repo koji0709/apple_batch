@@ -133,7 +133,7 @@
         </HBox>
         <HBox alignment="CENTER" prefHeight="50" prefWidth="1100">
             <children>
-                <Hyperlink visited="C:" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;" text="打开【文本处理】文件夹" />
+                <Hyperlink visited="false" onMouseClicked="#a" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;" text="打开【文本处理】文件夹" />
             </children>
         </HBox>
     </VBox>
