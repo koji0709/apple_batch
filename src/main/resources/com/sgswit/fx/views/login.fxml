@@ -42,12 +42,12 @@
                                     <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                         <children>
                                             <Label text="在线QQ"/>
-                                            <ChoiceBox fx:id="qqChiceBox">
+                                            <ChoiceBox fx:id="qqChiceBox" prefWidth="100">
                                                 <items>
-                                                    <FXCollections fx:factory="observableArrayList">
-                                                        <String fx:value="3631408"/>
-                                                        <String fx:value="97595031"/>
-                                                    </FXCollections>
+<!--                                                    <FXCollections fx:factory="observableArrayList">-->
+<!--                                                        <String fx:value="3631408"/>-->
+<!--                                                        <String fx:value="97595031"/>-->
+<!--                                                    </FXCollections>-->
                                                 </items>
                                             </ChoiceBox>
                                             <Button text="QQ一键登录" onAction="#qqLogin"/>

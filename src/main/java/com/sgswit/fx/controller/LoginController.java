@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
@@ -13,13 +14,14 @@ import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.StageUtil;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -92,6 +94,24 @@ public class LoginController extends CommonView implements Initializable {
             autoLoginCheckBox.setSelected(true);
             login();
         }
+
+        // 在线qq
+        if (!autoLogin){
+            ObservableList<String> qqList = FXCollections.observableArrayList();
+            HttpResponse rsp = HttpUtil.createGet(spliceURL("/api/data/getQQList")).execute();
+            boolean success = verifyRsp(rsp);
+            if (success){
+                JSONArray qqArr = dataList(rsp);
+                if (qqArr.size() > 0){
+                    qqList.addAll(qqArr.toList(String.class));
+                }
+            }
+            if (qqList.size()>0){
+                qqChiceBox.setItems(qqList);
+                qqChiceBox.setValue(qqList.get(0));
+            }
+        }
+
     }
 
     public void login(){
@@ -115,12 +135,12 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // todo 记住我,自动登陆
-        Boolean rememberMe = rememberMeCheckBox.isSelected();
+        Boolean remenberMe = rememberMeCheckBox.isSelected();
         Boolean autoLogin= autoLoginCheckBox.isSelected();
 
         Setting loginSetting = new Setting("login.setting");
         loginSetting.set("login.auto",autoLogin.toString());
-        loginSetting.set("login.rememberMe",rememberMe.toString());
+        loginSetting.set("login.remenberMe",remenberMe.toString());
         loginSetting.set("login.userName",userName);
         loginSetting.set("login.pwd",pwd);
         loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
@@ -256,6 +276,10 @@ public class LoginController extends CommonView implements Initializable {
 
     public JSONObject data(HttpResponse rsp){
         return JSONUtil.parse(rsp.body()).getByPath("data", JSONObject.class);
+    }
+
+    public JSONArray dataList(HttpResponse rsp){
+        return JSONUtil.parse(rsp.body()).getByPath("data", JSONArray.class);
     }
 
 }
