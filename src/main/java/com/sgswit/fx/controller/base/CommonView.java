@@ -24,6 +24,12 @@ public class CommonView {
         alert.setHeaderText(message);
         alert.showAndWait();
     }
+    public void alert(String message, Alert.AlertType alertType){
+        Alert alert = new Alert(alertType);
+        alert.setTitle("提示信息");
+        alert.setHeaderText(message);
+        alert.showAndWait();
+    }
 
     /**
      * 输入框

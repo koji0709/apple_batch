@@ -1,9 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
@@ -13,7 +11,10 @@ import javafx.collections.FXCollections;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 /**
@@ -108,6 +109,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
 
         for (Account account : accountList) {
+            if(!StrUtil.isEmptyIfStr(account.getNote())){
+                continue;
+            }
+
             HttpResponse loginRsp = login(account);
             if (loginRsp == null){
                 continue;
@@ -156,6 +161,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     account.setNote("姓名修改失败;");
                 }else{
                     account.setName(firstName + lastName);
+                    account.setNote("姓名修改成功;");
                 }
             }
 

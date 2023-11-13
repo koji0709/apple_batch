@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import com.github.javafaker.App;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;

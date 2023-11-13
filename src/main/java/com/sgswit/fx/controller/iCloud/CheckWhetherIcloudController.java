@@ -199,8 +199,8 @@ public class CheckWhetherIcloudController {
                                 tableRefresh(account,"查询成功");
                             }
                         }
-                        account.setDsid(stringObjectMap.get("dsid").toString());
                     }
+                    account.setDsid(stringObjectMap.get("dsid").toString());
                 }else{
                     tableRefresh(account,stringObjectMap.get("status-message").toString());
                 }

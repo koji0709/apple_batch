@@ -14,14 +14,14 @@ import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.StageUtil;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -96,21 +96,21 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // 在线qq
-        if (!autoLogin){
-            ObservableList<String> qqList = FXCollections.observableArrayList();
-            HttpResponse rsp = HttpUtil.createGet(spliceURL("/api/data/getQQList")).execute();
-            boolean success = verifyRsp(rsp);
-            if (success){
-                JSONArray qqArr = dataList(rsp);
-                if (qqArr.size() > 0){
-                    qqList.addAll(qqArr.toList(String.class));
-                }
-            }
-            if (qqList.size()>0){
-                qqChiceBox.setItems(qqList);
-                qqChiceBox.setValue(qqList.get(0));
-            }
-        }
+//        if (!autoLogin){
+//            ObservableList<String> qqList = FXCollections.observableArrayList();
+//            HttpResponse rsp = HttpUtil.createGet(spliceURL("/api/data/getQQList")).execute();
+//            boolean success = verifyRsp(rsp);
+//            if (success){
+//                JSONArray qqArr = dataList(rsp);
+//                if (qqArr.size() > 0){
+//                    qqList.addAll(qqArr.toList(String.class));
+//                }
+//            }
+//            if (qqList.size()>0){
+//                qqChiceBox.setItems(qqList);
+//                qqChiceBox.setValue(qqList.get(0));
+//            }
+//        }
 
     }
 
@@ -124,13 +124,18 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\"}";
         body = String.format(body,userName,pwd);
-        HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/login"))
-                .header("Content-Type", "application/json")
-                .body(body);
-        HttpResponse rsp = req.execute();
-        boolean verify = verifyRsp(rsp);
-        if (!verify){
-            alert(message(rsp));
+        try{
+            HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/login"))
+                    .header("Content-Type", "application/json")
+                    .body(body);
+            HttpResponse rsp = req.execute();
+            boolean verify = verifyRsp(rsp);
+            if (!verify){
+                alert(message(rsp));
+                return;
+            }
+        }catch (Exception e){
+            alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
         }
 
@@ -144,8 +149,6 @@ public class LoginController extends CommonView implements Initializable {
         loginSetting.set("login.userName",userName);
         loginSetting.set("login.pwd",pwd);
         loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
-
-        Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
 
         StageUtil.show(StageEnum.MAIN);
         // 将登陆页面设置为透明,然后关闭

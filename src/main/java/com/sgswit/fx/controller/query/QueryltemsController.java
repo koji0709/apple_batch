@@ -39,7 +39,7 @@ public class QueryltemsController {
     }
 
     public void onSecurityQuestionBtnClick(ActionEvent actionEvent){
-        StageUtil.show(StageEnum.BIRTHDAY_COUNTRY_QUERY);
+        StageUtil.show(StageEnum.SECURITY_QUESTION);
     }
 
 }
