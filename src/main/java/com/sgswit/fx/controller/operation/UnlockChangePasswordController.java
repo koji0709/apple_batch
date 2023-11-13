@@ -72,6 +72,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                     }else{
                         account.setNote("解锁改密失败");
                     }
+                    accountTableView.refresh();
                 });
             }
             @Override

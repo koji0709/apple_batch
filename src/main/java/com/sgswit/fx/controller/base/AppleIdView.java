@@ -19,6 +19,11 @@ public class AppleIdView extends TableView {
     public HttpResponse login(Account account){
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
+        if(signInRsp.getStatus()!=409){
+            account.setNote("请检查用户名密码是否正确");
+            refresh();
+            return null;
+        }
 
         // Auth
         HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
@@ -26,7 +31,7 @@ public class AppleIdView extends TableView {
         String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
         if (!"sa".equals(authType)) {
             Console.error("仅支持密保验证逻辑");
-            account.setNote("仅支持密保验证逻辑");
+            account.setNote("该账户为双重认证模式");
             refresh();
             return null;
         }
@@ -35,7 +40,7 @@ public class AppleIdView extends TableView {
         HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
         if (questionRsp.getStatus() != 412) {
             Console.error("密保认证异常！");
-            account.setNote("密保认证异常");
+            account.setNote("密保问题验证失败");
             refresh();
             return null;
         }
@@ -70,7 +75,6 @@ public class AppleIdView extends TableView {
     public String getTokenScnt(Account account){
         HttpResponse tokenRsp = login(account);
         if (tokenRsp == null){
-            account.setNote("登录失败");
             refresh();
             return null;
         }
