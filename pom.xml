@@ -129,7 +129,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.sgswit.fx/com.sgswit.fx.MainApplication</mainClass>
+                            <mainClass>com.sgswit.fx/com.sgswit.fx.AppLauncher</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
@@ -153,8 +153,8 @@
                         </goals>
                         <configuration>
                             <version>3.4.2</version>
-                            <organizationName>组织名称</organizationName>
-                            <name>Apple批量处理</name>
+                            <organizationName>XXX公司</organizationName>
+                            <name>Apple批处理程序</name>
                             <!-- mandatory -->
                             <mainClass>com.sgswit.fx.AppLauncher</mainClass>
                             <!--是否绑定默认jre-->
@@ -165,6 +165,7 @@
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
                             <platform>windows</platform>
+<!--                            <platform>mac</platform>-->
 <!--                            <platform>mac|windows</platform>-->
                         </configuration>
                     </execution>

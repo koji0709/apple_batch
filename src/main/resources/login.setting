@@ -1,4 +1,4 @@
-service.url      = http://localhost:8094
+service.url      = http://39.99.59.122:15000/
 service.enable   = true
 
 login.auto       = false
