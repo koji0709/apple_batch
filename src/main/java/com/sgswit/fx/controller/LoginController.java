@@ -35,7 +35,7 @@ public class LoginController extends CommonView implements Initializable {
     private TextField loginPwdTextField;
 
     @FXML
-    private CheckBox remenberMeCheckBox;
+    private CheckBox rememberMeCheckBox;
 
     @FXML
     private CheckBox autoLoginCheckBox;
@@ -79,11 +79,11 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // 记住我
-        Boolean remenberMe = loginSetting.getBool("login.remenberMe",false);
-        if (remenberMe){
+        Boolean rememberMe = loginSetting.getBool("login.rememberMe",false);
+        if (rememberMe){
             loginUserNameTextField.setText(loginSetting.getStr("login.userName"));
             loginPwdTextField.setText(loginSetting.getStr("login.pwd"));
-            remenberMeCheckBox.setSelected(true);
+            rememberMeCheckBox.setSelected(true);
         }
 
         // 自动登陆
@@ -115,12 +115,12 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // todo 记住我,自动登陆
-        Boolean remenberMe = remenberMeCheckBox.isSelected();
+        Boolean rememberMe = rememberMeCheckBox.isSelected();
         Boolean autoLogin= autoLoginCheckBox.isSelected();
 
         Setting loginSetting = new Setting("login.setting");
         loginSetting.set("login.auto",autoLogin.toString());
-        loginSetting.set("login.remenberMe",remenberMe.toString());
+        loginSetting.set("login.rememberMe",rememberMe.toString());
         loginSetting.set("login.userName",userName);
         loginSetting.set("login.pwd",pwd);
         loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());

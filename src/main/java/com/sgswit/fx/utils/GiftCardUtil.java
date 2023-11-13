@@ -318,7 +318,6 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));

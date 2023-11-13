@@ -26,8 +26,8 @@ public class ICloudUtil {
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031..2" );
 //        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
-        checkAccountInit("djli0506@163.com");
-//        checkAccountInit("17319139610");
+//        checkAccountInit("djli0506@163.com");
+        checkAccountInit("17319139610");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();

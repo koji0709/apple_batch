@@ -2,10 +2,8 @@ package com.sgswit.fx;
 
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.setting.Setting;
-import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.ProjectValues;
-import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -214,7 +212,7 @@ public class MainController implements Initializable {
                 loginSetting.set("login.auto",autoLogin.toString());
                 // 如果自动登陆,则默认记住用户
                 if ((boolean)autoLogin){
-                    loginSetting.set("login.remenberMe","true");
+                    loginSetting.set("login.rememberMe","true");
                 }
 
                 loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());

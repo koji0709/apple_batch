@@ -31,7 +31,7 @@
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <CheckBox fx:id="remenberMeCheckBox" text="记住用户"/>
+                                    <CheckBox fx:id="rememberMeCheckBox" text="记住用户"/>
                                     <CheckBox fx:id="autoLoginCheckBox" text="自动登录"/>
                                     <Button text="登录" prefWidth="53" onAction="#login"/>
                                 </children>

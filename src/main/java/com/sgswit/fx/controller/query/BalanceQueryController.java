@@ -1,12 +1,10 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -31,9 +29,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -267,49 +263,7 @@ public class BalanceQueryController {
 //            cookieBuilders.append(";").append(item);
 //        }
 
-        Map<String, List<String>> headers = new HashMap<>();
-        headers.putAll(step1Res.headers());
-        StringBuilder cookieBuilder1 = new StringBuilder();
-        List<String> resCookies1 = step1Res.headerList("Set-Cookie");
-        for(String item : resCookies1){
-            cookieBuilder1.append(";").append(item);
-        }
-        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"));
-        headers.put("Host", ListUtil.toList("privacy.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://privacy.apple.com/"));
-        headers.put("X-Csrf-Token", ListUtil.toList(step1Res.header("X-Apple-Auth-Attributes")));
-        HttpResponse res3 = HttpUtil.createGet("https://privacy.apple.com/session/create")
-                .header(headers)
-                .cookie(cookieBuilder1.toString())
-                .execute();
 
-        //step4 manager
-        if(res3.getStatus() != 200){
-            queryFail(account);
-        }
-
-
-
-
-
-        headers.put("Host", ListUtil.toList("appleid.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-
-
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> resCookies = step1Res.headerList("Set-Cookie");
-        for(String item : resCookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-
-        HttpResponse res4 = HttpUtil.createGet("https://privacy.apple.com/section/delete-account")
-                .header(headers)
-                .cookie(cookieBuilder.toString())
-                .execute();
-        System.out.println(JSONUtil.toJsonStr(res4.body()));
 
     }
 
