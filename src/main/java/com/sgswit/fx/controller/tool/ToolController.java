@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.tool;
 
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.utils.StringUtils;
@@ -43,6 +44,7 @@ public class ToolController extends StrUtil {
     private Label current;
     @FXML
     private Label current1;
+    private String url;
 
     //文本去重
     @FXML
@@ -146,7 +148,7 @@ public class ToolController extends StrUtil {
             while ((lineStr = bufferedReader.readLine()) != null) {
                 stringBuilder.append(lineStr).append("\r\n");
                 if (lineNo % rows == 0) {
-                    File file = new File(targetDirectoryPath + File.separator + "分割文本" + "-" + fileNum + "-" + sourceFile.getName());
+                    File file = new File(fileUrl() + "分割文本" + "-" + fileNum + "-" + sourceFile.getName());
                     writeFile(stringBuilder.toString(), file);
                     //清空文本
                     stringBuilder.delete(0, stringBuilder.length());
@@ -156,7 +158,7 @@ public class ToolController extends StrUtil {
                 lineNo++;
             }
             if ((lineNo - 1) % rows != 0) {
-                File file = new File(targetDirectoryPath + File.separator + "分割文本" + "-" + fileNum + "-" + sourceFile.getName());
+                File file = new File(fileUrl() + "分割文本" + "-" + fileNum + "-" + sourceFile.getName());
                 writeFile(stringBuilder.toString(), file);
                 fileList.add(file);
             }
@@ -204,7 +206,7 @@ public class ToolController extends StrUtil {
             }
 
 
-            FileWriter fileWriter = new FileWriter(file.getParent() + "/去重文件" + file.getName());
+            FileWriter fileWriter = new FileWriter(fileUrl() + "/去重文件" + file.getName());
             for (String string : lines) {
                 if (!string.trim().equals("")) {
                     fileWriter.write(string.trim() + "\r\n");
@@ -253,6 +255,24 @@ public class ToolController extends StrUtil {
         }
         //之后的相关操作，获得文件路径等..
         segmentation.setText(file.getPath());
+    }
+
+    @FXML
+    void a() throws IOException {
+        String s = fileUrl();
+        File file1 = new File(s);
+        DesktopUtil.open(file1);
+
+    }
+
+    public String fileUrl() throws IOException {
+        File file = new File("");
+        String s = file.getCanonicalPath() + "\\文本处理\\";
+        File file1 = new File(s);
+        if(!file1.exists()) {
+            file1.mkdir();
+        }
+        return s;
     }
 
 }
