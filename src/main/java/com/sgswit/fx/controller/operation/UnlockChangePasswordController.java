@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.operation;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.model.Account;
@@ -73,7 +74,19 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);
                     }else{
-                        account.setNote("解锁改密失败");
+                        String message="";
+                        Object hasError=JSONUtil.parseObj(securityDowngradeRsp.body()).getByPath("hasError");
+                        if(null!=hasError && (boolean)hasError ){
+                            Object service_errors=JSONUtil.parseObj(securityDowngradeRsp.body()).getByPath("service_errors");
+                            for(Object o:JSONUtil.parseArray(service_errors)){
+                                JSONObject jsonObject= (JSONObject) o;
+                                message+=jsonObject.getByPath("message")+";";
+                            }
+                            account.setNote(message);
+                        }else{
+                            account.setNote("解锁改密失败");
+                        }
+
                     }
                     accountTableView.refresh();
                 });
