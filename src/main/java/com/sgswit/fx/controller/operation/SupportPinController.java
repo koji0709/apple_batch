@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
@@ -48,14 +49,17 @@ public class SupportPinController extends AppleIdView {
 
         for (Account account : accountList) {
             HttpResponse supportPinRsp = AppleIDUtil.supportPin(getTokenScnt(account));
-            if (supportPinRsp.getStatus() == 200){
-                JSON parse = JSONUtil.parse(supportPinRsp.body());
+            account.setNote("生成失败！");
+
+            String body = supportPinRsp.body();
+            if (!StrUtil.isEmpty(body) && JSONUtil.isTypeJSON(body)){
+                JSON parse = JSONUtil.parse(body);
                 String pin = parse.getByPath("pin", String.class);
-                account.setPin(pin);
-                account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
-                account.setNote("生成成功");
-            }else{
-                account.setNote("生成失败！");
+                if (!StrUtil.isEmpty(pin)){
+                    account.setPin(pin);
+                    account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
+                    account.setNote("生成成功");
+                }
             }
         }
         accountTableView.refresh();
