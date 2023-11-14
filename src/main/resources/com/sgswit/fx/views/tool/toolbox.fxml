@@ -11,29 +11,34 @@
                     <tabs>
                         <Tab text="个人中心">
                             <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220;-fx-border-color: blue">
-                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
-                                        <Label text="登录账号：" />
+                                        <Label style="-fx-font-size: 20" text="登录账号：" />
+                                        <Label style="-fx-font-size: 20" fx:id="zh" text=""/>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
-                                        <Label text="绑定QQ号：" />
+                                        <Label style="-fx-font-size: 20" text="绑定QQ号：" />
+                                        <Label style="-fx-font-size: 20" fx:id="qq" text=""/>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
-                                        <Label text="注册时间：" />
+                                        <Label style="-fx-font-size: 20" text="注册时间：" />
+                                        <Label style="-fx-font-size: 20" fx:id="sj" text=""/>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
-                                        <Label text="本机地址：" />
+                                        <Label style="-fx-font-size: 20" text="本机地址：" />
+                                        <Label style="-fx-font-size: 20" fx:id="dz" text=""/>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
-                                        <Label text="卡号信息：" />
+                                        <Label style="-fx-font-size: 20" text="卡号信息：" />
+                                        <Label style="-fx-font-size: 20" fx:id="kh" text=""/>
                                     </children>
                                 </HBox>
                             </VBox>

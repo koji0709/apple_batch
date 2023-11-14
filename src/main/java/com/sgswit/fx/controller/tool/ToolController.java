@@ -1,21 +1,28 @@
 package com.sgswit.fx.controller.tool;
 
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.setting.Setting;
+import com.sgswit.fx.controller.base.CommonView;
+import com.sgswit.fx.setting.LoginSetting;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * <p>
@@ -25,7 +32,7 @@ import java.util.Set;
  * @author yanggang
  * @createTime 2023/10/31
  */
-public class ToolController extends StrUtil {
+public class ToolController extends CommonView {
 
 
     @FXML
@@ -44,7 +51,37 @@ public class ToolController extends StrUtil {
     private Label current;
     @FXML
     private Label current1;
-    private String url;
+
+    @FXML
+    private Label zh;
+    @FXML
+    private Label qq;
+    @FXML
+    private Label sj;
+    @FXML
+    private Label dz;
+    @FXML
+    private Label kh;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            Setting loginSetting = LoginSetting.getLoginSetting();
+            String s = loginSetting.get("login.info");
+            JSONObject object = JSONUtil.parseObj(s);
+            zh.setText(object.get("userName").toString());
+            qq.setText(object.get("qq").toString());
+            SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            Date  date = format1.parse(object.get("registerTime").toString());
+            SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日  hh时mm分ss秒");
+            String registerTime = format.format(date);
+            sj.setText(registerTime);
+            dz.setText(object.get("lastLoginIp").toString());
+            kh.setText(object.get("cardNo").toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     //文本去重
     @FXML
@@ -274,5 +311,6 @@ public class ToolController extends StrUtil {
         }
         return s;
     }
+
 
 }
