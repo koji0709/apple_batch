@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.base;
 
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
@@ -7,13 +8,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 
 import java.io.ByteArrayInputStream;
+import java.net.URL;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 /**
  *
  */
-public class CommonView {
+public class CommonView implements Initializable {
 
     /**
      * 消息框
@@ -58,5 +61,10 @@ public class CommonView {
         dialog.setGraphic(root);
         Optional<String> result = dialog.showAndWait();
         return result.isPresent() ? result.get() : "";
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // todo
     }
 }

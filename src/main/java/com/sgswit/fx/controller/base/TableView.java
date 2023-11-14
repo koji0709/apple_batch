@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * account表格视图
  */
-public class TableView extends CommonView implements Initializable{
+public class TableView extends CommonView{
 
     public static final String ACTION_COLUMN_NAME = "操作";
 
