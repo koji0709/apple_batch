@@ -61,8 +61,10 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                     String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
                     verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
                     HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-                    if (verifyAppleIdRsp.getStatus() == 302){
-                        account.setNote("验证验证码成功");
+                    if (verifyAppleIdRsp.getStatus() != 302){
+                        account.setNote("验证验证码失败");
+                        accountTableView.refresh();
+                        return;
                     }
                     HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
                     if (securityDowngradeRsp.getStatus() == 302){
