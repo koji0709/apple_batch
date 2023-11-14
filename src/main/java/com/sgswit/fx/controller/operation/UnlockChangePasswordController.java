@@ -85,19 +85,8 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);
                     }else{
-                        String message="";
-                        Object hasError=JSONUtil.parseObj(rsp.body()).getByPath("hasError");
-                        if(null!=hasError && (boolean)hasError ){
-                            Object service_errors=JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
-                            for(Object o:JSONUtil.parseArray(service_errors)){
-                                JSONObject jsonObject= (JSONObject) o;
-                                message+=jsonObject.getByPath("message")+";";
-                            }
-                            account.setNote(message);
-                        }else{
-                            account.setNote("解锁改密失败");
-                        }
-
+                        String failMessage = hasFailMessage(rsp) ? failMessage(rsp) : "解锁改密失败";
+                        account.setNote(failMessage);
                     }
                     accountTableView.refresh();
                 });
