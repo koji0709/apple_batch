@@ -62,11 +62,14 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                     String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
                     verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
                     HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-                    if (verifyAppleIdRsp.getStatus() == 302){
-                        account.setNote("验证验证码成功");
+                    if (verifyAppleIdRsp.getStatus() != 302){
+                        account.setNote("验证验证码失败");
+                        accountTableView.refresh();
+                        return;
                     }
-                    HttpResponse securityDowngradeRsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPassword);
-                    if (securityDowngradeRsp.getStatus() == 302){
+                    account.setNote("验证验证码成功");
+                    HttpResponse securityDowngradeRsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPassword);
+                    if (securityDowngradeRsp.getStatus() == 206){
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);
                     }else{

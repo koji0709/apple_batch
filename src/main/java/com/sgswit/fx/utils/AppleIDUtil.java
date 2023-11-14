@@ -771,11 +771,17 @@ public class AppleIDUtil {
     }
 
     /**
-     * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
+     * 忘记密码
      */
     public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
+
+        if (options1Location.startsWith("/xx/option")){
+
+        }else if (options1Location.startsWith("/xx/xx")){
+
+        }
 
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
                 .header(buildHeader())
@@ -848,6 +854,89 @@ public class AppleIDUtil {
                 .execute();
 
         String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
+        HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
+                .header(buildHeader())
+                .execute();
+
+        HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
+                .header(passwordReset1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"password\":\""+newPwd+"\"}")
+                .execute();
+
+        return passwordReset2Rsp;
+    }
+
+    /**
+     * 解锁改密
+     */
+    public static HttpResponse unlockAndUpdatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
+        String host = "https://iforgot.apple.com";
+
+        String authMethod1Location = verifyAppleIdRsp.header("Location");
+        HttpResponse authMethod1Rsp = HttpUtil.createGet(host + authMethod1Location)
+                .header(buildHeader())
+                .execute();
+        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        Console.log("authMethodOptions:", authMethodOptions);
+
+        HttpResponse authMethod2Rsp = HttpUtil.createPost(host + "/password/authenticationmethod")
+                .header(authMethod1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"type\":\"questions\"}")
+                .execute();
+
+        String verifyBirthday1Location = authMethod2Rsp.header("Location");
+        HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
+                .header(buildHeader())
+                .execute();
+
+        DateTime birthday = DateUtil.parse(account.getBirthday());
+        HttpResponse verifyBirthday2Rsp = HttpUtil.createPost(host + "/password/verify/birthday")
+                .header(verifyBirthday1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
+                .execute();
+
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
+                .header(buildHeader())
+                .execute();
+
+        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
+        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+        Map<Integer,String> answerMap = new HashMap<>(){{
+            put(1,account.getAnswer1());
+            put(2,account.getAnswer2());
+            put(3,account.getAnswer3());
+        }};
+        for (JSONObject question : questions) {
+            question.remove("locale");
+            question.putOnce("answer",answerMap.get(question.getInt("number")));
+        }
+        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
+        bodyMap.put("questions",questions);
+        HttpResponse verifyQuestions2Rsp = HttpUtil.createPost(host + "/password/verify/questions")
+                .header(verifyQuestions1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body(JSONUtil.toJsonStr(bodyMap))
+                .execute();
+
+        String options1Location = verifyQuestions2Rsp.header("Location");
+
+        HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
+                .header(buildHeader())
+                .execute();
+        List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("types", List.class);
+        Console.log("types:", recoveryOptions);
+
+        HttpResponse options2Rsp = HttpUtil.createPost(host + "/password/reset/options")
+                .header(options1Rsp.headers())
+                .header("Content-Type","application/json")
+                .body("{\"type\":\"password_reset\"}")
+                .execute();
+
+        String passwordReset1Location = options2Rsp.header("Location");
         HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
                 .header(buildHeader())
                 .execute();
