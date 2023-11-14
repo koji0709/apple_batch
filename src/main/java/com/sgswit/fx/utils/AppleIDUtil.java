@@ -776,13 +776,6 @@ public class AppleIDUtil {
     public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
-
-        if (options1Location.startsWith("/xx/option")){
-
-        }else if (options1Location.startsWith("/xx/xx")){
-
-        }
-
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
                 .header(buildHeader())
                 .execute();

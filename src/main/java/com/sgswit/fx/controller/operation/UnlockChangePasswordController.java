@@ -69,15 +69,24 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                         return;
                     }
                     account.setNote("验证验证码成功");
-                    HttpResponse securityDowngradeRsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPassword);
-                    if (securityDowngradeRsp.getStatus() == 206){
+
+
+                    String location = verifyAppleIdRsp.header("Location");
+                    HttpResponse rsp = null;
+                    // 解锁并且改密
+                    if (location.startsWith("/password/authenticationmethod")){
+                        rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPassword);
+                    }else{//忘记密码
+                        rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPassword);
+                    }
+                    if (rsp.getStatus() == 206){
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);
                     }else{
                         String message="";
-                        Object hasError=JSONUtil.parseObj(securityDowngradeRsp.body()).getByPath("hasError");
+                        Object hasError=JSONUtil.parseObj(rsp.body()).getByPath("hasError");
                         if(null!=hasError && (boolean)hasError ){
-                            Object service_errors=JSONUtil.parseObj(securityDowngradeRsp.body()).getByPath("service_errors");
+                            Object service_errors=JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
                             for(Object o:JSONUtil.parseArray(service_errors)){
                                 JSONObject jsonObject= (JSONObject) o;
                                 message+=jsonObject.getByPath("message")+";";

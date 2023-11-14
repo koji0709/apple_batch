@@ -217,7 +217,7 @@ public class AppleIDTest {
 //        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
 //        Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
-        // 解锁改密
+        // 忘记密码
         HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,"");
         Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
 
