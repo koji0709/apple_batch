@@ -1,19 +1,16 @@
 package com.sgswit.fx.controller.tool;
 
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
-import com.sgswit.fx.setting.LoginSetting;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 
@@ -66,9 +63,8 @@ public class ToolController extends CommonView {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            Setting loginSetting = LoginSetting.getLoginSetting();
-            String s = loginSetting.get("login.info");
-            JSONObject object = JSONUtil.parseObj(s);
+            String s = PropertiesUtil.getOtherConfig("login.info");
+            JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
             zh.setText(object.get("userName").toString());
             qq.setText(object.get("qq").toString());
             SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");

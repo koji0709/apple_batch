@@ -1,10 +1,8 @@
 package com.sgswit.fx;
 
-import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.setting.Setting;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.setting.LoginSetting;
 import com.sgswit.fx.utils.ProjectValues;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -83,9 +81,9 @@ public class MainController implements Initializable {
         agencyModeListener();
 
         //初始化是否自动登录
-        Setting loginSetting = LoginSetting.getLoginSetting();
-        Boolean autoLogin = loginSetting.getBool("login.auto",false);
-        isAutoLogin.setSelected(autoLogin);
+//        Setting loginSetting = LoginSetting.getLoginSetting();
+//        Boolean autoLogin = loginSetting.getBool("login.auto",false);
+//        isAutoLogin.setSelected(autoLogin);
 
         isAutoLoginModeListener();
         //初始化左侧菜单
@@ -207,15 +205,11 @@ public class MainController implements Initializable {
                 }
                 alert.setHeaderText(msg);
                 alert.show();
-
-                //修改本地配置文件
-                Setting loginSetting = LoginSetting.getLoginSetting();
-                loginSetting.set("login.auto",autoLogin.toString());
-                // 如果自动登陆,则默认记住用户
+                // 修改本地配置文件
+                PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
                 if ((boolean)autoLogin){
-                    loginSetting.set("login.rememberMe","true");
+                    PropertiesUtil.setOtherConfig("login.rememberMe","true");
                 }
-                LoginSetting.store(loginSetting);
             }
         });
 

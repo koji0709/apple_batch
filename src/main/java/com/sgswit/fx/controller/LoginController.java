@@ -1,7 +1,6 @@
 package com.sgswit.fx.controller;
 
-import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.lang.Console;
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -12,9 +11,9 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.setting.LoginSetting;
 import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.MD5Util;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -73,25 +72,24 @@ public class LoginController extends CommonView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Setting loginSetting = LoginSetting.getLoginSetting();
-
         // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
-        Boolean serviceEnable = loginSetting.getBool("service.enable", true);
+        Setting config = new Setting("config.properties");
+        // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
+        Boolean serviceEnable = config.getBool("service.enable", true);
         if (!serviceEnable){
             StageUtil.show(StageEnum.MAIN);
             return;
         }
-
         // 记住我
-        Boolean rememberMe = loginSetting.getBool("login.rememberMe",false);
+        Boolean rememberMe = PropertiesUtil.getOtherBool("login.rememberMe",false);
         if (rememberMe){
-            loginUserNameTextField.setText(loginSetting.getStr("login.userName"));
-            loginPwdTextField.setText(loginSetting.getStr("login.pwd"));
+            loginUserNameTextField.setText(PropertiesUtil.getOtherConfig("login.userName"));
+            loginPwdTextField.setText(PropertiesUtil.getOtherConfig("login.pwd"));
             rememberMeCheckBox.setSelected(true);
         }
 
         // 自动登陆
-        Boolean autoLogin = loginSetting.getBool("login.auto",false);
+        Boolean autoLogin = PropertiesUtil.getOtherBool("login.auto",false);
         if (autoLogin){
             autoLoginCheckBox.setSelected(true);
             login();
@@ -145,14 +143,12 @@ public class LoginController extends CommonView implements Initializable {
 
         Boolean rememberMe = rememberMeCheckBox.isSelected();
         Boolean autoLogin= autoLoginCheckBox.isSelected();
-
-        Setting loginSetting = LoginSetting.getLoginSetting();
-        loginSetting.set("login.auto",autoLogin.toString());
-        loginSetting.set("login.rememberMe",rememberMe.toString());
-        loginSetting.set("login.userName",userName);
-        loginSetting.set("login.pwd",pwd);
-        loginSetting.set("login.info",userInfo);
-        LoginSetting.store(loginSetting);
+//
+        PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
+        PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
+        PropertiesUtil.setOtherConfig("login.userName",userName);
+        PropertiesUtil.setOtherConfig("login.pwd",pwd);
+        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
 
         StageUtil.show(StageEnum.MAIN);
         // 将登陆页面设置为透明,然后关闭
@@ -181,12 +177,6 @@ public class LoginController extends CommonView implements Initializable {
             alert(message(rsp));
             return;
         }
-
-        Setting loginSetting = LoginSetting.getLoginSetting();
-        loginSetting.set("login.info",JSONUtil.toJsonStr(data(rsp)));
-        LoginSetting.store(loginSetting);
-
-        Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }
@@ -270,8 +260,8 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public String spliceURL(String api){
-        Setting loginSetting = LoginSetting.getLoginSetting();
-        return loginSetting.getStr("service.url") + api;
+        Setting config = new Setting("config.properties");
+        return config.getStr("service.url") + api;
     }
 
     public boolean verifyRsp(HttpResponse rsp){
