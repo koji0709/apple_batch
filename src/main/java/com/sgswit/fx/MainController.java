@@ -81,10 +81,7 @@ public class MainController implements Initializable {
         agencyModeListener();
 
         //初始化是否自动登录
-//        Setting loginSetting = LoginSetting.getLoginSetting();
-//        Boolean autoLogin = loginSetting.getBool("login.auto",false);
-//        isAutoLogin.setSelected(autoLogin);
-
+        isAutoLogin.setSelected(PropertiesUtil.getOtherBool("login.auto",false));
         isAutoLoginModeListener();
         //初始化左侧菜单
         leftMenu.getChildren().add(getLeftMenu());

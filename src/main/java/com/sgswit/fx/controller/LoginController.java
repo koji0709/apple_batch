@@ -15,6 +15,8 @@ import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.MD5Util;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StageUtil;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -92,7 +94,26 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin = PropertiesUtil.getOtherBool("login.auto",false);
         if (autoLogin){
             autoLoginCheckBox.setSelected(true);
-            login();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run(){
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }finally {
+                        //JavaFX Application Thread会逐个阻塞的执行这些任务
+                        Platform.runLater(new Task<Integer>() {
+                            @Override
+                            protected Integer call() {
+                                login();
+                                return 1;
+                            }
+                        });
+                    }
+                }
+            }).start();
         }
 
         // 在线qq
