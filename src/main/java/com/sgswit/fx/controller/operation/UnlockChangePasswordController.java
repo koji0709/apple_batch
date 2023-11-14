@@ -73,13 +73,15 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
 
                     String location = verifyAppleIdRsp.header("Location");
                     HttpResponse rsp = null;
+                    boolean unlock = location.startsWith("/password/authenticationmethod");
                     // 解锁并且改密
-                    if (location.startsWith("/password/authenticationmethod")){
+                    if (unlock){
                         rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPassword);
                     }else{//忘记密码
                         rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPassword);
                     }
-                    if (rsp.getStatus() == 206){
+
+                    if ((unlock && rsp.getStatus() == 206) || (!unlock && rsp.getStatus() == 260)){
                         account.setNote("解锁改密成功");
                         account.setPwd(newPassword);
                     }else{
