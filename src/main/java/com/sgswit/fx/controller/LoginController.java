@@ -15,6 +15,8 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.MD5Util;
 import com.sgswit.fx.utils.StageUtil;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -24,6 +26,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.net.UnknownServiceException;
 import java.util.ResourceBundle;
 
 /**
@@ -125,6 +128,7 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\"}";
         body = String.format(body,userName, MD5Util.encrypt(pwd));
+        String userInfo = "";
         try{
             HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/login"))
                     .header("Content-Type", "application/json")
@@ -135,20 +139,22 @@ public class LoginController extends CommonView implements Initializable {
                 alert(message(rsp));
                 return;
             }
+            userInfo = JSONUtil.toJsonStr(data(rsp));
         }catch (Exception e){
             alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
         }
 
         // todo 记住我,自动登陆
-        Boolean remenberMe = rememberMeCheckBox.isSelected();
+        Boolean rememberMe = rememberMeCheckBox.isSelected();
         Boolean autoLogin= autoLoginCheckBox.isSelected();
 
         Setting loginSetting = new Setting("login.setting");
         loginSetting.set("login.auto",autoLogin.toString());
-        loginSetting.set("login.remenberMe",remenberMe.toString());
+        loginSetting.set("login.rememberMe",rememberMe.toString());
         loginSetting.set("login.userName",userName);
         loginSetting.set("login.pwd",pwd);
+        loginSetting.set("login.info",userInfo);
         loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
 
         StageUtil.show(StageEnum.MAIN);
@@ -178,6 +184,10 @@ public class LoginController extends CommonView implements Initializable {
             alert(message(rsp));
             return;
         }
+
+        Setting loginSetting = new Setting("login.setting");
+        loginSetting.set("login.info",JSONUtil.toJsonStr(data(rsp)));
+        loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
 
         Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
         StageUtil.show(StageEnum.MAIN);
