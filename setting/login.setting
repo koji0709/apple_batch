@@ -1,0 +1,8 @@
+[]
+service.url = http://localhost:15000/
+service.enable = true
+login.auto = false
+login.rememberMe = false
+login.userName = admin
+login.pwd = test
+login.info = {"id":"1722512498051244032","userName":"admin","qq":"3631408","email":"cncots@gmail.com","registerTime":"2023-11-09T07:12:37.000+00:00","cardNo":"","lastLoginIp":"127.0.0.1","lastLoginTime":"2023-11-14T06:45:24.192+00:00","status":"1"}

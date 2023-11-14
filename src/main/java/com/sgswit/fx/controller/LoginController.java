@@ -12,11 +12,10 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.setting.LoginSetting;
 import com.sgswit.fx.utils.HostServicesUtil;
 import com.sgswit.fx.utils.MD5Util;
 import com.sgswit.fx.utils.StageUtil;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -26,7 +25,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.net.UnknownServiceException;
 import java.util.ResourceBundle;
 
 /**
@@ -75,7 +73,7 @@ public class LoginController extends CommonView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Setting loginSetting = new Setting("login.setting");
+        Setting loginSetting = LoginSetting.getLoginSetting();
 
         // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
         Boolean serviceEnable = loginSetting.getBool("service.enable", true);
@@ -145,17 +143,16 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
 
-        // todo 记住我,自动登陆
         Boolean rememberMe = rememberMeCheckBox.isSelected();
         Boolean autoLogin= autoLoginCheckBox.isSelected();
 
-        Setting loginSetting = new Setting("login.setting");
+        Setting loginSetting = LoginSetting.getLoginSetting();
         loginSetting.set("login.auto",autoLogin.toString());
         loginSetting.set("login.rememberMe",rememberMe.toString());
         loginSetting.set("login.userName",userName);
         loginSetting.set("login.pwd",pwd);
         loginSetting.set("login.info",userInfo);
-        loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
+        LoginSetting.store(loginSetting);
 
         StageUtil.show(StageEnum.MAIN);
         // 将登陆页面设置为透明,然后关闭
@@ -185,9 +182,9 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
 
-        Setting loginSetting = new Setting("login.setting");
+        Setting loginSetting = LoginSetting.getLoginSetting();
         loginSetting.set("login.info",JSONUtil.toJsonStr(data(rsp)));
-        loginSetting.store(new ClassPathResource("login.setting").getAbsolutePath());
+        LoginSetting.store(loginSetting);
 
         Console.log("当前登陆用户：{}",data(rsp).getStr("userName"));
         StageUtil.show(StageEnum.MAIN);
@@ -273,7 +270,7 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public String spliceURL(String api){
-        Setting loginSetting = new Setting("login.setting");
+        Setting loginSetting = LoginSetting.getLoginSetting();
         return loginSetting.getStr("service.url") + api;
     }
 

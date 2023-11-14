@@ -1,8 +1,0 @@
-service.url      = http://localhost:15000/
-service.enable   = true
-
-login.auto       = false
-login.rememberMe = true
-login.userName   = admin
-login.pwd        = 123456
-login.info       = {}
