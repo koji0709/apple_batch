@@ -70,13 +70,12 @@ public class CustomCountryPopupController implements Initializable {
 
     private  void togetherTableView(){
         this.countryObservableList.clear();
-        File userNationalDataFile = FileUtil.file("userNationalData.json");
-        if(!userNationalDataFile.exists()){
+        File jsonFile = new File("userNationalData.json");
+        if(!jsonFile.exists()){
             return;
         }
         // 创建json文件对象
         List<UserNationalModel> list=new ArrayList<>();
-        File jsonFile = new File("userNationalData.json");
         String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
         if(!StringUtils.isEmpty(jsonString)){
             list = JSONUtil.toList(jsonString,UserNationalModel.class);
