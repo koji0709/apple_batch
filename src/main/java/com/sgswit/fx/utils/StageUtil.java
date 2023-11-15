@@ -2,9 +2,11 @@ package com.sgswit.fx.utils;
 
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -48,11 +50,22 @@ public class StageUtil {
         }else{
             stage.show();
         }
+        //判断程序是否退出
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent arg0) {
+                if((Stage)arg0.getSource()==StageUtil.get(StageEnum.MAIN)){
+                    System.exit(0);
+                }
+            }
+        });
+
     }
 
     public static void close(StageEnum stageEnum){
         Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
+            stageMap.remove(stageEnum);
             stage.close();
         }
     }
@@ -60,6 +73,9 @@ public class StageUtil {
     public static Stage get(StageEnum stageEnum){
         Stage stage = stageMap.get(stageEnum);
         return stage;
+    }
+    public static void clearAll(){
+        stageMap.clear();
     }
 
 }

@@ -46,7 +46,7 @@ public class LoginController extends CommonView implements Initializable {
     private CheckBox autoLoginCheckBox;
 
     @FXML
-    private ChoiceBox qqChiceBox;
+    private ChoiceBox<String> qqChiceBox;
 
     @FXML
     private TextField registerUserNameTextField;
@@ -181,7 +181,7 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void qqLogin(){
-        String qq = qqChiceBox.getValue().toString();
+        String qq = qqChiceBox.getValue();
         if (StrUtil.isEmpty(qq)){
             alert("选中QQ不能为空！");
             return;

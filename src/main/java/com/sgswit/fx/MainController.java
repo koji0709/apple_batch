@@ -64,7 +64,7 @@ public class MainController implements Initializable {
     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //初始化登录模式
+        //初始化代理模式
         agencyMode.getItems().addAll(agencyModeList);
         agencyMode.converterProperty().set(new StringConverter<KeyValuePair>() {
             @Override
@@ -171,7 +171,7 @@ public class MainController implements Initializable {
 
 
 
-    /**登录模式监听*/
+    /**代理模式监听*/
     protected void agencyModeListener(){
 //        loginMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
 //            @Override
