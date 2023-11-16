@@ -4,18 +4,15 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.utils.HostServicesUtil;
-import com.sgswit.fx.utils.MD5Util;
-import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StageUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -119,10 +116,10 @@ public class LoginController extends CommonView implements Initializable {
         // 在线qq
 //        if (!autoLogin){
 //            ObservableList<String> qqList = FXCollections.observableArrayList();
-//            HttpResponse rsp = HttpUtil.createGet(spliceURL("/api/data/getQQList")).execute();
-//            boolean success = verifyRsp(rsp);
+//            HttpResponse rsp = HttpUtil.get("/api/data/getQQList");
+//            boolean success = HttpUtil.verifyRsp(rsp);
 //            if (success){
-//                JSONArray qqArr = dataList(rsp);
+//                JSONArray qqArr = HttpUtil.dataList(rsp);
 //                if (qqArr.size() > 0){
 //                    qqList.addAll(qqArr.toList(String.class));
 //                }
@@ -147,16 +144,13 @@ public class LoginController extends CommonView implements Initializable {
         body = String.format(body,userName, MD5Util.encrypt(pwd));
         String userInfo = "";
         try{
-            HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/login"))
-                    .header("Content-Type", "application/json")
-                    .body(body);
-            HttpResponse rsp = req.execute();
-            boolean verify = verifyRsp(rsp);
+            HttpResponse rsp = HttpUtil.post("/userInfo/login", body);
+            boolean verify = HttpUtil.verifyRsp(rsp);
             if (!verify){
-                alert(message(rsp));
+                alert(HttpUtil.message(rsp));
                 return;
             }
-            userInfo = JSONUtil.toJsonStr(data(rsp));
+            userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
         }catch (Exception e){
             alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
@@ -189,13 +183,10 @@ public class LoginController extends CommonView implements Initializable {
 
         String body = "{\"qq\":\"%s\"}";
         body = String.format(body,qq);
-        HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/qqLogin"))
-                .header("Content-Type", "application/json")
-                .body(body);
-        HttpResponse rsp = req.execute();
-        boolean verify = verifyRsp(rsp);
+        HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
+        boolean verify = HttpUtil.verifyRsp(rsp);
         if (!verify){
-            alert(message(rsp));
+            alert(HttpUtil.message(rsp));
             return;
         }
         StageUtil.show(StageEnum.MAIN);
@@ -227,11 +218,8 @@ public class LoginController extends CommonView implements Initializable {
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
         body = String.format(body,userName,MD5Util.encrypt(pwd),email,qq,cardNo);
-        HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/register"))
-                .header("Content-Type", "application/json")
-                .body(body);
-        HttpResponse rsp = req.execute();
-        alert(message(rsp));
+        HttpResponse rsp = HttpUtil.post("/userInfo/register", body);
+        alert(HttpUtil.message(rsp));
     }
 
     public void sendVerifyCode(){
@@ -242,11 +230,8 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\"}";
         body = String.format(body,userName);
-        HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/updatePwd/verifyCode"))
-                .header("Content-Type", "application/json")
-                .body(body);
-        HttpResponse rsp = req.execute();
-        alert(message(rsp));
+        HttpResponse rsp = HttpUtil.post("/userInfo/updatePwd/verifyCode", body);
+        alert(HttpUtil.message(rsp));
     }
 
     public void updatePwd(){
@@ -268,11 +253,8 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
         body = String.format(body,userName,MD5Util.encrypt(newPwd),verifyCode);
-        HttpRequest req = HttpUtil.createPost(spliceURL("/userInfo/updatePwd"))
-                .header("Content-Type", "application/json")
-                .body(body);
-        HttpResponse rsp = req.execute();
-        alert(message(rsp));
+        HttpResponse rsp = HttpUtil.post("/userInfo/updatePwd", body);
+        alert(HttpUtil.message(rsp));
     }
 
     public void showDocument(){
@@ -283,25 +265,6 @@ public class LoginController extends CommonView implements Initializable {
     public String spliceURL(String api){
         Setting config = new Setting("config.properties");
         return config.getStr("service.url") + api;
-    }
-
-    public boolean verifyRsp(HttpResponse rsp){
-        return rsp.getStatus() == 200 && "200".equals(JSONUtil.parse(rsp.body()).getByPath("code",String.class));
-    }
-
-    public String message(HttpResponse rsp){
-        if (rsp.getStatus() != 200){
-            return "系统异常！";
-        }
-        return JSONUtil.parse(rsp.body()).getByPath("msg",String.class);
-    }
-
-    public JSONObject data(HttpResponse rsp){
-        return JSONUtil.parse(rsp.body()).getByPath("data", JSONObject.class);
-    }
-
-    public JSONArray dataList(HttpResponse rsp){
-        return JSONUtil.parse(rsp.body()).getByPath("data", JSONArray.class);
     }
 
 }
