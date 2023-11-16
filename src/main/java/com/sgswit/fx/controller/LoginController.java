@@ -262,9 +262,4 @@ public class LoginController extends CommonView implements Initializable {
         HostServicesUtil.getHostServices().showDocument(url); // 在默认
     }
 
-    public String spliceURL(String api){
-        Setting config = new Setting("config.properties");
-        return config.getStr("service.url") + api;
-    }
-
 }

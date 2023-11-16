@@ -14,14 +14,14 @@ public class HttpUtil{
     public static HttpResponse get(String url){
         url = getServiceUrl() + url;
         HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).execute();
-        Console.log("[GET]{}  Rsp status:{}",url,rsp.getStatus());
+        Console.log("[GET] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
     public static HttpResponse get(String url, Map<String,Object> paramMap){
         url = getServiceUrl() + url;
         HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).form(paramMap).execute();
-        Console.log("[GET]{}  Rsp status:{}",url,rsp.getStatus());
+        Console.log("[GET] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
@@ -31,7 +31,7 @@ public class HttpUtil{
                 .header("Content-Type", "application/json")
                 .body(JSONUtil.toJsonStr(paramMap))
                 .execute();
-        Console.log("[POST]{}  Rsp status:{}",url,rsp.getStatus());
+        Console.log("[POST] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
@@ -41,7 +41,7 @@ public class HttpUtil{
                 .header("Content-Type", "application/json")
                 .body(body)
                 .execute();
-        Console.log("[POST]{}  Rsp status:{}",url,rsp.getStatus());
+        Console.log("[POST] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
