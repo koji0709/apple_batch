@@ -36,6 +36,12 @@ public class AccountImportUtil {
     }
 
     public static List<Account> parseAccount(String format,String accountStr){
+        format = format.replaceAll("----","-");
+        accountStr = accountStr.replaceAll("----","-");
+
+        if (accountStr.contains("{-}")){
+            accountStr = accountStr.replace("{-}",REPLACE_MENT);
+        }
         List<String> fieldList = Arrays.asList(format.split("-"));
 
         if (StrUtil.isEmpty(accountStr)){
@@ -79,14 +85,11 @@ public class AccountImportUtil {
     }
 
     public static void main(String[] args) {
-        String format = "account-pwd-answer1-answer2-answer3-birthday";
+        String format = "account----pwd-answer1-answer2-answer3-birthday";
         String note = buildNote(format);
         System.err.println(note);
 
-        String accountStr = "1-1-1-2-3\n" +
-                "2-2-1-2-3{-}-1996{-}08{-}10\n" +
-                "3-3-1-2{-}-3\n" +
-                "4-4-1{-}-2-3";
+        String accountStr = "1----1-1-2-3-123";
 
         List<Account> accountList = parseAccount(format, accountStr);
         System.err.println(accountList);

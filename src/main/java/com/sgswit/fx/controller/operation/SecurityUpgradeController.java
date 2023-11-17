@@ -25,11 +25,11 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     }
 
     /**
-     * shabagga222@tutanota.com-Xx97595031..2-猪-狗-牛-17608177103
+     * shabagga222@tutanota.com----Xx97595031..2-猪-狗-牛-17608177103
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account-pwd-answer1-answer2-answer3-phone");
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-phone");
         super.bindActions();
     }
 

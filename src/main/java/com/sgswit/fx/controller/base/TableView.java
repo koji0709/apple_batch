@@ -136,7 +136,7 @@ public class TableView extends CommonView{
      */
     public void importAccountButtonAction(){
         // 给一种默认导入格式
-        importAccountButtonAction("account-pwd-answer1-answer2-answer3");
+        importAccountButtonAction("account----pwd-answer1-answer2-answer3");
     }
 
     /**
