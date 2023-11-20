@@ -15,5 +15,9 @@ open module com.sgswit.fx {
     requires JsoupXpath;
     requires generex;
     requires commons.configuration;
+    requires d4ocr;
+    requires java.desktop;
+    requires org.apache.commons.io;
+    requires org.apache.commons.lang3;
     exports com.sgswit.fx;
 }

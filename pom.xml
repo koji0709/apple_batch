@@ -114,6 +114,13 @@
             <version>1.10</version>
         </dependency>
 
+        <!--打码（先本地install一下) https://github.com/GCS-ZHN/ddddocr-for-java-->
+        <dependency>
+            <groupId>top.gcszhn</groupId>
+            <artifactId>d4ocr</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -172,8 +179,8 @@
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
                             <platform>windows</platform>
-<!--                            <platform>mac</platform>-->
-<!--                            <platform>mac|windows</platform>-->
+                            <!--                            <platform>mac</platform>-->
+                            <!--                            <platform>mac|windows</platform>-->
                         </configuration>
                     </execution>
                 </executions>
