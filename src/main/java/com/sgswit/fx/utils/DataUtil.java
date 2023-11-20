@@ -1,12 +1,16 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.model.BaseAreaInfo;
 
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,5 +98,22 @@ public class DataUtil {
 
         }
         return JSONUtil.toJsonStr(result);
+    }
+    public static void  getNews(){
+        try {
+            HttpResponse rsp = HttpUtil.get("/noticeInfo/getNoticeInfo");
+            boolean verify = HttpUtil.verifyRsp(rsp);
+            if (!verify){
+            }else {
+                File fFile = new File("news.ini");
+                if(!fFile.exists()){
+                    fFile.createNewFile();
+                }
+                String test=JSONUtil.parse(rsp.body()).getByPath("data.content",String.class);
+                FileUtil.writeBytes(test.getBytes( Charset.defaultCharset()), fFile);
+            }
+        }catch (Exception e){
+
+        }
     }
 }

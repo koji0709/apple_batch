@@ -86,6 +86,13 @@ public class MainController implements Initializable {
         //初始化左侧菜单
         leftMenu.getChildren().add(getLeftMenu());
         leftMenu.setBackground(Background.EMPTY);
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        try {
+            Pane p = fxmlLoader.load(MainApplication.class.getResource("views/notice-view.fxml").openStream());
+            rightMainPane.getChildren().add(p);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Node getLeftMenu() {

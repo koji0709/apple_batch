@@ -24,12 +24,13 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws IOException {
         HostServicesUtil.setHostServices(getHostServices());
         new Thread(() -> DataUtil.getCountry()).start();
+        new Thread(() -> DataUtil.getNews()).start();
         String guid=PropertiesUtil.getOtherConfig("guid");
         if(StrUtil.isEmpty(guid)){
             guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
             PropertiesUtil.setOtherConfig("guid",guid);
         }
-
+        //进程锁
         FileLock lock = FileChannel.open(
                 Paths.get(System.getProperty("user.dir"), "single_instance.lock"),
                 StandardOpenOption.CREATE,
