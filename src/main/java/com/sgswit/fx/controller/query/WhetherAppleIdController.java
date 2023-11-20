@@ -4,6 +4,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
@@ -13,14 +14,11 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.StringUtils;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -28,14 +26,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -78,38 +73,25 @@ public class WhetherAppleIdController {
             return;
         }
 
-        Account account = list.get(0);
-
-
-        birthdayCountryQueryBtn.setText("正在查询");
-        birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-        birthdayCountryQueryBtn.setDisable(true);
-
-        account.setNote("正在查询");
-        accountTableView.refresh();
-
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    verify(account);
-                } finally {
-                    //JavaFX Application Thread会逐个阻塞的执行这些任务
-                    Platform.runLater(new Task<Integer>() {
-                        @Override
-                        protected Integer call() {
-                            birthdayCountryQueryBtn.setDisable(false);
-                            birthdayCountryQueryBtn.setText("开始执行");
-                            birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            return 1;
-                        }
-                    });
-                }
+        for (Account account : list) {
+            if (!StrUtil.isEmptyIfStr(account.getNote())) {
+                continue;
             }
-        });
+            birthdayCountryQueryBtn.setText("正在查询");
+            birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+            birthdayCountryQueryBtn.setDisable(true);
+            account.setNote("正在查询");
+            accountTableView.refresh();
+            try {
+                verify(account);
+            } finally {
 
+            }
+        }
+        birthdayCountryQueryBtn.setDisable(false);
+        birthdayCountryQueryBtn.setText("开始执行");
+        birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
     }
-
 
     private void verify(Account account) {
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -127,6 +109,8 @@ public class WhetherAppleIdController {
         //解析图片
         JSONObject object1 = JSONUtil.parseObj(JSONUtil.parseObj(body).get("payload").toString());
         Object content = object1.get("content");
+//        String predict = OcrUtil.recognize(content.toString());
+
         byte[] decode = Base64.getDecoder().decode(content.toString());
         BorderPane root = new BorderPane();
         ImageView imageView = new ImageView();
@@ -141,8 +125,6 @@ public class WhetherAppleIdController {
         dialog.setGraphic(root);
         Optional<String> result = dialog.showAndWait();
 
-
-
         if (result.isPresent()) {
             String s = result.get();
             String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + s + "\",\"token\":\"" + capToken + "\"}}\n";
@@ -150,13 +132,29 @@ public class WhetherAppleIdController {
                     .body(bodys)
                     .header(headers)
                     .execute();
-
+            String body1 = execute1.body();
+            if(body1.startsWith("<html>")){
+                account.setStatus("网页503");
+                account.setNote("查询失败");
+                accountTableView.refresh();
+                return;
+            }
             if (!StringUtils.isEmpty(execute1.body())) {
                 JSONObject object2 = JSONUtil.parseObj(execute1.body());
-                if (object2.getStr("service_errors") != null) {
-                    account.setStatus("这个AppleID没有被激活");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
+                String service_errors = object2.getStr("service_errors");
+                if (service_errors != null) {
+                    JSONArray service_errors1 = JSONUtil.parseArray(service_errors);
+                    String message = JSONUtil.parseObj(service_errors1.get(0)).getStr("message");
+                    if(message.startsWith("请输入你")){
+                        account.setStatus("验证码错误！");
+                        account.setNote("查询失败");
+                        accountTableView.refresh();
+                    }else {
+                        account.setStatus(message);
+                        account.setNote("查询成功");
+                        accountTableView.refresh();
+                    }
+
                 } else if (object2.getStr("serviceErrors") != null) {
                     account.setStatus("此AppleID无效或不受支持");
                     account.setNote("查询成功");
@@ -184,20 +182,18 @@ public class WhetherAppleIdController {
                     accountTableView.refresh();
                 }
             }
-
         }
-        account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
+        account.setLogtime(DateUtil.format(DateUtil.date(), "yyyy-MM-dd HH:mm:ss"));
         try {
             File file = FileUtil.file("appleIDVerify.txt");
             FileAppender appender = new FileAppender(file, 16, true);
-            appender.append(JSONUtil.toJsonStr(list.get(0)));
+            appender.append(JSONUtil.toJsonStr(account));
 
             appender.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     @FXML
@@ -241,7 +237,7 @@ public class WhetherAppleIdController {
             return;
         }
         String[] lineArray = c.getAccounts().split("\n");
-        accountNum.setText(String.valueOf(lineArray.length));
+
         for (String item : lineArray) {
             Account account = new Account();
             account.setSeq(list.size() + 1);
@@ -249,6 +245,7 @@ public class WhetherAppleIdController {
             list.add(account);
         }
         initAccountTableView();
+        accountNum.setText(String.valueOf(list.size()));
         accountTableView.setItems(list);
     }
 
@@ -269,6 +266,7 @@ public class WhetherAppleIdController {
     @FXML
     protected void onAccountClearBtnClick() throws Exception {
         this.list.clear();
+        accountNum.setText("0");
         accountTableView.refresh();
     }
 

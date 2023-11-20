@@ -17,7 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.List;
 
 /**
- * 余额查询记录
+ * 急速过滤密正记录
  */
 public class QuerylogRapidController {
 

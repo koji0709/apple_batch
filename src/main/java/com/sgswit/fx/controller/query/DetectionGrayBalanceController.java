@@ -379,7 +379,7 @@ public class DetectionGrayBalanceController {
             return;
         }
         String[] lineArray = c.getAccounts().split("\n");
-        accountNum.setText(String.valueOf(lineArray.length));
+
         for(String item : lineArray){
             String[] its = item.split("----");
             Account account = new Account();
@@ -398,6 +398,7 @@ public class DetectionGrayBalanceController {
             list.add(account);
         }
         initAccountTableView();
+        accountNum.setText(String.valueOf(list.size()));
         accountTableView.setItems(list);
     }
 
@@ -422,6 +423,7 @@ public class DetectionGrayBalanceController {
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
         this.list.clear();
+        accountNum.setText("0");
         accountTableView.refresh();
     }
 

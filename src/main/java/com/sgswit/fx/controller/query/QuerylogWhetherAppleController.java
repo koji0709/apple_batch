@@ -17,7 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.List;
 
 /**
- * 余额查询记录
+ * 检测是否AppleID记录
  */
 public class QuerylogWhetherAppleController {
 

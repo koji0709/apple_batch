@@ -378,7 +378,6 @@ public class WhetherInspectionController {
             return;
         }
         String[] lineArray = c.getAccounts().split("\n");
-        accountNum.setText(String.valueOf(lineArray.length));
         for(String item : lineArray){
             String[] its = item.split("----");
             Account account = new Account();
@@ -397,6 +396,7 @@ public class WhetherInspectionController {
             list.add(account);
         }
         initAccountTableView();
+        accountNum.setText(String.valueOf(list.size()));
         accountTableView.setItems(list);
     }
 
@@ -421,6 +421,7 @@ public class WhetherInspectionController {
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
         this.list.clear();
+        accountNum.setText("0");
         accountTableView.refresh();
     }
 

@@ -18,7 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.List;
 
 /**
- * 余额查询记录
+ * 查询密保问题记录
  */
 public class QuerylogQuestionController {
 

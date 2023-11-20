@@ -198,7 +198,7 @@ public class SecurityQuestionQueryController {
             return;
         }
         String[] lineArray = c.getAccounts().split("\n");
-        accountNum.setText(String.valueOf(lineArray.length));
+
         for (String item : lineArray) {
             String[] its = item.split("----");
             Problem account = new Problem();
@@ -208,6 +208,7 @@ public class SecurityQuestionQueryController {
             list.add(account);
         }
         initAccountTableView();
+        accountNum.setText(String.valueOf(list.size()));
         questionTableView.setItems(list);
     }
 
@@ -229,6 +230,7 @@ public class SecurityQuestionQueryController {
     @FXML
     protected void onAccountClearBtnClick() throws Exception {
         this.list.clear();
+        accountNum.setText("0");
         questionTableView.refresh();
     }
 

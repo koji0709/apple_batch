@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.query;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
@@ -69,6 +70,9 @@ public class RapidFiltrationController {
         birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
         birthdayCountryQueryBtn.setDisable(true);
         for (Account account : list) {
+            if(!StrUtil.isEmptyIfStr(account.getNote())){
+                continue;
+            }
             //非双重认证
             account.setNote("正在查询");
             accountTableView.refresh();
@@ -233,6 +237,7 @@ public class RapidFiltrationController {
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
         this.list.clear();
+        accountNum.setText("0");
         accountTableView.refresh();
     }
 
