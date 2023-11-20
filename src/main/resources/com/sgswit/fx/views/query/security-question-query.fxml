@@ -66,7 +66,7 @@
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
                                 </Label>
-                                <Label text="2.非双重认证账户，需要输入密保信息【格式为: 账号----密码-答案1-答案2-答案3】。" wrapText="true">
+                                <Label text="2.非双重认证账户，需要输入密保信息【格式为: 账号----密码】。" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>

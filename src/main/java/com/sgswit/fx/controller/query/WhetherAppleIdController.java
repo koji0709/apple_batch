@@ -223,7 +223,7 @@ public class WhetherAppleIdController {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/query/account-input-popup1.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 600, 450);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");

@@ -25,11 +25,11 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
     }
 
     /**
-     * shabagga222@tutanota.com-猪-狗-牛-19960810
+     * shabagga222@tutanota.com----猪-狗-牛-19960810
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account-pwd-answer1-answer2-answer3-birthday");
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-birthday");
         super.bindActions();
     }
 

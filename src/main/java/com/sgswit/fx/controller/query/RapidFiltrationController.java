@@ -64,35 +64,36 @@ public class RapidFiltrationController {
             return;
         }
 
-        Account account = list.get(0);
-
-        //非双重认证
+//        Account account = list.get(0);
         birthdayCountryQueryBtn.setText("正在查询");
         birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
         birthdayCountryQueryBtn.setDisable(true);
+        for (Account account : list) {
+            //非双重认证
+            account.setNote("正在查询");
+            accountTableView.refresh();
 
-        account.setNote("正在查询");
-        accountTableView.refresh();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    noSecondSec(account);
-                } finally {
-                    //JavaFX Application Thread会逐个阻塞的执行这些任务
-                    Platform.runLater(new Task<Integer>() {
-                        @Override
-                        protected Integer call() {
-                            birthdayCountryQueryBtn.setDisable(false);
-                            birthdayCountryQueryBtn.setText("开始执行");
-                            birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            return 1;
-                        }
-                    });
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        noSecondSec(account);
+                    } finally {
+                        //JavaFX Application Thread会逐个阻塞的执行这些任务
+                        Platform.runLater(new Task<Integer>() {
+                            @Override
+                            protected Integer call() {
+                                birthdayCountryQueryBtn.setDisable(false);
+                                birthdayCountryQueryBtn.setText("开始执行");
+                                birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                return 1;
+                            }
+                        });
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        }
+
     }
 
 
@@ -154,7 +155,7 @@ public class RapidFiltrationController {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/query/account-input-popup.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 600, 450);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
