@@ -19,9 +19,10 @@ public class AppleIDTest {
 
 
     public static void main(String[] args) {
-        securityCodeLoginDemo();
+        //securityCodeLoginDemo();
 //        passwordProtectionDemo();
-        //notLoginDemo();
+        notLoginDemo();
+//        other();
     }
 
     // 双重认证登录
@@ -190,38 +191,36 @@ public class AppleIDTest {
 
     // 不需要登录(重置密码/关闭双重认证)
     public static void notLoginDemo(){
-        // 获取验证码
-        HttpResponse captchaRsp = AppleIDUtil.captcha();
-        JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
-        String capContent = captchaRspJSON.getByPath("payload.content", String.class);
-        System.err.println("base64编码:");
-        System.err.println(capContent);
-
-        Console.log("请输入验证码:");
-        String  captAnswer   = Console.input();
-        Integer captId    = captchaRspJSON.getByPath("id", Integer.class);
-        String  captToken = captchaRspJSON.getByPath("token", String.class);
-
         // 校验appleId
+        // qewqeq@2980.com-dPFb6cSD6-猪-狗-牛-19960810
+        // shabagga222@tutanota.com-Xx97595031.2121-猪-狗-牛-19960810
         Account account = new Account();
         account.setAccount("shabagga222@tutanota.com");
         account.setAnswer1("猪");
         account.setAnswer2("狗");
         account.setAnswer3("牛");
         account.setBirthday("1996-08-10");
-        //account.setName(Console.input());
-        String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-        verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
-        HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+        account.setPwd("dPFb6cSD7");
 
-//        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
-//        Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+        if (verifyAppleIdRsp.getStatus() != 302) {
+            Console.log("验证校验失败");
+            return;
+        }
 
-        // 忘记密码
-        HttpResponse verifyAppleIdRsp2 = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,"");
-        Console.log("Password Reset: " + JSONUtil.parse(verifyAppleIdRsp2.body()).getByPath("resetCompleted"));
+        // 通过密保修改密码
+        HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, account.getPwd());
+        Console.log("Update Password: " + updatePwdByProtectionRsp.getStatus());
 
+        // HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,"Xx97595031.21222");
+        // Console.log("Security Downgrade: " + securityDowngradeRsp.getStatus());
 
     }
 
+    // 其他
+    public static void other(){
+        HttpResponse captcha = AppleIDUtil.captchaAndVerify("3631408@qq.com");
+        System.err.println(captcha.getStatus());
+
+    }
 }

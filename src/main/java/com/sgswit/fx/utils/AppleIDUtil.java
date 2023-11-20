@@ -1,5 +1,6 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
@@ -613,28 +614,6 @@ public class AppleIDUtil {
     }
 
     /**
-     * 关闭双重认证
-     * @return httpstatus == 302 代表成功
-     */
-    public static HttpResponse securityDowngrade(String key,String newPassword){
-        String base = "https://iforgot.apple.com";
-        HttpResponse rsp = HttpUtil.createGet(base + "/withdraw?key=" + key)
-                .execute();
-        if (rsp.getStatus() == 302){
-            HttpResponse unenrollmentRsp = HttpUtil.createPost(base + rsp.header("Location")).execute();
-            if (unenrollmentRsp.getStatus() == 302){
-                HttpResponse unenrollmentResetRsp = HttpUtil.createPost(base + unenrollmentRsp.header("Location"))
-                        .header(unenrollmentRsp.headers())
-                        .cookie(unenrollmentRsp.getCookies())
-                        .body("{\"password\":\""+newPassword+"\"}")
-                        .execute();
-                return unenrollmentResetRsp;
-            }
-        }
-        return null;
-    }
-
-    /**
      * 密保关闭双重认证
      * todo 概率成功 有时候会503
      */
@@ -749,13 +728,40 @@ public class AppleIDUtil {
     }
 
     /**
-     * 获取验证码
+     * 获取图形验证码
      */
     public static HttpResponse captcha(){
         String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
         return HttpUtil.createGet(url)
                 .header(buildHeader())
                 .execute();
+    }
+
+    /**
+     * 验证码并且验证通过(如果验证码不通过则重试三次)
+     */
+    public static HttpResponse captchaAndVerify(String appleId) {
+        return captchaAndVerify(appleId,3);
+    }
+    public static HttpResponse captchaAndVerify(String appleId,Integer retry){
+        HttpResponse captchaRsp = captcha();
+        JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
+
+        String  captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
+        Integer captId     = captchaRspJSON.getByPath("id", Integer.class);
+        String  captToken  = captchaRspJSON.getByPath("token", String.class);
+        String  captAnswer = OcrUtil.recognize(captBase64);
+
+        Console.log("Captcha captBase64: " + captBase64);
+        Console.log("Captcha captAnswer: " + captAnswer);
+
+        String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
+        verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+        if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
+            return captchaAndVerify(appleId,--retry);
+        }
+        return verifyAppleIdRsp;
     }
 
     /**
@@ -768,6 +774,23 @@ public class AppleIDUtil {
                 .body(body)
                 .execute();
         return verifyAppleIdRsp;
+    }
+
+    /**
+     * 通过密保修改密码(如果账号被锁则解锁)
+     * @return (unlock && rsp.getStatus() == 206) || (!unlock && rsp.getStatus() == 260) -> success
+     */
+    public static HttpResponse updatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd){
+        String location = verifyAppleIdRsp.header("Location");
+        HttpResponse rsp = null;
+        boolean unlock = location.startsWith("/password/authenticationmethod");
+        // 解锁并且改密
+        if (unlock){
+            rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPwd);
+        }else{//忘记密码
+            rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPwd);
+        }
+        return rsp;
     }
 
     /**
