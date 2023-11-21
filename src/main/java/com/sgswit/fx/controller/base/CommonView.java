@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.base;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -68,7 +69,11 @@ public class CommonView implements Initializable {
     }
 
     public boolean hasFailMessage(HttpResponse rsp) {
-        Object hasError = JSONUtil.parseObj(rsp.body()).getByPath("hasError");
+        String body = rsp.body();
+        if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
+            return false;
+        }
+        Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
         return null != hasError && (boolean) hasError;
     }
 
