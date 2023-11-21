@@ -195,7 +195,7 @@ public class AppleIDTest {
         // qewqeq@2980.com-dPFb6cSD6-猪-狗-牛-19960810
         // shabagga222@tutanota.com-Xx97595031.2121-猪-狗-牛-19960810
         Account account = new Account();
-        account.setAccount("shabagga222@tutanota.com");
+        account.setAccount("qewqeq@2980.com");
         account.setAnswer1("猪");
         account.setAnswer2("狗");
         account.setAnswer3("牛");
@@ -203,6 +203,7 @@ public class AppleIDTest {
         account.setPwd("dPFb6cSD7");
 
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+        verifyAppleIdRsp.body();
         if (verifyAppleIdRsp.getStatus() != 302) {
             Console.log("验证校验失败");
             return;

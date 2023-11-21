@@ -615,7 +615,6 @@ public class AppleIDUtil {
 
     /**
      * 密保关闭双重认证
-     * todo 概率成功 有时候会503
      */
     public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";

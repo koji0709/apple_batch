@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.base;
 
+import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
@@ -27,9 +28,7 @@ import java.util.stream.Collectors;
 /**
  * account表格视图
  */
-public class TableView extends CommonView{
-
-    public static final String ACTION_COLUMN_NAME = "操作";
+public class TableView extends CommonView {
 
     @FXML
     public javafx.scene.control.TableView<Account> accountTableView;
@@ -191,50 +190,13 @@ public class TableView extends CommonView{
     }
 
     /**
-     * 绑定按钮
-     * @apiNote ⚠️如果使用这个方法必须重写父类的buildTableCell方法！
+     * 账号是否被处理过
+     * @param account
+     * @return
      */
-    public void bindActions(){
-        Set<String> columnSet = accountTableView.getColumns().stream()
-                .map(TableColumn::getText)
-                .collect(Collectors.toSet());
-        if (!columnSet.contains(ACTION_COLUMN_NAME)){
-            TableColumn<Account, Void> actionsColumn = new TableColumn(ACTION_COLUMN_NAME);
-            accountTableView.getColumns().add(actionsColumn);
-            Callback<TableColumn<Account, Void>, TableCell<Account, Void>> cellFactory = params -> buildTableCell();
-            actionsColumn.setCellFactory(cellFactory);
-        }
+    public boolean isProcessed(Account account){
+        return !StrUtil.isEmpty(account.getNote());
     }
-
-    /**
-     * 结合bindActions()使用
-     */
-    public TableCell<Account, Void> buildTableCell(){
-//        TableCell<Account,Void> cell = new TableCell<>() {
-//            private final Button btn1 = new Button("按钮1");
-//            private final VBox vBox = new VBox(btn1);
-//            {
-//                btn1.setOnAction((ActionEvent event) -> {
-//                    // 按钮所在行账号
-//                    // Account account = getTableView().getItems().get(getIndex());
-//
-//                    // todo
-//                });
-//            }
-//            @Override
-//            public void updateItem(Void item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (empty) {
-//                    setGraphic(null);
-//                } else {
-//                    setGraphic(vBox);
-//                }
-//            }
-//        };
-//        return cell;
-        return new TableCell<>();
-    }
-
 
     /**
      * 刷新列表数据
