@@ -2,10 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <AnchorPane fx:controller="com.sgswit.fx.controller.LoginController"
@@ -42,14 +39,7 @@
                                     <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                         <children>
                                             <Label text="在线QQ"/>
-                                            <ChoiceBox fx:id="qqChiceBox" prefWidth="100">
-                                                <items>
-<!--                                                    <FXCollections fx:factory="observableArrayList">-->
-<!--                                                        <String fx:value="3631408"/>-->
-<!--                                                        <String fx:value="97595031"/>-->
-<!--                                                    </FXCollections>-->
-                                                </items>
-                                            </ChoiceBox>
+                                            <ChoiceBox fx:id="qqChiceBox" prefWidth="100"/>
                                             <Button text="QQ一键登录" onAction="#qqLogin"/>
                                         </children>
                                     </HBox>
