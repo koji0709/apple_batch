@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.base;
 
-import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -25,7 +25,6 @@ public class AppleIdView extends TableView {
         HttpResponse signInRsp = AppleIDUtil.signin(account);
         if(signInRsp.getStatus()!=409){
             account.setNote("请检查用户名密码是否正确");
-            this.refreshTableView();
             return null;
         }
 
@@ -43,12 +42,14 @@ public class AppleIdView extends TableView {
             HttpResponse tokenRsp = AppleIDUtil.token(securityCodeRsp);
             return tokenRsp;
         }else{
+            if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+                account.setNote("密保认证必须输入密保问题");
+                return null;
+            }
             // 密保认证
             HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
             if (questionRsp.getStatus() != 412) {
-                Console.error("密保认证异常！");
                 account.setNote("密保问题验证失败");
-                this.refreshTableView();
                 return null;
             }
 
@@ -70,7 +71,6 @@ public class AppleIdView extends TableView {
             HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
             if (tokenRsp.getStatus() != 200){
                 account.setNote("登录异常");
-                this.refreshTableView();
                 return null;
             }
             return tokenRsp;
@@ -80,7 +80,6 @@ public class AppleIdView extends TableView {
     public String loginAndGetScnt(Account account){
         HttpResponse tokenRsp = login(account);
         if (tokenRsp == null){
-            this.refreshTableView();
             return "";
         }
         return getTokenScnt(tokenRsp);

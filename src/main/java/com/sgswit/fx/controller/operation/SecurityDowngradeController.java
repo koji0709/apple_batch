@@ -30,7 +30,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-birthday");
+        super.importAccountButtonAction("account----pwd-birthday","account----pwd-answer1-answer2-answer3-birthday");
     }
 
     /**

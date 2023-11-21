@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
@@ -26,7 +27,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-phone");
+        super.importAccountButtonAction("account----pwd-phone","account----pwd-answer1-answer2-answer3-phone");
     }
 
     /**
@@ -46,10 +47,16 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                 continue;
             }
 
+            // 登陆
+            String scnt = loginAndGetScnt(account);
+            if (StrUtil.isEmpty(scnt)){
+                continue;
+            }
+
             String phone = account.getPhone();
             // todo 目前固定中国手机号码
             String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(loginAndGetScnt(account), account.getPwd(), body);
+            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(scnt, account.getPwd(), body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
                 account.setNote("发送验证码失败");
                 continue;

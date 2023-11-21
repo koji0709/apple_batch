@@ -35,14 +35,18 @@ public class AccountImportUtil {
         return result;
     }
 
-    public static List<Account> parseAccount(String format,String accountStr){
-        format = format.replaceAll("----","-");
+    public static List<Account> parseAccount(String securityCodeFormat,String protectionFormat,String accountStr){
+        securityCodeFormat = securityCodeFormat.replaceAll("----","-");
+        protectionFormat = protectionFormat.replaceAll("----","-");
+
         accountStr = accountStr.replaceAll("----","-");
 
         if (accountStr.contains("{-}")){
             accountStr = accountStr.replace("{-}",REPLACE_MENT);
         }
-        List<String> fieldList = Arrays.asList(format.split("-"));
+
+        List<String> fieldList1 = Arrays.asList(securityCodeFormat.split("-"));
+        List<String> fieldList2 = Arrays.asList(protectionFormat.split("-"));
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
@@ -64,14 +68,18 @@ public class AccountImportUtil {
             String acc = accList[i];
             List<String> fieldValueList = Arrays.asList(acc.split("-"));
 
-            if (fieldValueList.size() != fieldList.size()){
+            boolean isSecurityCode = fieldValueList.size() == fieldList1.size();
+            boolean isProtection   = fieldValueList.size() == fieldList2.size();
+
+            if (!isSecurityCode && !isProtection){
                 Console.log("账号导入格式不正确");
                 continue;
             }
 
             Account account = new Account();
-            for (int j = 0; j < fieldList.size(); j++) {
-                String field = fieldList.get(j);
+
+            for (int j = 0; j < fieldValueList.size(); j++) {
+                String field = isSecurityCode ? fieldList1.get(j) : fieldList2.get(j);
                 String fieldValue = fieldValueList.get(j);
                 fieldValue = fieldValue.replace(REPLACE_MENT,"-");
                 ReflectUtil.invoke(
@@ -85,13 +93,12 @@ public class AccountImportUtil {
     }
 
     public static void main(String[] args) {
-        String format = "account----pwd-answer1-answer2-answer3-birthday";
-        String note = buildNote(format);
-        System.err.println(note);
+        String format1 = "account----pwd-birthday";
+        String format2 = "account----pwd-answer1-answer2-answer3-birthday";
+        String accountStr = "1----1-1-2-3-123\n" +
+                "2----2-123";
 
-        String accountStr = "1----1-1-2-3-123";
-
-        List<Account> accountList = parseAccount(format, accountStr);
+        List<Account> accountList = parseAccount(format1,format2, accountStr);
         System.err.println(accountList);
 
     }
