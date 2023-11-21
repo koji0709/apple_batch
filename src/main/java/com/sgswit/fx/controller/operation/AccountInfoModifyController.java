@@ -208,6 +208,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }
 
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 }

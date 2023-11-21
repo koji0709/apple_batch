@@ -62,7 +62,7 @@ public class SupportPinController extends AppleIdView {
                 }
             }
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 
 }

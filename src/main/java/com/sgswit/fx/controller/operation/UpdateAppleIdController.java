@@ -22,20 +22,9 @@ import java.util.ResourceBundle;
  */
 public class UpdateAppleIdController extends UpdateAppleIDView {
 
-    /**
-     * 新邮箱(账号)或救援邮箱
-     */
-    @FXML
-    private TableColumn email;
-
-    @FXML
-    private TableColumn popKey;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
-        email.setCellValueFactory(new PropertyValueFactory<Account,Integer>("email"));
-        popKey.setCellValueFactory(new PropertyValueFactory<Account,String>("popKey"));
         opTypeChoiceBox.setValue("更改AppleId");
     }
 
@@ -57,8 +46,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 
-        if ("更改AppleId".equals(opType)){
-            for (Account account : accountList) {
+        for (Account account : accountList) {
+            // 更改AppleId
+            if ("更改AppleId".equals(opType)) {
                 // 发送邮件
                 HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(getTokenScnt(account), account.getPwd(), account.getEmail());
 
@@ -67,12 +57,11 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
                 System.err.println(updateAppleIdRsp);
             }
-        }
 
-        if ("新增救援邮件".equals(opType)){
-            for (Account account : accountList) {
+            // 新增救援邮件
+            if ("新增救援邮件".equals(opType)){
                 // 发送邮件
-                HttpResponse verifyRsp = AppleIDUtil.addRescueEmailVerify(getTokenScnt(account), account.getPwd(), account.getEmail());
+                HttpResponse verifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(getTokenScnt(account), account.getPwd(), account.getEmail());
                 if (verifyRsp.getStatus() == 201){
                     String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
                     HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
@@ -85,11 +74,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                     account.setNote("救援邮箱发送邮件失败");
                 }
             }
-        }
 
-        // 更改其他资料
-        if (updateAccountInfoCheckBoxSelected){
-            for (Account account : accountList) {
+            // 更改其他资料
+            if (updateAccountInfoCheckBoxSelected){
                 LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
                 if (birthdayDatePickerValue != null){
                     HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(getTokenScnt(account), birthdayDatePickerValue.toString());
@@ -134,9 +121,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 }
 
             }
+            
         }
-
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 
 }

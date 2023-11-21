@@ -201,7 +201,7 @@ public class TableView extends CommonView {
     /**
      * 刷新列表数据
      */
-    public void refresh(){
+    public void refreshTableView(){
         accountTableView.refresh();
     }
 
@@ -211,8 +211,6 @@ public class TableView extends CommonView {
     public void clearAccountListButtonAction(){
         accountList.clear();
     }
-
-
 
     /**
      * 本地记录按钮点击

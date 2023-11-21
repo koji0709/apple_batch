@@ -67,7 +67,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             account.setArea(phoneNumber.getStr("countryCode"));
             account.setNote("绑定双重认证成功");
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 
 

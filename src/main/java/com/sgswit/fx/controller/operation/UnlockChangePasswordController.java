@@ -69,6 +69,6 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                 account.setNote(failMessage);
             }
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 }

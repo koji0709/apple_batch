@@ -313,10 +313,10 @@ public class AppleIDUtil {
      * 修改用户生日信息
      * @param birthday 生日 yyyy-MM-dd
      */
-    public static HttpResponse updateBirthday(String tokenScnt, String birthday) {
+    public static HttpResponse updateBirthday(String scnt, String birthday) {
         String url = "https://appleid.apple.com/account/manage/security/birthday";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
 
         String[] birthdayArr = birthday.split("-");
         String format = "{\"dayOfMonth\":\"%s\",\"monthOfYear\":\"%s\",\"year\":\"%s\"}";
@@ -331,10 +331,10 @@ public class AppleIDUtil {
     /**
      * 移除救援邮箱
      */
-    public static HttpResponse deleteRescueEmail(String tokenScnt,String password) {
+    public static HttpResponse deleteRescueEmail(String scnt,String password) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
         HttpResponse rsp = HttpUtil.createRequest(Method.DELETE, url)
                 .header(headers)
                 .execute();
@@ -350,7 +350,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return deleteRescueEmail(tokenScnt,password);
+            return deleteRescueEmail(scnt,password);
         }
 
         return rsp;
@@ -359,10 +359,10 @@ public class AppleIDUtil {
     /**
      * 新增救援邮箱前置
      */
-    public static HttpResponse addRescueEmailVerify(String tokenScnt,String password,String rescueEmail) {
+    public static HttpResponse addRescueEmailSendVerifyCode(String scnt,String password,String rescueEmail) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.POST, url)
                 .header(headers)
@@ -375,7 +375,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return addRescueEmailVerify(tokenScnt,password,rescueEmail);
+            return addRescueEmailSendVerifyCode(scnt,password,rescueEmail);
         }
         return rsp;
     }
@@ -419,12 +419,12 @@ public class AppleIDUtil {
     /**
      * 修改名称
      */
-    public static HttpResponse updateName(String tokenScnt,String password,String firstName,String lastName) {
+    public static HttpResponse updateName(String scnt,String password,String firstName,String lastName) {
         String url = "https://appleid.apple.com/account/manage/name";
         String body = String.format("{\"firstName\":\"%s\",\"middleName\":\"\",\"lastName\":\"%s\"}",firstName,lastName);
 
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -437,7 +437,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return updateName(tokenScnt,password,firstName,lastName);
+            return updateName(scnt,password,firstName,lastName);
         }
         return rsp;
     }
@@ -445,12 +445,12 @@ public class AppleIDUtil {
     /**
      * 修改密码
      */
-    public static HttpResponse updatePassword(String tokenScnt,String password,String newPassword){
+    public static HttpResponse updatePassword(String scnt,String password,String newPassword){
         String url = "https://appleid.apple.com/account/manage/security/password";
         String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
 
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -466,11 +466,11 @@ public class AppleIDUtil {
     /**
      * 修改密保
      */
-    public static HttpResponse updateQuestions(String tokenScnt,String password,String body){
+    public static HttpResponse updateQuestions(String scnt,String password,String body){
         String url = "https://appleid.apple.com/account/manage/security/questions";
 
         HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(tokenScnt));
+        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -483,7 +483,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return updateQuestions(tokenScnt,password,body);
+            return updateQuestions(scnt,password,body);
         }
         return rsp;
     }
@@ -539,10 +539,10 @@ public class AppleIDUtil {
     /**
      * 修改appleId时发送邮件
      */
-    public static HttpResponse updateAppleIdSendVerifyCode(String tokenScnt,String password,String appleId){
+    public static HttpResponse updateAppleIdSendVerifyCode(String scnt,String password,String appleId){
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(tokenScnt));
+        header.put("scnt",List.of(scnt));
         String body = "{\"name\":\""+appleId+"\"}";
         HttpResponse verifyRsp = HttpUtil.createPost(url)
                 .header(header)
@@ -554,7 +554,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(verifyRsp,password);
-            return updateAppleIdSendVerifyCode(tokenScnt,password,appleId);
+            return updateAppleIdSendVerifyCode(scnt,password,appleId);
         }
         return verifyRsp;
     }
@@ -578,10 +578,10 @@ public class AppleIDUtil {
      * 双重认证发送短信
      * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
-    public static HttpResponse securityUpgradeVerifyPhone(String tokenScnt,String password,String body){
+    public static HttpResponse securityUpgradeVerifyPhone(String scnt,String password,String body){
         String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
         HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(tokenScnt));
+        header.put("scnt",List.of(scnt));
 
         HttpResponse securityUpgradeVerifyPhoneRsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(header)
@@ -593,7 +593,7 @@ public class AppleIDUtil {
         // 需要验证密码
         if (status == 451){
             verifyPassword(securityUpgradeVerifyPhoneRsp,password);
-            return securityUpgradeVerifyPhone(tokenScnt,password,body);
+            return securityUpgradeVerifyPhone(scnt,password,body);
         }
 
         return securityUpgradeVerifyPhoneRsp;
@@ -702,10 +702,10 @@ public class AppleIDUtil {
     /**
      * 生成支持pin
      */
-    public static HttpResponse supportPin(String tokenScnt){
+    public static HttpResponse supportPin(String scnt){
         String url = "https://appleid.apple.com/account/manage/supportpin";
         HttpResponse supportPinRsp = HttpUtil.createPost(url)
-                .header("scnt", tokenScnt)
+                .header("scnt", scnt)
                 .execute();
         rspLog(Method.POST,url,supportPinRsp.getStatus());
         return supportPinRsp;
@@ -714,10 +714,10 @@ public class AppleIDUtil {
     /**
      * 收款方式列表
      */
-    public static HttpResponse paymentList(String tokenScnt){
+    public static HttpResponse paymentList(String scnt){
         String url = "https://appleid.apple.com/account/manage/payment";
         HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(tokenScnt));
+        header.put("scnt",List.of(scnt));
 
         HttpResponse paymentRsp = HttpUtil.createGet(url)
                 .header(header)

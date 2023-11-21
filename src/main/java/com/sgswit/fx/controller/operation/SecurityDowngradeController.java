@@ -74,6 +74,6 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                 }
             }
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 }
