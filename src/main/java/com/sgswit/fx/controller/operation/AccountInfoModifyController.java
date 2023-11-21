@@ -28,6 +28,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         initViewData();
     }
 
+    @Override
+    public void importAccountButtonAction() {
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3","account----pwd");
+    }
+
     /**
      * 初始化视图数据
      */
