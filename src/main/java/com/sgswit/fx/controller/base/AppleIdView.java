@@ -35,6 +35,10 @@ public class AppleIdView extends TableView {
         // 双重认证
         if ("hsa2".equals(authType)) {
             String typeCode = this.openSecurityCodePopupView(account);
+            if (StrUtil.isEmpty(typeCode)){
+                account.setNote("未输入验证码");
+                return null;
+            }
             String[] code = typeCode.split("-");
             HttpResponse securityCodeRsp = AppleIDUtil.securityCode(authRsp, code[0], code[1]);
 
@@ -114,6 +118,9 @@ public class AppleIdView extends TableView {
 
         String type = s.getSecurityType();
         String code = s.getSecurityCode();
+        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(code)){
+            return "";
+        }
         return type + "-" + code;
     }
 
