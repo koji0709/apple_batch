@@ -48,7 +48,7 @@ public class SupportPinController extends AppleIdView {
         }
 
         for (Account account : accountList) {
-            HttpResponse supportPinRsp = AppleIDUtil.supportPin(getTokenScnt(account));
+            HttpResponse supportPinRsp = AppleIDUtil.supportPin(loginAndGetScnt(account));
             account.setNote("生成失败！");
 
             String body = supportPinRsp.body();

@@ -62,7 +62,7 @@ public class AppleIDTest {
         HttpResponse tokenRsp = AppleIDUtil.token(securityCodeRsp);
         Console.log("TokenRsp status:{} , Cookie:{}",tokenRsp.getStatus(),tokenRsp.getCookieStr());
 
-        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailVerify(tokenRsp.header("scnt"),account.getPwd(),account.getEmail());
+        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(tokenRsp.header("scnt"),account.getPwd(),account.getEmail());
         Console.log("addRescueEmailVerifyRsp status:{} body:{}",addRescueEmailVerifyRsp.getStatus(),addRescueEmailVerifyRsp.body());
 
         if (addRescueEmailVerifyRsp.getStatus() == 201){
@@ -115,7 +115,7 @@ public class AppleIDTest {
         account.setAnswer3(input.get(4));
 
         AppleIdView appleIdView = new AppleIdView();
-        String tokenScnt = appleIdView.getTokenScnt(account);
+        String tokenScnt = appleIdView.loginAndGetScnt(account);
 
         // 查询账户信息
 //        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
@@ -134,7 +134,7 @@ public class AppleIDTest {
 
 
         account.setEmail("3631408@qq.com");
-        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailVerify(tokenScnt,account.getPwd(),account.getEmail());
+        HttpResponse addRescueEmailVerifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(tokenScnt,account.getPwd(),account.getEmail());
         Console.log("addRescueEmailVerifyRsp status:{} body:{}",addRescueEmailVerifyRsp.getStatus(),addRescueEmailVerifyRsp.body());
 
         if (addRescueEmailVerifyRsp.getStatus() == 201){

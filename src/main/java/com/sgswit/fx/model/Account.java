@@ -30,22 +30,22 @@ public class Account {
     /**
      * 新邮箱(账号)或救援邮箱
      */
-    private  final SimpleStringProperty email;
+    private SimpleStringProperty email;
 
     /**
      * POP密钥
      */
-    private  final SimpleStringProperty popKey;
+    private SimpleStringProperty popKey;
 
     /**
      * 支持pin
      */
-    private final SimpleStringProperty pin;
+    private SimpleStringProperty pin;
 
     /**
      * 支持pin过期时间
      */
-    private final SimpleStringProperty pinExpir;
+    private SimpleStringProperty pinExpir;
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
