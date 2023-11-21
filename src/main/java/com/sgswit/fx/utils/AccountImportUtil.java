@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.model.Account;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 账号导入工具
@@ -25,28 +26,27 @@ public class AccountImportUtil {
         put("email","邮箱");
     }};
 
-    public static String buildNote(String format){
-        String result = format;
+    public static String buildNote(String... formats){
+        String result = "";
+        for (int i = 0; i < formats.length; i++) {
+            String format = formats[i];
+            result = i == 0 ? format : result + " 或 " + format;
+        }
         for (String key : kvMap.keySet()) {
-            if (format.contains(key)){
+            if (result.contains(key)){
                 result = result.replace(key,kvMap.get(key));
             }
         }
         return result;
     }
 
-    public static List<Account> parseAccount(String securityCodeFormat,String protectionFormat,String accountStr){
-        securityCodeFormat = securityCodeFormat.replaceAll("----","-");
-        protectionFormat = protectionFormat.replaceAll("----","-");
-
+    public static List<Account> parseAccount(String accountStr,List<String> formatList){
+        formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
         accountStr = accountStr.replaceAll("----","-");
 
         if (accountStr.contains("{-}")){
             accountStr = accountStr.replace("{-}",REPLACE_MENT);
         }
-
-        List<String> fieldList1 = Arrays.asList(securityCodeFormat.split("-"));
-        List<String> fieldList2 = Arrays.asList(protectionFormat.split("-"));
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
@@ -68,18 +68,24 @@ public class AccountImportUtil {
             String acc = accList[i];
             List<String> fieldValueList = Arrays.asList(acc.split("-"));
 
-            boolean isSecurityCode = fieldValueList.size() == fieldList1.size();
-            boolean isProtection   = fieldValueList.size() == fieldList2.size();
+            Map<Integer, List<String>> formatMap = formatList
+                    .stream()
+                    .collect(
+                        Collectors.toMap(
+                                key -> key.split("-").length,
+                                value -> Arrays.asList(value.split("-"))
+                        )
+                    );
 
-            if (!isSecurityCode && !isProtection){
+            List<String> fieldList = formatMap.get(fieldValueList.size());
+            if (fieldList == null){
                 Console.log("账号导入格式不正确");
                 continue;
             }
 
             Account account = new Account();
-
             for (int j = 0; j < fieldValueList.size(); j++) {
-                String field = isSecurityCode ? fieldList1.get(j) : fieldList2.get(j);
+                String field = fieldList.get(j);
                 String fieldValue = fieldValueList.get(j);
                 fieldValue = fieldValue.replace(REPLACE_MENT,"-");
                 ReflectUtil.invoke(
@@ -98,7 +104,10 @@ public class AccountImportUtil {
         String accountStr = "1----1-1-2-3-123\n" +
                 "2----2-123";
 
-        List<Account> accountList = parseAccount(format1,format2, accountStr);
+        String s = buildNote(format1, format2);
+        System.err.println(s);
+
+        List<Account> accountList = parseAccount(accountStr,Arrays.asList(format1,format2));
         System.err.println(accountList);
 
     }

@@ -30,7 +30,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-email","account----pwd-answer1-answer2-answer3-email");
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-email");
     }
 
     /**

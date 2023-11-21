@@ -25,7 +25,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account-----birthday","account----answer1-answer2-answer3-birthday");
+        super.importAccountButtonAction("account----answer1-answer2-answer3-birthday");
     }
 
     /**

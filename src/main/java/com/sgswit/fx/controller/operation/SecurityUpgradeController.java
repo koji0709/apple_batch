@@ -27,7 +27,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-phone","account----pwd-answer1-answer2-answer3-phone");
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-phone");
     }
 
     /**

@@ -135,27 +135,27 @@ public class TableView extends CommonView {
      */
     public void importAccountButtonAction(){
         // 给一种默认导入格式
-        importAccountButtonAction("account----pwd","account----pwd-answer1-answer2-answer3");
+        importAccountButtonAction("account----pwd-answer1-answer2-answer3");
     }
 
     /**
      * 导入账号
      */
-    public void importAccountButtonAction(String securityCodeFormat,String protectionFormat){
+    public void importAccountButtonAction(String... formats){
+
         Stage stage = new Stage();
-        Label label1 = new Label("说明：");
         Insets padding = new Insets(0, 0, 0, 20);
-        Label label2 = new Label("1.双重认证格式为: " + AccountImportUtil.buildNote(securityCodeFormat) + "。");
+
+        Label label1 = new Label("说明：");
+        Label label2 = new Label("1.格式为: " + AccountImportUtil.buildNote(formats) + "。");
         label2.setPadding(padding);
-        Label label3 = new Label("2.非双重认证格式为: " + AccountImportUtil.buildNote(protectionFormat) + "。");
+        Label label3 = new Label("2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。");
         label3.setPadding(padding);
-        Label label4 = new Label("3.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。");
-        label4.setPadding(padding);
 
         VBox vBox = new VBox();
         vBox.setSpacing(5);
         vBox.setPadding(new Insets(5, 5, 5, 5));
-        vBox.getChildren().addAll(label1,label2,label3,label4);
+        vBox.getChildren().addAll(label1,label2,label3);
 
         TextArea area = new TextArea();
         area.setPrefHeight(250);
@@ -169,7 +169,7 @@ public class TableView extends CommonView {
         button.setPrefHeight(50);
 
         button.setOnAction(event -> {
-            List<Account> accountList1 = AccountImportUtil.parseAccount(securityCodeFormat,protectionFormat, area.getText());
+            List<Account> accountList1 = AccountImportUtil.parseAccount(area.getText(),Arrays.asList(formats));
             accountList.addAll(accountList1);
             for (int i = 0; i < accountList.size(); i++) {
                 accountList.get(i).setSeq(i+1);

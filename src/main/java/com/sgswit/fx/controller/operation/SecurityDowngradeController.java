@@ -1,15 +1,10 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.event.ActionEvent;
-import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -30,7 +25,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
      */
     @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-birthday","account----pwd-answer1-answer2-answer3-birthday");
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-birthday");
     }
 
     /**
