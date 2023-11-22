@@ -48,7 +48,19 @@ public class SupportPinController extends AppleIdView {
         }
 
         for (Account account : accountList) {
-            HttpResponse supportPinRsp = AppleIDUtil.supportPin(getTokenScnt(account));
+            // 检测账号是否被处理过
+            boolean processed = isProcessed(account);
+            if (processed){
+                continue;
+            }
+
+            // 登陆
+            String scnt = loginAndGetScnt(account);
+            if (StrUtil.isEmpty(scnt)){
+                continue;
+            }
+
+            HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
             account.setNote("生成失败！");
 
             String body = supportPinRsp.body();
@@ -62,7 +74,7 @@ public class SupportPinController extends AppleIdView {
                 }
             }
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 
 }

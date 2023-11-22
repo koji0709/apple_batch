@@ -47,7 +47,6 @@ public class SecuritycodePopupController {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setHeaderText("验证码不能为空");
             alert.show();
-
         }else{
             // get a handle to the stage
             Stage stage = (Stage) securityBtn.getScene().getWindow();

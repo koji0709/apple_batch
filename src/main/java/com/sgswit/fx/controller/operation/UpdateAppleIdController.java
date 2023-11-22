@@ -22,70 +22,15 @@ import java.util.ResourceBundle;
  */
 public class UpdateAppleIdController extends UpdateAppleIDView {
 
-    /**
-     * 新邮箱(账号)或救援邮箱
-     */
-    @FXML
-    private TableColumn email;
-
-    @FXML
-    private TableColumn popKey;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
-        email.setCellValueFactory(new PropertyValueFactory<Account,Integer>("email"));
-        popKey.setCellValueFactory(new PropertyValueFactory<Account,String>("popKey"));
         opTypeChoiceBox.setValue("更改AppleId");
     }
 
     @Override
     public void importAccountButtonAction() {
         super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-email");
-        super.bindActions();
-    }
-
-    @Override
-    public TableCell<Account, Void> buildTableCell(){
-        TableCell<Account,Void> cell = new TableCell<>() {
-            private final Button captBtn = new Button("输入验证码并执行");
-            {
-                captBtn.setOnAction((ActionEvent event) -> {
-                    String opType = opTypeChoiceBox.getValue().toString();
-                    Account account = getTableView().getItems().get(getIndex());
-                    if ("更改AppleId".equals(opType)){
-//                        HttpResponse verifyRsp = AppleIDUtil
-//                                .updateAppleIdSendVerifyCode(getTokenScnt(account), account.getPwd(), account.getEmail());
-                        String verifyCode = dialog("验证码","请输入邮件验证码：");
-//                        HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
-//                        System.err.println(updateAppleIdRsp);
-                        // todo 待测试响应码
-                    }
-                    if ("新增救援邮件".equals(opType)){
-                        HttpResponse verifyRsp = AppleIDUtil.addRescueEmailVerify(getTokenScnt(account), account.getPwd(), account.getEmail());
-                        if (verifyRsp.getStatus() == 201){
-                            String verifyCode = dialog("验证码","请输入邮件验证码：");
-                            HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
-                            if (addRescueEmailRsp.getStatus() == 200){
-                                account.setNote("新增救援邮箱成功");
-                            }else{
-                                account.setNote("新增救援邮箱失败");
-                            }
-                        }
-                    }
-                });
-            }
-            @Override
-            public void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(captBtn);
-                }
-            }
-        };
-        return cell;
     }
 
     /**
@@ -100,39 +45,64 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
-        if ("更改AppleId".equals(opType)){
-            for (Account account : accountList) {
-                account.setNote("更新AppleId请输入验证码并执行");
-            }
-        }
 
-        if ("新增救援邮件".equals(opType)){
-            for (Account account : accountList) {
-                account.setNote("新增救援邮件请输入验证码并执行");
+        for (Account account : accountList) {
+            // 检测账号是否被处理过
+            boolean processed = isProcessed(account);
+            if (processed){
+                continue;
             }
-        }
 
-        // 更改其他资料
-        if (updateAccountInfoCheckBoxSelected){
-            for (Account account : accountList) {
+            // 更改AppleId
+            if ("更改AppleId".equals(opType)) {
+                // 发送邮件
+                HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(loginAndGetScnt(account), account.getPwd(), account.getEmail());
+
+                // 更改AppleID
+                String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
+                HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
+                System.err.println(updateAppleIdRsp);
+            }
+
+            // 新增救援邮件
+            if ("新增救援邮件".equals(opType)){
+                // 发送邮件
+                HttpResponse verifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(loginAndGetScnt(account), account.getPwd(), account.getEmail());
+                if (verifyRsp.getStatus() == 201){
+                    String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
+                    HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
+                    if (addRescueEmailRsp.getStatus() == 200){
+                        account.setNote("新增救援邮箱成功");
+                    }else{
+                        account.setNote("新增救援邮箱失败");
+                    }
+                }else{
+                    account.setNote("救援邮箱发送邮件失败");
+                }
+            }
+
+            // 更改其他资料
+            if (updateAccountInfoCheckBoxSelected){
                 LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
                 if (birthdayDatePickerValue != null){
-                    HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(getTokenScnt(account), birthdayDatePickerValue.toString());
+                    HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
                     if (updateBirthdayRsp.getStatus() != 200){
                         account.setNote("修改生日失败;");
                     }else{
                         account.setBirthday(birthdayDatePickerValue.toString());
+                        account.setNote("修改生日成功;");
                     }
                 }
 
 
                 String newPwd = pwdTextField.getText();
                 if (!StrUtil.isEmpty(newPwd)){
-                    HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(getTokenScnt(account), account.getPwd(), newPwd);
+                    HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
                     if (updatePasswordRsp.getStatus() != 200){
                         account.setNote("修改密码失败;");
                     }else{
                         account.setPwd(newPwd);
+                        account.setNote("修改密码成功;");
                     }
                 }
 
@@ -147,7 +117,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                             ,answer1TextFieldText,130,"你少年时代最好的朋友叫什么名字？"
                             ,answer2TextFieldText,136,"你的理想工作是什么？"
                             ,answer3TextFieldText,142,"你的父母是在哪里认识的？");
-                    HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(getTokenScnt(account), account.getPwd(), body);
+                    HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
                     if (updateQuestionsRsp.getStatus() != 200){
                         account.setNote("修改密保失败;");
                     }else{
@@ -158,8 +128,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 }
 
             }
+            
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
 
 }

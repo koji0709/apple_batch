@@ -2,15 +2,9 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -32,76 +26,6 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     @Override
     public void importAccountButtonAction() {
         super.importAccountButtonAction("account----answer1-answer2-answer3-birthday");
-        super.bindActions();
-    }
-
-    @Override
-    public TableCell<Account, Void> buildTableCell(){
-        TableCell<Account,Void> cell = new TableCell<>() {
-            private final Button captBtn = new Button("输入验证码并执行");
-            {
-                captBtn.setOnAction((ActionEvent event) -> {
-                    String newPassword = pwdTextField.getText();
-                    if (StrUtil.isEmpty(newPassword)){
-                        alert("必须填写新密码！");
-                        return;
-                    }
-
-                    HttpResponse captchaRsp = AppleIDUtil.captcha();
-                    JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
-                    String captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
-
-                    Integer captId     = captchaRspJSON.getByPath("id", Integer.class);
-                    String  captToken  = captchaRspJSON.getByPath("token", String.class);
-                    String  captAnswer = captchaDialog(captBase64);
-
-                    Account account = getTableView().getItems().get(getIndex());
-                    if (StrUtil.isEmpty(captAnswer)){
-                        account.setNote("未输入验证码");
-                        return;
-                    }
-                    String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-                    verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
-                    HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-                    if (verifyAppleIdRsp.getStatus() != 302){
-                        account.setNote("验证验证码失败");
-                        accountTableView.refresh();
-                        return;
-                    }
-                    account.setNote("验证验证码成功");
-
-
-                    String location = verifyAppleIdRsp.header("Location");
-                    HttpResponse rsp = null;
-                    boolean unlock = location.startsWith("/password/authenticationmethod");
-                    // 解锁并且改密
-                    if (unlock){
-                        rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPassword);
-                    }else{//忘记密码
-                        rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPassword);
-                    }
-
-                    if ((unlock && rsp.getStatus() == 206) || (!unlock && rsp.getStatus() == 260)){
-                        account.setNote("解锁改密成功");
-                        account.setPwd(newPassword);
-                    }else{
-                        String failMessage = hasFailMessage(rsp) ? failMessage(rsp) : "解锁改密失败";
-                        account.setNote(failMessage);
-                    }
-                    accountTableView.refresh();
-                });
-            }
-            @Override
-            public void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(captBtn);
-                }
-            }
-        };
-        return cell;
     }
 
     /**
@@ -121,9 +45,34 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         }
 
         for (Account account : accountList) {
-            account.setNote("请输入验证码并执行");
-        }
+            // 检测账号是否被处理过
+            boolean processed = isProcessed(account);
+            if (processed){
+                continue;
+            }
 
-        accountTableView.refresh();
+            // 识别验证码
+            HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+            if (verifyAppleIdRsp.getStatus() == 503){
+                account.setNote("操作频繁");
+                continue;
+            }
+            if (verifyAppleIdRsp.getStatus() != 302) {
+                account.setNote("验证码自动识别失败");
+                continue;
+            }
+
+            // 修改密码 (如果账号被锁定,则解锁改密)
+            HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, account.getPwd());
+            boolean unlock = verifyAppleIdRsp.header("Location").startsWith("/password/authenticationmethod");
+            if ((unlock && updatePwdByProtectionRsp.getStatus() == 206) || (!unlock && updatePwdByProtectionRsp.getStatus() == 260)){
+                account.setNote("解锁改密成功");
+                account.setPwd(newPassword);
+            }else{
+                String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
+                account.setNote(failMessage);
+            }
+        }
+        this.refreshTableView();
     }
 }

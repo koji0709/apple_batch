@@ -28,6 +28,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         initViewData();
     }
 
+    @Override
+    public void importAccountButtonAction() {
+        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3");
+    }
+
     /**
      * 初始化视图数据
      */
@@ -109,19 +114,15 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
 
         for (Account account : accountList) {
-            if(!StrUtil.isEmptyIfStr(account.getNote())){
-                continue;
-            }
-
-            HttpResponse loginRsp = login(account);
-            if (loginRsp == null){
+            boolean processed = isProcessed(account);
+            if (processed){
                 continue;
             }
 
             // 修改密码
             if (updatePwdCheckBoxSelected){
                 String newPwd = pwdTextField.getText();
-                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(getTokenScnt(account), account.getPwd(), newPwd);
+                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
                     account.setNote("修改密码失败;");
                 }else{
@@ -132,7 +133,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             // 修改生日
             if (updateBirthdayCheckBoxSelected){
                 LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
-                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(getTokenScnt(account), birthdayDatePickerValue.toString());
+                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
                     account.setNote("修改生日失败;");
                 }else{
@@ -156,7 +157,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     lastName  = faker.name().lastName();
                 }
 
-                HttpResponse updateNameRsp = AppleIDUtil.updateName(getTokenScnt(account), account.getPwd(), firstName, lastName);
+                HttpResponse updateNameRsp = AppleIDUtil.updateName(loginAndGetScnt(account), account.getPwd(), firstName, lastName);
                 if (updateNameRsp.getStatus() != 200){
                     account.setNote("姓名修改失败;");
                 }else{
@@ -183,7 +184,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                             ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
                             ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
                             ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
-                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(getTokenScnt(account), account.getPwd(), body);
+                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
                 if (updateQuestionsRsp.getStatus() != 200){
                     account.setNote("修改密保失败;");
                 }else{
@@ -195,19 +196,20 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
             // 移除设备
             if (removeDeviceCheckBoxSelected){
-                getTokenScnt(account);
+                loginAndGetScnt(account);
                 AppleIDUtil.removeDevices();
             }
 
             // 移除救援邮箱
             if (removeRescueEmailCheckBoxSelected){
-                HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(getTokenScnt(account), account.getPwd());
+                HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(loginAndGetScnt(account), account.getPwd());
                 if (deleteRescueEmailRsp.getStatus() != 204){
                     account.setNote("移除救援邮箱失败;");
                 }
             }
 
         }
-        accountTableView.refresh();
+        this.refreshTableView();
     }
+
 }
