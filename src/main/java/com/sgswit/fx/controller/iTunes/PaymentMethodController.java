@@ -29,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -90,8 +91,10 @@ public class PaymentMethodController extends CommController<Account> implements 
 
         popupStage.setTitle("账户导入");
 
-        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
         popupStage.showAndWait();
 
         AccountInputPopupController c = fxmlLoader.getController();

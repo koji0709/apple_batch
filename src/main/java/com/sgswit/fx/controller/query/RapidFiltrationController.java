@@ -26,6 +26,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,8 +169,10 @@ public class RapidFiltrationController {
 
         popupStage.setTitle("账户导入");
 
-        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
         popupStage.showAndWait();
 
         AccountInputPopupController c = fxmlLoader.getController();

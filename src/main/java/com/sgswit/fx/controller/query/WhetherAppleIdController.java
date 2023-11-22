@@ -164,23 +164,6 @@ public class WhetherAppleIdController extends CommonView {
         JSONObject object1 = JSONUtil.parseObj(JSONUtil.parseObj(body).get("payload").toString());
         Object content = object1.get("content");
         String predict = OcrUtil.recognize(content.toString());
-//
-//        byte[] decode = Base64.getDecoder().decode(content.toString());
-//        BorderPane root = new BorderPane();
-//        ImageView imageView = new ImageView();
-//
-//        imageView.setImage(new Image(new ByteArrayInputStream(decode)));
-//
-//        TextInputDialog dialog = new TextInputDialog("");
-//        dialog.setTitle("验证码");
-//        dialog.setHeaderText("验证码为：");
-//        root.setCenter(imageView);
-//        dialog.setContentText("请输入验证码:");
-//        dialog.setGraphic(root);
-//        Optional<String> result = dialog.showAndWait();
-//
-//        if (result.isPresent()) {
-//            String s = result.get();
             String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
             HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                     .body(bodys)

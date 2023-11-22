@@ -124,8 +124,7 @@ public class GiftCardBalanceCheckController implements Initializable {
         Stage popupStage = new Stage();
 
         popupStage.setTitle("礼品卡导入");
-
-        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);

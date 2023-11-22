@@ -17,7 +17,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 import java.io.ByteArrayInputStream;
@@ -188,6 +190,9 @@ public class TableView extends CommonView {
         Group root = new Group(mainVbox);
         stage.setTitle("账号导入");
         stage.setScene(new Scene(root, 600, 450));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UTILITY);
         stage.showAndWait();
     }
 

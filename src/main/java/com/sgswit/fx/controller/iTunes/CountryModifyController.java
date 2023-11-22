@@ -194,11 +194,11 @@ public class CountryModifyController extends CommController<Account> implements 
 
         popupStage.setTitle("账户导入");
 
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
         popupStage.showAndWait();
-
         AccountInputPopupController c = fxmlLoader.getController();
         if(null == c.getAccounts() || "".equals(c.getAccounts())){
             return;
