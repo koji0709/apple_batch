@@ -11,8 +11,11 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,7 +48,7 @@ import java.util.Optional;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class WhetherAppleIdController {
+public class WhetherAppleIdController extends CommonView {
 
     @FXML
     public Button birthdayCountryQueryBtn;
@@ -72,22 +75,73 @@ public class WhetherAppleIdController {
         if (list.size() < 1) {
             return;
         }
+        birthdayCountryQueryBtn.setText("正在查询");
+        birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+        birthdayCountryQueryBtn.setDisable(true);
 
         for (Account account : list) {
             if (!StrUtil.isEmptyIfStr(account.getNote())) {
                 continue;
             }
-            birthdayCountryQueryBtn.setText("正在查询");
-            birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            birthdayCountryQueryBtn.setDisable(true);
+
             account.setNote("正在查询");
             accountTableView.refresh();
-            try {
-                verify(account);
-            } finally {
 
-            }
+            verify(account);
+
+            // 200 302
+//            HttpResponse captchaAndVerifyRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+//            if(captchaAndVerifyRsp.body().startsWith("<html>")){
+//                account.setStatus("操作频繁！");
+//                account.setNote("查询失败");
+//                accountTableView.refresh();
+//
+//                account.setLogtime(DateUtil.format(DateUtil.date(), "yyyy-MM-dd HH:mm:ss"));
+//                try {
+//                    File file = FileUtil.file("appleIDVerify.txt");
+//                    FileAppender appender = new FileAppender(file, 16, true);
+//                    appender.append(JSONUtil.toJsonStr(account));
+//
+//                    appender.flush();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                continue;
+//            }
+//            String failMessage = hasFailMessage(captchaAndVerifyRsp) ? failMessage(captchaAndVerifyRsp) : "";
+//            if (!StrUtil.isEmpty(failMessage)){
+//                account.setNote(failMessage);
+//            }else{
+//                String location = captchaAndVerifyRsp.header("Location");
+//                if (location.startsWith("/password/verify/resetmethod")){
+//                    // 双重认证
+//                    account.setStatus("此AppleID已开启双重认证");
+//                    account.setNote("查询成功");
+//                    accountTableView.refresh();
+//                }else if (location.startsWith("/password/authenticationmethod")){
+//                    // 账号被锁
+//                    account.setStatus("此AppleID已被锁定");
+//                    account.setNote("查询成功");
+//                    accountTableView.refresh();
+//                }else if (location.startsWith("/recovery/options")){
+//                    // 正常状态
+//                    account.setStatus("此AppleID正常");
+//                    account.setNote("查询成功");
+//                    accountTableView.refresh();
+//                }
+//            }
+//            account.setLogtime(DateUtil.format(DateUtil.date(), "yyyy-MM-dd HH:mm:ss"));
+//            try {
+//                File file = FileUtil.file("appleIDVerify.txt");
+//                FileAppender appender = new FileAppender(file, 16, true);
+//                appender.append(JSONUtil.toJsonStr(account));
+//
+//                appender.flush();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
+
         birthdayCountryQueryBtn.setDisable(false);
         birthdayCountryQueryBtn.setText("开始执行");
         birthdayCountryQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -109,25 +163,25 @@ public class WhetherAppleIdController {
         //解析图片
         JSONObject object1 = JSONUtil.parseObj(JSONUtil.parseObj(body).get("payload").toString());
         Object content = object1.get("content");
-//        String predict = OcrUtil.recognize(content.toString());
-
-        byte[] decode = Base64.getDecoder().decode(content.toString());
-        BorderPane root = new BorderPane();
-        ImageView imageView = new ImageView();
-
-        imageView.setImage(new Image(new ByteArrayInputStream(decode)));
-
-        TextInputDialog dialog = new TextInputDialog("");
-        dialog.setTitle("验证码");
-        dialog.setHeaderText("验证码为：");
-        root.setCenter(imageView);
-        dialog.setContentText("请输入验证码:");
-        dialog.setGraphic(root);
-        Optional<String> result = dialog.showAndWait();
-
-        if (result.isPresent()) {
-            String s = result.get();
-            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + s + "\",\"token\":\"" + capToken + "\"}}\n";
+        String predict = OcrUtil.recognize(content.toString());
+//
+//        byte[] decode = Base64.getDecoder().decode(content.toString());
+//        BorderPane root = new BorderPane();
+//        ImageView imageView = new ImageView();
+//
+//        imageView.setImage(new Image(new ByteArrayInputStream(decode)));
+//
+//        TextInputDialog dialog = new TextInputDialog("");
+//        dialog.setTitle("验证码");
+//        dialog.setHeaderText("验证码为：");
+//        root.setCenter(imageView);
+//        dialog.setContentText("请输入验证码:");
+//        dialog.setGraphic(root);
+//        Optional<String> result = dialog.showAndWait();
+//
+//        if (result.isPresent()) {
+//            String s = result.get();
+            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
             HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                     .body(bodys)
                     .header(headers)
@@ -146,9 +200,7 @@ public class WhetherAppleIdController {
                     JSONArray service_errors1 = JSONUtil.parseArray(service_errors);
                     String message = JSONUtil.parseObj(service_errors1.get(0)).getStr("message");
                     if(message.startsWith("请输入你")){
-                        account.setStatus("验证码错误！");
-                        account.setNote("查询失败");
-                        accountTableView.refresh();
+                       verify(account);
                     }else {
                         account.setStatus(message);
                         account.setNote("查询成功");
@@ -182,17 +234,8 @@ public class WhetherAppleIdController {
                     accountTableView.refresh();
                 }
             }
-        }
-        account.setLogtime(DateUtil.format(DateUtil.date(), "yyyy-MM-dd HH:mm:ss"));
-        try {
-            File file = FileUtil.file("appleIDVerify.txt");
-            FileAppender appender = new FileAppender(file, 16, true);
-            appender.append(JSONUtil.toJsonStr(account));
+//        }
 
-            appender.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
