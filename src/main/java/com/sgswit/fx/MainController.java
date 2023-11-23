@@ -128,7 +128,8 @@ public class MainController implements Initializable {
             //增加鼠标移动到菜单上到hover效果
             button.setOnMouseMoved(event->{
                 if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
-                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.WHITE);StyleUtil.setFont(button, Color.WHITE, -1);
+                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.WHITE);
+                    StyleUtil.setFont(button, Color.WHITE, -1);
                 }else {
                     StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.web(ProjectValues.COLOR_SELECTED));
                 }
@@ -139,35 +140,51 @@ public class MainController implements Initializable {
                 }else {
                     StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.web(ProjectValues.COLOR_SELECTED));
                 }
+
             });
             button.setOnMouseClicked(event->{
+                int index=0;
                 Optional<Integer> first = itemNameList.stream().filter(i -> Objects.equals(i.getKey(), button.getId())). map(itemNameList::indexOf).findFirst();
                 if (first.isPresent()) {
-                    currentMenuIndex= first.get();
+                    if(!button.getId().equalsIgnoreCase("toolbox")){
+                        currentMenuIndex= first.get();
+                    }
+                    index=first.get();
                 }
-                if(rightMainPane.getChildren().size()>0){
-                    rightMainPane.getChildren().remove(0);
-                }
-                try {
-                    FXMLLoader fxmlLoader = new FXMLLoader();
-                    Pane p = fxmlLoader.load(MainApplication.class.getResource(itemNameList.get(currentMenuIndex).getPath()).openStream());
-                    rightMainPane.getChildren().add(p);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(!button.getId().equalsIgnoreCase("toolbox")){
+                    if(rightMainPane.getChildren().size()>0){
+                        rightMainPane.getChildren().clear();
+                    }
+                    try {
+                        FXMLLoader fxmlLoader = new FXMLLoader();
+                        Pane p = fxmlLoader.load(MainApplication.class.getResource(itemNameList.get(currentMenuIndex).getPath()).openStream());
+                        rightMainPane.getChildren().add(p);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                    //选中状态逻辑
+                    if(tempIndex!=null) {
+                        VBox vBox= (VBox) leftMenu.getChildren().get(0);
+                        Button node = (Button) vBox.getChildren().get(tempIndex);
+                        //清空选中状态样式
+                        StyleUtil.setFont(node, Color.WHITE, -1);
+                        StyleUtil.setButtonBackground(node, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+                    }
+                    //设置选中样式
+                    StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                    tempIndex = currentMenuIndex;
+                }else{
+                    try {
+                        FXMLLoader fxmlLoader = new FXMLLoader();
+                        Pane p = fxmlLoader.load(MainApplication.class.getResource(itemNameList.get(index).getPath()).openStream());
+                        rightMainPane.getChildren().add(p);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
-                //选中状态逻辑
-                if(tempIndex!=null) {
-                    VBox vBox= (VBox) leftMenu.getChildren().get(0);
-                    Button node = (Button) vBox.getChildren().get(tempIndex);
-                    //清空选中状态样式
-                    StyleUtil.setFont(node, Color.WHITE, -1);
-                    StyleUtil.setButtonBackground(node, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
-                }
-                //设置选中样式
-                StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
-                tempIndex = currentMenuIndex;
             });
             buttonList.add(button);
         }
