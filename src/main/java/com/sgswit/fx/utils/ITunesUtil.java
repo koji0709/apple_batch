@@ -3,7 +3,6 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.XmlUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -12,19 +11,9 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
-import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,13 +62,11 @@ public class ITunesUtil {
 //            System.out.println(generex.random());
 
         Account account = new Account();
-//        account.setAccount("djli0506@163.com");
-//        account.setPwd("!!B0527s0207!!");
-        account.setAccount("cncots@gmail.com");
-        account.setPwd("Xx97595031.");
+        account.setAccount("djli0506@163.com");
+        account.setPwd("!!B0527s0207!!");
 
-        HttpResponse authRsp = authenticate(account);
-        Console.log(authRsp.body());
+        String guid = PropertiesUtil.getOtherConfig("guid");
+        HttpResponse authRsp = authenticate(account,guid);
 
         if (authRsp != null && authRsp.getStatus() == 200){
             NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
@@ -289,15 +276,13 @@ public class ITunesUtil {
     /**
      * 鉴权
      */
-    public static HttpResponse authenticate(Account account) throws Exception{
-        String guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+    public static HttpResponse authenticate(Account account,String guid) throws Exception{
         String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
-        String authCode = "";
 
-        HttpResponse authRsp = authenticate(account, authUrl, guid, "");
+        HttpResponse authRsp = authenticate(account, guid, authUrl);
         if (authRsp.getStatus() == 302){
             authUrl = authRsp.header("Location");
-            authRsp = authenticate(account, authUrl, guid, authCode);
+            authRsp = authenticate(account, guid , authUrl);
         }
 
         String authBody = authRsp.charset("UTF-8").body();
@@ -309,25 +294,18 @@ public class ITunesUtil {
         String customerMessage = json.getStr("customerMessage","");
 
         if(FailureTypeInvalidCredentials.equals(failureType)){
-           authRsp = authenticate(account, authUrl, guid, authCode);
+           authRsp = authenticate(account, guid, authUrl);
         }
 
-        if((!"".equals(failureType) && !"".equals(customerMessage)) || !"".equals(failureType)){
+        if("".equals(failureType) || "".equals(customerMessage)){
             Console.log("Authenticate Fail Type:{} Message:{}",failureType,customerMessage);
             return authRsp;
-        }
-
-        if("".equals(failureType) && "".equals(authCode) && CustomerMessageBadLogin.equals(customerMessage)){
-            Console.log("请输入双重验证码：");
-            account.setPwd("");
-            authCode = Console.input();
-            authRsp = authenticate(account, authUrl, guid, authCode);
         }
 
         return authRsp;
     }
 
-    public static HttpResponse authenticate(Account account,String authUrl,String guid,String authCode){
+    private static HttpResponse authenticate(Account account,String guid,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
@@ -351,7 +329,7 @@ public class ITunesUtil {
                 "        <string>modifyAccount</string>" +
                 "    </dict>" +
                 "</plist>";
-        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd()+authCode);
+        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd());
         HttpResponse authRsp = HttpUtil.createPost(authUrl)
                 .header(headers)
                 .body(authBody, ContentType.FORM_URLENCODED.getValue())
