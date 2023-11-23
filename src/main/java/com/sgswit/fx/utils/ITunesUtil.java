@@ -12,13 +12,19 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,12 +73,15 @@ public class ITunesUtil {
 //            System.out.println(generex.random());
 
         Account account = new Account();
-        account.setAccount("djli0506@163.com");
-        account.setPwd("!!B0527s0207!!");
+//        account.setAccount("djli0506@163.com");
+//        account.setPwd("!!B0527s0207!!");
+        account.setAccount("cncots@gmail.com");
+        account.setPwd("Xx97595031.");
 
         HttpResponse authRsp = authenticate(account);
+        Console.log(authRsp.body());
 
-        if (authRsp.getStatus() == 200){
+        if (authRsp != null && authRsp.getStatus() == 200){
             NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
             JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
             String firstName = rspJSON.getByPath("accountInfo.address.firstName").toString();
@@ -280,7 +289,7 @@ public class ITunesUtil {
     /**
      * 鉴权
      */
-    public static HttpResponse authenticate(Account account) throws Exception {
+    public static HttpResponse authenticate(Account account) throws Exception{
         String guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
         String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
         String authCode = "";
@@ -305,14 +314,16 @@ public class ITunesUtil {
 
         if((!"".equals(failureType) && !"".equals(customerMessage)) || !"".equals(failureType)){
             Console.log("Authenticate Fail Type:{} Message:{}",failureType,customerMessage);
-            return null;
+            return authRsp;
         }
 
         if("".equals(failureType) && "".equals(authCode) && CustomerMessageBadLogin.equals(customerMessage)){
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));  //拿构造的方法传到BufferedReader中
-            authCode = br.readLine();
+            Console.log("请输入双重验证码：");
+            account.setPwd("");
+            authCode = Console.input();
             authRsp = authenticate(account, authUrl, guid, authCode);
         }
+
         return authRsp;
     }
 
