@@ -2,13 +2,22 @@ package com.sgswit.fx.utils;
 
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.XmlUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.dd.plist.NSObject;
+import com.dd.plist.XMLPropertyListParser;
+import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,11 +32,15 @@ import java.util.Map;
  * @date 2023/9/2720:32
  */
 public class ITunesUtil {
-    public static void main(String[] args) {
+
+    public static final String 	FailureTypeInvalidCredentials     = "-5000";
+    public static final String CustomerMessageBadLogin             = "MZFinance.BadLogin.Configurator_message";
+
+    public static void main(String[] args) throws Exception {
 //        accountPurchasesCount(null);
 //        getPurchases(null);
 //        getPaymentInfos(null);
-        addOrEditBillingInfoSrv(null);
+       // addOrEditBillingInfoSrv(null);
 //        Faker faker = new Faker(Locale.CHINA);
 //
 //        Address address = faker.address();
@@ -52,8 +65,22 @@ public class ITunesUtil {
 //        }
 //        Generex generex = new Generex("1[35789]\\d{9}");
 //            System.out.println(generex.random());
-    }
 
+        Account account = new Account();
+        account.setAccount("djli0506@163.com");
+        account.setPwd("!!B0527s0207!!");
+
+        HttpResponse authRsp = authenticate(account);
+
+        if (authRsp.getStatus() == 200){
+            NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
+            JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
+            String firstName = rspJSON.getByPath("accountInfo.address.firstName").toString();
+            String lastName  = rspJSON.getByPath("accountInfo.address.lastName").toString();
+            Console.log("Account firstName: {}, lastName:{}",firstName,lastName);
+        }
+
+    }
 
     public  static HttpResponse getPurchases(HttpResponse response){
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -249,4 +276,77 @@ public class ITunesUtil {
         }
         return result;
     }
+
+    /**
+     * 鉴权
+     */
+    public static HttpResponse authenticate(Account account) throws Exception {
+        String guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+        String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
+        String authCode = "";
+
+        HttpResponse authRsp = authenticate(account, authUrl, guid, "");
+        if (authRsp.getStatus() == 302){
+            authUrl = authRsp.header("Location");
+            authRsp = authenticate(account, authUrl, guid, authCode);
+        }
+
+        String authBody = authRsp.charset("UTF-8").body();
+        NSObject NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
+
+        JSONObject json = (JSONObject) JSONUtil.parse(NSO.toJavaObject());
+
+        String failureType     = json.getStr("failureType","");
+        String customerMessage = json.getStr("customerMessage","");
+
+        if(FailureTypeInvalidCredentials.equals(failureType)){
+           authRsp = authenticate(account, authUrl, guid, authCode);
+        }
+
+        if((!"".equals(failureType) && !"".equals(customerMessage)) || !"".equals(failureType)){
+            Console.log("Authenticate Fail Type:{} Message:{}",failureType,customerMessage);
+            return null;
+        }
+
+        if("".equals(failureType) && "".equals(authCode) && CustomerMessageBadLogin.equals(customerMessage)){
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));  //拿构造的方法传到BufferedReader中
+            authCode = br.readLine();
+            authRsp = authenticate(account, authUrl, guid, authCode);
+        }
+        return authRsp;
+    }
+
+    public static HttpResponse authenticate(Account account,String authUrl,String guid,String authCode){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
+        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
+                "<plist version=\"1.0\">" +
+                "    <dict>" +
+                "        <key>appleId</key>" +
+                "        <string>%s</string>" +
+                "        <key>attempt</key>" +
+                "        <string>4</string>" +
+                "        <key>createSession</key>" +
+                "        <string>true</string>" +
+                "        <key>guid</key>" +
+                "        <string>%s</string>" +
+                "        <key>password</key>" +
+                "        <string>%s</string>" +
+                "        <key>rmp</key>" +
+                "        <string>0</string>" +
+                "        <key>why</key>" +
+                "        <string>modifyAccount</string>" +
+                "    </dict>" +
+                "</plist>";
+        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd()+authCode);
+        HttpResponse authRsp = HttpUtil.createPost(authUrl)
+                .header(headers)
+                .body(authBody, ContentType.FORM_URLENCODED.getValue())
+                .execute();
+        return authRsp;
+    }
+
+
 }
