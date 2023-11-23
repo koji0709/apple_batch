@@ -3,7 +3,6 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.XmlUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -12,13 +11,15 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
+import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,14 +71,18 @@ public class ITunesUtil {
         account.setAccount("djli0506@163.com");
         account.setPwd("!!B0527s0207!!");
 
-        HttpResponse authRsp = authenticate(account);
+        String guid = PropertiesUtil.getOtherConfig("guid");
+        HttpResponse authRsp = authenticate(account,guid);
 
-        if (authRsp.getStatus() == 200){
+        if (authRsp != null && authRsp.getStatus() == 200){
             NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
             JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
-            String firstName = rspJSON.getByPath("accountInfo.address.firstName").toString();
-            String lastName  = rspJSON.getByPath("accountInfo.address.lastName").toString();
-            Console.log("Account firstName: {}, lastName:{}",firstName,lastName);
+            System.err.println(rspJSON);
+            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
+            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
+            String creditDisplay  = rspJSON.getByPath("creditDisplay",String.class);
+            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
         }
 
     }
@@ -280,19 +285,22 @@ public class ITunesUtil {
     /**
      * 鉴权
      */
-    public static HttpResponse authenticate(Account account) throws Exception {
-        String guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+    public static HttpResponse authenticate(Account account,String guid){
         String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
-        String authCode = "";
 
-        HttpResponse authRsp = authenticate(account, authUrl, guid, "");
+        HttpResponse authRsp = authenticate(account, guid, authUrl);
         if (authRsp.getStatus() == 302){
             authUrl = authRsp.header("Location");
-            authRsp = authenticate(account, authUrl, guid, authCode);
+            authRsp = authenticate(account, guid , authUrl);
         }
 
         String authBody = authRsp.charset("UTF-8").body();
-        NSObject NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
+        NSObject NSO = null;
+        try {
+            NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
+        } catch (Exception e) {
+            return authRsp;
+        };
 
         JSONObject json = (JSONObject) JSONUtil.parse(NSO.toJavaObject());
 
@@ -300,23 +308,17 @@ public class ITunesUtil {
         String customerMessage = json.getStr("customerMessage","");
 
         if(FailureTypeInvalidCredentials.equals(failureType)){
-           authRsp = authenticate(account, authUrl, guid, authCode);
+           authRsp = authenticate(account, guid, authUrl);
         }
 
-        if((!"".equals(failureType) && !"".equals(customerMessage)) || !"".equals(failureType)){
-            Console.log("Authenticate Fail Type:{} Message:{}",failureType,customerMessage);
-            return null;
+        if("".equals(failureType) || "".equals(customerMessage)){
+            return authRsp;
         }
 
-        if("".equals(failureType) && "".equals(authCode) && CustomerMessageBadLogin.equals(customerMessage)){
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));  //拿构造的方法传到BufferedReader中
-            authCode = br.readLine();
-            authRsp = authenticate(account, authUrl, guid, authCode);
-        }
         return authRsp;
     }
 
-    public static HttpResponse authenticate(Account account,String authUrl,String guid,String authCode){
+    private static HttpResponse authenticate(Account account,String guid,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
@@ -340,13 +342,12 @@ public class ITunesUtil {
                 "        <string>modifyAccount</string>" +
                 "    </dict>" +
                 "</plist>";
-        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd()+authCode);
+        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd());
         HttpResponse authRsp = HttpUtil.createPost(authUrl)
                 .header(headers)
                 .body(authBody, ContentType.FORM_URLENCODED.getValue())
                 .execute();
         return authRsp;
     }
-
 
 }

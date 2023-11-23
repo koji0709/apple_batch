@@ -43,11 +43,11 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="国家区域余额" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" onAction="#onCheckAreaBalanceBtnClick" layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="国家区域余额" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="查询余额/检测禁用" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#onCheckBalanceDisabledStatusBtnClick" prefHeight="25.0" prefWidth="140.0" text="查询余额/检测禁用" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>

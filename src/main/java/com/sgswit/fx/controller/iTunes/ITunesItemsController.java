@@ -24,4 +24,13 @@ public class ITunesItemsController {
     public void onGiftCardBlanceCheck(ActionEvent actionEvent){
         StageUtil.show(StageEnum.GIFTCARD_BLANCE);
     }
+
+    public void onCheckAreaBalanceBtnClick(ActionEvent actionEvent){
+        StageUtil.show(StageEnum.CHECK_AREA_BALANCE);
+    }
+
+    public void onCheckBalanceDisabledStatusBtnClick(ActionEvent actionEvent){
+        StageUtil.show(StageEnum.CHECK_BALANCE_DISABLEDSTATUS);
+    }
+
 }

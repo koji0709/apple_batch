@@ -62,6 +62,9 @@ public class TableView extends CommonView {
     private TableColumn area;
 
     @FXML
+    private TableColumn areaCode;
+
+    @FXML
     private TableColumn status;
 
     @FXML
@@ -105,6 +108,9 @@ public class TableView extends CommonView {
         }
         if (area != null){
             area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
+        }
+        if (areaCode != null){
+            areaCode.setCellValueFactory(new PropertyValueFactory<Account,String>("areaCode"));
         }
         if (name != null){
             name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));
