@@ -131,7 +131,6 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             }
             
         }
-        this.refreshTableView();
     }
 
 }

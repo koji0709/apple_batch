@@ -63,6 +63,5 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                 }
             }
         }
-        this.refreshTableView();
     }
 }

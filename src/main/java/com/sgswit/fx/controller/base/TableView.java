@@ -6,26 +6,19 @@ import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * account表格视图
@@ -112,13 +105,6 @@ public class TableView extends CommonView {
      */
     public boolean isProcessed(Account account){
         return !StrUtil.isEmpty(account.getNote());
-    }
-
-    /**
-     * 刷新列表数据
-     */
-    public void refreshTableView(){
-        accountTableView.refresh();
     }
 
     /**
