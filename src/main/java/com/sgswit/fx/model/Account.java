@@ -12,6 +12,7 @@ public class Account {
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
     private final SimpleStringProperty area;
+    private  final SimpleStringProperty areaCode;
     private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
@@ -47,12 +48,23 @@ public class Account {
      */
     private SimpleStringProperty pinExpir;
 
+    /**
+     * 禁用状态
+     */
+    private SimpleStringProperty disableStatus;
+
+    /**
+     * 余额
+     */
+    private SimpleStringProperty balance;
+
     public Account(){
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
         this.state = new SimpleStringProperty();
         this.area = new SimpleStringProperty();
+        this.areaCode = new SimpleStringProperty();
         this.phone = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
@@ -70,6 +82,8 @@ public class Account {
         this.support = new SimpleStringProperty();
         this.pin = new SimpleStringProperty();
         this.pinExpir = new SimpleStringProperty();
+        this.disableStatus = new SimpleStringProperty();
+        this.balance = new SimpleStringProperty();
     }
 
 
@@ -264,6 +278,42 @@ public class Account {
         this.pinExpir.set(pinExpir);
     }
 
+    public String getAreaCode() {
+        return areaCode.get();
+    }
+
+    public SimpleStringProperty areaCodeProperty() {
+        return areaCode;
+    }
+
+    public void setAreaCode(String areaCode) {
+        this.areaCode.set(areaCode);
+    }
+
+    public String getDisableStatus() {
+        return disableStatus.get();
+    }
+
+    public SimpleStringProperty disableStatusProperty() {
+        return disableStatus;
+    }
+
+    public void setDisableStatus(String disableStatus) {
+        this.disableStatus.set(disableStatus);
+    }
+
+    public String getBalance() {
+        return balance.get();
+    }
+
+    public SimpleStringProperty balanceProperty() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance.set(balance);
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -273,6 +323,7 @@ public class Account {
                 ", state=" + state +
                 ", birthday=" + birthday +
                 ", area=" + area +
+                ", areaCode=" + areaCode +
                 ", phone=" + phone +
                 ", name=" + name +
                 ", status=" + status +
@@ -289,6 +340,8 @@ public class Account {
                 ", popKey=" + popKey +
                 ", pin=" + pin +
                 ", pinExpir=" + pinExpir +
+                ", disableStatus=" + disableStatus +
+                ", balance=" + balance +
                 '}';
     }
 }

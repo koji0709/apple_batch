@@ -11,9 +11,15 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.model.Account;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -279,7 +285,7 @@ public class ITunesUtil {
     /**
      * 鉴权
      */
-    public static HttpResponse authenticate(Account account,String guid) throws Exception{
+    public static HttpResponse authenticate(Account account,String guid){
         String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
 
         HttpResponse authRsp = authenticate(account, guid, authUrl);
@@ -289,7 +295,12 @@ public class ITunesUtil {
         }
 
         String authBody = authRsp.charset("UTF-8").body();
-        NSObject NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
+        NSObject NSO = null;
+        try {
+            NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
+        } catch (Exception e) {
+            return authRsp;
+        };
 
         JSONObject json = (JSONObject) JSONUtil.parse(NSO.toJavaObject());
 
@@ -301,7 +312,6 @@ public class ITunesUtil {
         }
 
         if("".equals(failureType) || "".equals(customerMessage)){
-            Console.log("Authenticate Fail Type:{} Message:{}",failureType,customerMessage);
             return authRsp;
         }
 

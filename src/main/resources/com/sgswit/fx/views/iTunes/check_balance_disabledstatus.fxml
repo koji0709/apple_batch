@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:controller="com.sgswit.fx.controller.iTunes.CheckBalanceDisabledController"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!--上下布局。上面功能区，下面表格，设置内边距14px-->
+        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+            <children>
+                <!--功能区-->
+                <HBox style="-fx-spacing: 14">
+                    <children>
+                        <!--操作-->
+                        <TitledPane text="操作" prefWidth="380" prefHeight="165" contentDisplay="CENTER" collapsible="false" animated="false">
+                            <content>
+                                <GridPane prefWidth="400" prefHeight="140" >
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <!--列表总数-->
+                                        <HBox GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200" prefHeight="30">
+                                            <children>
+                                                <Label text="列表中账户数量：      "/>
+                                                <Label fx:id="accountNumLable" textFill="#e20404"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--开始执行-->
+                                        <Button text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                                prefWidth="100" prefHeight="60" mnemonicParsing="false" textFill="#238142">
+                                            <font>
+                                                <Font name="System Bold" size="15"/>
+                                            </font>
+                                        </Button>
+
+                                        <!--操作按钮-->
+                                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="290" prefHeight="95" alignment="CENTER">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
+                                                                   prefWidth="130"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
+                                                                   prefWidth="130"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Button text="导入账号" onAction="#importAccountButtonAction"
+                                                        GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="清空列表" onAction="#clearAccountListButtonAction"
+                                                        GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                                        prefWidth="100" mnemonicParsing="false" />
+                                                <Button text="本地记录" onAction="#localHistoryButtonAction"
+                                                        GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="导出Excel" onAction="#exportExcelButtonAction"
+                                                        GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="停止任务" onAction="#stopTaskButtonAction"
+                                                        GridPane.rowIndex="2" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                            </children>
+                                        </GridPane>
+
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+
+                        <!--说明-->
+                        <TitledPane text="说明" prefWidth="700" prefHeight="165" collapsible="false" animated="false" >
+                            <content>
+                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
+                                    <children>
+                                        <Label textFill="#169BD5" text="导入格式：帐号----密码" />
+                                        <Label textFill="#169BD5" text="功能说明：查询是否禁用，查询账号余额。" />
+                                        <Label textFill="#169BD5" text="操作提示：快速检测账号禁用，此功能也可作为快速查询余额功能。" />
+                                    </children>
+                                </VBox>
+
+                            </content>
+                        </TitledPane>
+
+                        <!--执行结果-->
+                        <TitledPane text="执行结果" prefWidth="110" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+                                    <Label text="账号总数：--"/>
+                                    <Label text="成功数：--"/>
+                                    <Label text="失败数：--"/>
+                                    <Label text="消耗点数：50"/>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+                    </children>
+                </HBox>
+
+                <!--账号列表-->
+                <TitledPane text="账号列表" collapsible="false" animated="false">
+                    <content>
+                        <TableView fx:id="accountTableView" prefWidth="1230" prefHeight="500">
+                            <columns>
+                                <TableColumn fx:id="seq" text="序号"/>
+                                <TableColumn fx:id="account" prefWidth="150" text="账号"/>
+                                <TableColumn fx:id="pwd" prefWidth="150" text="密码"/>
+                                <TableColumn fx:id="area" prefWidth="100" text="账号地区"/>
+                                <TableColumn fx:id="balance" prefWidth="100" text="账号余额"/>
+                                <TableColumn fx:id="disableStatus" prefWidth="100" text="是否禁用"/>
+                                <TableColumn fx:id="note" prefWidth="180" text="执行信息"/>
+                            </columns>
+                        </TableView>
+                    </content>
+                </TitledPane>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

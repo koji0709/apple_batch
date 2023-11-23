@@ -6,19 +6,11 @@ import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
 
 /**
  * 账号解锁改密controller
  */
 public class UnlockChangePasswordController extends UnlockChangePasswordView {
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
-    }
 
     /**
      * shabagga222@tutanota.com----猪-狗-牛-19960810
