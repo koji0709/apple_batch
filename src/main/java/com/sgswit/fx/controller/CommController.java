@@ -33,7 +33,29 @@ import java.util.List;
  * @date 2023/10/2615:27
  */
 public class CommController<T> {
+    /**
+    　* 操作方法
+      * @param
+     * @param account
+     * @param step1Res
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/11/23 16:31
+    */
     protected void queryOrUpdate(T account, HttpResponse step1Res){
+    }
+    /**
+    　* 添加本地记录
+      * @param
+     * @param account
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/11/23 16:31
+    */
+    protected void insertLocalLog(T account){
+
     }
 
     /**
@@ -130,6 +152,7 @@ public class CommController<T> {
 
         if (step1Res.getStatus() != 409) {
             queryFail(account, accoutQueryBtn, accountTableView);
+            insertLocalLog(account);
             return false;
         }
         String step1Body = step1Res.body();
@@ -209,6 +232,7 @@ public class CommController<T> {
         }else if ("sa".equals(authType)) {
             setFieldValueByObject(account, "该账户为非双重认证模式，请输入密保信息后重试","note");
             accountTableView.refresh();
+            insertLocalLog(account);
         }
         return true;
     }
@@ -231,12 +255,14 @@ public class CommController<T> {
 
         if (step1Res.getStatus() != 409) {
             queryFail(account, accoutQueryBtn, accountTableView);
+            insertLocalLog(account);
             return false;
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
             queryFail(account, accoutQueryBtn, accountTableView);
+            insertLocalLog(account);
             return false;
         }
 
@@ -249,10 +275,9 @@ public class CommController<T> {
             accountTableView.refresh();
             HttpResponse step211Res = AppleIDUtil.questions(step21Res, a);
             if (step211Res.getStatus() != 412) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setHeaderText("密保信息有误，请确认");
-                alert.show();
-                return false;
+                setFieldValueByObject(account, "正在验证密保问题...","note");
+                accountTableView.refresh();
+                insertLocalLog(account);
             }
             HttpResponse step212Res = AppleIDUtil.accountRepair(step211Res);
             String XAppleIDSessionId = "";
@@ -274,6 +299,7 @@ public class CommController<T> {
         }else if ("hsa2".equals(authType)) {
             setFieldValueByObject(account, "该账户为双重认证模式，请清空密保信息后重试","note");
             accountTableView.refresh();
+            insertLocalLog(account);
         }
         return true;
     }

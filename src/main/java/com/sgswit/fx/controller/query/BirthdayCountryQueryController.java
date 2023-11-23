@@ -102,20 +102,20 @@ public class BirthdayCountryQueryController extends CommController<Account> {
         account.setNote(note);
         account.setArea(area);
         account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
-
         accountTableView.refresh();
-
+    }
+    @Override
+    protected void insertLocalLog(Account account){
         try {
             File file = FileUtil.file("birthdayQuery.txt");
             FileAppender appender = new FileAppender(file, 16, true);
-            appender.append(JSONUtil.toJsonStr(list.get(0)));
+            appender.append(JSONUtil.toJsonStr(account));
 
             appender.flush();
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/query/birthday-querylog-popup.fxml"));
