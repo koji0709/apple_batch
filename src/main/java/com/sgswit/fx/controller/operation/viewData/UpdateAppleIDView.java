@@ -68,19 +68,4 @@ public class UpdateAppleIDView extends AppleIdView {
     @FXML
     protected TextField answer3TextField;
 
-    /**
-     * 新邮箱(账号)或救援邮箱
-     */
-    @FXML
-    private TableColumn email;
-
-    @FXML
-    private TableColumn popKey;
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url, resourceBundle);
-        email.setCellValueFactory(new PropertyValueFactory<Account,Integer>("email"));
-        popKey.setCellValueFactory(new PropertyValueFactory<Account,String>("popKey"));
-    }
 }

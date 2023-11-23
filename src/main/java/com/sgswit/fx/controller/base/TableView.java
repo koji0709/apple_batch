@@ -35,121 +35,24 @@ public class TableView extends CommonView {
     @FXML
     public javafx.scene.control.TableView<Account> accountTableView;
 
-    /**
-     * 总账号数量
-     */
     @FXML
     protected Label accountNumLable;
 
     protected ObservableList<Account> accountList = FXCollections.observableArrayList();
 
-    @FXML
-    private TableColumn seq;
-
-    @FXML
-    private TableColumn account;
-
-    @FXML
-    private TableColumn pwd;
-
-    @FXML
-    private TableColumn name;
-
-    @FXML
-    private TableColumn state;
-
-    @FXML
-    private TableColumn area;
-
-    @FXML
-    private TableColumn areaCode;
-
-    @FXML
-    private TableColumn status;
-
-    @FXML
-    private TableColumn note;
-
-    @FXML
-    private TableColumn answer1;
-
-    @FXML
-    private TableColumn answer2;
-
-    @FXML
-    private TableColumn answer3;
-
-    @FXML
-    private TableColumn birthday;
-
-    @FXML
-    private TableColumn phone;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        initAccountTableView();
-    }
-
-    /**
-     * 初始化字段绑定
-     */
-    public void initAccountTableView(){
-        if (seq != null){
-            seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        }
-        if (account != null){
-            account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        }
-        if (pwd != null){
-            pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        }
-        if (state != null){
-            state.setCellValueFactory(new PropertyValueFactory<Account,String>("state"));
-        }
-        if (area != null){
-            area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
-        }
-        if (areaCode != null){
-            areaCode.setCellValueFactory(new PropertyValueFactory<Account,String>("areaCode"));
-        }
-        if (name != null){
-            name.setCellValueFactory(new PropertyValueFactory<Account,String>("name"));
-        }
-        if (status != null){
-            status.setCellValueFactory(new PropertyValueFactory<Account,String>("status"));
-        }
-        if (answer1 != null){
-            answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
-        }
-        if (answer2 != null){
-            answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
-        }
-        if (answer3 != null){
-            answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
-        }
-        if (note != null){
-            note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-        }
-        if (birthday != null){
-            birthday.setCellValueFactory(new PropertyValueFactory<Account,String>("birthday"));
-        }
-        if (phone != null){
-            phone.setCellValueFactory(new PropertyValueFactory<Account,String>("phone"));
+        // 数据绑定
+        ObservableList<TableColumn<Account, ?>> columns = accountTableView.getColumns();
+        for (TableColumn<Account, ?> column : columns) {
+            column.setCellValueFactory(new PropertyValueFactory<>(column.getId()));
         }
     }
 
     /**
      * 导入账号
      */
-    public void importAccountButtonAction(){
-        // 给一种默认导入格式
-        importAccountButtonAction("account----pwd-answer1-answer2-answer3");
-    }
-
-    /**
-     * 导入账号
-     */
-    public void importAccountButtonAction(String... formats){
+    public void openImportAccountView(String... formats){
 
         Stage stage = new Stage();
         Insets padding = new Insets(0, 0, 0, 20);

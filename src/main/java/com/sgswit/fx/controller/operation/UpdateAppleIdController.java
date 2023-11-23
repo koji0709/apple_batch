@@ -24,13 +24,14 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
         opTypeChoiceBox.setValue("更改AppleId");
     }
 
-    @Override
+    /**
+     * 导入账号按钮点击
+     */
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-email");
+        openImportAccountView("account----pwd-answer1-answer2-answer3-email");
     }
 
     /**

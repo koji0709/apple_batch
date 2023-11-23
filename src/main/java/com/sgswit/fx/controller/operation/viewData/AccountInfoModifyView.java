@@ -135,4 +135,5 @@ public class AccountInfoModifyView extends AppleIdView {
      */
     @FXML
     protected ChoiceBox updateShowLangChoiceBox;
+
 }

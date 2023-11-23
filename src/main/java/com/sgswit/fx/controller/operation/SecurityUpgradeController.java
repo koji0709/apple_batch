@@ -20,14 +20,11 @@ import java.util.ResourceBundle;
  */
 public class SecurityUpgradeController extends SecurityUpgradeView {
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
-    }
-
-    @Override
+    /**
+     * 导入账号按钮点击
+     */
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-phone");
+        openImportAccountView("account----pwd-answer1-answer2-answer3-phone");
     }
 
     /**

@@ -24,17 +24,11 @@ import java.util.ResourceBundle;
  */
 public class SupportPinController extends AppleIdView {
 
-    @FXML
-    private TableColumn pin;
-
-    @FXML
-    private TableColumn pinExpir;
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
-        pin.setCellValueFactory(new PropertyValueFactory<Account,String>("pin"));
-        pinExpir.setCellValueFactory(new PropertyValueFactory<Account,String>("pinExpir"));
+    /**
+     * 导入账号
+     */
+    public void importAccountButtonAction(){
+        openImportAccountView("account----pwd-answer1-answer2-answer3");
     }
 
     /**

@@ -15,17 +15,11 @@ import java.util.ResourceBundle;
  */
 public class SecurityDowngradeController extends SecurityDowngradeView {
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
-    }
-
     /**
-     * shabagga222@tutanota.com----猪-狗-牛-19960810
+     * 导入账号按钮点击
      */
-    @Override
     public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3-birthday");
+        openImportAccountView("account----pwd-answer1-answer2-answer3-birthday");
     }
 
     /**

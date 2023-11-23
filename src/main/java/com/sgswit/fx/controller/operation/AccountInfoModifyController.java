@@ -24,13 +24,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
         initViewData();
-    }
-
-    @Override
-    public void importAccountButtonAction() {
-        super.importAccountButtonAction("account----pwd-answer1-answer2-answer3");
     }
 
     /**
@@ -46,6 +40,13 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         updateShowLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
 
         nameGenerationTypeChoiceBox.setValue("固定姓名");
+    }
+
+    /**
+     * 导入账号按钮点击
+     */
+    public void importAccountButtonAction() {
+        openImportAccountView("account----pwd-answer1-answer2-answer3");
     }
 
     /**
