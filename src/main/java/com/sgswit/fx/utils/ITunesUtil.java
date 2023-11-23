@@ -71,9 +71,12 @@ public class ITunesUtil {
         if (authRsp != null && authRsp.getStatus() == 200){
             NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
             JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
-            String firstName = rspJSON.getByPath("accountInfo.address.firstName").toString();
-            String lastName  = rspJSON.getByPath("accountInfo.address.lastName").toString();
-            Console.log("Account firstName: {}, lastName:{}",firstName,lastName);
+            System.err.println(rspJSON);
+            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
+            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
+            String creditDisplay  = rspJSON.getByPath("creditDisplay",String.class);
+            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
         }
 
     }
@@ -336,6 +339,5 @@ public class ITunesUtil {
                 .execute();
         return authRsp;
     }
-
 
 }
