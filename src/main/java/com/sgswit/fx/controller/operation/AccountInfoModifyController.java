@@ -120,6 +120,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 continue;
             }
 
+            account.setNote("执行中..");
+
             // 修改密码
             if (updatePwdCheckBoxSelected){
                 String newPwd = pwdTextField.getText();

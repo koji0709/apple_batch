@@ -33,6 +33,13 @@ public class CheckBalanceDisabledController extends TableView {
         String guid = PropertiesUtil.getOtherConfig("guid");
 
         for (Account account : accountList) {
+            boolean processed = isProcessed(account);
+            if (processed){
+                continue;
+            }
+
+            account.setNote("执行中..");
+
             HttpResponse authenticateRsp = ITunesUtil.authenticate(account, guid);
             if (authenticateRsp.getStatus() == 200){
                 NSObject rspNO = null;

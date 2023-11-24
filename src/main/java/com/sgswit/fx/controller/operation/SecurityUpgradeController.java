@@ -44,6 +44,8 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                 continue;
             }
 
+            account.setNote("执行中..");
+
             // 登陆
             String scnt = loginAndGetScnt(account);
             if (StrUtil.isEmpty(scnt)){

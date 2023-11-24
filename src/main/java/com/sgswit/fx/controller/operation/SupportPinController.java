@@ -48,6 +48,8 @@ public class SupportPinController extends AppleIdView {
                 continue;
             }
 
+            account.setNote("执行中..");
+
             // 登陆
             String scnt = loginAndGetScnt(account);
             if (StrUtil.isEmpty(scnt)){

@@ -42,6 +42,8 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                 continue;
             }
 
+            account.setNote("执行中..");
+
             // 识别验证码
             HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
             if (verifyAppleIdRsp.getStatus() == 503){

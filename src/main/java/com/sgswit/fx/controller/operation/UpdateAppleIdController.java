@@ -54,6 +54,8 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 continue;
             }
 
+            account.setNote("执行中..");
+
             // 更改AppleId
             if ("更改AppleId".equals(opType)) {
                 // 发送邮件
