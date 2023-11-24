@@ -152,8 +152,26 @@ public class TableView extends CommonView {
         }
 
         // todo 打开弹出框,动态渲染表格
+        Stage stage = new Stage();
+        javafx.scene.control.TableView tableView = new javafx.scene.control.TableView();
 
-        alert("本地记录按钮点击");
+        tableView.getColumns().addAll(columns);
+        tableView.getItems().addAll(accountList);
+
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(30);
+        mainVbox.setPadding(new Insets(20));
+        mainVbox.getChildren().addAll(tableView);
+
+        Group root = new Group(mainVbox);
+        stage.setTitle("查看本地记录");
+        stage.setScene(new Scene(root, 1000, 650));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.showAndWait();
+
     }
 
     /**
