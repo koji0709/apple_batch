@@ -1,6 +1,16 @@
 package com.sgswit.fx.controller.base;
 
+import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.ReferenceUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.Db;
+import cn.hutool.db.DbUtil;
+import cn.hutool.db.Entity;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
 import javafx.collections.FXCollections;
@@ -18,6 +28,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -38,7 +49,7 @@ public class TableView extends CommonView {
         // 数据绑定
         ObservableList<TableColumn<Account, ?>> columns = accountTableView.getColumns();
         for (TableColumn<Account, ?> column : columns) {
-            column.setCellValueFactory(new PropertyValueFactory<>(column.getId()));
+            column.setCellValueFactory(new PropertyValueFactory(column.getId()));
         }
     }
 
@@ -99,15 +110,6 @@ public class TableView extends CommonView {
     }
 
     /**
-     * 账号是否被处理过
-     * @param account
-     * @return
-     */
-    public boolean isProcessed(Account account){
-        return !StrUtil.isEmpty(account.getNote());
-    }
-
-    /**
      * 清空列表按钮点击
      */
     public void clearAccountListButtonAction(){
@@ -118,6 +120,39 @@ public class TableView extends CommonView {
      * 本地记录按钮点击
      */
     public void localHistoryButtonAction(){
+        ObservableList<TableColumn<Account, ?>> columns = this.accountTableView.getColumns();
+
+        List<Entity> localHistoryList = new ArrayList<>();
+        try {
+            HashMap<Object, Object> params = new HashMap<>();
+            params.put("clz_name",ClassUtil.getClassName(this, false));
+            localHistoryList = DbUtil.use().query("SELECT * FROM local_history ORDER BY create_time DESC LIMIT 100",params);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        List<Account> accountList = new ArrayList<>();
+        if (!localHistoryList.isEmpty()){
+            for (Entity entity : localHistoryList) {
+                String rowJson = entity.getStr("row_json");
+                JSON dbAccount = JSONUtil.parse(rowJson);
+                Account account = new Account();
+                for (TableColumn<Account, ?> column : columns) {
+                    String colName = column.getId();
+                    Object colValue = dbAccount.getByPath(colName);
+                    if (colValue != null){
+                        ReflectUtil.invoke(
+                                account
+                                , "set" + colName.substring(0, 1).toUpperCase() + colName.substring(1)
+                                , colValue);
+                    }
+                }
+                accountList.add(account);
+            }
+        }
+
+        // todo 打开弹出框,动态渲染表格
+
         alert("本地记录按钮点击");
     }
 
@@ -133,5 +168,43 @@ public class TableView extends CommonView {
      */
     public void stopTaskButtonAction(){
         alert("停止任务按钮点击");
+    }
+
+    /**
+     * 插入本地执行记录
+     */
+    public void insertLocalHistory(List<Account> accountList){
+        if (accountList.isEmpty()){
+            return;
+        }
+
+        List<Entity> insertList = new ArrayList<>();
+        for (Account account : accountList) {
+            Entity entity = new Entity();
+            entity.setTableName("local_history");
+            entity.set("clz_name",ClassUtil.getClassName(this,false));
+            entity.set("row_json", JSONUtil.toJsonStr(account));
+            entity.set("create_time",System.currentTimeMillis());
+            insertList.add(entity);
+        }
+        try {
+            DbUtil.use().insert(insertList);
+        } catch (SQLException e) {
+            Console.log("SQLite保存失败！ saveList: {}",insertList);
+        }
+    }
+
+    /**
+     * 账号是否被处理过
+     * @param account
+     * @return
+     */
+    public boolean isProcessed(Account account){
+        return !StrUtil.isEmpty(account.getNote());
+    }
+
+    public void setAndRefreshNote(Account account,String note){
+        account.setNote(note);
+        accountTableView.refresh();
     }
 }

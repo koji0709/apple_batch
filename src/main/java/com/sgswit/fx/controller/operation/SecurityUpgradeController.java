@@ -44,7 +44,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                 continue;
             }
 
-            account.setNote("执行中..");
+            setAndRefreshNote(account,"执行中");
 
             // 登陆
             String scnt = loginAndGetScnt(account);
@@ -57,7 +57,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(scnt, account.getPwd(), body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
-                account.setNote("发送验证码失败");
+                setAndRefreshNote(account,"发送验证码失败");
                 continue;
             }
 
@@ -67,11 +67,11 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
             HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
             if (securityUpgradeRsp.getStatus() != 302){
-                account.setNote("绑定双重认证失败");
+                setAndRefreshNote(account,"绑定双重认证失败");
                 continue;
             }
             account.setArea(phoneNumber.getStr("countryCode"));
-            account.setNote("绑定双重认证成功");
+            setAndRefreshNote(account,"绑定双重认证成功");
         }
     }
 

@@ -54,7 +54,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 continue;
             }
 
-            account.setNote("执行中..");
+            setAndRefreshNote(account,"执行中");
 
             // 更改AppleId
             if ("更改AppleId".equals(opType)) {
@@ -75,12 +75,12 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                     String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
                     HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
                     if (addRescueEmailRsp.getStatus() == 200){
-                        account.setNote("新增救援邮箱成功");
+                        setAndRefreshNote(account,"新增救援邮箱成功");
                     }else{
-                        account.setNote("新增救援邮箱失败");
+                        setAndRefreshNote(account,"新增救援邮箱失败");
                     }
                 }else{
-                    account.setNote("救援邮箱发送邮件失败");
+                    setAndRefreshNote(account,"救援邮箱发送邮件失败");
                 }
             }
 
@@ -90,10 +90,10 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 if (birthdayDatePickerValue != null){
                     HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
                     if (updateBirthdayRsp.getStatus() != 200){
-                        account.setNote("修改生日失败;");
+                        setAndRefreshNote(account,"修改生日失败");
                     }else{
                         account.setBirthday(birthdayDatePickerValue.toString());
-                        account.setNote("修改生日成功;");
+                        setAndRefreshNote(account,"修改生日成功");
                     }
                 }
 
@@ -102,10 +102,10 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 if (!StrUtil.isEmpty(newPwd)){
                     HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
                     if (updatePasswordRsp.getStatus() != 200){
-                        account.setNote("修改密码失败;");
+                        setAndRefreshNote(account,"修改密码失败");
                     }else{
                         account.setPwd(newPwd);
-                        account.setNote("修改密码成功;");
+                        setAndRefreshNote(account,"修改密码成功");
                     }
                 }
 
@@ -122,11 +122,12 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                             ,answer3TextFieldText,142,"你的父母是在哪里认识的？");
                     HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
                     if (updateQuestionsRsp.getStatus() != 200){
-                        account.setNote("修改密保失败;");
+                        setAndRefreshNote(account,"修改密保失败");
                     }else{
                         account.setAnswer1(answer1TextFieldText);
                         account.setAnswer2(answer2TextFieldText);
                         account.setAnswer3(answer3TextFieldText);
+                        setAndRefreshNote(account,"修改密保成功");
                     }
                 }
 

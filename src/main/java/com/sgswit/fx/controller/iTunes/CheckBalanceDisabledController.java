@@ -10,6 +10,9 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CheckBalanceDisabledController extends TableView {
 
     /**
@@ -32,21 +35,21 @@ public class CheckBalanceDisabledController extends TableView {
 
         String guid = PropertiesUtil.getOtherConfig("guid");
 
+        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             boolean processed = isProcessed(account);
             if (processed){
                 continue;
             }
 
-            account.setNote("执行中..");
-
+            setAndRefreshNote(account,"执行中");
             HttpResponse authenticateRsp = ITunesUtil.authenticate(account, guid);
             if (authenticateRsp.getStatus() == 200){
                 NSObject rspNO = null;
                 try {
                     rspNO = XMLPropertyListParser.parse(authenticateRsp.body().getBytes("UTF-8"));
                 } catch (Exception e) {
-                    account.setNote("查询失败");
+                    setAndRefreshNote(account,"查询失败");
                     continue;
                 }
 
@@ -59,11 +62,15 @@ public class CheckBalanceDisabledController extends TableView {
                 // todo 查询区域和区域代码
                 account.setArea("");
                 account.setAreaCode("");
-            } else {
-                account.setNote("AppleID或密码错误，或需输入双重验证码。");
+
+                setAndRefreshNote(account,"查询成功");
+            } else if (authenticateRsp.getStatus() == 503){
+                setAndRefreshNote(account,"操作频繁。");
+            }else{
+                setAndRefreshNote(account,"AppleID或密码错误，或需输入双重验证码。");
             }
-
+            recordList.add(account);
         }
-
+        insertLocalHistory(recordList);
     }
 }

@@ -48,7 +48,7 @@ public class SupportPinController extends AppleIdView {
                 continue;
             }
 
-            account.setNote("执行中..");
+            setAndRefreshNote(account,"执行中");
 
             // 登陆
             String scnt = loginAndGetScnt(account);
@@ -57,7 +57,7 @@ public class SupportPinController extends AppleIdView {
             }
 
             HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
-            account.setNote("生成失败！");
+            setAndRefreshNote(account,"生成支持PIN失败！");
 
             String body = supportPinRsp.body();
             if (!StrUtil.isEmpty(body) && JSONUtil.isTypeJSON(body)){
@@ -66,7 +66,7 @@ public class SupportPinController extends AppleIdView {
                 if (!StrUtil.isEmpty(pin)){
                     account.setPin(pin);
                     account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
-                    account.setNote("生成成功");
+                    setAndRefreshNote(account,"生成支持PIN成功!");
                 }
             }
         }

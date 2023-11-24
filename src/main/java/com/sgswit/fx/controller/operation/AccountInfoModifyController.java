@@ -120,16 +120,16 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 continue;
             }
 
-            account.setNote("执行中..");
-
+            setAndRefreshNote(account,"执行中");
             // 修改密码
             if (updatePwdCheckBoxSelected){
                 String newPwd = pwdTextField.getText();
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    account.setNote("修改密码失败;");
+                    setAndRefreshNote(account,"修改密码失败");
                 }else{
                     account.setPwd(newPwd);
+                    setAndRefreshNote(account,"修改密码成功");
                 }
             }
 
@@ -138,9 +138,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
-                    account.setNote("修改生日失败;");
+                    setAndRefreshNote(account,"修改生日失败");
                 }else{
                     account.setBirthday(birthdayDatePickerValue.toString());
+                    setAndRefreshNote(account,"修改生日成功");
                 }
             }
 
@@ -162,10 +163,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
                 HttpResponse updateNameRsp = AppleIDUtil.updateName(loginAndGetScnt(account), account.getPwd(), firstName, lastName);
                 if (updateNameRsp.getStatus() != 200){
-                    account.setNote("姓名修改失败;");
+                    setAndRefreshNote(account,"姓名修改失败");
                 }else{
                     account.setName(firstName + lastName);
-                    account.setNote("姓名修改成功;");
+                    setAndRefreshNote(account,"姓名修改成功");
                 }
             }
 
@@ -189,11 +190,12 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                             ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    account.setNote("修改密保失败;");
+                    setAndRefreshNote(account,"修改密保失败");
                 }else{
                     account.setAnswer1(answer1TextFieldText);
                     account.setAnswer2(answer2TextFieldText);
                     account.setAnswer3(answer3TextFieldText);
+                    setAndRefreshNote(account,"修改密保成功");
                 }
             }
 
@@ -207,7 +209,9 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             if (removeRescueEmailCheckBoxSelected){
                 HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(loginAndGetScnt(account), account.getPwd());
                 if (deleteRescueEmailRsp.getStatus() != 204){
-                    account.setNote("移除救援邮箱失败;");
+                    setAndRefreshNote(account,"移除救援邮箱失败");
+                }else{
+                    setAndRefreshNote(account,"移除救援邮箱成功");
                 }
             }
 

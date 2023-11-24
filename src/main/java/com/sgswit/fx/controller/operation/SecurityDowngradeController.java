@@ -45,12 +45,12 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                 continue;
             }
 
-            account.setNote("执行中..");
+            setAndRefreshNote(account,"执行中");
 
             // 识别验证码
             HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
             if (verifyAppleIdRsp.getStatus() != 302) {
-                account.setNote("验证码自动识别失败");
+                setAndRefreshNote(account,"验证码自动识别失败");
                 continue;
             }
 
@@ -58,10 +58,10 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
             if (securityDowngradeRsp != null){
                 if (securityDowngradeRsp.getStatus() == 302){
-                    account.setNote("关闭双重验证成功");
                     account.setPwd(newPassword);
+                    setAndRefreshNote(account,"关闭双重验证成功");
                 }else{
-                    account.setNote("关闭双重验证失败");
+                    setAndRefreshNote(account,"关闭双重验证失败");
                 }
             }
         }

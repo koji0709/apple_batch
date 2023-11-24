@@ -42,16 +42,16 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                 continue;
             }
 
-            account.setNote("执行中..");
+            setAndRefreshNote(account,"执行中");
 
             // 识别验证码
             HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
             if (verifyAppleIdRsp.getStatus() == 503){
-                account.setNote("操作频繁");
+                setAndRefreshNote(account,"操作频繁");
                 continue;
             }
             if (verifyAppleIdRsp.getStatus() != 302) {
-                account.setNote("验证码自动识别失败");
+                setAndRefreshNote(account,"验证码自动识别失败");
                 continue;
             }
 
@@ -59,11 +59,11 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
             HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, account.getPwd());
             boolean unlock = verifyAppleIdRsp.header("Location").startsWith("/password/authenticationmethod");
             if ((unlock && updatePwdByProtectionRsp.getStatus() == 206) || (!unlock && updatePwdByProtectionRsp.getStatus() == 260)){
-                account.setNote("解锁改密成功");
                 account.setPwd(newPassword);
+                setAndRefreshNote(account,"解锁改密成功");
             }else{
                 String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
-                account.setNote(failMessage);
+                setAndRefreshNote(account,failMessage);
             }
         }
     }
