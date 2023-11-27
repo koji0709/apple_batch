@@ -304,7 +304,7 @@ public class AppleIDUtil {
 
         HttpResponse res4 = HttpUtil.createGet("https://appleid.apple.com/account/manage")
                 .header(headers)
-                //.cookie(getCookie(res3))
+                .cookie(getCookie(res3))
                 .execute();
         return res4;
     }
