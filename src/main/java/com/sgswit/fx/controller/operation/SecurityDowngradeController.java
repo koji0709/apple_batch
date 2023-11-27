@@ -7,6 +7,8 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
@@ -37,7 +39,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             alert("必须填写新密码！");
             return;
         }
-
+        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -64,6 +66,9 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                     setAndRefreshNote(account,"关闭双重验证失败");
                 }
             }
+            recordList.add(account);
         }
+        insertLocalHistory(recordList);
+
     }
 }

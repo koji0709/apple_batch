@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
 
-public class AppleIdView extends TableView {
+public class AppleIdView extends TableView<Account> {
 
     /**
      * appleid官网登录

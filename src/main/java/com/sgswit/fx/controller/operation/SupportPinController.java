@@ -15,7 +15,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
@@ -41,6 +43,7 @@ public class SupportPinController extends AppleIdView {
             return;
         }
 
+        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -69,7 +72,10 @@ public class SupportPinController extends AppleIdView {
                     setAndRefreshNote(account,"生成支持PIN成功!");
                 }
             }
+            recordList.add(account);
         }
+        insertLocalHistory(recordList);
+
     }
 
 }

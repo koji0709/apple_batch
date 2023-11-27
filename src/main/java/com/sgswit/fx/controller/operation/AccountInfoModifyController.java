@@ -11,10 +11,7 @@ import javafx.collections.FXCollections;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
 /**
@@ -113,6 +110,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 return;
             }
         }
+        List<Account> recordList = new ArrayList<>();
 
         for (Account account : accountList) {
             boolean processed = isProcessed(account);
@@ -214,7 +212,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     setAndRefreshNote(account,"移除救援邮箱成功");
                 }
             }
-
+            recordList.add(account);
+            insertLocalHistory(recordList);
         }
     }
 

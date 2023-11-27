@@ -14,6 +14,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
@@ -47,6 +49,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 
+        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -132,8 +135,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 }
 
             }
-            
+            recordList.add(account);
         }
+        insertLocalHistory(recordList);
     }
 
 }

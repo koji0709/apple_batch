@@ -13,7 +13,7 @@ import com.sgswit.fx.utils.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CheckBalanceDisabledController extends TableView {
+public class CheckBalanceDisabledController extends TableView<Account> {
 
     /**
      * 导入账号按钮点击

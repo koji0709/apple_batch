@@ -38,21 +38,21 @@ import java.util.*;
 /**
  * account表格视图
  */
-public class TableView extends CommonView {
+public class TableView<T> extends CommonView {
 
     @FXML
-    public javafx.scene.control.TableView<Account> accountTableView;
+    public javafx.scene.control.TableView<T> accountTableView;
 
     @FXML
     protected Label accountNumLable;
 
-    protected ObservableList<Account> accountList = FXCollections.observableArrayList();
+    protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // 数据绑定
-        ObservableList<TableColumn<Account, ?>> columns = accountTableView.getColumns();
-        for (TableColumn<Account, ?> column : columns) {
+        ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
+        for (TableColumn<T, ?> column : columns) {
             column.setCellValueFactory(new PropertyValueFactory(column.getId()));
         }
     }
@@ -88,10 +88,13 @@ public class TableView extends CommonView {
         button.setPrefHeight(50);
 
         button.setOnAction(event -> {
-            List<Account> accountList1 = AccountImportUtil.parseAccount(area.getText(),Arrays.asList(formats));
+            List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats),Account.class);
             accountList.addAll(accountList1);
             for (int i = 0; i < accountList.size(); i++) {
-                accountList.get(i).setSeq(i+1);
+                ReflectUtil.invoke(
+                        accountList.get(i)
+                        , "setSeq"
+                        , i+1);
             }
             accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
@@ -123,13 +126,13 @@ public class TableView extends CommonView {
     /**
      * 插入本地执行记录
      */
-    public void insertLocalHistory(List<Account> accountList){
+    public void insertLocalHistory(List<T> accountList){
         if (accountList.isEmpty()){
             return;
         }
 
         List<Entity> insertList = new ArrayList<>();
-        for (Account account : accountList) {
+        for (T account : accountList) {
             Entity entity = new Entity();
             entity.setTableName("local_history");
             entity.set("clz_name",ClassUtil.getClassName(this,false));
@@ -177,7 +180,7 @@ public class TableView extends CommonView {
         tableView.setPrefWidth(1180);
 
         // 动态渲染列,且增加操作时间字段
-        ObservableList<TableColumn<Account, ?>> columns = this.accountTableView.getColumns();
+        ObservableList<TableColumn<T, ?>> columns = this.accountTableView.getColumns();
 
         // 把序号列删除掉
         columns.remove(0);

@@ -5,13 +5,14 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.model.Account;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 账号导入工具
  */
-public class AccountImportUtil {
+public class AccountImportUtil<T>{
 
     private static final String REPLACE_MENT = "####.##";
 
@@ -40,7 +41,7 @@ public class AccountImportUtil {
         return result;
     }
 
-    public static List<Account> parseAccount(String accountStr,List<String> formatList){
+    public List<T> parseAccount(String accountStr, List<String> formatList,Class<T> clz){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
         accountStr = accountStr.replaceAll("----","-");
 
@@ -62,7 +63,7 @@ public class AccountImportUtil {
             return null;
         }
 
-        List<Account> accountList = new ArrayList<>();
+        List<T> accountList = new ArrayList<>();
 
         for (int i = 0; i < accList.length; i++) {
             String acc = accList[i];
@@ -83,7 +84,12 @@ public class AccountImportUtil {
                 continue;
             }
 
-            Account account = new Account();
+            T account;
+            try {
+                account = clz.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                continue;
+            }
             for (int j = 0; j < fieldValueList.size(); j++) {
                 String field = fieldList.get(j);
                 String fieldValue = fieldValueList.get(j);
@@ -107,7 +113,7 @@ public class AccountImportUtil {
         String s = buildNote(format1, format2);
         System.err.println(s);
 
-        List<Account> accountList = parseAccount(accountStr,Arrays.asList(format1,format2));
+        List<Account> accountList = new AccountImportUtil<Account>().parseAccount(accountStr,Arrays.asList(format1,format2),Account.class);
         System.err.println(accountList);
 
     }
