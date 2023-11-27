@@ -13,6 +13,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.model.Account;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -25,109 +26,109 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
-public class GiftCardUtil {
-
-    public static String callbackSignInUrl = "";
-    public static String serviceURL = "";
-    public static String serviceKey = "";
-
-    public static String as_sfa_cookie = "";
-
-    public static String x_aos_stk="";
-    public static String x_aos_model_page="";
-    public static String modelVersion="";
-    public static String syntax="";
+public class PurchaseResultUtil {
 
     public static String location = "";
     public static String locationBase = "";
-    public static String locationSSi  = "";
 
     public static String frameId = "";
     public static String clientId = "";
+    public static String searchCookies = "";
+    public static String token = "";
+    public static String dsid = "";
 
-    public static Integer xAppleHcBits = 0;
-    public static String xAppleHcChallenge = "";
 
     public static void main( String[] args ){
-        //https://secure.store.apple.com/shop/giftcard/balance
-        HttpResponse pre1 = shopPre1("us");
-        if(pre1.getStatus() != 303){
-            System.out.println("网络错误");
-            return;
+//        if(StringUtils.isEmpty(loginAndAuth("djli0506@163.com","!!B0527s0207!!"))){
+//            search(dsid,"");
+//        }
+//        if(StringUtils.isEmpty(loginAndAuth("1948401156@qq.com","B0527s0207!"))){
+//            search(dsid,"");
+//        }
+        String error=loginAndAuth("qewqeq@2980.com","dPFb6cSD4");
+        if(StringUtils.isEmpty(error)){
+            search(dsid,"");
+        }else{
+            System.out.println(error);
         }
 
-        //https://secure4.store.apple.com/shop/giftcard/balance
-        HttpResponse pre2 = shopPre2(pre1);
-        if(pre2.getStatus() != 302){
-            return;
-        }
+    }
 
-        //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-        HttpResponse pre3 = shopPre3(pre1,pre2);
-        Map<String,Object> jx=jXDocument(pre2, pre3);
+
+
+    public static String loginAndAuth(String account,String pwd){
+        String error="";
+        HttpResponse pre1Response = shopPre1();
+        if(pre1Response.getStatus() != 302){
+            return error;
+        }
+        String requestUrl = pre1Response.header("Location");
+        clientId=UrlParasUtil.getQueryParamsByKey(requestUrl,"appIdKey");
+        HttpResponse pre2Response = shopPre2(pre1Response);
+        Map<String,Object> jx=jXDocument(pre1Response);
         String a=jx.get("a").toString();
         BigInteger n=new BigInteger(jx.get("n").toString());
         BigInteger ra=new BigInteger(jx.get("ra").toString());
         BigInteger g=new BigInteger(jx.get("g").toString());
 
+        HttpResponse step0Res = federate(account);
 
-        HttpResponse step0Res = federate("djli0506@163.com");
+        HttpResponse step1Res = signinInit(account,a,step0Res);
 
-        HttpResponse step1Res = signinInit("djli0506@163.com",a,step0Res);
+        HttpResponse step2Res = signinCompete(account,pwd,a,g,n,ra,step1Res,pre2Response);
 
-        HttpResponse step2Res = signinCompete("djli0506@163.com","!!B0527s0207!",a,g,n,ra,step1Res,pre1,pre3);
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             JSON json = JSONUtil.parse(step2Res.body());
-            String error=json.getByPath("serviceErrors.message").toString();
-            System.out.println(error);
-            return ;
-        }
-        //step3 shop signin
-        HttpResponse step3Res = shopSignin(step2Res,pre1);
-
-
-        HttpResponse step4Res = checkBalance(null,"XGXR W4FG WD3L 4LZJ");
-        if(step4Res.getStatus()!=200){
-            System.out.println("网络错误");
+            error=json.getByPath("serviceErrors.message").toString();
+            return error;
         }else{
+            JSON json = JSONUtil.parse(step2Res.body());
+            String authType = (String)json.getByPath("authType");
+            if ("hsa2".equals(authType)) {
+                error="该账户为双重认证模式";
+                return error;
+            }
         }
+        HttpResponse step212Res =accountRepair(step2Res);
+        String XAppleIDSessionId = "";
+        String scnt = step212Res.header("scnt");
+        List<String> cookies = step212Res.headerList("Set-Cookie");
+        for (String item : cookies) {
+            if (item.startsWith("aidsp")) {
+                XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
+            }
+        }
+        HttpResponse step213Res =repareOptions(step2Res, step212Res);
+        HttpResponse step214Res = securityUpgrade(step213Res, XAppleIDSessionId, scnt);
 
-        System.out.println(step4Res.getStatus());
-        System.out.println(step4Res.body());
-
+        HttpResponse step215Res = securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
+        HttpResponse step216Res = repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
+        HttpResponse step22Res = repareComplete(step216Res, step2Res);
+        login(pre1Response,step22Res);
+        return error;
     }
-    public static Map<String,Object> jXDocument(HttpResponse pre2, HttpResponse pre3){
+    public static List<String> getCookiesFromHeader(HttpResponse response){
+        List<String> cookies = new ArrayList<>();
+        if(response.headers().get("Set-Cookie") != null){
+            cookies.addAll(response.headers().get("Set-Cookie"));
+        }
+        if(response.headers().get("set-cookie") != null){
+            cookies.addAll(response.headers().get("set-cookie"));
+        }
+        return cookies;
+    }
+
+
+
+    public static Map<String,Object> jXDocument(HttpResponse pre1){
         Map<String,Object> res=new HashMap<>();
-        JXDocument underTest = JXDocument.create(pre3.body());
-
-        List<JXNode>  nodes = underTest.selN("//script");
-        String as_sfa = nodes.get(0).value().toString();
-        as_sfa_cookie   = as_sfa.substring(as_sfa.indexOf("as_sfa"),as_sfa.indexOf("\";"));
-        String metaXml = nodes.get(nodes.size()-1).value().toString();
-        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
-        JSON meta = JSONUtil.parse(metaJson);
-        x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
-        x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
-        modelVersion = (String) meta.getByPath("meta.h.modelVersion");
-        syntax = (String) meta.getByPath("meta.h.syntax");
-        serviceKey = (String) meta.getByPath("signIn.customerLoginIDMS.d.serviceKey");
-        serviceURL = (String) meta.getByPath("signIn.customerLoginIDMS.d.serviceURL");
-        callbackSignInUrl = (String) meta.getByPath("signIn.customerLoginIDMS.d.callbackSignInUrl");
-        clientId = serviceKey;
         frameId  = createFrameId();
-
-        location = pre2.header("Location");
-        locationBase = location.substring(0,location.indexOf("shop"));
-        locationSSi  =  location.substring(location.indexOf("?"));
+        location = pre1.header("Location");
+        locationBase = "https://idmsa.apple.com/";
         // get x-apple-hc
         HttpResponse pre4 = signFrame();
-        xAppleHcBits = Integer.parseInt(pre4.header("X-Apple-HC-Bits"));
-        xAppleHcChallenge = pre4.header("X-Apple-HC-Challenge");
 
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -143,17 +144,14 @@ public class GiftCardUtil {
         res.put("a",a);
         return res;
     }
-    public static HttpResponse shopPre1(String countryCode){
+    public static HttpResponse shopPre1(){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        String url="https://secure.store.apple.com/shop/giftcard/balance";
-        if(!countryCode.equalsIgnoreCase("us")){
-            url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
-        }
+        String url="https://reportaproblem.apple.com/";
         HttpResponse res = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
@@ -164,26 +162,11 @@ public class GiftCardUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         HttpResponse res = HttpUtil.createGet(pre1.header("Location"))
                 .header(headers)
-                .cookie(getCookies(pre1))
-                .execute();
-        return res;
-    }
-
-    public static HttpResponse shopPre3(HttpResponse pre1,HttpResponse pre2){
-        HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = HttpUtil.createGet(pre2.header("Location"))
-                .header(headers)
-                .cookie(getCookies(pre1))
                 .execute();
         return res;
     }
@@ -259,9 +242,9 @@ public class GiftCardUtil {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+        headers.put("X-Apple-Trusted-Domain", ListUtil.toList("https://idmsa.apple.com"));
 
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
@@ -277,7 +260,6 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
@@ -290,7 +272,7 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse signinCompete(String account,String pwd,String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse pre1,HttpResponse pre3){
+    public static HttpResponse signinCompete(String account,String pwd,String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse pre2){
 
         HashMap<String, List<String>> headers = new HashMap<>();
 
@@ -299,6 +281,7 @@ public class GiftCardUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
+
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
@@ -326,10 +309,6 @@ public class GiftCardUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
-        String hc = calCounter(xAppleHcBits,xAppleHcChallenge);
-
-        headers.put("X-APPLE-HC",ListUtil.toList(hc));
-
         JSON json = JSONUtil.parse(res1.body());
 
         int iter = (Integer) json.getByPath("iteration");
@@ -351,17 +330,11 @@ public class GiftCardUtil {
             cookieBuilder.append(";").append(item);
         }
 
-        List<String> pre3Cookies = pre3.headerList("Set-Cookie");
+        List<String> pre3Cookies = pre2.headerList("Set-Cookie");
         for(String item : pre3Cookies){
             cookieBuilder.append(";").append(item);
         }
 
-        List<String> pre1Cookies = pre1.headerList("Set-Cookie");
-        for(String item : pre1Cookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        cookieBuilder.append(";").append(as_sfa_cookie);
 
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
@@ -371,104 +344,263 @@ public class GiftCardUtil {
         return res;
     }
 
-
-    public static HttpResponse shopSignin(HttpResponse step2Res,HttpResponse pre1){
+    public static HttpResponse accountRepair(HttpResponse res1) {
         HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("Accept", ListUtil.toList("*/*"));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("iframe"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("navigate"));
+        headers.put("navigate", ListUtil.toList("same-site"));
+
+        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0"));
+        String location = res1.header("Location");
+        HttpResponse res2 = HttpUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
+                .header(headers)
+                .execute();
+
+        return res2;
+    }
+    public static HttpResponse repareOptions(HttpResponse step211Res, HttpResponse step212Res) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
+        headers.put("X-Apple-Session-Token", ListUtil.toList(step211Res.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(step211Res.header("X-Apple-ID-Session-Id")));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("scnt", ListUtil.toList(step212Res.header("scnt")));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}"));
+        headers.put("X-Apple-Widget-Key",ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("Content-Type",ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Connection",ListUtil.toList("keep-alive"));
+        String scUrl = "https://appleid.apple.com/account/manage/repair/options";
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
+                .header(headers)
+                .execute();
+        return res2;
+    }
+    public static HttpResponse securityUpgrade(HttpResponse res1, String XAppleIDSessionId, String scnt) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
 
-        headers.put("Origin", ListUtil.toList(locationBase));
-        headers.put("Referer", ListUtil.toList(location));
+        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
+        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("scnt", ListUtil.toList(scnt));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}"));
+        headers.put("X-Apple-Widget-Key",ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("Content-Type",ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Connection",ListUtil.toList("keep-alive"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(x_aos_model_page));
-        headers.put("x-aos-stk",ListUtil.toList(x_aos_stk));
-        headers.put("modelVersion",ListUtil.toList(modelVersion));
-        headers.put("syntax",ListUtil.toList(syntax));
+        String scUrl = "https://appleid.apple.com/account/security/upgrade";
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
+                .header(headers)
+                .execute();
+        return res2;
+    }
+    public static HttpResponse securityUpgradeSetuplater(HttpResponse res1, String XAppleIDSessionId, String scnt) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
 
-        headers.put("x-requested-with",ListUtil.toList("Fetch"));
+        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
+        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("scnt", ListUtil.toList(scnt));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}"));
+        headers.put("X-Apple-Widget-Key",ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("Content-Type",ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Connection",ListUtil.toList("keep-alive"));
+
+        String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
+                .header(headers)
+                .execute();
+        return res2;
+    }
+    public static HttpResponse repareOptionsSecond(HttpResponse res1, String XAppleIDSessionId, String scnt) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
+
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
+        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("scnt", ListUtil.toList(scnt));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}"));
+        headers.put("X-Apple-Widget-Key",ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("Content-Type",ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Connection",ListUtil.toList("keep-alive"));
+        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
+
+        String scUrl = "https://appleid.apple.com/account/manage/repair/options";
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
+                .header(headers)
+                .execute();
+        return res2;
+    }
+    public static HttpResponse repareComplete(HttpResponse res1, HttpResponse step211Res) {
+        String XAppleIDSessionId=step211Res.header("X-Apple-ID-Session-Id");
+        String scnt=step211Res.header("scnt");
+        HashMap<String, List<String>> headers =  new HashMap<>();
+
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+        headers.put("X-Apple-Repair-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
+        headers.put("scnt", ListUtil.toList(scnt));
+        headers.put("X-Apple-Widget-Key",ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92hpu__Iq1JlQxQeLaD.SAuXjodUW1BNork0ugN.xL4FeHRJdlU9_y4AwcGY5BNlYJNNlY5QB4bVNjMk.2IL\"}"));
+        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
+
+        headers.put("X-Apple-Auth-Attributes", ListUtil.toList(step211Res.header("X-Apple-Auth-Attributes")));
+
+        headers.put("X-Apple-Frame-Id", ListUtil.toList( headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId))));
+        headers.put("X-Apple-OAuth-State", ListUtil.toList( headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId))));
+        headers.put("X-Apple-Trusted-Domain", ListUtil.toList("https://idmsa.apple.com"));
+        headers.put("X-Apple-OAuth-Client-Id", ListUtil.toList("20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef"));
+
+        headers.put("X-Apple-OAuth-Redirect-URI", ListUtil.toList("https://idmsa.apple.com"));
+
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Connection",ListUtil.toList("keep-alive"));
 
 
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        String scUrl = "https://idmsa.apple.com/appleauth/auth/repair/complete";
+        HttpResponse res2 = HttpUtil.createPost(scUrl)
+                .header(headers)
+                .execute();
+        return res2;
+    }
+    /**
+    　* 登录方法
+      * @param
+    　* @return
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/11/27 22:19
+    */
+    public static HttpResponse login(HttpResponse pre1Response,HttpResponse step22Res) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Host", ListUtil.toList("reportaproblem.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://reportaproblem.apple.com/"));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("Te",ListUtil.toList("trailers"));
 
-
-        headers.put("te",ListUtil.toList("trailers"));
-
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-
-
+        List<String> pre1Cookies = pre1Response.headerList("Set-Cookie");
         StringBuilder cookieBuilder = new StringBuilder();
-
-
-        List<String> pre1Cookies = pre1.headerList("Set-Cookie");
         for(String item : pre1Cookies){
             cookieBuilder.append(";").append(item);
         }
 
-        List<String> step2ResCookies = step2Res.headerList("Set-Cookie");
+        List<String> step2ResCookies = step22Res.headerList("Set-Cookie");
         for(String item : step2ResCookies){
             cookieBuilder.append(";").append(item);
         }
-
-        cookieBuilder.append(";").append(as_sfa_cookie);
-//
-        String cookies = cookieBuilder.substring(1);
-
-        Map<String,Object> paramMap = new HashMap<>();
-
-        paramMap.put("deviceID","");
-        paramMap.put("grantCode","");
-
-
-        HttpResponse res3 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) +
-                "shop/signIn/idms/authx" +
-                location.substring(location.indexOf("?")))
+        String loginCookies = cookieBuilder.substring(1);
+        String loginUrl="https://reportaproblem.apple.com/api/login";
+        HttpResponse loginResponse = HttpUtil.createGet(loginUrl)
                 .header(headers)
-                .form(paramMap)
-                .cookie(cookies)
+                .cookie(loginCookies)
                 .execute();
-        return res3;
+        token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
+        dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
+        //查询方法
+        StringBuilder searchCookieBuilder = new StringBuilder();
+        for(String item : getCookiesFromHeader(loginResponse)){
+            searchCookieBuilder.append(";").append(item);
+        }
+        for (String item : getCookiesFromHeader(step22Res)) {
+            searchCookieBuilder.append(";").append(item);
+        }
+        searchCookies = searchCookieBuilder.substring(1);
+        return loginResponse;
     }
-
-    public static HttpResponse checkBalance( HashMap<String, String> paras,String giftCardPin){
-        HashMap<String, List<String>> headers = new HashMap<>();
-
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
-
-        headers.put("referer",ListUtil.toList(paras.get("locationBase")+ "shop/giftcard/balance"));
-        headers.put("origin",ListUtil.toList(paras.get("locationBase")));
-
+    /**
+    　* 查询方法
+      * @param
+     * @param dsid
+     * @param nextBatchId
+    　* @return cn.hutool.http.HttpResponse
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/11/27 22:16
+    */
+    public static HttpResponse search(String dsid,String nextBatchId) {
+        HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*;"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("x-apple-xsrf-token",ListUtil.toList(token));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("x-apple-rap2-api",ListUtil.toList("3.0.0"));
+        headers.put("Origin", ListUtil.toList("https://reportaproblem.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://reportaproblem.apple.com/"));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+        headers.put("Te",ListUtil.toList("trailers"));
+        String searchUrl = "https://reportaproblem.apple.com/api/purchase/search";
+        String body="{\"batchId\":\"%s\",\"dsid\":\"%s\"}";
 
-        headers.put("x-aos-model-page", ListUtil.toList("giftCardBalancePage"));
-        headers.put("x-aos-stk",ListUtil.toList(paras.get("x_aos_stk")));
-        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList( paras.get("syntax")));
-
-        headers.put("x-requested-with",ListUtil.toList("Fetch"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
-        Map<String,Object> data = new HashMap<>();
-        data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
-
-        HttpResponse res4 = HttpUtil.createPost(paras.get("location").substring(0,paras.get("location").indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
+        body = String.format(body,nextBatchId,dsid);
+        HttpResponse searchResponse = HttpUtil.createPost(searchUrl)
                 .header(headers)
-                .form(data)
+                .cookie(searchCookies)
+                .body(body)
                 .execute();
-        System.out.println(res4.body());
-        return res4;
-    }
 
+        System.out.println("------dsid--"+dsid+"--->"+searchResponse.body());
+        return searchResponse;
+    }
 
 
     private static Map<String,String> calM(String accountName, String password, String a, Integer iter, String salt, String b, BigInteger g, BigInteger n, BigInteger ra) {

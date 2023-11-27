@@ -305,7 +305,6 @@ public class GiftCardBalanceCheckController implements Initializable {
         HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res);
 
         HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,a,g,n,ra,step1Res,pre1,pre3);
-        System.out.println(step2Res.body());
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             alertMessage.setText(JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message").toString());
             alertMessage.setTextFill(Paint.valueOf("red"));
