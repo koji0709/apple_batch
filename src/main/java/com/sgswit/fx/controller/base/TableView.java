@@ -13,14 +13,18 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
+import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
@@ -34,7 +38,7 @@ import java.util.*;
 /**
  * account表格视图
  */
-public class TableView extends CommonView {
+public class TableView<T> extends CommonView {
 
     @FXML
     public javafx.scene.control.TableView<Account> accountTableView;
@@ -103,9 +107,9 @@ public class TableView extends CommonView {
         Group root = new Group(mainVbox);
         stage.setTitle("账号导入");
         stage.setScene(new Scene(root, 600, 450));
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.WINDOW_MODAL);
         stage.setResizable(false);
-        stage.initStyle(StageStyle.UTILITY);
+        stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
     }
 
@@ -114,78 +118,6 @@ public class TableView extends CommonView {
      */
     public void clearAccountListButtonAction(){
         accountList.clear();
-    }
-
-    /**
-     * 本地记录按钮点击
-     */
-    public void localHistoryButtonAction(){
-        ObservableList<TableColumn<Account, ?>> columns = this.accountTableView.getColumns();
-
-        List<Entity> localHistoryList = new ArrayList<>();
-        try {
-            HashMap<Object, Object> params = new HashMap<>();
-            params.put("clz_name",ClassUtil.getClassName(this, false));
-            localHistoryList = DbUtil.use().query("SELECT * FROM local_history ORDER BY create_time DESC LIMIT 100",params);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        List<Account> accountList = new ArrayList<>();
-        if (!localHistoryList.isEmpty()){
-            for (Entity entity : localHistoryList) {
-                String rowJson = entity.getStr("row_json");
-                JSON dbAccount = JSONUtil.parse(rowJson);
-                Account account = new Account();
-                for (TableColumn<Account, ?> column : columns) {
-                    String colName = column.getId();
-                    Object colValue = dbAccount.getByPath(colName);
-                    if (colValue != null){
-                        ReflectUtil.invoke(
-                                account
-                                , "set" + colName.substring(0, 1).toUpperCase() + colName.substring(1)
-                                , colValue);
-                    }
-                }
-                accountList.add(account);
-            }
-        }
-
-        // todo 打开弹出框,动态渲染表格
-        Stage stage = new Stage();
-        javafx.scene.control.TableView tableView = new javafx.scene.control.TableView();
-
-        tableView.getColumns().addAll(columns);
-        tableView.getItems().addAll(accountList);
-
-
-        VBox mainVbox = new VBox();
-        mainVbox.setSpacing(30);
-        mainVbox.setPadding(new Insets(20));
-        mainVbox.getChildren().addAll(tableView);
-
-        Group root = new Group(mainVbox);
-        stage.setTitle("查看本地记录");
-        stage.setScene(new Scene(root, 1000, 650));
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setResizable(false);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.showAndWait();
-
-    }
-
-    /**
-     * 导出Excel按钮点击
-     */
-    public void exportExcelButtonAction(){
-        alert("导出Excel按钮点击");
-    }
-
-    /**
-     * 停止任务按钮点击
-     */
-    public void stopTaskButtonAction(){
-        alert("停止任务按钮点击");
     }
 
     /**
@@ -210,6 +142,112 @@ public class TableView extends CommonView {
         } catch (SQLException e) {
             Console.log("SQLite保存失败！ saveList: {}",insertList);
         }
+    }
+
+    /**
+     * 本地记录按钮点击
+     */
+    public void localHistoryButtonAction(){
+        // 操作区
+        Label branchLabel = new Label("当前数据分支:" + "国家区域余额");
+        branchLabel.setPrefWidth(310);
+
+        Label keywordsLabel = new Label("输入关键字");
+        TextField keywordsTextField = new TextField();
+        Button searchBtn = new Button("搜索");
+        searchBtn.setPrefWidth(150);
+
+        Button search100Btn = new Button("显示最新100条数据");
+        search100Btn.setPrefWidth(150);
+
+        Button clearBtn = new Button("清空该数据分支数据");
+        clearBtn.setPrefWidth(150);
+
+        Label countLabel = new Label("匹配数量：" + "0");
+        countLabel.setPrefWidth(180);
+
+        HBox box1 = new HBox();
+        box1.setSpacing(15);
+        box1.setAlignment(Pos.CENTER_LEFT);
+        box1.getChildren().addAll(branchLabel,keywordsLabel,keywordsTextField,searchBtn,search100Btn,clearBtn,countLabel);
+
+        // 表格区
+        HBox box2 = new HBox();
+        javafx.scene.control.TableView tableView = new javafx.scene.control.TableView();
+        tableView.setPrefWidth(1180);
+
+        // 动态渲染列,且增加操作时间字段
+        ObservableList<TableColumn<Account, ?>> columns = this.accountTableView.getColumns();
+
+        // 把序号列删除掉
+        columns.remove(0);
+        // 添加入库时间
+        TableColumn<Account,String> createTime = new TableColumn<>("入库时间");
+        createTime.setPrefWidth(120);
+        createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        tableView.getColumns().add(createTime);
+        tableView.getColumns().addAll(columns);
+
+
+        // 按钮绑定事件
+        HashMap<Object, Object> params = new HashMap<>();
+        params.put("clz_name",ClassUtil.getClassName(this, false));
+
+        searchBtn.setOnAction(actionEvent -> {
+            if (!StrUtil.isEmpty(keywordsTextField.getText())){
+                params.put("row_json",keywordsTextField.getText());
+            }
+            List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
+            countLabel.setText("匹配数量：" + accountList.size());
+            tableView.getItems().clear();
+            tableView.getItems().addAll(accountList);
+        });
+
+        search100Btn.setOnAction(actionEvent -> {
+            if (!StrUtil.isEmpty(keywordsTextField.getText())){
+                params.put("row_json",keywordsTextField.getText());
+            }
+            params.put("limit","LIMIT 100");
+            List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
+            countLabel.setText("匹配数量：" + accountList.size());
+            tableView.getItems().clear();
+            tableView.getItems().addAll(accountList);
+        });
+        clearBtn.setOnAction(actionEvent -> {
+            SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
+        });
+
+        box2.getChildren().add(tableView);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(15);
+        mainVbox.setPadding(new Insets(10));
+        mainVbox.getChildren().addAll(box1,box2);
+
+        Group root = new Group(mainVbox);
+
+        Stage stage = new Stage();
+        stage.setTitle("查看本地记录");
+        stage.setScene(new Scene(root, 1200, 550));
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.showAndWait();
+
+    }
+
+    /**
+     * 导出Excel按钮点击
+     */
+    public void exportExcelButtonAction(){
+        alert("导出Excel按钮点击");
+    }
+
+    /**
+     * 停止任务按钮点击
+     */
+    public void stopTaskButtonAction(){
+        alert("停止任务按钮点击");
     }
 
     /**
