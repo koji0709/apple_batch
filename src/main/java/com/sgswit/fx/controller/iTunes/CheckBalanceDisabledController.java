@@ -73,4 +73,5 @@ public class CheckBalanceDisabledController extends TableView<Account> {
         }
         insertLocalHistory(recordList);
     }
+
 }

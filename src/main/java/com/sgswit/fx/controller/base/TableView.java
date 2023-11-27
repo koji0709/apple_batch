@@ -119,6 +119,7 @@ public class TableView<T> extends CommonView {
      */
     public void clearAccountListButtonAction(){
         accountList.clear();
+        accountNumLable.setText("");
     }
 
     /**
@@ -178,17 +179,20 @@ public class TableView<T> extends CommonView {
         localHistoryTableView.setPrefWidth(1180);
 
         // 动态渲染列,且增加操作时间字段
-        ObservableList<TableColumn<T, ?>> columns = FXCollections.observableArrayList();
-        columns.addAll(this.accountTableView.getColumns());
-
+        for (TableColumn<T, ?> tableViewColumn : this.accountTableView.getColumns()) {
+            TableColumn<T,?> tableColumn = new TableColumn<>(tableViewColumn.getText());
+            tableColumn.setId(tableViewColumn.getId());
+            tableColumn.setPrefWidth(tableViewColumn.getPrefWidth());
+            tableColumn.setCellValueFactory(new PropertyValueFactory<>(tableColumn.getId()));
+            localHistoryTableView.getColumns().add(tableColumn);
+        }
         // 把序号列删除掉
-        columns.remove(0);
+        localHistoryTableView.getColumns().remove(0);
         // 添加入库时间
         TableColumn<Account,String> createTime = new TableColumn<>("入库时间");
         createTime.setPrefWidth(120);
         createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         localHistoryTableView.getColumns().add(createTime);
-        localHistoryTableView.getColumns().addAll(columns);
 
         // 按钮绑定事件
         HashMap<Object, Object> params = new HashMap<>();
