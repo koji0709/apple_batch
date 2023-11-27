@@ -36,8 +36,8 @@ public class SQLiteUtil {
 
         sql = clz_name != null ? sql + " AND clz_name = '"+clz_name+"'" : sql;
         sql = row_json != null ? sql + " AND row_json LIKE '%"+row_json+"%'" : sql;
+        sql = sql + " ORDER BY create_time DESC ";
         sql = limit    != null ? sql + limit : sql;
-        sql = sql + " ORDER BY create_time";
 
         try {
             localHistoryList = Db.use().query(sql,params);
