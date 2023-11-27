@@ -12,6 +12,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.collections.FXCollections;
@@ -52,6 +53,10 @@ public class TableView<T> extends CommonView {
      * 导入账号
      */
     public void openImportAccountView(String... formats){
+        openImportAccountView(Account.class,formats);
+    }
+
+    public void openImportAccountView(Class clz,String... formats){
 
         Stage stage = new Stage();
         Insets padding = new Insets(0, 0, 0, 20);
@@ -85,7 +90,7 @@ public class TableView<T> extends CommonView {
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
 
-            List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats),Account.class);
+            List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats), clz);
             accountList.addAll(accountList1);
 
             for (int i = 0; i < accountList.size(); i++) {
