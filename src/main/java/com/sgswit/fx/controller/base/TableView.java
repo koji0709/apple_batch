@@ -38,7 +38,7 @@ import java.util.*;
 /**
  * account表格视图
  */
-public class TableView<T> extends CommonView {
+public class TableView extends CommonView {
 
     @FXML
     public javafx.scene.control.TableView<Account> accountTableView;
