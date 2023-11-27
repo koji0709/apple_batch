@@ -176,11 +176,12 @@ public class TableView<T> extends CommonView {
 
         // 表格区
         HBox box2 = new HBox();
-        javafx.scene.control.TableView tableView = new javafx.scene.control.TableView();
-        tableView.setPrefWidth(1180);
+        javafx.scene.control.TableView localHistoryTableView = new javafx.scene.control.TableView();
+        localHistoryTableView.setPrefWidth(1180);
 
         // 动态渲染列,且增加操作时间字段
-        ObservableList<TableColumn<T, ?>> columns = this.accountTableView.getColumns();
+        ObservableList<TableColumn<T, ?>> columns = FXCollections.observableArrayList();
+        columns.addAll(this.accountTableView.getColumns());
 
         // 把序号列删除掉
         columns.remove(0);
@@ -188,9 +189,8 @@ public class TableView<T> extends CommonView {
         TableColumn<Account,String> createTime = new TableColumn<>("入库时间");
         createTime.setPrefWidth(120);
         createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
-        tableView.getColumns().add(createTime);
-        tableView.getColumns().addAll(columns);
-
+        localHistoryTableView.getColumns().add(createTime);
+        localHistoryTableView.getColumns().addAll(columns);
 
         // 按钮绑定事件
         HashMap<Object, Object> params = new HashMap<>();
@@ -202,8 +202,8 @@ public class TableView<T> extends CommonView {
             }
             List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
             countLabel.setText("匹配数量：" + accountList.size());
-            tableView.getItems().clear();
-            tableView.getItems().addAll(accountList);
+            localHistoryTableView.getItems().clear();
+            localHistoryTableView.getItems().addAll(accountList);
         });
 
         search100Btn.setOnAction(actionEvent -> {
@@ -213,14 +213,14 @@ public class TableView<T> extends CommonView {
             params.put("limit","LIMIT 100");
             List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
             countLabel.setText("匹配数量：" + accountList.size());
-            tableView.getItems().clear();
-            tableView.getItems().addAll(accountList);
+            localHistoryTableView.getItems().clear();
+            localHistoryTableView.getItems().addAll(accountList);
         });
         clearBtn.setOnAction(actionEvent -> {
             SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
         });
 
-        box2.getChildren().add(tableView);
+        box2.getChildren().add(localHistoryTableView);
 
         VBox mainVbox = new VBox();
         mainVbox.setSpacing(15);
@@ -228,7 +228,6 @@ public class TableView<T> extends CommonView {
         mainVbox.getChildren().addAll(box1,box2);
 
         Group root = new Group(mainVbox);
-
         Stage stage = new Stage();
         stage.setTitle("查看本地记录");
         stage.setScene(new Scene(root, 1200, 550));
@@ -236,7 +235,6 @@ public class TableView<T> extends CommonView {
         stage.setResizable(false);
         stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
-
     }
 
     /**
