@@ -28,35 +28,13 @@ public class Account {
     private  final SimpleStringProperty support;
 
     // 页面临时参数
-    /**
-     * 新邮箱(账号)或救援邮箱
-     */
     private SimpleStringProperty email;
-
-    /**
-     * POP密钥
-     */
     private SimpleStringProperty popKey;
-
-    /**
-     * 支持pin
-     */
     private SimpleStringProperty pin;
-
-    /**
-     * 支持pin过期时间
-     */
     private SimpleStringProperty pinExpir;
-
-    /**
-     * 禁用状态
-     */
     private SimpleStringProperty disableStatus;
-
-    /**
-     * 余额
-     */
     private SimpleStringProperty balance;
+    private SimpleStringProperty createTime;
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -84,6 +62,7 @@ public class Account {
         this.pinExpir = new SimpleStringProperty();
         this.disableStatus = new SimpleStringProperty();
         this.balance = new SimpleStringProperty();
+        this.createTime = new SimpleStringProperty();
     }
 
 
@@ -312,6 +291,18 @@ public class Account {
 
     public void setBalance(String balance) {
         this.balance.set(balance);
+    }
+
+    public String getCreateTime() {
+        return createTime.get();
+    }
+
+    public SimpleStringProperty createTimeProperty() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime.set(createTime);
     }
 
     @Override
