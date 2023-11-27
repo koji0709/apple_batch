@@ -63,6 +63,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         if (! (updatePwdCheckBoxSelected || updateBirthdayCheckBoxSelected || updateNameCheckBoxSelected
             || updatePasswordProtectionCheckBoxSelected || removeDeviceCheckBoxSelected || removeRescueEmailCheckBoxSelected)){
+            alert("请至少选择一项修改项");
             return;
         }
 
