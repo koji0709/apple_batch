@@ -13,9 +13,16 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class AppleIdView extends TableView<Account> {
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
+    }
 
     /**
      * appleid官网登录

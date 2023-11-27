@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -35,7 +36,6 @@ public class CheckBalanceDisabledController extends TableView<Account> {
 
         String guid = PropertiesUtil.getOtherConfig("guid");
 
-        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             boolean processed = isProcessed(account);
             if (processed){
@@ -54,6 +54,18 @@ public class CheckBalanceDisabledController extends TableView<Account> {
                 }
 
                 JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
+                String failureType = rspJSON.getStr("failureType");
+                String customerMessage = rspJSON.getStr("customerMessage");
+                if (!StrUtil.isEmpty(failureType) || !StrUtil.isEmpty(customerMessage)){
+                    if (!StrUtil.isEmpty(customerMessage)){
+                      setAndRefreshNote(account,customerMessage);
+                      continue;
+                    }
+                    if (!StrUtil.isEmpty(failureType)){
+                        setAndRefreshNote(account,failureType);
+                        continue;
+                    }
+                }
                 String balance  = rspJSON.getByPath("creditDisplay",String.class);
                 Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
                 account.setBalance(balance);
@@ -69,9 +81,7 @@ public class CheckBalanceDisabledController extends TableView<Account> {
             }else{
                 setAndRefreshNote(account,"AppleID或密码错误，或需输入双重验证码。");
             }
-            recordList.add(account);
         }
-        insertLocalHistory(recordList);
     }
 
 }

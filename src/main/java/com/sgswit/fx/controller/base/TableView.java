@@ -1,10 +1,7 @@
 package com.sgswit.fx.controller.base;
 
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReferenceUtil;
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.*;
 import cn.hutool.db.Db;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
@@ -41,6 +38,8 @@ import java.util.*;
  */
 public class TableView<T> extends CommonView {
 
+    StageEnum stage;
+
     @FXML
     public javafx.scene.control.TableView<T> accountTableView;
 
@@ -48,6 +47,31 @@ public class TableView<T> extends CommonView {
     protected Label accountNumLable;
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url,resourceBundle);
+
+        // 获取当前stage
+        if ( url != null ){
+            String file = url.getFile();
+            if (file != null){
+                String view = file.substring(file.indexOf("views/"));
+                LinkedHashMap<String, StageEnum> stageMap = EnumUtil.getEnumMap(StageEnum.class);
+                stageMap.forEach((stageName,stageEnum)->{
+                    if (view.equals(stageEnum.getView())){
+                        stage = stageEnum;
+                    }
+                });
+            }
+        }
+
+        // 数据绑定
+        ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
+        for (TableColumn<T, ?> column : columns) {
+            column.setCellValueFactory(new PropertyValueFactory(column.getId()));
+        }
+    }
 
     /**
      * 导入账号
@@ -84,12 +108,6 @@ public class TableView<T> extends CommonView {
         button.setPrefHeight(50);
 
         button.setOnAction(event -> {
-            // 数据绑定
-            ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
-            for (TableColumn<T, ?> column : columns) {
-                column.setCellValueFactory(new PropertyValueFactory(column.getId()));
-            }
-
             List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats), clz);
             accountList.addAll(accountList1);
 
@@ -156,7 +174,8 @@ public class TableView<T> extends CommonView {
      */
     public void localHistoryButtonAction(){
         // 操作区
-        Label branchLabel = new Label("当前数据分支:" + "国家区域余额");
+        String branch = stage != null ? stage.getTitle() : "";
+        Label branchLabel = new Label("当前数据分支:" + branch);
         branchLabel.setPrefWidth(310);
 
         Label keywordsLabel = new Label("输入关键字");
@@ -225,6 +244,7 @@ public class TableView<T> extends CommonView {
         });
         clearBtn.setOnAction(actionEvent -> {
             SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
+            localHistoryTableView.getItems().clear();
         });
 
         box2.getChildren().add(localHistoryTableView);
@@ -267,8 +287,12 @@ public class TableView<T> extends CommonView {
         return !StrUtil.isEmpty(account.getNote());
     }
 
-    public void setAndRefreshNote(Account account,String note){
-        account.setNote(note);
+    public void setAndRefreshNote(T account,String note){
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (hasNote){
+            ReflectUtil.invoke(account,"setNote",note);
+        }
         accountTableView.refresh();
+        insertLocalHistory(List.of(account));
     }
 }

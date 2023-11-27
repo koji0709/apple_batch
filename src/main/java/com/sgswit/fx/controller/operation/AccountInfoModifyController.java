@@ -21,6 +21,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url,resourceBundle);
         initViewData();
     }
 
@@ -110,7 +111,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 return;
             }
         }
-        List<Account> recordList = new ArrayList<>();
 
         for (Account account : accountList) {
             boolean processed = isProcessed(account);
@@ -212,8 +212,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     setAndRefreshNote(account,"移除救援邮箱成功");
                 }
             }
-            recordList.add(account);
-            insertLocalHistory(recordList);
         }
     }
 

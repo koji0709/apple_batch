@@ -26,6 +26,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url,resourceBundle);
         opTypeChoiceBox.setValue("更改AppleId");
     }
 
@@ -49,7 +50,6 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 
-        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -133,11 +133,8 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                         setAndRefreshNote(account,"修改密保成功");
                     }
                 }
-
             }
-            recordList.add(account);
         }
-        insertLocalHistory(recordList);
     }
 
 }

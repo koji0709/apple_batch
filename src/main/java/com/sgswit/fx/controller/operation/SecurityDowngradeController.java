@@ -39,7 +39,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             alert("必须填写新密码！");
             return;
         }
-        List<Account> recordList = new ArrayList<>();
+
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -66,9 +66,6 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                     setAndRefreshNote(account,"关闭双重验证失败");
                 }
             }
-            recordList.add(account);
         }
-        insertLocalHistory(recordList);
-
     }
 }

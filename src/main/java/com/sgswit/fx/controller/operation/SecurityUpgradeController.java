@@ -39,7 +39,6 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             return;
         }
 
-        List<Account> recordList = new ArrayList<>();
         for (Account account : accountList) {
             // 检测账号是否被处理过
             boolean processed = isProcessed(account);
@@ -75,10 +74,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             }
             account.setArea(phoneNumber.getStr("countryCode"));
             setAndRefreshNote(account,"绑定双重认证成功");
-            recordList.add(account);
         }
-        insertLocalHistory(recordList);
-
     }
 
 
