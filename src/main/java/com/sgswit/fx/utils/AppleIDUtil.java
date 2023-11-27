@@ -744,7 +744,11 @@ public class AppleIDUtil {
     }
     public static HttpResponse captchaAndVerify(String appleId,Integer retry){
         HttpResponse captchaRsp = captcha();
-        JSON captchaRspJSON = JSONUtil.parse(captchaRsp.body());
+        String body = captchaRsp.body();
+        if (StrUtil.isEmpty(body)){
+            return captchaAndVerify(appleId,--retry);
+        }
+        JSON captchaRspJSON = JSONUtil.parse(body);
 
         String  captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
         Integer captId     = captchaRspJSON.getByPath("id", Integer.class);
