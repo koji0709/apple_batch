@@ -48,15 +48,6 @@ public class TableView<T> extends CommonView {
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        // 数据绑定
-        ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
-        for (TableColumn<T, ?> column : columns) {
-            column.setCellValueFactory(new PropertyValueFactory(column.getId()));
-        }
-    }
-
     /**
      * 导入账号
      */
@@ -88,8 +79,15 @@ public class TableView<T> extends CommonView {
         button.setPrefHeight(50);
 
         button.setOnAction(event -> {
+            // 数据绑定
+            ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
+            for (TableColumn<T, ?> column : columns) {
+                column.setCellValueFactory(new PropertyValueFactory(column.getId()));
+            }
+
             List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats),Account.class);
             accountList.addAll(accountList1);
+
             for (int i = 0; i < accountList.size(); i++) {
                 ReflectUtil.invoke(
                         accountList.get(i)
