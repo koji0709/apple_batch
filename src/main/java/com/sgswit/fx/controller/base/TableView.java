@@ -111,7 +111,7 @@ public class TableView<T> extends CommonView {
         }
 
         // 处理账号
-        ThreadUtil.execute(()->{
+        Runnable task = () -> {
             for (int i = 0; i < accountList.size(); i++) {
                 T account = accountList.get(i);
                 if (reentrantLock.isLocked()){
@@ -132,9 +132,14 @@ public class TableView<T> extends CommonView {
                     accountHandler(account);
                 });
             }
-            // 任务执行结束, 恢复执行按钮状态
-            setExecuteButtonStatus(false);
-        });
+
+            Platform.runLater(() -> {
+                // 任务执行结束, 恢复执行按钮状态
+                setExecuteButtonStatus(false);
+            });
+        };
+        ThreadUtil.execute(task);
+
     }
 
     public void setExecuteButtonStatus(boolean isRunning){
