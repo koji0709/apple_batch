@@ -22,52 +22,39 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         openImportAccountView("account----answer1-answer2-answer3-birthday");
     }
 
-    /**
-     * 开始执行按钮点击
-     */
-    public void executeButtonAction(){
-        // 校验
-        if (accountList.isEmpty()){
-            alert("请先导入账号！");
-            return;
-        }
-
+    @Override
+    public boolean executeButtonActionBefore() {
         String newPassword = pwdTextField.getText();
         if (StrUtil.isEmpty(newPassword)){
             alert("必须填写新密码！");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void accountHandler(Account account) {
+        String newPassword = pwdTextField.getText();
+        // 识别验证码
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+        if (verifyAppleIdRsp.getStatus() == 503){
+            setAndRefreshNote(account,"操作频繁");
+            return;
+        }
+        if (verifyAppleIdRsp.getStatus() != 302) {
+            setAndRefreshNote(account,"验证码自动识别失败");
             return;
         }
 
-        for (Account account : accountList) {
-            // 检测账号是否被处理过
-            boolean processed = isProcessed(account);
-            if (processed){
-                continue;
-            }
-
-            setAndRefreshNote(account,"执行中");
-
-            // 识别验证码
-            HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
-            if (verifyAppleIdRsp.getStatus() == 503){
-                setAndRefreshNote(account,"操作频繁");
-                continue;
-            }
-            if (verifyAppleIdRsp.getStatus() != 302) {
-                setAndRefreshNote(account,"验证码自动识别失败");
-                continue;
-            }
-
-            // 修改密码 (如果账号被锁定,则解锁改密)
-            HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, account.getPwd());
-            boolean unlock = verifyAppleIdRsp.header("Location").startsWith("/password/authenticationmethod");
-            if ((unlock && updatePwdByProtectionRsp.getStatus() == 206) || (!unlock && updatePwdByProtectionRsp.getStatus() == 260)){
-                account.setPwd(newPassword);
-                setAndRefreshNote(account,"解锁改密成功");
-            }else{
-                String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
-                setAndRefreshNote(account,failMessage);
-            }
+        // 修改密码 (如果账号被锁定,则解锁改密)
+        HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, account.getPwd());
+        boolean unlock = verifyAppleIdRsp.header("Location").startsWith("/password/authenticationmethod");
+        if ((unlock && updatePwdByProtectionRsp.getStatus() == 206) || (!unlock && updatePwdByProtectionRsp.getStatus() == 260)){
+            account.setPwd(newPassword);
+            setAndRefreshNote(account,"解锁改密成功");
+        }else{
+            String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
+            setAndRefreshNote(account,failMessage);
         }
     }
 }

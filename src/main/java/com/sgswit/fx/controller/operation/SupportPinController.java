@@ -33,45 +33,26 @@ public class SupportPinController extends AppleIdView {
         openImportAccountView("account----pwd-answer1-answer2-answer3");
     }
 
-    /**
-     * 开始执行按钮点击
-     */
-    public void executeButtonAction(){
-        // 校验
-        if (accountList.isEmpty()){
-            alert("请先导入账号！");
+    @Override
+    public void accountHandler(Account account) {
+        // 登陆
+        String scnt = loginAndGetScnt(account);
+        if (StrUtil.isEmpty(scnt)){
             return;
         }
 
-        for (Account account : accountList) {
-            // 检测账号是否被处理过
-            boolean processed = isProcessed(account);
-            if (processed){
-                continue;
-            }
+        HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
+        setAndRefreshNote(account,"生成支持PIN失败！");
 
-            setAndRefreshNote(account,"执行中");
-
-            // 登陆
-            String scnt = loginAndGetScnt(account);
-            if (StrUtil.isEmpty(scnt)){
-                continue;
-            }
-
-            HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
-            setAndRefreshNote(account,"生成支持PIN失败！");
-
-            String body = supportPinRsp.body();
-            if (!StrUtil.isEmpty(body) && JSONUtil.isTypeJSON(body)){
-                JSON parse = JSONUtil.parse(body);
-                String pin = parse.getByPath("pin", String.class);
-                if (!StrUtil.isEmpty(pin)){
-                    account.setPin(pin);
-                    account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
-                    setAndRefreshNote(account,"生成支持PIN成功!");
-                }
+        String body = supportPinRsp.body();
+        if (!StrUtil.isEmpty(body) && JSONUtil.isTypeJSON(body)){
+            JSON parse = JSONUtil.parse(body);
+            String pin = parse.getByPath("pin", String.class);
+            if (!StrUtil.isEmpty(pin)){
+                account.setPin(pin);
+                account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
+                setAndRefreshNote(account,"生成支持PIN成功!");
             }
         }
     }
-
 }

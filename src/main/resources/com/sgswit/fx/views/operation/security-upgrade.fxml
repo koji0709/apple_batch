@@ -36,7 +36,7 @@
                                         </HBox>
 
                                         <!--开始执行-->
-                                        <Button text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                        <Button fx:id="executeButton" text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
                                                 prefWidth="100" prefHeight="60" mnemonicParsing="false" textFill="#238142">
                                             <font>
                                                 <Font name="System Bold" size="15"/>

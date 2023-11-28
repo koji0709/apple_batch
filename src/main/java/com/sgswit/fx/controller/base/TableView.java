@@ -1,17 +1,18 @@
 package com.sgswit.fx.controller.base;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
-import cn.hutool.db.Db;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,7 +22,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -32,13 +32,16 @@ import javafx.stage.StageStyle;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * account表格视图
  */
 public class TableView<T> extends CommonView {
 
-    StageEnum stage;
+    @FXML
+    protected Button executeButton;
 
     @FXML
     public javafx.scene.control.TableView<T> accountTableView;
@@ -47,6 +50,10 @@ public class TableView<T> extends CommonView {
     protected Label accountNumLable;
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
+
+    StageEnum stage;
+
+    ReentrantLock reentrantLock = new ReentrantLock();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -74,12 +81,97 @@ public class TableView<T> extends CommonView {
     }
 
     /**
+     * 执行前, 一般做一些参数校验
+     */
+    public boolean executeButtonActionBefore(){
+        return true;
+    }
+
+    /**
+     * 按钮点击
+     */
+    public void executeButtonAction() {
+        // 校验
+        if (accountList.isEmpty()) {
+            alert("请先导入账号！");
+            return;
+        }
+        boolean verify = executeButtonActionBefore();
+        if (!verify) {
+            return;
+        }
+
+        // 修改按钮为执行状态
+        setExecuteButtonStatus(true);
+
+        // 每一次执行前都释放锁
+        if (reentrantLock.isLocked()) {
+            reentrantLock.unlock();
+            ThreadUtil.sleep(500);
+        }
+
+        // 处理账号
+        ThreadUtil.execute(()->{
+            for (int i = 0; i < accountList.size(); i++) {
+                T account = accountList.get(i);
+                if (reentrantLock.isLocked()){
+                    return;
+                }
+                boolean processed = isProcessed(account);
+                if (processed){
+                    continue;
+                }
+
+                // 有些方法执行太快会显示过于频繁,每处理十个账号休息1s
+                if (i != 0 && i % 10 == 0){
+                    ThreadUtil.sleep(500);
+                }
+                ThreadUtil.sleep(500);
+                ThreadUtil.execute(()->{
+                    setAndRefreshNote(account,"执行中",false);
+                    accountHandler(account);
+                });
+            }
+            // 任务执行结束, 恢复执行按钮状态
+            setExecuteButtonStatus(false);
+        });
+    }
+
+    public void setExecuteButtonStatus(boolean isRunning){
+        // 修改按钮状态
+        if (executeButton != null) {
+            if (isRunning){
+                executeButton.setText("正在查询");
+                executeButton.setTextFill(Paint.valueOf("#FF0000"));
+                executeButton.setDisable(true);
+            } else {
+                executeButton.setTextFill(Paint.valueOf("#238142"));
+                executeButton.setText("开始执行");
+                executeButton.setDisable(false);
+            }
+        }
+    }
+
+    /**
+     * 每一个账号的处理器
+     */
+    public void accountHandler(T account){}
+
+    /**
+     * 停止任务按钮点击
+     */
+    public void stopTaskButtonAction(){
+        reentrantLock.lock();
+        // 停止任务, 恢复按钮状态
+        setExecuteButtonStatus(false);
+    }
+
+    /**
      * 导入账号
      */
     public void openImportAccountView(String... formats){
         openImportAccountView(Account.class,formats);
     }
-
     public void openImportAccountView(Class clz,String... formats){
 
         Stage stage = new Stage();
@@ -272,27 +364,43 @@ public class TableView<T> extends CommonView {
     }
 
     /**
-     * 停止任务按钮点击
+     * 账号是否被处理过
      */
-    public void stopTaskButtonAction(){
-        alert("停止任务按钮点击");
+    public boolean isProcessed(T account){
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (!hasNote){
+            return false;
+        }
+        Object noteObj = ReflectUtil.getFieldValue(account, "note");
+        if (noteObj instanceof StringProperty){
+            StringProperty note = (StringProperty) noteObj;
+            return !StrUtil.isEmpty(note.getValue());
+        }
+        if (noteObj instanceof String){
+            String note = (String) noteObj;
+            return !StrUtil.isEmpty(note);
+        }
+        return !StrUtil.isEmpty(noteObj.toString());
     }
 
     /**
-     * 账号是否被处理过
-     * @param account
-     * @return
+     * 设置账号的执行信息,以及刷新列表保存本地记录
      */
-    public boolean isProcessed(Account account){
-        return !StrUtil.isEmpty(account.getNote());
+    public void setAndRefreshNote(T account,String note){
+        setAndRefreshNote(account,note,true);
     }
 
-    public void setAndRefreshNote(T account,String note){
+    /**
+     * 设置账号的执行信息,以及刷新列表保存本地记录
+     */
+    public void setAndRefreshNote(T account,String note,boolean saveLog){
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
         if (hasNote){
             ReflectUtil.invoke(account,"setNote",note);
         }
         accountTableView.refresh();
-        insertLocalHistory(List.of(account));
+        if (saveLog){
+            insertLocalHistory(List.of(account));
+        }
     }
 }

@@ -1,8 +1,11 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.github.javafaker.Faker;
 import com.sgswit.fx.model.Account;
 
 import java.lang.reflect.InvocationTargetException;
@@ -80,7 +83,7 @@ public class AccountImportUtil<T>{
 
             List<String> fieldList = formatMap.get(fieldValueList.size());
             if (fieldList == null){
-                Console.log("账号导入格式不正确");
+                Console.log("账号导入格式不正确: Account: {}",acc);
                 continue;
             }
 
@@ -104,18 +107,31 @@ public class AccountImportUtil<T>{
         return accountList;
     }
 
+    public static void genTestData(String format){
+        Faker faker = new Faker(Locale.CHINA);
+        for (int i = 1; i <= 50; i++) {
+            String data = format.replace("account", faker.name().fullName())
+                                .replace("pwd", RandomUtil.randomString(6))
+                                .replace("answer1", faker.animal().name())
+                                .replace("answer2", faker.cat().name())
+                                .replace("answer3", faker.dog().name())
+                                .replace("phone", faker.phoneNumber().phoneNumber())
+                                .replace("birthday", DateUtil.format(faker.date().birthday(),"yyyyMMdd"))
+                                .replace("email", RandomUtil.randomString(5)+"@gmail.com");
+            System.err.println(data);
+        }
+    }
+
     public static void main(String[] args) {
-        String format1 = "account----pwd-birthday";
-        String format2 = "account----pwd-answer1-answer2-answer3-birthday";
-        String accountStr = "1----1-1-2-3-123\n" +
-                "2----2-123";
+        String format1 = "account----pwd";
+        String format2 = "account----pwd-birthday";
+        String format3 = "account----pwd-answer1-answer2-answer3";
+        String format4 = "account----answer1-answer2-answer3-birthday";
+        String format5 = "account----pwd-answer1-answer2-answer3-birthday";
+        String format6 = "account----pwd-answer1-answer2-answer3-email";
 
-        String s = buildNote(format1, format2);
-        System.err.println(s);
 
-        List<Account> accountList = new AccountImportUtil<Account>().parseAccount(accountStr,Arrays.asList(format1,format2),Account.class);
-        System.err.println(accountList);
-
+        genTestData(format4);
     }
 
 

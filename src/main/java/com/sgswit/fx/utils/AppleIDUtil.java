@@ -748,22 +748,29 @@ public class AppleIDUtil {
         if (StrUtil.isEmpty(body)){
             return captchaAndVerify(appleId,--retry);
         }
+
         JSON captchaRspJSON = JSONUtil.parse(body);
 
         String  captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
+        if (StrUtil.isEmpty(captBase64)){
+            return captchaAndVerify(appleId,--retry);
+        }
+
         Integer captId     = captchaRspJSON.getByPath("id", Integer.class);
         String  captToken  = captchaRspJSON.getByPath("token", String.class);
         String  captAnswer = OcrUtil.recognize(captBase64);
 
-        Console.log("Captcha captBase64: " + captBase64);
-        Console.log("Captcha captAnswer: " + captAnswer);
-
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
-        if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
+
+        // 验证码错误才重新尝试
+        if (verifyAppleIdRsp.getStatus() == 200 && retry > 0){
+            Console.log("[验证码识别错误] Base64: " + captBase64);
+            Console.log("[验证码识别错误] Answer: " + captAnswer);
             return captchaAndVerify(appleId,--retry);
         }
+
         return verifyAppleIdRsp;
     }
 
