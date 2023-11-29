@@ -392,7 +392,7 @@ public class TableView<T> extends CommonView {
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
     public void setAndRefreshNote(T account,String note){
-        setAndRefreshNote(account,note,true);
+        //setAndRefreshNote(account,note,true);
     }
 
     /**

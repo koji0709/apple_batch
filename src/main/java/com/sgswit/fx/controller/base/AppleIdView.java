@@ -27,7 +27,7 @@ public class AppleIdView extends TableView<Account> {
     /**
      * appleid官网登录
      */
-    public HttpResponse login(Account account){
+    public HttpResponse login(Account account,String at){
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
         if(signInRsp.getStatus()!=409){
@@ -39,57 +39,79 @@ public class AppleIdView extends TableView<Account> {
         HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
         String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
 
+        // 检查账号的登陆方式与该功能是否匹配
+        if (!authType.equals(at)){
+            String note = "hsa2".equals(authType) ? "此账号已开启双重认证。" : "此账号未开启双重认证";
+            setAndRefreshNote(account,note);
+            return null;
+        }
+
         // 双重认证
         if ("hsa2".equals(authType)) {
-            String typeCode = this.openSecurityCodePopupView(account);
-            if (StrUtil.isEmpty(typeCode)){
-                setAndRefreshNote(account,"未输入验证码");
-                return null;
-            }
-            String[] code = typeCode.split("-");
-            HttpResponse securityCodeRsp = AppleIDUtil.securityCode(authRsp, code[0], code[1]);
-
-            // Token
-            HttpResponse tokenRsp = AppleIDUtil.token(securityCodeRsp);
-            return tokenRsp;
-        }else{
+            return hsa2Login(account,authRsp);
+        } else { // sa 密保认证
             if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
                 setAndRefreshNote(account,"密保认证必须输入密保问题");
                 return null;
             }
-            // 密保认证
-            HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
-            if (questionRsp.getStatus() != 412) {
-                setAndRefreshNote(account,"密保问题验证失败");
-                return null;
-            }
-
-            HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
-            String XAppleIDSessionId = "";
-            String scnt = accountRepairRsp.header("scnt");
-            List<String> cookies = accountRepairRsp.headerList("Set-Cookie");
-            for (String item : cookies) {
-                if (item.startsWith("aidsp")) {
-                    XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
-                }
-            }
-            HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(questionRsp, accountRepairRsp);
-            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(repareOptionsRsp, XAppleIDSessionId, scnt);
-            HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(securityUpgradeRsp, XAppleIDSessionId, scnt);
-            HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
-            HttpResponse repareCompleteRsp  = AppleIDUtil.repareComplete(repareOptionsSecondRsp, questionRsp);
-            // Token
-            HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
-            if (tokenRsp.getStatus() != 200){
-                setAndRefreshNote(account,"登录异常");
-                return null;
-            }
-            return tokenRsp;
+            return saLogin(account,authRsp);
         }
     }
 
+    /**
+     * 双重验证登陆
+     */
+    public HttpResponse hsa2Login(Account account,HttpResponse authRsp){
+        String typeCode = this.openSecurityCodePopupView(account);
+        if (StrUtil.isEmpty(typeCode)){
+            setAndRefreshNote(account,"未输入验证码");
+            return null;
+        }
+        String[] code = typeCode.split("-");
+        HttpResponse securityCodeRsp = AppleIDUtil.securityCode(authRsp, code[0], code[1]);
+
+        // Token
+        HttpResponse tokenRsp = AppleIDUtil.token(securityCodeRsp);
+        return tokenRsp;
+    }
+
+    /**
+     * 密保登陆
+     */
+    public HttpResponse saLogin(Account account,HttpResponse authRsp){
+        // 密保认证
+        HttpResponse questionRsp = AppleIDUtil.questions(authRsp, account);
+        if (questionRsp.getStatus() != 412) {
+            setAndRefreshNote(account,"密保问题验证失败");
+            return null;
+        }
+
+        HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(questionRsp);
+        String XAppleIDSessionId = "";
+        String scnt = accountRepairRsp.header("scnt");
+        List<String> cookies = accountRepairRsp.headerList("Set-Cookie");
+        for (String item : cookies) {
+            if (item.startsWith("aidsp")) {
+                XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
+            }
+        }
+        HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(questionRsp, accountRepairRsp);
+        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(repareOptionsRsp, XAppleIDSessionId, scnt);
+        HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(securityUpgradeRsp, XAppleIDSessionId, scnt);
+        HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
+        HttpResponse repareCompleteRsp  = AppleIDUtil.repareComplete(repareOptionsSecondRsp, questionRsp);
+        // Token
+        HttpResponse tokenRsp   = AppleIDUtil.token(repareCompleteRsp);
+        if (tokenRsp.getStatus() != 200){
+            setAndRefreshNote(account,"登录异常");
+            return null;
+        }
+        return tokenRsp;
+    }
+
     public String loginAndGetScnt(Account account){
-        HttpResponse tokenRsp = login(account);
+        String authType = StrUtil.isEmpty(account.getAnswer1()) ? "hsa2" : "sa";
+        HttpResponse tokenRsp = login(account,authType);
         if (tokenRsp == null){
             return "";
         }
