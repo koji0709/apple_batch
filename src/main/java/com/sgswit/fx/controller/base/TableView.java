@@ -7,6 +7,7 @@ import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.operation.AccountInfoModifyController;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
@@ -29,6 +30,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
@@ -318,12 +320,20 @@ public class TableView<T> extends CommonView {
         // 按钮绑定事件
         HashMap<Object, Object> params = new HashMap<>();
         params.put("clz_name",ClassUtil.getClassName(this, false));
-
+        Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
+        // 获取当前controller上的泛型(数据对象)
+        Class clz = Account.class;
+        if (!typeMap.isEmpty()){
+            for (Map.Entry<Type, Type> typeEntry : typeMap.entrySet()) {
+                clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
+            }
+        }
+        Class finalClz = clz;
         searchBtn.setOnAction(actionEvent -> {
             if (!StrUtil.isEmpty(keywordsTextField.getText())){
                 params.put("row_json",keywordsTextField.getText());
             }
-            List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
+            List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
             localHistoryTableView.getItems().clear();
             localHistoryTableView.getItems().addAll(accountList);
@@ -334,7 +344,7 @@ public class TableView<T> extends CommonView {
                 params.put("row_json",keywordsTextField.getText());
             }
             params.put("limit","LIMIT 100");
-            List<Account> accountList = SQLiteUtil.selectLocalHistoryList(params,Account.class);
+            List<T> accountList = SQLiteUtil.selectLocalHistoryList(params,finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
             localHistoryTableView.getItems().clear();
             localHistoryTableView.getItems().addAll(accountList);
