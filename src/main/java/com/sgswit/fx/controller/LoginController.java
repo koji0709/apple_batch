@@ -3,12 +3,15 @@ package com.sgswit.fx.controller;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.base.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,6 +21,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -109,21 +114,16 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // 在线qq
-//        if (!autoLogin){
-//            ObservableList<String> qqList = FXCollections.observableArrayList();
-//            HttpResponse rsp = HttpUtil.get("/api/data/getQQList");
-//            boolean success = HttpUtil.verifyRsp(rsp);
-//            if (success){
-//                JSONArray qqArr = HttpUtil.dataList(rsp);
-//                if (qqArr.size() > 0){
-//                    qqList.addAll(qqArr.toList(String.class));
-//                }
-//            }
-//            if (qqList.size()>0){
-//                qqChiceBox.setItems(qqList);
-//                qqChiceBox.setValue(qqList.get(0));
-//            }
-//        }
+        if (!autoLogin){
+            ObservableList<String> qqList = FXCollections.observableArrayList();
+            for(String qq:TencentQQUtil.getLoginQQList()){
+                qqList.add(qq);
+            }
+            if (qqList.size()>0){
+                qqChiceBox.setItems(qqList);
+                qqChiceBox.setValue(qqList.get(0));
+            }
+        }
 
     }
 
