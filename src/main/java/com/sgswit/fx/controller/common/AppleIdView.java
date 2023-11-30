@@ -1,10 +1,11 @@
-package com.sgswit.fx.controller.base;
+package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
+import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.fxml.FXMLLoader;

@@ -6,7 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
-import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PropertiesUtil;

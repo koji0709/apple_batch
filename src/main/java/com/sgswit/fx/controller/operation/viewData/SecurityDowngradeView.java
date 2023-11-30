@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.operation.viewData;
 
-import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;

@@ -1,7 +1,6 @@
 package com.sgswit.fx.controller.operation.viewData;
 
-import com.sgswit.fx.controller.base.AppleIdView;
-import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.common.AppleIdView;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 

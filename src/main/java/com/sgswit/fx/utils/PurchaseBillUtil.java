@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class PurchaseResultUtil {
+public class PurchaseBillUtil {
 
     public static String location = "";
     public static String locationBase = "";
@@ -47,12 +47,12 @@ public class PurchaseResultUtil {
 //        if(StringUtils.isEmpty(loginAndAuth("1948401156@qq.com","B0527s0207!"))){
 //            search(dsid,"");
 //        }
-        String error=loginAndAuth("qewqeq@2980.com","dPFb6cSD4");
-        if(StringUtils.isEmpty(error)){
-            search(dsid,"");
-        }else{
-            System.out.println(error);
-        }
+//        String error=loginAndAuth("qewqeq@2980.com","dPFb6cSD4");
+//        if(StringUtils.isEmpty(error)){
+//            search(dsid,"");
+//        }else{
+//            System.out.println(error);
+//        }
 
     }
 

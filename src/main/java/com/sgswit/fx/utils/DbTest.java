@@ -12,7 +12,7 @@ import java.util.List;
 public class DbTest {
 
     public static void main(String[] args) throws SQLException {
-        List<Entity> entityList = Db.use().query("SELECT * FROM account");
+        List<Entity> entityList = Db.use().query("SELECT * FROM t");
         System.err.println(entityList);
     }
 
