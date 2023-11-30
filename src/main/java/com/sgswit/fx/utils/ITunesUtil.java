@@ -13,6 +13,7 @@ import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
 import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import org.xml.sax.SAXException;
 
@@ -33,9 +34,6 @@ import java.util.Map;
  * @date 2023/9/2720:32
  */
 public class ITunesUtil {
-
-    public static final String 	FailureTypeInvalidCredentials     = "-5000";
-    public static final String CustomerMessageBadLogin             = "MZFinance.BadLogin.Configurator_message";
 
     public static void main(String[] args) throws Exception {
 //        accountPurchasesCount(null);
@@ -307,7 +305,7 @@ public class ITunesUtil {
         String failureType     = json.getStr("failureType","");
         String customerMessage = json.getStr("customerMessage","");
 
-        if(FailureTypeInvalidCredentials.equals(failureType)){
+        if(Constant.FailureTypeInvalidCredentials.equals(failureType)){
            authRsp = authenticate(account, guid, authUrl);
         }
 
