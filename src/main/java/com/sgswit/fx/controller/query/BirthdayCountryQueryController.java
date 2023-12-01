@@ -4,11 +4,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.CommController;
-import com.sgswit.fx.controller.base.AppleIdView;
+import com.sgswit.fx.controller.common.AppleIdView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.fxml.FXML;
 
 import java.util.List;
 
@@ -22,7 +20,7 @@ import java.util.List;
  */
 public class BirthdayCountryQueryController extends AppleIdView {
 
-    @FXML
+
     public void onAccountInputBtnClick(){
         openImportAccountView(Account.class,"account----pwd-answer1-answer2-answer3");
     }

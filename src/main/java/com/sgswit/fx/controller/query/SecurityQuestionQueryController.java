@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
@@ -29,12 +29,9 @@ import java.util.List;
  */
 public class SecurityQuestionQueryController extends TableView<Problem> {
 
-    @FXML
     public void onAccountInputBtnClick(){
         openImportAccountView(Problem.class,"account----pwd");
     }
-
-
 
 
     public void accountHandler(Problem problem) {

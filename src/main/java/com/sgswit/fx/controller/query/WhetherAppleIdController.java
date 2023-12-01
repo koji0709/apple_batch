@@ -1,42 +1,18 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.controller.base.CommonView;
-import com.sgswit.fx.controller.base.TableView;
-import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
+import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.StringUtils;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -49,10 +25,6 @@ import java.util.*;
  */
 public class WhetherAppleIdController extends TableView<Account> {
 
-    @FXML
-    public Button birthdayCountryQueryBtn;
-
-    @FXML
     public void openImportAccountView(){
         openImportAccountView("account");
     }
