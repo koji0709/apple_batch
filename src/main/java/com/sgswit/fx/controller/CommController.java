@@ -23,7 +23,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ import java.util.List;
  * @description: TODO
  * @date 2023/10/2615:27
  */
-public class CommController<T> extends com.sgswit.fx.controller.base.TableView<T> {
+public class CommController<T> extends com.sgswit.fx.controller.common.TableView {
     /**
     　* 操作方法
       * @param
