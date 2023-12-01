@@ -37,18 +37,12 @@ public class PurchaseBillUtil {
             String token=loginResult.get("token").toString();
             String dsid=loginResult.get("dsid").toString();
             String searchCookies=loginResult.get("searchCookies").toString();
-            search(dsid,"",token,searchCookies);
+            List<String > jsonStrList=new ArrayList<>();
+            jsonStrList.clear();
+            search(jsonStrList,dsid,"",token,searchCookies);
+            System.out.println(jsonStrList);
         }
-
-
-//        if(StringUtils.isEmpty(loginAndAuth("1948401156@qq.com","B0527s0207!"))){
-//            search(dsid,"");
-//        }
-//        String error=loginAndAuth("qewqeq@2980.com","dPFb6cSD4");
-
     }
-
-
 
     public static Map<String,Object> loginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
@@ -585,7 +579,7 @@ public class PurchaseBillUtil {
     　* @author DeZh
     　* @date 2023/11/27 22:16
     */
-    public static HttpResponse search(String dsid,String nextBatchId,String token,String searchCookies) {
+    public static HttpResponse search(List<String> jsonStrList,String dsid,String nextBatchId,String token,String searchCookies) {
         HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*;"));
@@ -609,8 +603,16 @@ public class PurchaseBillUtil {
                 .cookie(searchCookies)
                 .body(body)
                 .execute();
+        if(searchResponse.getStatus()==200){
+            JSON json=JSONUtil.parse(searchResponse.body());
+            if(!StringUtils.isEmpty(json.getByPath("nextBatchId"))){
+                nextBatchId=json.getByPath("nextBatchId").toString();
+                jsonStrList.add(searchResponse.body());
+                search(jsonStrList,dsid,nextBatchId,token,searchCookies);
+            }
 
-        System.out.println("------dsid--"+dsid+"--->"+searchResponse.body());
+
+        }
         return searchResponse;
     }
 

@@ -175,12 +175,20 @@ public class LoginController extends CommonView implements Initializable {
 
         String body = "{\"qq\":\"%s\"}";
         body = String.format(body,qq);
-        HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
-        boolean verify = HttpUtil.verifyRsp(rsp);
-        if (!verify){
-            alert(HttpUtil.message(rsp));
+        String userInfo ="";
+        try {
+            HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
+            boolean verify = HttpUtil.verifyRsp(rsp);
+            if (!verify){
+                alert(HttpUtil.message(rsp));
+                return;
+            }
+            userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
+        }catch (Exception e){
+            alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
         }
+        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }
