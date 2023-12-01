@@ -1,8 +1,12 @@
 package com.sgswit.fx;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.ProjectValues;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.StringUtils;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,10 +16,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -37,6 +39,8 @@ import java.util.*;
 public class MainController implements Initializable {
     @FXML
     public Pane rightMainPane;
+    @FXML
+    public Label remainingPoints;
     @FXML
     private ChoiceBox<KeyValuePair> agencyMode = new ChoiceBox<KeyValuePair>();
     @FXML
@@ -93,6 +97,8 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        refreshUserInfo();
+
     }
 
     private Node getLeftMenu() {
@@ -288,7 +294,7 @@ public class MainController implements Initializable {
 
         popupStage.setTitle("自助充值");
 
-        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
@@ -298,5 +304,17 @@ public class MainController implements Initializable {
     protected void callQQ(){
         String url = "http://wpa.qq.com/msgrd?v=3&uin=748895431&site=qq&menu=yes";
         browse(url);
+    }
+    @FXML
+    public void refreshUserInfo() {
+        //加载点数
+        String s = PropertiesUtil.getOtherConfig("login.info");
+        JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
+        Object remainingPointsObj= object.getByPath("remainingPoints");
+        if(StringUtils.isEmpty(remainingPointsObj)){
+            remainingPoints.setText("0");
+        }else{
+            remainingPoints.setText(remainingPointsObj.toString());
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.sgswit.fx.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -32,22 +34,24 @@ public class TencentQQUtil {
      * 获取当前登录qq的信息
      * @return map集合
      */
-    public static Map<String,String> getLoginQQList(){
-        final Map<String,String> map = new HashMap<String,String>(5);
-
-        user32.EnumWindows(new User32.WndEnumProc() {
-            @Override
-            public boolean callback(Pointer hWnd, Pointer userData) {
-                byte[] windowText = new byte[512];
-                user32.GetWindowTextA(hWnd, windowText, 512);
-                String wText = Native.toString(windowText);
-                if(_filterQQInfo(wText)){
-                    map.put(hWnd.toString(), wText.substring(wText.indexOf(QQ_WINDOW_TEXT_PRE) + QQ_WINDOW_TEXT_PRE.length()));
+    public static List<String> getLoginQQList(){
+        final List<String> list= new ArrayList<>();
+        if(SystemUtils.isWindows()){
+            user32.EnumWindows(new User32.WndEnumProc() {
+                @Override
+                public boolean callback(Pointer hWnd, Pointer userData) {
+                    byte[] windowText = new byte[512];
+                    user32.GetWindowTextA(hWnd, windowText, 512);
+                    String wText = Native.toString(windowText);
+                    if(_filterQQInfo(wText)){
+                        list.add(wText.substring(wText.indexOf(QQ_WINDOW_TEXT_PRE) + QQ_WINDOW_TEXT_PRE.length()));
+                    }
+                    return true;
                 }
-                return true;
-            }
-        }, null);
-        return map;
+            }, null);
+        }
+
+        return list;
     }
 
 

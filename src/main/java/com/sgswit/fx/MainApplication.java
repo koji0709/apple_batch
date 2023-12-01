@@ -55,7 +55,11 @@ public class MainApplication extends Application {
             }
         }));
         // 检查并更新版本
-        checkAndUpdateVersion();
+        try {
+            checkAndUpdateVersion();
+        }catch (Exception e){
+
+        }
         StageUtil.show(StageEnum.LOGIN);
     }
 

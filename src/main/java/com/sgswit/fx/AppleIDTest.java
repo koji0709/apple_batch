@@ -2,11 +2,8 @@ package com.sgswit.fx;
 
 import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.github.javafaker.App;
-import com.sgswit.fx.controller.base.AppleIdView;
-import com.sgswit.fx.controller.base.TableView;
+import com.sgswit.fx.controller.common.AppleIdView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 

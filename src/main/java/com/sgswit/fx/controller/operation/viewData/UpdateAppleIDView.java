@@ -1,13 +1,8 @@
 package com.sgswit.fx.controller.operation.viewData;
 
-import com.sgswit.fx.controller.base.AppleIdView;
-import com.sgswit.fx.model.Account;
+import com.sgswit.fx.controller.common.AppleIdView;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 /**
  * 苹果更改账号view元素

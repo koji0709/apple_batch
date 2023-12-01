@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.base;
+package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;

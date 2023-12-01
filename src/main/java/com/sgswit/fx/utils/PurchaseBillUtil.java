@@ -28,67 +28,65 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class PurchaseResultUtil {
-
-    public static String location = "";
-    public static String locationBase = "";
-
-    public static String frameId = "";
-    public static String clientId = "";
-    public static String searchCookies = "";
-    public static String token = "";
-    public static String dsid = "";
-
+public class PurchaseBillUtil {
 
     public static void main( String[] args ){
-//        if(StringUtils.isEmpty(loginAndAuth("djli0506@163.com","!!B0527s0207!!"))){
-//            search(dsid,"");
-//        }
-//        if(StringUtils.isEmpty(loginAndAuth("1948401156@qq.com","B0527s0207!"))){
-//            search(dsid,"");
-//        }
-        String error=loginAndAuth("qewqeq@2980.com","dPFb6cSD4");
-        if(StringUtils.isEmpty(error)){
-            search(dsid,"");
-        }else{
-            System.out.println(error);
+        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
+        if(res.get("code").equals("200")){
+            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
+            String token=loginResult.get("token").toString();
+            String dsid=loginResult.get("dsid").toString();
+            String searchCookies=loginResult.get("searchCookies").toString();
+            List<String > jsonStrList=new ArrayList<>();
+            jsonStrList.clear();
+            search(jsonStrList,dsid,"",token,searchCookies);
+            System.out.println(jsonStrList);
         }
-
     }
 
-
-
-    public static String loginAndAuth(String account,String pwd){
+    public static Map<String,Object> loginAndAuth(String account,String pwd){
+        Map<String,Object>  result=new HashMap<>();
+        result.put("code","200");
         String error="";
         HttpResponse pre1Response = shopPre1();
         if(pre1Response.getStatus() != 302){
-            return error;
+            result.put("code","1");
+            result.put("msg",error);
+            return result;
         }
         String requestUrl = pre1Response.header("Location");
-        clientId=UrlParasUtil.getQueryParamsByKey(requestUrl,"appIdKey");
+        String clientId=UrlParasUtil.getQueryParamsByKey(requestUrl,"appIdKey");
         HttpResponse pre2Response = shopPre2(pre1Response);
         Map<String,Object> jx=jXDocument(pre1Response);
         String a=jx.get("a").toString();
         BigInteger n=new BigInteger(jx.get("n").toString());
         BigInteger ra=new BigInteger(jx.get("ra").toString());
         BigInteger g=new BigInteger(jx.get("g").toString());
+        String frameId=jx.get("frameId").toString();
+        String locationBase=jx.get("locationBase").toString();
 
-        HttpResponse step0Res = federate(account);
 
-        HttpResponse step1Res = signinInit(account,a,step0Res);
 
-        HttpResponse step2Res = signinCompete(account,pwd,a,g,n,ra,step1Res,pre2Response);
+        HttpResponse step0Res = federate(account,frameId,clientId, locationBase);
+
+        HttpResponse step1Res = signinInit(account,a,frameId,clientId,locationBase,step0Res);
+
+        HttpResponse step2Res = signinCompete(account,pwd,a,g,n,ra,step1Res,pre2Response,frameId,clientId,locationBase);
 
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             JSON json = JSONUtil.parse(step2Res.body());
             error=json.getByPath("serviceErrors.message").toString();
-            return error;
+            result.put("code","1");
+            result.put("msg",error);
+            return result;
         }else{
             JSON json = JSONUtil.parse(step2Res.body());
             String authType = (String)json.getByPath("authType");
             if ("hsa2".equals(authType)) {
                 error="该账户为双重认证模式";
-                return error;
+                result.put("code","1");
+                result.put("msg",error);
+                return result;
             }
         }
         HttpResponse step212Res =accountRepair(step2Res);
@@ -105,9 +103,10 @@ public class PurchaseResultUtil {
 
         HttpResponse step215Res = securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
         HttpResponse step216Res = repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
-        HttpResponse step22Res = repareComplete(step216Res, step2Res);
-        login(pre1Response,step22Res);
-        return error;
+        HttpResponse step22Res = repareComplete(step216Res, step2Res,frameId);
+        Map<String,Object> loginResult= login(pre1Response,step22Res);
+        result.put("loginResult",loginResult);
+        return result;
     }
     public static List<String> getCookiesFromHeader(HttpResponse response){
         List<String> cookies = new ArrayList<>();
@@ -124,11 +123,11 @@ public class PurchaseResultUtil {
 
     public static Map<String,Object> jXDocument(HttpResponse pre1){
         Map<String,Object> res=new HashMap<>();
-        frameId  = createFrameId();
-        location = pre1.header("Location");
-        locationBase = "https://idmsa.apple.com/";
+        String frameId  = createFrameId();
+        String location = pre1.header("Location");
+        String locationBase = "https://idmsa.apple.com/";
         // get x-apple-hc
-        HttpResponse pre4 = signFrame();
+        HttpResponse pre4 = signFrame(frameId,location,locationBase);
 
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -142,6 +141,9 @@ public class PurchaseResultUtil {
         res.put("n",n);
         res.put("ra",ra);
         res.put("a",a);
+        res.put("frameId",frameId);
+        res.put("location",location);
+        res.put("locationBase",locationBase);
         return res;
     }
     public static HttpResponse shopPre1(){
@@ -172,7 +174,7 @@ public class PurchaseResultUtil {
     }
 
 
-    private static HttpResponse signFrame(){
+    private static HttpResponse signFrame(String frameId,String clientId, String locationBase){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -190,7 +192,7 @@ public class PurchaseResultUtil {
         return res;
     }
 
-    public static HttpResponse federate(String account){
+    public static HttpResponse federate(String account,String frameId,String clientId, String locationBase){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -230,7 +232,7 @@ public class PurchaseResultUtil {
         return res;
     }
 
-    public static HttpResponse signinInit(String account,String a ,HttpResponse res1){
+    public static HttpResponse signinInit(String account,String a ,String frameId,String clientId, String locationBase,HttpResponse res1){
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
@@ -272,7 +274,7 @@ public class PurchaseResultUtil {
         return res;
     }
 
-    public static HttpResponse signinCompete(String account,String pwd,String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse pre2){
+    public static HttpResponse signinCompete(String account,String pwd,String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse pre2,String frameId,String clientId, String locationBase){
 
         HashMap<String, List<String>> headers = new HashMap<>();
 
@@ -472,7 +474,7 @@ public class PurchaseResultUtil {
                 .execute();
         return res2;
     }
-    public static HttpResponse repareComplete(HttpResponse res1, HttpResponse step211Res) {
+    public static HttpResponse repareComplete(HttpResponse res1, HttpResponse step211Res,String frameId) {
         String XAppleIDSessionId=step211Res.header("X-Apple-ID-Session-Id");
         String scnt=step211Res.header("scnt");
         HashMap<String, List<String>> headers =  new HashMap<>();
@@ -521,7 +523,8 @@ public class PurchaseResultUtil {
     　* @author DeZh
     　* @date 2023/11/27 22:19
     */
-    public static HttpResponse login(HttpResponse pre1Response,HttpResponse step22Res) {
+    public static Map<String,Object> login(HttpResponse pre1Response,HttpResponse step22Res) {
+        Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -550,8 +553,8 @@ public class PurchaseResultUtil {
                 .header(headers)
                 .cookie(loginCookies)
                 .execute();
-        token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
-        dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
+        String token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
+        String dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
         //查询方法
         StringBuilder searchCookieBuilder = new StringBuilder();
         for(String item : getCookiesFromHeader(loginResponse)){
@@ -560,8 +563,11 @@ public class PurchaseResultUtil {
         for (String item : getCookiesFromHeader(step22Res)) {
             searchCookieBuilder.append(";").append(item);
         }
-        searchCookies = searchCookieBuilder.substring(1);
-        return loginResponse;
+        String searchCookies = searchCookieBuilder.substring(1);
+        result.put("token",token);
+        result.put("dsid",dsid);
+        result.put("searchCookies",searchCookies);
+        return result;
     }
     /**
     　* 查询方法
@@ -573,7 +579,7 @@ public class PurchaseResultUtil {
     　* @author DeZh
     　* @date 2023/11/27 22:16
     */
-    public static HttpResponse search(String dsid,String nextBatchId) {
+    public static HttpResponse search(List<String> jsonStrList,String dsid,String nextBatchId,String token,String searchCookies) {
         HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*;"));
@@ -597,8 +603,16 @@ public class PurchaseResultUtil {
                 .cookie(searchCookies)
                 .body(body)
                 .execute();
+        if(searchResponse.getStatus()==200){
+            JSON json=JSONUtil.parse(searchResponse.body());
+            if(!StringUtils.isEmpty(json.getByPath("nextBatchId"))){
+                nextBatchId=json.getByPath("nextBatchId").toString();
+                jsonStrList.add(searchResponse.body());
+                search(jsonStrList,dsid,nextBatchId,token,searchCookies);
+            }
 
-        System.out.println("------dsid--"+dsid+"--->"+searchResponse.body());
+
+        }
         return searchResponse;
     }
 

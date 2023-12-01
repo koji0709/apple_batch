@@ -5,10 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
-import com.sgswit.fx.controller.base.CommonView;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -109,21 +111,16 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // 在线qq
-//        if (!autoLogin){
-//            ObservableList<String> qqList = FXCollections.observableArrayList();
-//            HttpResponse rsp = HttpUtil.get("/api/data/getQQList");
-//            boolean success = HttpUtil.verifyRsp(rsp);
-//            if (success){
-//                JSONArray qqArr = HttpUtil.dataList(rsp);
-//                if (qqArr.size() > 0){
-//                    qqList.addAll(qqArr.toList(String.class));
-//                }
-//            }
-//            if (qqList.size()>0){
-//                qqChiceBox.setItems(qqList);
-//                qqChiceBox.setValue(qqList.get(0));
-//            }
-//        }
+        if (!autoLogin){
+            ObservableList<String> qqList = FXCollections.observableArrayList();
+            for(String qq:TencentQQUtil.getLoginQQList()){
+                qqList.add(qq);
+            }
+            if (qqList.size()>0){
+                qqChiceBox.setItems(qqList);
+                qqChiceBox.setValue(qqList.get(0));
+            }
+        }
 
     }
 
@@ -178,12 +175,20 @@ public class LoginController extends CommonView implements Initializable {
 
         String body = "{\"qq\":\"%s\"}";
         body = String.format(body,qq);
-        HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
-        boolean verify = HttpUtil.verifyRsp(rsp);
-        if (!verify){
-            alert(HttpUtil.message(rsp));
+        String userInfo ="";
+        try {
+            HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
+            boolean verify = HttpUtil.verifyRsp(rsp);
+            if (!verify){
+                alert(HttpUtil.message(rsp));
+                return;
+            }
+            userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
+        }catch (Exception e){
+            alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
         }
+        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }

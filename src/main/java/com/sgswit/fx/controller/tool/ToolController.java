@@ -7,7 +7,7 @@ import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.base.CommonView;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.fxml.FXML;
