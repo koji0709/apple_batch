@@ -114,11 +114,11 @@
             <version>1.10</version>
         </dependency>
 
-        <!--打码（先本地install一下) https://github.com/GCS-ZHN/ddddocr-for-java-->
+        <!--打码（先本地install一下,注意版本) https://github.com/GCS-ZHN/ddddocr-for-java-->
         <dependency>
             <groupId>top.gcszhn</groupId>
             <artifactId>d4ocr</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>

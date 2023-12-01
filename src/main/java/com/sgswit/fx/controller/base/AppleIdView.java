@@ -25,7 +25,34 @@ public class AppleIdView extends TableView<Account> {
     }
 
     /**
-     * appleid官网登录
+     * appleid官网登录(不区分登录方式)
+     */
+    public HttpResponse login(Account account){
+        // SignIn
+        HttpResponse signInRsp = AppleIDUtil.signin(account);
+        if(signInRsp.getStatus()!=409){
+            setAndRefreshNote(account,"请检查用户名密码是否正确");
+            return null;
+        }
+
+        // Auth
+        HttpResponse authRsp = AppleIDUtil.auth(signInRsp);
+        String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
+
+        // 双重认证
+        if ("hsa2".equals(authType)) {
+            return hsa2Login(account,authRsp);
+        } else { // sa 密保认证
+            if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+                setAndRefreshNote(account,"密保认证必须输入密保问题");
+                return null;
+            }
+            return saLogin(account,authRsp);
+        }
+    }
+
+    /**
+     * appleid官网登录(固定登陆方式,如果账号authtype不匹配报错)
      */
     public HttpResponse login(Account account,String at){
         // SignIn
