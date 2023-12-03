@@ -18,7 +18,7 @@ public final class ConsumptionBill {
 
     private final SimpleStringProperty account;
 
-    private final SimpleStringProperty notes;
+    private final SimpleStringProperty note;
 
     private final SimpleStringProperty area;
 
@@ -45,7 +45,7 @@ public final class ConsumptionBill {
     public ConsumptionBill() {
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
-        this.notes = new SimpleStringProperty();
+        this.note = new SimpleStringProperty();
         this.area = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.lastPurchaseDate = new SimpleStringProperty();
@@ -75,13 +75,13 @@ public final class ConsumptionBill {
         this.account.set(account);
     }
 
-    public String getNotes() {
-        return notes.get();
+    public String getNote() {
+        return note.get();
     }
 
 
-    public void setNotes(String notes) {
-        this.notes.set(notes);
+    public void setNote(String note) {
+        this.note.set(note);
     }
 
     public String getArea() {

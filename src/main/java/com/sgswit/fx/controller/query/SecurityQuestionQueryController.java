@@ -34,6 +34,7 @@ public class SecurityQuestionQueryController extends TableView<Problem> {
     }
 
 
+    @Override
     public void accountHandler(Problem problem) {
         //step1 sign 登录
         Account account = new Account();

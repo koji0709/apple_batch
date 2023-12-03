@@ -9,10 +9,13 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -21,6 +24,9 @@ import org.bouncycastle.crypto.util.DigestFactory;
 import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -29,6 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class PurchaseBillUtil {
+    public static String guid = PropertiesUtil.getOtherConfig("guid");
+
+    public static String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
 
     public static void main( String[] args ){
         Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
@@ -42,6 +51,7 @@ public class PurchaseBillUtil {
             search(jsonStrList,dsid,"",token,searchCookies);
             System.out.println(jsonStrList);
         }
+//        authenticate("djli0506@163.com","!!B0527s0207!!");
     }
 
     public static Map<String,Object> loginAndAuth(String account,String pwd){
@@ -64,8 +74,6 @@ public class PurchaseBillUtil {
         BigInteger g=new BigInteger(jx.get("g").toString());
         String frameId=jx.get("frameId").toString();
         String locationBase=jx.get("locationBase").toString();
-
-
 
         HttpResponse step0Res = federate(account,frameId,clientId, locationBase);
 
@@ -595,7 +603,8 @@ public class PurchaseBillUtil {
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
         headers.put("Te",ListUtil.toList("trailers"));
         String searchUrl = "https://reportaproblem.apple.com/api/purchase/search";
-        String body="{\"batchId\":\"%s\",\"dsid\":\"%s\"}";
+
+        String body="{\"batchId\":\"%s\",\"dsid\":\"%s\",\"purchaseAmount\":\"\"}";
 
         body = String.format(body,nextBatchId,dsid);
         HttpResponse searchResponse = HttpUtil.createPost(searchUrl)
@@ -610,11 +619,33 @@ public class PurchaseBillUtil {
                 jsonStrList.add(searchResponse.body());
                 search(jsonStrList,dsid,nextBatchId,token,searchCookies);
             }
-
-
         }
         return searchResponse;
     }
+
+  private static void order(String weborder,String dsid,String token,String cookies){
+      HashMap<String, List<String>> headers =  new HashMap<>();
+      headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+      headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+      headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+      headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+      headers.put("dsid",ListUtil.toList(dsid));
+      headers.put("x-apple-xsrf-token",ListUtil.toList(token));
+      headers.put("x-apple-rap2-api",ListUtil.toList("3.0.0"));
+      headers.put("Host", ListUtil.toList("reportaproblem.apple.com"));
+      headers.put("Referer", ListUtil.toList("https://reportaproblem.apple.com/"));
+      headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+      headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
+      headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
+      headers.put("Te",ListUtil.toList("trailers"));
+      String url="https://reportaproblem.apple.com/api/order/"+weborder+"/invoice";
+      HttpResponse searchResponse = HttpUtil.createGet(url)
+              .header(headers)
+              .cookie(cookies)
+              .execute();
+      System.out.println(searchResponse.getStatus());
+      System.out.println(searchResponse.body());
+  }
 
 
     private static Map<String,String> calM(String accountName, String password, String a, Integer iter, String salt, String b, BigInteger g, BigInteger n, BigInteger ra) {
@@ -883,4 +914,63 @@ public class PurchaseBillUtil {
         }
         return cookieBuilder.toString();
     }
+    public static Map<String,Object> authenticate(String account,String pwd){
+        Map<String,Object> paras=new HashMap<>();
+        paras.put("account",account);
+        paras.put("pwd",pwd);
+        paras.put("authUrl",authUrl);
+        paras.put("code","200");
+        String authCode = "";
+        return login(authCode,guid,0,paras);
+    }
+
+    private static Map<String,Object> login(String authCode,String guid, Integer attempt,Map<String,Object> paras){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
+        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+                "<plist version=\"1.0\"><dict><key>appleId</key><string>"+paras.get("account")+"</string><key>attempt</key><string>4</string><key>createSession</key><string>true</string><key>guid</key><string>"+guid+"</string><key>password</key><string>"+paras.get("pwd")+authCode+"</string><key>rmp</key><string>0</string><key>why</key><string>signIn</string></dict></plist>";
+        try {
+            HttpResponse res = HttpUtil.createPost(paras.get("authUrl").toString())
+                    .header(headers)
+                    .body(authBody, ContentType.FORM_URLENCODED.toString())
+                    .execute();
+
+            paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
+            paras.put("itspod",res.header(Constant.ITSPOD));
+            paras.put("authUrl",res.header("location"));
+            if(res.getStatus()==302){
+                return login(authCode,guid,1,paras);
+            }
+            String rb = res.charset("UTF-8").body();
+            JSONObject rspJSON = PListUtil.parse(rb);
+            String failureType = rspJSON.getStr("failureType");
+            String customerMessage = rspJSON.getStr("customerMessage");
+
+            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
+                return login(authCode,guid,1,paras);
+            }
+
+            if(!StringUtils.isEmpty(failureType) && !StringUtils.isEmpty(customerMessage)){
+                paras.put("code","1");
+                paras.put("msg",customerMessage);
+                return paras;
+            }
+            if(!StringUtils.isEmpty(failureType)){
+                return paras;
+            }
+            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
+            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
+            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+            paras.put("isDisabledAccount",isDisabledAccount);
+            paras.put("name",lastName +  " " + firstName);
+            paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paras;
+    }
+
+
 }

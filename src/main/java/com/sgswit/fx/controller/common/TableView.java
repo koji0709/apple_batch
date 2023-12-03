@@ -227,9 +227,9 @@ public class TableView<T> extends CommonView {
         Group root = new Group(mainVbox);
         stage.setTitle("账号导入");
         stage.setScene(new Scene(root, 600, 450));
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
-        stage.initStyle(StageStyle.DECORATED);
+        stage.initStyle(StageStyle.UTILITY);
         stage.showAndWait();
     }
 

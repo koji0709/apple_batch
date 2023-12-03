@@ -1,5 +1,7 @@
 package com.sgswit.fx.controller;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -22,6 +24,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -45,7 +48,16 @@ public class CommController<T> extends com.sgswit.fx.controller.common.TableView
     */
     protected void queryOrUpdate(T account, HttpResponse step1Res){
     }
-
+    /**
+    　添加日志方法
+      * @param
+     * @param account
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/3 16:32
+    */
+    protected void insertLocalLog(T account){}
     /**
     　* 点击执行查询
       * @param

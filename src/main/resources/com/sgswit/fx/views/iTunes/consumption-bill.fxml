@@ -22,7 +22,7 @@
                                         <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccountQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142">
+                                        <Button fx:id="accountQueryBtn" mnemonicParsing="false" onAction="#onAccountQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142">
                                             <font>
                                                 <Font name="System Bold" size="15.0" />
                                             </font>
@@ -71,21 +71,28 @@
                             <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                                 <children>
                                     <Label text="注：" />
-                                    <Label text="账号总数：" wrapText="true">
-                                        <VBox.margin>
-                                            <Insets bottom="3.0" top="2.0" />
-                                        </VBox.margin>
-                                    </Label>
-                                    <Label text="成功数：" wrapText="true">
-                                        <VBox.margin>
-                                            <Insets bottom="3.0" top="2.0" />
-                                        </VBox.margin>
-                                    </Label>
-                                    <Label text="失败数：" wrapText="true">
-                                        <VBox.margin>
-                                            <Insets bottom="3.0" top="2.0" />
-                                        </VBox.margin>
-                                    </Label>
+                                    <HBox prefHeight="30.0" prefWidth="340.0">
+                                        <Label text="账号总数：" wrapText="true">
+                                            <VBox.margin>
+                                                <Insets bottom="3.0" top="2.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <Label fx:id="accountNumLable" text="0" />
+                                    </HBox>
+                                    <HBox prefHeight="30.0" prefWidth="340.0">
+                                        <Label text="成功数：" wrapText="true">
+                                            <VBox.margin>
+                                                <Insets bottom="3.0" top="2.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                    </HBox>
+                                    <HBox prefHeight="30.0" prefWidth="340.0">
+                                        <Label text="失败数：" wrapText="true">
+                                            <VBox.margin>
+                                                <Insets bottom="3.0" top="2.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                    </HBox>
                                     <HBox prefHeight="35.0" prefWidth="340.0">
                                         <children>
                                             <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
@@ -108,12 +115,12 @@
                         </TitledPane>
                         <TitledPane layoutX="6.0" layoutY="197.0" prefHeight="427.0" prefWidth="1150.0" text="账号列表">
                             <content>
-                                <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1057.0">
+                                <TableView fx:id="accountTableView">
                                     <columns>
                                         <TableColumn fx:id="seq" prefWidth="70.0" text="序号" />
                                         <TableColumn fx:id="account" prefWidth="110.0" text="账号" />
                                         <TableColumn fx:id="pwd" prefWidth="110.0" text="密码" />
-                                        <TableColumn fx:id="notes" prefWidth="160.0" text="执行信息" />
+                                        <TableColumn fx:id="note" prefWidth="160.0" text="执行信息" />
                                         <TableColumn fx:id="area" prefWidth="70.0" text="账号地区" />
                                         <TableColumn fx:id="accountBalance" prefWidth="70.0" text="账号余额" />
                                         <TableColumn fx:id="status" prefWidth="70.0" text="禁用状态" />
@@ -133,10 +140,10 @@
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="286.0">
                                     <children>
                                         <Label layoutX="6.0" layoutY="40.0" text="选择查询范围" />
-                                        <ChoiceBox layoutX="81.0" layoutY="36.0" prefHeight="23.0" prefWidth="90.0" />
-                              <CheckBox layoutX="185.0" layoutY="39.0" mnemonicParsing="false" text="过滤免费项目" />
-                              <CheckBox layoutX="7.0" layoutY="77.0" mnemonicParsing="false" text="自定义查询范围" />
-                              <TextField layoutX="120.0" layoutY="74.0" prefHeight="23.0" prefWidth="51.0" />
+                                        <ChoiceBox fx:id="rangeSelect" layoutX="81.0" layoutY="36.0" prefHeight="23.0" prefWidth="90.0" />
+                              <CheckBox fx:id="isFilterFree" layoutX="185.0" layoutY="39.0" mnemonicParsing="false" text="过滤免费项目" />
+                              <CheckBox fx:id="customRange" layoutX="7.0" layoutY="77.0" mnemonicParsing="false" text="自定义查询范围" />
+                              <TextField fx:id="days" layoutX="120.0" layoutY="74.0" prefHeight="23.0" prefWidth="51.0" />
                               <Label layoutX="186.0" layoutY="78.0" text="天" />
                               <Label layoutX="205.0" layoutY="77.0" text="(0=查询全部)" />
                                     </children>
