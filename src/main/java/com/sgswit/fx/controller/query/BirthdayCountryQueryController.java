@@ -72,7 +72,7 @@ public class BirthdayCountryQueryController extends CommController<Account> {
             return;
         }
 
-        super.onAccoutQueryBtnClick(birthdayCountryQueryBtn,accountTableView,list);
+        super.onAccountQueryBtnClick(birthdayCountryQueryBtn,accountTableView,list);
     }
 
     @Override

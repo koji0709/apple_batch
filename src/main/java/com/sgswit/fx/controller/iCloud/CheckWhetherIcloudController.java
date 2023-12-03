@@ -117,7 +117,7 @@ public class CheckWhetherIcloudController {
     }
 
     @FXML
-    protected void onAccoutQueryBtnClick() throws Exception{
+    protected void onAccountQueryBtnClick() throws Exception{
 
         if(list.size() < 1){
             return;

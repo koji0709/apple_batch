@@ -69,7 +69,7 @@ public class CommController<T> {
     　* @author DeZh
     　* @date 2023/10/26 23:00
     */
-    protected void onAccoutQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
+    protected void onAccountQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
         int n=0;
         //判断是否有待执行的数据
         for(T account:list) {

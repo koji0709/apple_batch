@@ -176,7 +176,7 @@ public class GiftCardBalanceCheckController implements Initializable {
     }
 
     @FXML
-    protected void onAccoutQueryBtnClick() throws Exception{
+    protected void onAccountQueryBtnClick() throws Exception{
         if(list.size() < 1){
             return;
         }
@@ -358,5 +358,8 @@ public class GiftCardBalanceCheckController implements Initializable {
     private void tableRefresh(GiftCard giftCard,String message){
         giftCard.setNote(message);
         accountTableView.refresh();
+    }
+
+    public void onStopBtnClick(ActionEvent actionEvent) {
     }
 }

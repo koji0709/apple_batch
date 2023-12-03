@@ -23,7 +23,7 @@
                             <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccoutQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
+                              <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccountQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
                                  <font>
                                     <Font name="System Bold" size="15.0" />
                                  </font>

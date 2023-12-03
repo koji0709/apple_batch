@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.CountryModifyController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.CountryModifyController">
    <children>
       <Pane prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -24,7 +24,7 @@
                             <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccoutQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
+                              <Button fx:id="accoutQueryBtn" mnemonicParsing="false" onAction="#onAccountQueryBtnClick" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142" GridPane.rowIndex="1">
                                  <font>
                                     <Font name="System Bold" size="15.0" />
                                  </font>

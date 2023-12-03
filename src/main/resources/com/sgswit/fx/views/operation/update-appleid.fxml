@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.collections.*?>
-<?import java.lang.String?>
 
-<AnchorPane fx:controller="com.sgswit.fx.controller.operation.UpdateAppleIdController"
-            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.UpdateAppleIdController">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距14px-->
         <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
@@ -17,62 +15,50 @@
                 <HBox style="-fx-spacing: 14">
                     <children>
                         <!--操作-->
-                        <TitledPane text="操作" prefWidth="380" prefHeight="165" contentDisplay="CENTER" collapsible="false" animated="false">
+                        <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
                             <content>
-                                <GridPane prefWidth="400" prefHeight="140" >
+                                <GridPane prefHeight="140" prefWidth="400">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130"/>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES"/>
-                                        <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
                                         <!--列表总数-->
-                                        <HBox GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200" prefHeight="30">
+                                        <HBox prefHeight="30" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                             <children>
-                                                <Label text="列表中账户数量：      "/>
-                                                <Label fx:id="accountNumLable" textFill="#e20404"/>
+                                                <Label text="列表中账户数量：      " />
+                                                <Label fx:id="accountNumLable" textFill="#e20404" />
                                             </children>
                                         </HBox>
 
                                         <!--开始执行-->
-                                        <Button fx:id="executeButton" text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
-                                                prefWidth="100" prefHeight="60" mnemonicParsing="false" textFill="#238142">
+                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                             <font>
-                                                <Font name="System Bold" size="15"/>
+                                                <Font name="System Bold" size="15" />
                                             </font>
                                         </Button>
 
                                         <!--操作按钮-->
-                                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="290" prefHeight="95" alignment="CENTER">
+                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
-                                                                   prefWidth="130"/>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
-                                                                   prefWidth="130"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints />
                                             </rowConstraints>
                                             <children>
-                                                <Button text="导入账号" onAction="#importAccountButtonAction"
-                                                        GridPane.rowIndex="0" GridPane.columnIndex="0"
-                                                        prefWidth="100" mnemonicParsing="false"/>
-                                                <Button text="清空列表" onAction="#clearAccountListButtonAction"
-                                                        GridPane.rowIndex="0" GridPane.columnIndex="1"
-                                                        prefWidth="100" mnemonicParsing="false" />
-                                                <Button text="本地记录" onAction="#localHistoryButtonAction"
-                                                        GridPane.rowIndex="1" GridPane.columnIndex="0"
-                                                        prefWidth="100" mnemonicParsing="false"/>
-                                                <Button text="导出Excel" onAction="#exportExcelButtonAction"
-                                                        GridPane.rowIndex="1" GridPane.columnIndex="1"
-                                                        prefWidth="100" mnemonicParsing="false"/>
-                                                <Button text="停止任务" onAction="#stopTaskButtonAction"
-                                                        GridPane.rowIndex="2" GridPane.columnIndex="0"
-                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button mnemonicParsing="false" onAction="#importAccountButtonAction" prefWidth="100" text="导入账号" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                                <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Button mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                             </children>
                                         </GridPane>
 
@@ -82,16 +68,16 @@
                         </TitledPane>
 
                         <!--配置信息-->
-                        <TitledPane text="配置信息" prefWidth="180" prefHeight="165" collapsible="false" animated="false">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="120.0" text="配置信息">
                             <content>
-                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
+                                <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="167.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <Label text="工作模式"/>
+                                        <Label text="工作模式" />
                                         <ChoiceBox fx:id="opTypeChoiceBox">
                                             <items>
                                                 <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="更改AppleId"/>
-                                                    <String fx:value="新增救援邮件"/>
+                                                    <String fx:value="更改AppleId" />
+                                                    <String fx:value="新增救援邮件" />
                                                 </FXCollections>
                                             </items>
                                         </ChoiceBox>
@@ -102,53 +88,53 @@
                         </TitledPane>
 
                         <!--修改资料-->
-                        <TitledPane text="修改资料" prefWidth="790" prefHeight="165" collapsible="false" animated="false" >
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="700.0" text="修改资料">
                             <content>
                                 <HBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                     <children>
                                         <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                             <children>
-                                                <Label text="[打开POP配置文件] 搭建的邮箱需要自行设定POP地址"/>
-                                                <HBox alignment="CENTER_LEFT" >
+                                                <Label text="[打开POP配置文件] 搭建的邮箱需要自行设定POP地址" />
+                                                <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <Label text="验证码等待延时"/>
-                                                        <TextField fx:id="verifyCodeDelayTextField" prefWidth="30"/>
-                                                        <Label text="秒  重新执行时建议填10-15秒"/>
+                                                        <Label text="验证码等待延时" />
+                                                        <TextField fx:id="verifyCodeDelayTextField" prefWidth="30" />
+                                                        <Label text="秒  重新执行时建议填10-15秒" />
                                                     </children>
                                                 </HBox>
-                                                <Label/>
+                                                <Label />
                                             </children>
                                         </VBox>
                                         <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                             <children>
                                                 <CheckBox fx:id="updateAccountInfoCheckBox" text="同时修改账号其他资料" />
-                                                <HBox alignment="CENTER" >
+                                                <HBox alignment="CENTER">
                                                     <children>
-                                                        <Label text="新密码"/><TextField fx:id="pwdTextField"/>
+                                                        <Label text="新密码" /><TextField fx:id="pwdTextField" />
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER">
                                                     <children>
-                                                        <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" prefWidth="162"/>
+                                                        <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" prefWidth="162" />
                                                     </children>
                                                 </HBox>
                                             </children>
                                         </VBox>
                                         <VBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                             <children>
-                                                <HBox alignment="CENTER" >
+                                                <HBox alignment="CENTER">
                                                     <children>
-                                                        <Label text="新密保朋友"/><TextField fx:id="answer1TextField"/>
+                                                        <Label text="新密保朋友" /><TextField fx:id="answer1TextField" />
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER">
                                                     <children>
-                                                        <Label text="新密保工作" /><TextField fx:id="answer2TextField"/>
+                                                        <Label text="新密保工作" /><TextField fx:id="answer2TextField" />
                                                     </children>
                                                 </HBox>
-                                                <HBox alignment="CENTER" >
+                                                <HBox alignment="CENTER">
                                                     <children>
-                                                        <Label text="新密保父母"/><TextField fx:id="answer3TextField"/>
+                                                        <Label text="新密保父母" /><TextField fx:id="answer3TextField" />
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -162,13 +148,13 @@
                         </TitledPane>
 
                         <!--执行结果-->
-                        <TitledPane text="执行结果" prefWidth="110" prefHeight="165" collapsible="false" animated="false">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="110" text="执行结果">
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
-                                    <Label text="账号总数：--"/>
-                                    <Label text="成功数：--"/>
-                                    <Label text="失败数：--"/>
-                                    <Label text="消耗点数：30"/>
+                                    <Label text="账号总数：--" />
+                                    <Label text="成功数：--" />
+                                    <Label text="失败数：--" />
+                                    <Label text="消耗点数：30" />
                                 </VBox>
                             </content>
                         </TitledPane>
@@ -176,20 +162,20 @@
                 </HBox>
 
                 <!--账号列表-->
-                <TitledPane text="账号列表" collapsible="false" animated="false">
+                <TitledPane animated="false" collapsible="false" text="账号列表">
                     <content>
-                        <TableView fx:id="accountTableView" prefWidth="1500" prefHeight="500">
+                        <TableView fx:id="accountTableView" prefHeight="400.0">
                             <columns>
-                                <TableColumn fx:id="seq" text="序号"/>
-                                <TableColumn fx:id="account" prefWidth="180" text="账号"/>
-                                <TableColumn fx:id="pwd" prefWidth="130" text="密码"/>
-                                <TableColumn fx:id="answer1" prefWidth="100" text="答案1"/>
-                                <TableColumn fx:id="answer2" prefWidth="100" text="答案2"/>
-                                <TableColumn fx:id="answer3" prefWidth="100" text="答案3"/>
-                                <TableColumn fx:id="birthday" prefWidth="80" text="生日"/>
-                                <TableColumn fx:id="area" prefWidth="75" text="国家"/>
-                                <TableColumn fx:id="email" prefWidth="160" text="新账号或救援邮箱"/>
-                                <TableColumn fx:id="popKey" prefWidth="160" text="POP密钥"/>
+                                <TableColumn fx:id="seq" text="序号" />
+                                <TableColumn fx:id="account" prefWidth="180" text="账号" />
+                                <TableColumn fx:id="pwd" prefWidth="130" text="密码" />
+                                <TableColumn fx:id="answer1" prefWidth="100" text="答案1" />
+                                <TableColumn fx:id="answer2" prefWidth="100" text="答案2" />
+                                <TableColumn fx:id="answer3" prefWidth="100" text="答案3" />
+                                <TableColumn fx:id="birthday" prefWidth="80" text="生日" />
+                                <TableColumn fx:id="area" prefWidth="75" text="国家" />
+                                <TableColumn fx:id="email" prefWidth="160" text="新账号或救援邮箱" />
+                                <TableColumn fx:id="popKey" prefWidth="160" text="POP密钥" />
                                 <TableColumn fx:id="note" prefWidth="180" text="执行信息" />
                             </columns>
                         </TableView>

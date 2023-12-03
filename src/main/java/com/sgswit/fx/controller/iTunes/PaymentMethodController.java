@@ -139,12 +139,12 @@ public class PaymentMethodController extends CommController<Account> implements 
     }
 
     @FXML
-    protected void onAccoutQueryBtnClick() throws Exception{
+    protected void onAccountQueryBtnClick() throws Exception{
 
         if(list.size() < 1){
             return;
         }
-        super.onAccoutQueryBtnClick(accoutQueryBtn,accountTableView,list);
+        super.onAccountQueryBtnClick(accoutQueryBtn,accountTableView,list);
     }
     @Override
     protected void queryOrUpdate(Account account, HttpResponse step1Res) {

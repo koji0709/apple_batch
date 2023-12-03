@@ -9,12 +9,12 @@ public enum StageEnum {
     MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
 
     /********** OPERATION区 ***********/
-    ACCOUNT_INFO_MODIFY("官方修改资料","views/operation/account-info-modify.fxml",1260,760),
-    UNLOCK_CHANGE_PASSWORD("账号解锁改密","views/operation/unlock-change-password.fxml",1260,760),
-    UPDATE_APPLE_ID("苹果更改账号","views/operation/update-appleid.fxml",1260,760),
-    SECURITY_UPGRADE("开通双重认证","views/operation/security-upgrade.fxml",1260,760),
-    SECURITY_DOWNGRADE("关闭双重认证","views/operation/security-downgrade.fxml",1260,760),
-    SUPPORT_PIN("生成支持PIN","views/operation/support-pin.fxml",1260,760),
+    ACCOUNT_INFO_MODIFY("官方修改资料","views/operation/account-info-modify.fxml",1260,650),
+    UNLOCK_CHANGE_PASSWORD("账号解锁改密","views/operation/unlock-change-password.fxml",1260,650),
+    UPDATE_APPLE_ID("苹果更改账号","views/operation/update-appleid.fxml",1260,650),
+    SECURITY_UPGRADE("开通双重认证","views/operation/security-upgrade.fxml",1260,650),
+    SECURITY_DOWNGRADE("关闭双重认证","views/operation/security-downgrade.fxml",1260,650),
+    SUPPORT_PIN("生成支持PIN","views/operation/support-pin.fxml",1260,650),
 
     /********** ICLOUD区 ***********/
     CHECK_WHETHER("能否登录iCloud","views/iCloud/check-whether-icloud.fxml",1000,650),
@@ -25,16 +25,17 @@ public enum StageEnum {
     GIFTCARD_BLANCE("礼品卡查余额","views/iTunes/giftCard-balance-check.fxml",1100,650),
     CHECK_AREA_BALANCE("国家区域余额","views/iTunes/check_area_balance.fxml",1100,650),
     CHECK_BALANCE_DISABLEDSTATUS("查询余额/检测禁用","views/iTunes/check_balance_disabledstatus.fxml",1100,650),
+    CONSUMPTION_BILL("查询消费账单","views/iTunes/consumption-bill.fxml",1150,700),
 
 
     /********** QUERY区 ***********/
-    BIRTHDAY_COUNTRY_QUERY("查询生日国家","views/query/birthday-country.fxml",1100,700),
+    BIRTHDAY_COUNTRY_QUERY("查询生日国家","views/query/birthday-country.fxml",1100,650),
     BALANCE_QUERY("密保查询余额","views/query/balance-query.fxml",1100,700),
-    CHECK_GRAY_BALANCE("检测灰余额","views/query/detection-gray-balance.fxml",1100,700),
-    WHETHER_APPLEID("检测是否AppleID","views/query/whether-appleid.fxml",1100,700),
-    RAPID_FILTRATION("急速过滤密正","views/query/rapid-filtration.fxml",1100,700),
-    DETECTION_WHETHER("检测是否过检","views/query/detection-whether-inspection.fxml",1100,700),
-    SECURITY_QUESTION("查询密保问题","views/query/security-question-query.fxml",1100,700),
+    CHECK_GRAY_BALANCE("检测灰余额","views/query/detection-gray-balance.fxml",1100,650),
+    WHETHER_APPLEID("检测是否AppleID","views/query/whether-appleid.fxml",1100,650),
+    RAPID_FILTRATION("急速过滤密正","views/query/rapid-filtration.fxml",1100,650),
+    DETECTION_WHETHER("检测是否过检","views/query/detection-whether-inspection.fxml",1100,650),
+    SECURITY_QUESTION("查询密保问题","views/query/security-question-query.fxml",1100,650),
 
     /********** TOOLBOX区 ***********/
 

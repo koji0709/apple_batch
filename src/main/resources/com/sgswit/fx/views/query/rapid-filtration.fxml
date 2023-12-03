@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.RapidFiltrationController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.RapidFiltrationController">
    <children>
       <Pane prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -31,7 +30,7 @@
                               </Button>
                               <HBox fx:id="accountNumBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="245.0" GridPane.columnIndex="1">
                                  <children>
-                                    <Label  text="列表中账户数量：      " />
+                                    <Label text="列表中账户数量：      " />
                                     <Label fx:id="accountNum" text="0" textFill="#e20404" />
                                  </children>
                               </HBox>
@@ -61,7 +60,7 @@
                             <children>
                                 <Label text="功能说明：极速过滤密正" />
                                 <Label text="导入格式：账号----密码" />
-                                <Label text="操作提示：过滤是否密码正确、是否锁定、是否未激活、是否双重认证等等"/>
+                                <Label text="操作提示：过滤是否密码正确、是否锁定、是否未激活、是否双重认证等等" />
                               <HBox prefHeight="35.0" prefWidth="340.0">
                                  <children>
                                     <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
@@ -87,10 +86,10 @@
                      <content>
                         <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
                           <columns>
-                            <TableColumn fx:id="seq" style="-fx-alignment: CENTER" prefWidth="75.0" text="序号" />
-                            <TableColumn fx:id="account" style="-fx-alignment: CENTER" prefWidth="350.0" text="账号" />
-                            <TableColumn fx:id="pwd" style="-fx-alignment: CENTER" prefWidth="300.0" text="密码" />
-                            <TableColumn fx:id="note" style="-fx-alignment: CENTER" prefWidth="300.0" text="信息" />
+                            <TableColumn fx:id="seq" prefWidth="75.0" style="-fx-alignment: CENTER" text="序号" />
+                            <TableColumn fx:id="account" prefWidth="350.0" style="-fx-alignment: CENTER" text="账号" />
+                            <TableColumn fx:id="pwd" prefWidth="300.0" style="-fx-alignment: CENTER" text="密码" />
+                            <TableColumn fx:id="note" prefWidth="300.0" style="-fx-alignment: CENTER" text="信息" />
                           </columns>
                         </TableView>
                      </content>

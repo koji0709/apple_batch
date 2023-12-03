@@ -241,7 +241,7 @@ public class CountryModifyController extends CommController<Account> implements 
     }
 
     @FXML
-    protected void onAccoutQueryBtnClick() throws Exception{
+    protected void onAccountQueryBtnClick() throws Exception{
 
         if(list.size() < 1){
             return;
@@ -253,7 +253,7 @@ public class CountryModifyController extends CommController<Account> implements 
             alert.show();
             return;
         }
-        super.onAccoutQueryBtnClick(accoutQueryBtn,accountTableView,list);
+        super.onAccountQueryBtnClick(accoutQueryBtn,accountTableView,list);
     }
 
 
