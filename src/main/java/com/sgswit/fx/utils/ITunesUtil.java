@@ -1,8 +1,13 @@
 package com.sgswit.fx.utils;
 
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -18,7 +23,11 @@ import com.sgswit.fx.model.Account;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,56 +43,6 @@ import java.util.Map;
  * @date 2023/9/2720:32
  */
 public class ITunesUtil {
-
-    public static void main(String[] args) throws Exception {
-//        accountPurchasesCount(null);
-//        getPurchases(null);
-//        getPaymentInfos(null);
-       // addOrEditBillingInfoSrv(null);
-//        Faker faker = new Faker(Locale.CHINA);
-//
-//        Address address = faker.address();
-//        System.out.println(address.streetAddress());
-//        System.out.println(address.streetName());
-//        System.out.println(address.secondaryAddress());
-//        System.out.println(address.streetAddressNumber());
-//        System.out.println(address.buildingNumber());
-//        System.out.println(address.citySuffix());
-//        System.out.println(address.stateAbbr());
-//        String ZipCode=address.zipCode();
-//        System.out.println(address.countyByZipCode(ZipCode));
-//        System.out.println(faker.phoneNumber().subscriberNumber());
-
-
-//        String jsonString = ResourceUtil.readUtf8Str("json/global-mobile-phone-regular.json");
-//////
-//        JSONArray jsonArray= JSONUtil.parseArray(JSONUtil.parseObj(jsonString).getStr("data"));
-//        for (Object o:jsonArray){
-//            JSONObject jsonObject= (JSONObject) o;
-//            System.out.println(jsonObject.getStr("locale"));
-//        }
-//        Generex generex = new Generex("1[35789]\\d{9}");
-//            System.out.println(generex.random());
-
-        Account account = new Account();
-        account.setAccount("djli0506@163.com");
-        account.setPwd("!!B0527s0207!!");
-
-        String guid = PropertiesUtil.getOtherConfig("guid");
-        HttpResponse authRsp = authenticate(account,guid);
-
-        if (authRsp != null && authRsp.getStatus() == 200){
-            NSObject rspNO = XMLPropertyListParser.parse(authRsp.body().getBytes("UTF-8"));
-            JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
-            System.err.println(rspJSON);
-            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
-            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
-            String creditDisplay  = rspJSON.getByPath("creditDisplay",String.class);
-            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
-            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
-        }
-
-    }
 
     public  static HttpResponse getPurchases(HttpResponse response){
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -292,16 +251,7 @@ public class ITunesUtil {
             authRsp = authenticate(account, guid , authUrl);
         }
 
-        String authBody = authRsp.charset("UTF-8").body();
-        NSObject NSO = null;
-        try {
-            NSO = XMLPropertyListParser.parse(authBody.getBytes("UTF-8"));
-        } catch (Exception e) {
-            return authRsp;
-        };
-
-        JSONObject json = (JSONObject) JSONUtil.parse(NSO.toJavaObject());
-
+        JSONObject json = PListUtil.parse(authRsp.body());
         String failureType     = json.getStr("failureType","");
         String customerMessage = json.getStr("customerMessage","");
 
@@ -337,7 +287,7 @@ public class ITunesUtil {
                 "        <key>rmp</key>" +
                 "        <string>0</string>" +
                 "        <key>why</key>" +
-                "        <string>modifyAccount</string>" +
+                "        <string>signIn</string>" +
                 "    </dict>" +
                 "</plist>";
         authBody = String.format(authBody,account.getAccount(),guid,account.getPwd());
@@ -348,4 +298,292 @@ public class ITunesUtil {
         return authRsp;
     }
 
+    /**
+     * 搜索应用
+     * @param country 商城地区 StoreFontsUtils.getCountryCodeFromStoreFront()
+     * @param term  搜索关键字
+     * @param limit 条数
+     */
+    public static HttpResponse appstoreSearch(String country,String term,int limit){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        String params = "entity=software,iPadSoftware&media=software&country="+country+"&term="+term+"&limit="+limit;
+        String searchUrl = "https://itunes.apple.com/search?" + params;
+        HttpResponse searchRsp = HttpUtil.createGet(searchUrl)
+                .header(headers)
+                .execute();
+        return searchRsp;
+    }
+
+    /**
+     * 购买
+     */
+    public static HttpResponse purchase(HttpResponse authRsp,String guid,String trackId,String url) {
+        JSONObject json = PListUtil.parse(authRsp.body());
+        String itspod = authRsp.header(Constant.ITSPOD);
+        String dsPersonId = json.getStr("dsPersonId","");
+        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        String passwordToken = json.getStr("passwordToken","");
+
+        url = StrUtil.isEmpty(url) ? "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZBuy.woa/wa/buyProduct" : url;
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist"));
+
+        headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
+        headers.put("X-Dsid",ListUtil.toList(dsPersonId));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
+        headers.put("X-Token",ListUtil.toList(passwordToken));
+
+        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+                "<plist version=\"1.0\">\n" +
+                "    <dict>\n" +
+                "        <key>appExtVrsId</key>\n" +
+                "        <string>0</string>\n" +
+                "        <key>buyWithoutAuthorization</key>\n" +
+                "        <string>true</string>\n" +
+                "        <key>guid</key>\n" +
+                "        <string>%s</string>\n" +
+                "        <key>hasAskedToFulfillPreorder</key>\n" +
+                "        <string>true</string>\n" +
+                "        <key>hasDoneAgeCheck</key>\n" +
+                "        <string>true</string>\n" +
+                "        <key>needDiv</key>\n" +
+                "        <string>0</string>\n" +
+                "        <key>origPage</key>\n" +
+                "        <string>Software-%s</string>\n" +
+                "        <key>origPageLocation</key>\n" +
+                "        <string>Buy</string>\n" +
+                "        <key>price</key>\n" +
+                "        <string>0</string>\n" +
+                "        <key>pricingParameters</key>\n" +
+                "        <string>STDQ</string>\n" +
+                "        <key>productType</key>\n" +
+                "        <string>C</string>\n" +
+                "        <key>salableAdamId</key>\n" +
+                "        <integer>%s</integer>\n" +
+                "    </dict>\n" +
+                "</plist>";
+        body = String.format(body,guid,trackId,trackId);
+        HttpResponse purchaseRsp = HttpUtil.createPost(url)
+                .header(headers)
+                .body(body)
+                .execute();
+
+        // 重定向
+        if(purchaseRsp.getStatus() == 307 || purchaseRsp.getStatus() ==302){
+            String location = purchaseRsp.header("Location");
+            purchaseRsp = purchase(authRsp,guid,trackId,location);
+        }
+
+        return purchaseRsp;
+    }
+
+    /**
+     * 获取appstore下载地址
+     */
+    public static HttpResponse appstoreDownloadUrl(HttpResponse authRsp,String guid,String trackId,String downloadUrl) {
+        if (StrUtil.isEmpty(downloadUrl)){
+            downloadUrl = "https://p34-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid="+guid;
+        }
+
+        JSONObject json = PListUtil.parse(authRsp.body());
+
+        String dsPersonId = json.getStr("dsPersonId","");
+        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        String passwordToken = json.getStr("passwordToken","");
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist"));
+
+        headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
+        headers.put("X-Dsid",ListUtil.toList(dsPersonId));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
+        headers.put("X-Token",ListUtil.toList(passwordToken));
+
+        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+                "<plist version=\"1.0\">\n" +
+                "    <dict>\n" +
+                "        <key>creditDisplay</key>\n" +
+                "        <string/>\n" +
+                "        <key>guid</key>\n" +
+                "        <string>%s</string>\n" +
+                "        <key>salableAdamId</key>\n" +
+                "        <integer>%s</integer>\n" +
+                "    </dict>\n" +
+                "</plist>";
+        body = String.format(body,guid,trackId);
+        HttpResponse downloadRsp = HttpUtil.createPost(downloadUrl)
+                .header(headers)
+                .cookie(authRsp.getCookies())
+                .body(body)
+                .execute();
+
+        if(downloadRsp.getStatus() == 307 || downloadRsp.getStatus() ==302){
+            return appstoreDownloadUrl(authRsp,guid,trackId,downloadRsp.header("Location"));
+        }
+        return downloadRsp;
+    }
+
+    public static void main(String[] args) throws Exception {
+//        accountPurchasesCount(null);
+//        getPurchases(null);
+//        getPaymentInfos(null);
+        // addOrEditBillingInfoSrv(null);
+//        Faker faker = new Faker(Locale.CHINA);
+//
+//        Address address = faker.address();
+//        System.out.println(address.streetAddress());
+//        System.out.println(address.streetName());
+//        System.out.println(address.secondaryAddress());
+//        System.out.println(address.streetAddressNumber());
+//        System.out.println(address.buildingNumber());
+//        System.out.println(address.citySuffix());
+//        System.out.println(address.stateAbbr());
+//        String ZipCode=address.zipCode();
+//        System.out.println(address.countyByZipCode(ZipCode));
+//        System.out.println(faker.phoneNumber().subscriberNumber());
+
+
+//        String jsonString = ResourceUtil.readUtf8Str("json/global-mobile-phone-regular.json");
+//////
+//        JSONArray jsonArray= JSONUtil.parseArray(JSONUtil.parseObj(jsonString).getStr("data"));
+//        for (Object o:jsonArray){
+//            JSONObject jsonObject= (JSONObject) o;
+//            System.out.println(jsonObject.getStr("locale"));
+//        }
+//        Generex generex = new Generex("1[35789]\\d{9}");
+//            System.out.println(generex.random());
+        downloadDemo();
+    }
+
+
+    private static void downloadDemo(){
+        Account account = new Account();
+//        account.setAccount("djli0506@163.com");
+//        account.setPwd("!!B0527s0207!!");
+        account.setAccount("qewqeq@2980.com");
+        account.setPwd("dPFb6cSD41");
+
+        String guid = PropertiesUtil.getOtherConfig("guid");
+        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        String storeFront = "";
+
+        // 鉴权
+        if (authRsp != null && authRsp.getStatus() == 200){
+            JSONObject rspJSON = PListUtil.parse(authRsp.body());
+            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
+            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
+            String creditDisplay  = rspJSON.getByPath("creditDisplay",String.class);
+            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+
+            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
+            storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        }
+
+        // 搜索应用
+        if (!StrUtil.isEmpty(storeFront)){
+            String countryCode = StoreFontsUtils.getCountryCodeFromStoreFront(storeFront);
+            Console.log("请输入关键字: ");
+            String term = Console.input();
+            HttpResponse appstoreSearchRsp = ITunesUtil.appstoreSearch(countryCode, term, 2);
+            if (appstoreSearchRsp.getStatus() == 200){
+                String appstoreSearchBody = appstoreSearchRsp.body();
+                JSONObject entries = JSONUtil.parseObj(appstoreSearchBody);
+                JSONArray results = entries.getJSONArray("results");
+                if (!CollUtil.isEmpty(results)){
+                    for (Object result : results) {
+                        JSONObject track = (JSONObject) result;
+                        Long trackId = track.getLong("trackId");
+                        String trackName = track.getStr("trackName");
+                        String artworkUrl100 = track.getStr("artworkUrl100");
+                        Double price = track.getDouble("price");
+                        Console.log("APP [{}] trackId:{}, price:{}, icon:{}",trackName,trackId,price,artworkUrl100);
+
+                        // 购买
+                        if (price > 0){
+                            Console.log("暂只支持免费应用！[{}] 价格:{}",trackName,price);
+                            continue;
+                        }
+
+                        HttpResponse purchaseRsp = ITunesUtil.purchase(authRsp, guid, trackId.toString(),"");
+                        String purchaseBody = purchaseRsp.body();
+
+                        if (!StrUtil.isEmpty(purchaseBody) && JSONUtil.isTypeJSON(purchaseBody)){
+                            JSONObject purchaseJSON = JSONUtil.parseObj(purchaseBody);
+                            String purchaseJdt = purchaseJSON.getStr("jingleDocType","");
+                            String purchaseStatus   = purchaseJSON.getStr("status","");
+                            if(!"purchaseSuccess".equals(purchaseJdt) || !"0".equals(purchaseStatus)){
+                                String failureType = purchaseJSON.getStr("failureType");
+                                String customerMessage = purchaseJSON.getStr("customerMessage");
+                                Console.log("[{}]购买失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
+                                continue;
+                            }
+                        }
+
+                        Console.log("[{}] 购买成功",trackName);
+
+                        HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl(authRsp, guid, trackId.toString(), "");
+                        JSONObject appstoreDownloadUrlBody = PListUtil.parse(appstoreDownloadUrlRsp.body());
+
+                        String appstoreDownloadUrlJdt = appstoreDownloadUrlBody.getStr("jingleDocType","");
+                        String appstoreDownloadUrlStatus   = appstoreDownloadUrlBody.getStr("status","");
+                        if(!"purchaseSuccess".equals(appstoreDownloadUrlJdt) || !"0".equals(appstoreDownloadUrlStatus)){
+                            String failureType = appstoreDownloadUrlBody.getStr("failureType");
+                            String customerMessage = appstoreDownloadUrlBody.getStr("customerMessage");
+                            Console.log("[{}] 获取下载链接失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
+                            continue;
+                        }
+
+                        JSONArray songList = appstoreDownloadUrlBody.getJSONArray("songList");
+                        if (songList.isEmpty()){
+                            Console.log("songList is empty");
+                            continue;
+                        }
+
+                        JSONObject song = (JSONObject)songList.get(0);
+                        String url = song.getStr("URL");
+                        JSONObject metadata = song.getJSONObject("metadata");
+
+                        String filePath = "/Users/koji/workspace/tmp/";
+                        String fileName = String.format("%s-%s-%s.ipa"
+                                ,metadata.getStr("softwareVersionBundleId")
+                                ,metadata.getStr("artistId")
+                                ,metadata.getStr("bundleShortVersionString"));
+
+                        Console.log("[{}] 获取下载链接成功; fileName:{}, url:{}",trackName,fileName,url);
+
+                        // 下载
+                        HttpUtil.downloadFile(url, new File(filePath + fileName), new StreamProgress() {
+                            @Override
+                            public void start() {
+                                Console.log("[{}] 开始下载...",trackName);
+                            }
+                            @Override
+                            public void progress(long total, long progressSize) {
+//                                Console.log("[{}] 已下载: {}/{}",trackName,progressSize,total);
+                                Console.log("[{}] 总大小:{} 已下载：{}",trackName, FileUtil.readableFileSize(total),FileUtil.readableFileSize(progressSize));
+                            }
+
+                            @Override
+                            public void finish() {
+                                Console.log("[{}] 下载完成",trackName);
+                            }
+                        });
+
+                        // zip
+                        Path zipPath = Paths.get(filePath + fileName);
+                        File tmpFile = new File("tmp.plist");
+                        FileUtil.appendUtf8String(metadata.toString(),tmpFile);
+                        ZipUtil.append(zipPath,tmpFile.toPath());
+                        FileUtil.del(tmpFile);
+                    }
+                }
+            }
+        }
+    }
 }
