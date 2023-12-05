@@ -12,7 +12,9 @@ import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -957,7 +959,11 @@ public class PurchaseBillUtil {
             JSONObject rspJSON = PListUtil.parse(rb);
             String failureType = rspJSON.getStr("failureType");
             String customerMessage = rspJSON.getStr("customerMessage");
-
+            if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("your account is disabled")){
+                paras.put("code","1");
+                paras.put("msg","出于安全原因，你的账户已被锁定。");
+                return paras;
+            }
             if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
                 return login(authCode,guid,1,paras);
             }
@@ -988,11 +994,13 @@ public class PurchaseBillUtil {
             String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+guid;
             paras= accountSummary(paras,accountUrl);
 
-
+            accountPurchasesCount(paras);
+//            getPurchases(paras);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return paras;
     }
     private static Map<String,Object> accountSummary(Map<String,Object> paras,String accountUrl) {
@@ -1031,4 +1039,63 @@ public class PurchaseBillUtil {
         return paras;
     }
 
+    /**
+     　* 统计购买记录
+     * @param
+    　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/10/19 10:09
+     */
+    public  static List<Map<String,String>> accountPurchasesCount(Map<String,Object> paras){
+        String host = "p"+ paras.get("itspod") +"-buy.itunes.apple.com";
+        String url = "https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1";
+        List<Map<String,String>> result=new ArrayList<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("Host", ListUtil.toList(host));
+        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
+        headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
+
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList(paras.get("storeFront").toString()));
+        headers.put("X-Token",ListUtil.toList(ListUtil.toList(paras.get("passwordToken").toString())));
+//        String cookie="amp=wGmqWc+tU5BPYIxtZTS67zmX7VrVrSK6kLs9DN0xJcLT0EGAfagTSF2by2JACpWA7IZUM75ULaCeNad0jCUC0DcoHzfVDRsOCoXwcLQaywM=; mt-tkn-8135448658=AtZhe8l+IrVrzE0Naxsi8hLyXmMyrK1YeiRwrxGTnqJNskBCWiKHYjr5aWpsMZxcXe4J2YGfaGBax9AOYXijgdfcP0WylhotJ0RI2NZbr2PRx7CmxrXbBMq5iZupygq8T2U9ulOPcVxCXBrdTQNQlcH5HfY3WJv3mrW/7B464SI935H2G2D4ep6nrvQKckGJmNl3ycA=; mz_mt0-8135448658=AolMJGAKMP7xwnuOPTRZVKoxnSgmdfuNWBuyhG9MsUMkn//PB6cAvSmDl52ZUxImL6886q9Lg/uJKTi1/4o+PsTsUd4aCLJ7hMXBQLcweDOP0/mzgOO3oqDU1N9ym2VtsSPp88TmXOLR0Fsj3JvPnQ8yafFGM9lxfjWmkwWoeiNK6/RNn2vUelMBE4YFO6sLwF5sQQo=; ampsc=ukfVwNIDoZHQtu2N9c1CJ7CKqFmT9T7J/1arwOfEnzY=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZ1AAAAABlbuYK6+eAeRvWUZmm5fGYvWdgNiCjsMg=; mz_at_ssl-8135448658=AwUAAAECAAHZ1AAAAABlbuYKzGpJ/FCnkSdpeD1H2uN8r/uBvn8=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=GtN5UQnYgi8Fj9XbbKwJg0; X-Dsid=8135448658; xp_ci=";
+
+
+
+
+
+        StringBuilder cookieBuilder = new StringBuilder();
+        for(String c : (List<String>)paras.get("cookies")){
+            cookieBuilder.append(";").append(c);
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+        HttpResponse response = HttpUtil.createRequest(Method.GET,url)
+                .header(headers)
+                .cookie(cookies)
+//                .cookie(cookie)
+                .execute();
+       if(response.getStatus()==200){
+            String years=JSONUtil.parseObj(response.body()).getByPath("data.attributes.dates.years").toString();
+            JSONArray jsonArray=  JSONUtil.parseArray(years);
+            for(Object object:jsonArray){
+                JSONObject jsonObject=JSONUtil.parseObj(object.toString());
+                String key= (String) jsonObject.keySet().toArray()[0];
+                String value=jsonObject.getByPath(key+".items").toString();
+                result.add(new HashMap<>(){{
+                    put(key,value);
+                }});
+            }
+        }
+        return result;
+    }
 }
