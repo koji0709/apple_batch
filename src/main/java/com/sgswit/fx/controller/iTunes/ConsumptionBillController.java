@@ -1,7 +1,9 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.common.TableView;
@@ -24,6 +26,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -93,6 +96,7 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
         list.add("全部");
         rangeSelect.setItems(list);
         rangeSelect.setValue(list.get(list.size()-1));
+        super.initialize(url,resourceBundle);
     }
 
     @FXML
@@ -139,12 +143,15 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                 try {
                                     Map<String,Object> res= PurchaseBillUtil.loginAndAuth(account.getAccount(),account.getPwd());
                                     if(res.get("code").equals("200")){
-                                        account.setNote("登录成功");
+                                        account.setNote("登录成功，数据查询中...");
                                         accountTableView.refresh();
                                         Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                         account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
                                         account.setNote("购买记录查询中...");
+                                        account.setArea(accountInfoMap.get("countryName").toString());
+                                        account.setShippingAddress(accountInfoMap.get("address").toString());
+                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         accountTableView.refresh();
                                         Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
                                         String token=loginResult.get("token").toString();
@@ -230,22 +237,38 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
 
     }
     private  void integratedData(ConsumptionBill consumptionBill,List<String> datas) throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");
+        SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+        BigDecimal costTotalAmount=BigDecimal.ZERO;
+        String currency="";
         if(datas.size()>0){
             String rangeSelectStr=rangeSelect.getSelectionModel().getSelectedItem();
 
             String lastPurchaseDateInfoStr=JSONUtil.parseArray(JSONUtil.parse(datas.get(0)).getByPath("purchases")).get(0).toString();
             String lastPurchaseDateStr= JSONUtil.parse(lastPurchaseDateInfoStr).getByPath("purchaseDate").toString();
-            Date  lastPurchaseDate = format.parse(lastPurchaseDateStr);
+            Date  lastPurchaseDate = lastPurchaseDateStr.contains(".")?format2.parse(lastPurchaseDateStr):format.parse(lastPurchaseDateStr);
 
             consumptionBill.setLastPurchaseDate(sdf.format(lastPurchaseDate));
 
             JSONArray ds=JSONUtil.parseArray(JSONUtil.parse(datas.get(datas.size()-1)).getByPath("purchases"));
             String earliestPurchaseDateInfoStr=ds.get(ds.size()-1).toString();
             String earliestPurchaseDateStr= JSONUtil.parse(earliestPurchaseDateInfoStr).getByPath("purchaseDate").toString();
-            Date  earliestPurchaseDate = format.parse(earliestPurchaseDateStr);
+            Date  earliestPurchaseDate = earliestPurchaseDateStr.contains(".")?format2.parse(earliestPurchaseDateStr):format.parse(earliestPurchaseDateStr);
             consumptionBill.setEarliestPurchaseDate(sdf.format(earliestPurchaseDate));
+            for(String s:datas){
+                JSONArray purchaseInfoJsonArr=JSONUtil.parseArray(JSONUtil.parse(s).getByPath("purchases"));
+                for(Object o:purchaseInfoJsonArr){
+                    JSONObject json= (JSONObject) o;
+                    currency= ((JSONObject) o).getByPath("estimatedTotalAmount").toString().substring(0,1);
+                    String a= ((JSONObject) o).getByPath("estimatedTotalAmount").toString().substring(1);
+                    costTotalAmount=costTotalAmount.add(new BigDecimal(a));
+                }
+
+            }
+            consumptionBill.setTotalConsumption(currency+costTotalAmount);
+
+
             accountTableView.refresh();
 
         }

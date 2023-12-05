@@ -1021,17 +1021,21 @@ public class PurchaseBillUtil {
             cookies = cookieBuilder.toString().substring(1);
         }
         try {
-
             HttpResponse res = HttpUtil.createGet(accountUrl)
                     .header(headers)
                     .cookie(cookies)
                     .execute();
-
             //解析HTML
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
             String countryName=element.child(5).getElementsByClass("info").get(0).child(0).text();
+            //账号国家
             paras.put("countryName",countryName);
+            //寄送地址
+            String address=element.getElementsByClass("address").get(0).html().replace("<br>",",");
+            paras.put("address",address);
+            String paymentMethod=element.child(3).getElementsByClass("info").text();
+            paras.put("paymentMethod",paymentMethod);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1070,7 +1074,7 @@ public class PurchaseBillUtil {
         if(cookieBuilder.toString().length() > 0){
             cookies = cookieBuilder.toString().substring(1);
         }
-        HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isJsonApiFormat=true&page=1")
+        HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)
                 .cookie(cookies)
                 .execute();
