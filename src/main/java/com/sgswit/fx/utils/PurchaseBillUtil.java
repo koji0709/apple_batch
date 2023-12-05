@@ -21,6 +21,9 @@ import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.util.DigestFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 
@@ -43,14 +46,6 @@ public class PurchaseBillUtil {
 
     public static void main( String[] args ) throws Exception {
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-
-
-        Date  earliestPurchaseDate = format.parse("2014-12-05T01:03:28Z");
-//        Date  earliestPurchaseDate = format.parse("2023-12-01T02:08:50.316Z");
-        System.out.println(earliestPurchaseDate);
-
 
 
 //        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
@@ -64,7 +59,7 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-//        authenticate("djli0506@163.com","!!B0527s0207!!");
+        authenticate("djli0506@163.com","!!B0527s0207!!");
     }
 
     public static Map<String,Object> loginAndAuth(String account,String pwd){
@@ -953,6 +948,8 @@ public class PurchaseBillUtil {
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("itspod",res.header(Constant.ITSPOD));
             paras.put("authUrl",res.header("location"));
+            paras.put("cookies",getCookiesFromHeader(res));
+            paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             if(res.getStatus()==302){
                 return login(authCode,guid,1,paras);
             }
@@ -985,11 +982,53 @@ public class PurchaseBillUtil {
             paras.put("isDisabledAccount",isDisabledAccount);
             paras.put("name",lastName +  " " + firstName);
             paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
+            paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
+            paras.put("passwordToken",rspJSON.getStr("passwordToken"));
+
+            String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+guid;
+            paras= accountSummary(paras,accountUrl);
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return paras;
     }
+    private static Map<String,Object> accountSummary(Map<String,Object> paras,String accountUrl) {
 
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip"));
+
+        StringBuilder cookieBuilder = new StringBuilder();
+        for(String c : (List<String>)paras.get("cookies")){
+            cookieBuilder.append(";").append(c);
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+        try {
+
+            HttpResponse res = HttpUtil.createGet(accountUrl)
+                    .header(headers)
+                    .cookie(cookies)
+                    .execute();
+
+            //解析HTML
+            Document document=Jsoup.parse(res.body());
+            Element element=document.getElementById("account-info-section");
+            String countryName=element.child(5).getElementsByClass("info").get(0).child(0).text();
+            paras.put("countryName",countryName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paras;
+    }
 
 }
