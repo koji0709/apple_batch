@@ -32,6 +32,8 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PurchaseBillUtil {
@@ -39,18 +41,29 @@ public class PurchaseBillUtil {
 
     public static String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
 
-    public static void main( String[] args ){
-        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
-        if(res.get("code").equals("200")){
-            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
-            String token=loginResult.get("token").toString();
-            String dsid=loginResult.get("dsid").toString();
-            String searchCookies=loginResult.get("searchCookies").toString();
-            List<String > jsonStrList=new ArrayList<>();
-            jsonStrList.clear();
-            search(jsonStrList,dsid,"",token,searchCookies);
-            System.out.println(jsonStrList);
-        }
+    public static void main( String[] args ) throws Exception {
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+
+
+        Date  earliestPurchaseDate = format.parse("2014-12-05T01:03:28Z");
+//        Date  earliestPurchaseDate = format.parse("2023-12-01T02:08:50.316Z");
+        System.out.println(earliestPurchaseDate);
+
+
+
+//        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//        if(res.get("code").equals("200")){
+//            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
+//            String token=loginResult.get("token").toString();
+//            String dsid=loginResult.get("dsid").toString();
+//            String searchCookies=loginResult.get("searchCookies").toString();
+//            List<String > jsonStrList=new ArrayList<>();
+//            jsonStrList.clear();
+//            search(jsonStrList,dsid,"",token,searchCookies);
+//            System.out.println(jsonStrList);
+//        }
 //        authenticate("djli0506@163.com","!!B0527s0207!!");
     }
 
@@ -958,6 +971,12 @@ public class PurchaseBillUtil {
                 return paras;
             }
             if(!StringUtils.isEmpty(failureType)){
+                paras.put("code","1");
+                return paras;
+            }
+            if(StringUtils.isEmpty(failureType) && StringUtils.isEmpty(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+                paras.put("code","1");
+                paras.put("msg","Apple ID或密码错误。或需要输入验证码！");
                 return paras;
             }
             String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
