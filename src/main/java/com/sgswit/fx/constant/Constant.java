@@ -7,6 +7,8 @@ public class Constant {
     public static final String FailureTypeLicenseNotFound        = "9610";
     public static final String FailureTypeTemporarilyUnavailable = "2059";
 
+    public static final String CustomerMessageNotYetUsediTunesStore = "has not yet been used with the iTunes Store.";
+
     public static final String CustomerMessageBadLogin             = "MZFinance.BadLogin.Configurator_message";
     public static final String CustomerMessageSubscriptionRequired = "Subscription Required";
 

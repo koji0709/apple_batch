@@ -964,8 +964,13 @@ public class PurchaseBillUtil {
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
             }
-            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
+            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 return login(authCode,guid,1,paras);
+            }
+
+            if(Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
+                paras.put("inspection","未过检");
+                return paras;
             }
 
             if(!StringUtils.isEmpty(failureType) && !StringUtils.isEmpty(customerMessage)){

@@ -35,6 +35,8 @@ public class Account {
     private SimpleStringProperty disableStatus;
     private SimpleStringProperty balance;
     private SimpleStringProperty createTime;
+    private SimpleStringProperty inspection;
+    private SimpleStringProperty purchasesLast90Count;
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -63,6 +65,8 @@ public class Account {
         this.disableStatus = new SimpleStringProperty();
         this.balance = new SimpleStringProperty();
         this.createTime = new SimpleStringProperty();
+        this.inspection = new SimpleStringProperty();
+        this.purchasesLast90Count = new SimpleStringProperty();
     }
 
 
@@ -303,6 +307,30 @@ public class Account {
 
     public void setCreateTime(String createTime) {
         this.createTime.set(createTime);
+    }
+
+    public String getInspection() {
+        return inspection.get();
+    }
+
+    public SimpleStringProperty inspectionProperty() {
+        return inspection;
+    }
+
+    public void setInspection(String inspection) {
+        this.inspection.set(inspection);
+    }
+
+    public String getPurchasesLast90Count() {
+        return purchasesLast90Count.get();
+    }
+
+    public SimpleStringProperty purchasesLast90CountProperty() {
+        return purchasesLast90Count;
+    }
+
+    public void setPurchasesLast90Count(String purchasesLast90Count) {
+        this.purchasesLast90Count.set(purchasesLast90Count);
     }
 
     @Override
