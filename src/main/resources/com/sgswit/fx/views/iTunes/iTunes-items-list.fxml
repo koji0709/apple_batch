@@ -51,7 +51,7 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="批量下APP" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#onAppStoreDownloadBtnClick" prefHeight="25.0" prefWidth="140.0" text="批量下APP" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>

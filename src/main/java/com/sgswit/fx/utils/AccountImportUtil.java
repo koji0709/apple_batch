@@ -91,6 +91,7 @@ public class AccountImportUtil<T>{
             try {
                 account = clz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
+                e.printStackTrace();
                 continue;
             }
             for (int j = 0; j < fieldValueList.size(); j++) {

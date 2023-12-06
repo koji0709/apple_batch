@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<AnchorPane fx:controller="com.sgswit.fx.controller.iTunes.AppstoreSearchController"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+
+    <fx:define>
+        <ToggleGroup fx:id="itemTypeToggleGroup"/>
+    </fx:define>
+
+    <children>
+        <!--上下布局。上面功能区，下面表格，设置内边距14px-->
+        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+            <children>
+                <!--功能区-->
+                <HBox style="-fx-spacing: 14">
+                    <children>
+                        <!--配置信息-->
+                        <TitledPane text="配置信息" prefWidth="400" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <HBox>
+                                    <children>
+                                        <VBox spacing="8">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="5">
+                                                    <children>
+                                                        <Label text="项目类型"/>
+                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="APP应用" selected="true"/>
+                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐单曲"/>
+                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐专辑"/>
+                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="电子书"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="5">
+                                                    <children>
+                                                        <Label text="购买平台"/>
+                                                        <ChoiceBox prefWidth="120">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList">
+                                                                    <String fx:value="iPad" />
+                                                                    <String fx:value="iPhone" />
+                                                                </FXCollections>
+                                                            </items>
+                                                        </ChoiceBox>
+                                                        <Label prefWidth="20" text=""/>
+                                                        <Label text="国家"/>
+                                                        <ChoiceBox fx:id="countryChoiceBox" prefWidth="120">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList"/>
+                                                            </items>
+                                                        </ChoiceBox>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                                    <children>
+                                                        <Button onAction="#selectAllClickAction" text="全    选"/>
+                                                        <Button text="添加选中项目"/>
+                                                        <Button text="将已添加的项目保存到本地文件"/>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                                    <children>
+                                                        <Button onAction="#unselectAllClickAction" text="全不选"/>
+                                                        <Button text="复制选中URL"/>
+                                                        <Button text="将选中的URL地址添加到txt文件"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </content>
+                        </TitledPane>
+
+                        <!--搜索区-->
+                        <TitledPane text="搜索区" prefWidth="400" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 10 10 10">
+                                    <children>
+                                        <HBox spacing="10">
+                                            <children>
+                                                <Label alignment="CENTER" style="-fx-background-color: #e4e4e4" prefWidth="240" prefHeight="50" text="在下方输入关键字后点击查询"/>
+                                                <Button onAction="#searchBtnAction"  alignment="CENTER" style="-fx-background-color: #e4e4e4; -fx-background-radius: 0" prefWidth="140" prefHeight="50" text="搜索"/>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="10">
+                                            <children>
+                                                <TextField fx:id="keywordsTextField" prefWidth="240" prefHeight="50"/>
+                                                <HBox prefWidth="140" prefHeight="50" alignment="CENTER_LEFT" spacing="5">
+                                                    <children>
+                                                        <Label text="搜索限制"/>
+                                                        <ChoiceBox fx:id="limitChoiceBox" prefWidth="60">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList" >
+                                                                    <String fx:value="5" />
+                                                                    <String fx:value="20" />
+                                                                    <String fx:value="40" />
+                                                                    <String fx:value="60" />
+                                                                    <String fx:value="80" />
+                                                                    <String fx:value="100" />
+                                                                </FXCollections>
+                                                            </items>
+                                                        </ChoiceBox>
+                                                        <Label text="条"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </HBox>
+                                        <Label style="-fx-font-size: 12" textFill="red" text="注意: 训果支持购买付费项目，请根据需求选择是否购买付费项目。"/>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <!--执行结果-->
+                        <TitledPane text="结果区" prefWidth="165" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER" style="-fx-padding: 10 10 10 10;-fx-spacing: 14">
+                                    <Label text="已添加 0 个项目"/>
+                                    <Button text="清空已导入项目"/>
+                                    <CheckBox fx:id="loadLogoCheckBox" text="加载LOGO"/>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                    </children>
+                </HBox>
+
+                <!--账号列表-->
+                <TitledPane collapsible="false" animated="false">
+                    <content>
+                        <TableView fx:id="tableView" prefWidth="990" prefHeight="500">
+                            <columns>
+                                <TableColumn fx:id="seq" prefWidth="60" text="序号"  style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="select" prefWidth="50" text="选择"  style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="iconImage" prefWidth="70" text="ICO"  style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="price" prefWidth="60" text="价格"  style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="trackName" prefWidth="730" text="项目名称"  style="-fx-alignment: CENTER-LEFT;"/>
+                            </columns>
+                        </TableView>
+                    </content>
+                </TitledPane>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -176,6 +176,10 @@ public class TableView<T> extends CommonView {
     public void openImportAccountView(String... formats){
         openImportAccountView(Account.class,formats);
     }
+
+    /**
+     * todo 如果不是Account.class, 请调用此方法
+     */
     public void openImportAccountView(Class clz,String... formats){
 
         Stage stage = new Stage();

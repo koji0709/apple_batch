@@ -26,7 +26,8 @@ public enum StageEnum {
     CHECK_AREA_BALANCE("国家区域余额","views/iTunes/check_area_balance.fxml",1100,650),
     CHECK_BALANCE_DISABLEDSTATUS("查询余额/检测禁用","views/iTunes/check_balance_disabledstatus.fxml",1100,650),
     CONSUMPTION_BILL("查询消费账单","views/iTunes/consumption-bill.fxml",1150,700),
-
+    APPSTORE_DOWNLOAD("批量下载APP","views/iTunes/appstore_download.fxml"),
+    APPSTORE_SEARCH("Appstore搜索","views/iTunes/appstore_search.fxml"),
 
     /********** QUERY区 ***********/
     BIRTHDAY_COUNTRY_QUERY("查询生日国家","views/query/birthday-country.fxml",1100,650),
