@@ -1,14 +1,20 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.swing.DesktopUtil;
+import cn.hutool.core.swing.clipboard.ClipboardUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StoreFontsUtils;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.collections.FXCollections;
@@ -21,12 +27,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AppstoreSearchController extends CommonView implements Initializable{
+
+    AppstoreDownloadController appstoreDownloadController;
 
     @FXML
     ToggleGroup itemTypeToggleGroup;
@@ -46,7 +60,9 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     @FXML
     public javafx.scene.control.TableView<AppstoreItemVo> tableView;
 
-    protected ObservableList<AppstoreItemVo> appList = FXCollections.observableArrayList();
+    public void setAppstoreDownloadController(AppstoreDownloadController appstoreDownloadController) {
+        this.appstoreDownloadController = appstoreDownloadController;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -71,7 +87,9 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     }
 
 
-
+    /**
+     * 搜索
+     */
     public void searchBtnAction(){
         String keywords = keywordsTextField.getText();
         if (StringUtils.isEmpty(keywords)){
@@ -101,16 +119,13 @@ public class AppstoreSearchController extends CommonView implements Initializabl
         tableView.getItems().clear();
         for (Object result : results) {
             JSONObject track = (JSONObject) result;
-            Long trackId = track.getLong("trackId");
             String trackName = track.getStr("trackName");
             String artworkUrl100 = track.getStr("artworkUrl100");
             Double price = track.getDouble("price");
             AppstoreItemVo appstoreItemVo = new AppstoreItemVo();
             appstoreItemVo.setPrice(String.valueOf(price));
             appstoreItemVo.setTrackName(trackName);
-            appstoreItemVo.setTrackId(trackId.toString());
-            appstoreItemVo.setArtworkUrl100(artworkUrl100);
-
+            appstoreItemVo.setTrackJson(track);
             if (isLoadLogo){
                 ImageView imageView = new ImageView(new Image(artworkUrl100));
                 imageView.setFitWidth(size);
@@ -129,10 +144,13 @@ public class AppstoreSearchController extends CommonView implements Initializabl
         }
     }
 
-    public void selectAllClickAction(){
+    /**
+     * 全选/取消全选
+     */
+    public void selectAllBtnAction(){
         updateSelectStatus(true);
     }
-    public void unselectAllClickAction(){
+    public void unselectAllBtnAction(){
         updateSelectStatus(false);
     }
 
@@ -145,6 +163,76 @@ public class AppstoreSearchController extends CommonView implements Initializabl
             appstoreItemVo.setSelect(status);
         }
     }
+
+    /**
+     * 复制选中URL
+     */
+    public void copySelectItemUrlBtnAction(){
+        List<AppstoreItemVo> selectedItemList = getSelectedItem();
+        if (selectedItemList.isEmpty()){
+            alert("未选中数据");
+            return;
+        }
+        String clipboardWords = "";
+        for (AppstoreItemVo appstoreItemVo : selectedItemList) {
+            String trackViewUrl = appstoreItemVo.getTrackJson().getStr("trackViewUrl");
+            clipboardWords+=trackViewUrl.substring(0,trackViewUrl.indexOf("?")) + "\r\n";
+        }
+        ClipboardUtil.setStr(clipboardWords);
+        alert("复制成功！");
+    }
+
+    /**
+     * 将选中的URL地址添加到txt文件
+     */
+    public void selectItemUrlToTxtBrnAction(){
+        List<AppstoreItemVo> selectedItemList = getSelectedItem();
+        if (selectedItemList.isEmpty()){
+            alert("未选中数据");
+            return;
+        }
+
+        Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
+        Object userData = stage.getUserData();
+        if (userData == null){
+            alert("未配置URL文件地址");
+            return;
+        }
+
+        Map<String,Object> userDataMap = (Map<String,Object>) userData;
+
+        TextField localUrlTextField = (TextField)userDataMap.get("localUrlTextField");
+        String localUrl = localUrlTextField.getText();
+        if (StrUtil.isEmpty(localUrl)){
+            alert("未配置URL文件地址");
+            return;
+        }
+
+        if (!FileUtil.exist(localUrl)){
+            alert("没找到对应的文件");
+            return;
+        }
+
+        String words = "";
+        for (AppstoreItemVo appstoreItemVo : selectedItemList) {
+            String trackViewUrl = appstoreItemVo.getTrackJson().getStr("trackViewUrl");
+            words+=trackViewUrl.substring(0,trackViewUrl.indexOf("?")) + "\r\n";
+        }
+
+        FileUtil.appendUtf8String(words, new File(localUrl));
+        alert("写入成功！");
+    }
+
+    private List<AppstoreItemVo> getSelectedItem(){
+        List<AppstoreItemVo> appstoreItemVoList = new ArrayList<>();
+        for (AppstoreItemVo appstoreItemVo : tableView.getItems()) {
+            if (appstoreItemVo.isSelect()){
+                appstoreItemVoList.add(appstoreItemVo);
+            }
+        }
+        return appstoreItemVoList;
+    }
+
 
 
 }

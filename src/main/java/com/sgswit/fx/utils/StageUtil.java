@@ -21,10 +21,18 @@ public class StageUtil {
     }
 
     public static void show(StageEnum stageEnum){
-        show(stageEnum,false);
+        show(stageEnum,null);
+    }
+
+    public static void show(StageEnum stageEnum,Object userData){
+        show(stageEnum,false,userData);
     }
 
     public static void show(StageEnum stageEnum,boolean isWait){
+        show(stageEnum,isWait,null);
+    }
+
+    public static void show(StageEnum stageEnum,boolean isWait,Object userData){
         Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
             return;
@@ -44,6 +52,7 @@ public class StageUtil {
         stage.initModality(stageEnum.getInitModality());
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.setUserData(userData);
         stage.initStyle(stageEnum.getInitStyle());
         if (isWait){
             stage.showAndWait();

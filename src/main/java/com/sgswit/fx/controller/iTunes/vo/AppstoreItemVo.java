@@ -8,14 +8,11 @@ import javafx.scene.image.ImageView;
 
 public class AppstoreItemVo {
     private SimpleIntegerProperty seq = new SimpleIntegerProperty();
-    private SimpleStringProperty trackId = new SimpleStringProperty();
     private SimpleStringProperty trackName = new SimpleStringProperty();
     private SimpleStringProperty price  = new SimpleStringProperty();
-    private SimpleStringProperty artworkUrl100  = new SimpleStringProperty();
-    private SimpleStringProperty url  = new SimpleStringProperty();
     private SimpleBooleanProperty select  = new SimpleBooleanProperty();
     private ImageView iconImage = new ImageView();
-    private JSONObject metadata;
+    private JSONObject trackJson;
 
     public int getSeq() {
         return seq.get();
@@ -27,18 +24,6 @@ public class AppstoreItemVo {
 
     public void setSeq(int seq) {
         this.seq.set(seq);
-    }
-
-    public String getTrackId() {
-        return trackId.get();
-    }
-
-    public SimpleStringProperty trackIdProperty() {
-        return trackId;
-    }
-
-    public void setTrackId(String trackId) {
-        this.trackId.set(trackId);
     }
 
     public String getTrackName() {
@@ -65,30 +50,6 @@ public class AppstoreItemVo {
         this.price.set(price);
     }
 
-    public String getArtworkUrl100() {
-        return artworkUrl100.get();
-    }
-
-    public SimpleStringProperty artworkUrl100Property() {
-        return artworkUrl100;
-    }
-
-    public void setArtworkUrl100(String artworkUrl100) {
-        this.artworkUrl100.set(artworkUrl100);
-    }
-
-    public String getUrl() {
-        return url.get();
-    }
-
-    public SimpleStringProperty urlProperty() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url.set(url);
-    }
-
     public boolean isSelect() {
         return select.get();
     }
@@ -109,26 +70,11 @@ public class AppstoreItemVo {
         this.iconImage = iconImage;
     }
 
-    public JSONObject getMetadata() {
-        return metadata;
+    public JSONObject getTrackJson() {
+        return trackJson;
     }
 
-    public void setMetadata(JSONObject metadata) {
-        this.metadata = metadata;
-    }
-
-    @Override
-    public String toString() {
-        return "AppstoreItemVo{" +
-                "seq=" + seq +
-                ", trackId=" + trackId +
-                ", trackName=" + trackName +
-                ", price=" + price +
-                ", artworkUrl100=" + artworkUrl100 +
-                ", url=" + url +
-                ", select=" + select +
-                ", iconImage=" + iconImage +
-                ", metadata=" + metadata +
-                '}';
+    public void setTrackJson(JSONObject trackJson) {
+        this.trackJson = trackJson;
     }
 }

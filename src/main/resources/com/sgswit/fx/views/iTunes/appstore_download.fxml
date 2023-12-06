@@ -88,7 +88,7 @@
                                             <children>
                                                 <CheckBox fx:id="useUrlCheckBox" text="使用URL模式"/>
                                                 <Button onAction="#showAppstoreSearchStage" text="从苹果商店添加"/>
-                                                <Button text="从本地文件添加"/>
+                                                <Button onAction="#addItemFromLocalBtnAction" text="从本地文件添加"/>
                                                 <Button text="清空已导入项目"/>
                                             </children>
                                         </HBox>
@@ -97,7 +97,7 @@
                                                 <Label text="URL文件目录地址"/>
                                                 <HBox>
                                                     <children>
-                                                        <TextField fx:id="localUrlTextField" prefWidth="282"/><Button text="选择文件"/>
+                                                        <TextField disable="true" fx:id="localUrlTextField" prefWidth="282"/><Button onAction="#localUrlFileChooseBtnAction" text="选择文件"/>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -117,7 +117,7 @@
                         <TitledPane text="说明" prefWidth="132" prefHeight="165" collapsible="false" animated="false" >
                             <content>
                                 <Label style="-fx-padding: 14 6 14 6;" textFill="#169BD5" wrapText="true"
-                                       text="默认为快速模式;如果使用URL模式讲兼容其他平台的txt文件。" />
+                                       text="默认为快速模式;如果使用URL模式将兼容其他平台的txt文件。" />
                             </content>
                         </TitledPane>
 

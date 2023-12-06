@@ -59,16 +59,16 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <children>
-                                                        <Button onAction="#selectAllClickAction" text="全    选"/>
+                                                        <Button onAction="#selectAllBtnAction" text="全    选"/>
                                                         <Button text="添加选中项目"/>
                                                         <Button text="将已添加的项目保存到本地文件"/>
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <children>
-                                                        <Button onAction="#unselectAllClickAction" text="全不选"/>
-                                                        <Button text="复制选中URL"/>
-                                                        <Button text="将选中的URL地址添加到txt文件"/>
+                                                        <Button onAction="#unselectAllBtnAction" text="全不选"/>
+                                                        <Button onAction="#copySelectItemUrlBtnAction" text="复制选中URL"/>
+                                                        <Button onAction="#selectItemUrlToTxtBrnAction" text="将选中的URL地址添加到txt文件"/>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -99,7 +99,6 @@
                                                         <ChoiceBox fx:id="limitChoiceBox" prefWidth="60">
                                                             <items>
                                                                 <FXCollections fx:factory="observableArrayList" >
-                                                                    <String fx:value="5" />
                                                                     <String fx:value="20" />
                                                                     <String fx:value="40" />
                                                                     <String fx:value="60" />
