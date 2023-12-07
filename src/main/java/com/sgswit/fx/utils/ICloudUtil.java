@@ -1,12 +1,19 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.model.Account;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,17 +25,17 @@ import java.util.regex.Pattern;
  * @date 2023/10/1320:38
  */
 public class ICloudUtil {
-
     public static void main(String[] args) throws Exception {
-//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"whjyvmbwyym@hotmail.com","Gao100287." );
-//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207" );
-//        checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"qinqian@163.com","!!B0527s0207" );
-//        loginCloud(IdUtil.fastUUID().toUpperCase(),"qewqeq@2980.com","dPFb6cSD" );
-//        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031..2" );
-//        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
-//        checkAccountInit("djli0506@163.com");
+        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
+        String rb = response.charset("UTF-8").body();
+        JSONObject rspJSON = PListUtil.parse(rb);
+        String dsid = rspJSON.getStr("dsid");
+        String mmeAuthToken= rspJSON.getJSONObject("delegates").getJSONObject("com.apple.mobileme").getByPath("service-data.tokens.mmeAuthToken").toString();
+        String auth = Base64.encode(dsid+":"+mmeAuthToken);
+        getFamilyDetails(auth,"djli0506@163.com");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
+        //clientId从数据库中获取每个appleId生成一个
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Referer", ListUtil.toList("https://setup.icloud.com/setup/iosbuddy/loginDelegates"));
@@ -64,7 +71,9 @@ public class ICloudUtil {
                 .execute();
         return response;
     }
-    public static void getFamilyDetails(String appleId, String password){
+
+
+    private static void getFamilyDetails(String auth,String appleId){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -73,25 +82,14 @@ public class ICloudUtil {
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
         headers.put("X-MMe-Client-Info",ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AppleAccount/1.0 (com.apple.Preferences/198)>"));
-        headers.put("Authorization",ListUtil.toList("Basic MjUwMzY4MjIwMDQ6SUFBQUFBQUFCTHdJQUFBQUFGOHIxN01SRG1kekxtbGpiRzkxWkM1aGRYUm92UUM3WWl4aDhsL2NyMzV6Y0VObXgwZ1hEaWdNMWhEMmtDd0piQVp3bU0zUXJ6K0NBdTdjK3U3eEJ5WjVOU3ZvbWdNS1kyMHY5RzcvTlhMbmNPUDlWZlVacUNuazl3RVhnUDluS3dxYlAvV0lFZis5TkxmU1c1WDNvZjF1eHNidlowdVhzZ09od1MwMXVzRTdKOVNuSDMyMUpMeTBVZz09"));
+        headers.put("Authorization",ListUtil.toList("Basic "+auth));
+
+
         HttpResponse res = HttpUtil.createPost("https://setup.icloud.com/setup/family/getFamilyDetails")
                 .header(headers)
                 .execute();
 
+        System.out.println(res.getStatus());
         System.out.println(res.body());
-    }
-    private static Map<String, List<String>> getHeader(){
-        Map<String, List<String>> headers = new HashMap<>();
-        headers.put("Host", ListUtil.toList("gsa.apple.com"));
-        headers.put("X-Apple-iOS-SLA-Version", ListUtil.toList("1636" ));
-        headers.put("X-Apple-I-Locale", ListUtil.toList("zh_CN" ));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br" ));
-        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
-        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
-        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
-        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
-        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
-        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
-        return headers;
     }
 }

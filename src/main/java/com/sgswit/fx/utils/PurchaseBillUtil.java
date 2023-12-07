@@ -971,7 +971,7 @@ public class PurchaseBillUtil {
             paras.put("authUrl",res.header("location"));
             paras.put("cookies",getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
-            if(res.getStatus()==302){
+            if(res.getStatus()==302 && attempt ==0){
                 return login(authCode,guid,1,paras);
             }
             String rb = res.charset("UTF-8").body();
