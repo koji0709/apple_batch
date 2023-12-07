@@ -27,7 +27,6 @@ public class ICloudUtil {
 //        loginCloud(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031..2" );
 //        getFamilyDetails("qianqian@163.com","!!B0527s0207" );
 //        checkAccountInit("djli0506@163.com");
-        checkAccountInit("17319139610");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -81,83 +80,6 @@ public class ICloudUtil {
 
         System.out.println(res.body());
     }
-
-    public static String checkAccountInit(String appleId) throws Exception {
-        HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Host", ListUtil.toList("gsa.apple.com"));
-        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0" ));
-        headers.put("X-MMe-Country", ListUtil.toList("CN" ));
-        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AuthKit/1 (com.apple.Preferences/198)>" ));
-        headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
-        headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
-        headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
-        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
-        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
-        HttpResponse initRes = HttpUtil.createGet("https://gsa.apple.com/iforgot/password/verify/appleid")
-                .header(getHeader())
-                .execute();
-        if(initRes.getStatus()!=200){
-            return "系统错误";
-        }else{
-            return checkAccount(appleId,initRes);
-        }
-    }
-    public static String checkAccount(String appleId, HttpResponse response) throws Exception {
-        String message="";
-
-        String text=response.body();
-        ////正则表达式提取链接
-        String LINK_REGEX = "<linkBarItem\\s+(?:[^>]*?\\s+)?url=\"([^\"]*)\"";
-        Pattern pattern = Pattern.compile(LINK_REGEX);
-        Matcher matcher = pattern.matcher(text);
-        String checkUrl="https://gsa.apple.com";
-        while (matcher.find()) {
-            checkUrl+=matcher.group(1);
-        }
-        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
-                "<plist version=\"1.0\">" +
-                "<dict>" +
-                "<key>id</key>" +
-                "<string>"+appleId+"</string>" +
-                "</dict>" +
-                "</plist>";
-
-        HttpResponse res = HttpUtil.createPost(checkUrl)
-                .header(getHeader())
-                .body(body)
-                .execute();
-
-
-
-
-
-
-
-
-
-//        if(res.getStatus()==200){
-//            String MESSAGE_REGEX = "<alert\\s+(?:[^>]*?\\s+)?message=\"([^\"]*)\"";
-//            Pattern p = Pattern.compile(MESSAGE_REGEX);
-//            Matcher m = p.matcher(res.body());
-//            while (m.find()) {
-//                message=matcher.group(1);
-//            }
-//            Console.error(message);
-//        }else if(res.getStatus()==302){
-//            System.out.println("----开始-------");
-//            System.out.println(res.header("Location"));
-//            System.out.println("----结束-------");
-//        }
-
-
-
-
-        System.out.println(res.getStatus());
-        System.out.println(res.body());
-
-        return message;
-    }
     private static Map<String, List<String>> getHeader(){
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("gsa.apple.com"));
@@ -170,8 +92,6 @@ public class ICloudUtil {
         headers.put("Accept-Language", ListUtil.toList("zh-cn" ));
         headers.put("Accept", ListUtil.toList("application/x-buddyml" ));
         headers.put("Content-Type", ListUtil.toList("application/x-plist" ));
-        headers.put("X-Apple-I-MD-M", ListUtil.toList("klvRjMAEBGIwke/kP/YdF8AljjUZW7WPqjAwit7nVp3yHNMQqI+gyhlXXLQS6TSY72HiF2Avgg3H/2Tf" ));
-        headers.put("X-Apple-I-MD", ListUtil.toList("AAAABQAAABDmJI5l56oUbPWpTfvhzXW4AAAAAw=="));
         return headers;
     }
 }

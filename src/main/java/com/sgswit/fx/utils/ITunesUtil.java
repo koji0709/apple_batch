@@ -57,8 +57,6 @@ public class ITunesUtil {
 //        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
         headers.put("User-Agent", ListUtil.toList("music/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
         headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("143465-19,32"));
-        headers.put("X-Apple-I-MD-M",ListUtil.toList("Q2OtXd0fi23JpGxDq05FG3ROgkGa1HAx2VhWTWCQUjLiVAThbGjO1NSG4QvxyzyeL2OO8c/p9MkqPbMf"));
-        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABBODIv4BF0jb9+vO4yWoI2qAAAAAg=="));
         headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("X-Token",ListUtil.toList("17F0A7C9295E7B44BA41A2F39E8626AA"));
@@ -102,7 +100,6 @@ public class ITunesUtil {
         headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("143465-19,32"));
         headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZ1AAAAABlbuYKP7hYlRFLTKQGuqllgT8SVh9Ca0w="));
         String cookie="amp=wGmqWc+tU5BPYIxtZTS67zmX7VrVrSK6kLs9DN0xJcLT0EGAfagTSF2by2JACpWA7IZUM75ULaCeNad0jCUC0DcoHzfVDRsOCoXwcLQaywM=; mt-tkn-8135448658=AtZhe8l+IrVrzE0Naxsi8hLyXmMyrK1YeiRwrxGTnqJNskBCWiKHYjr5aWpsMZxcXe4J2YGfaGBax9AOYXijgdfcP0WylhotJ0RI2NZbr2PRx7CmxrXbBMq5iZupygq8T2U9ulOPcVxCXBrdTQNQlcH5HfY3WJv3mrW/7B464SI935H2G2D4ep6nrvQKckGJmNl3ycA=; mz_mt0-8135448658=AolMJGAKMP7xwnuOPTRZVKoxnSgmdfuNWBuyhG9MsUMkn//PB6cAvSmDl52ZUxImL6886q9Lg/uJKTi1/4o+PsTsUd4aCLJ7hMXBQLcweDOP0/mzgOO3oqDU1N9ym2VtsSPp88TmXOLR0Fsj3JvPnQ8yafFGM9lxfjWmkwWoeiNK6/RNn2vUelMBE4YFO6sLwF5sQQo=; ampsc=ukfVwNIDoZHQtu2N9c1CJ7CKqFmT9T7J/1arwOfEnzY=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZ1AAAAABlbuYK6+eAeRvWUZmm5fGYvWdgNiCjsMg=; mz_at_ssl-8135448658=AwUAAAECAAHZ1AAAAABlbuYKzGpJ/FCnkSdpeD1H2uN8r/uBvn8=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=GtN5UQnYgi8Fj9XbbKwJg0; X-Dsid=8135448658; xp_ci=";
 
@@ -127,35 +124,39 @@ public class ITunesUtil {
     /**
     　* 删除所有支付方式（iTunes版）
       * @param
-     * @param response
+     * @param paras
     　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
     　* @throws
     　* @author DeZh
     　* @date 2023/10/25 11:49
     */
-    public  static Map<String,String> getPaymentInfos(HttpResponse response){
-        Map<String,String> result=new HashMap<>();
+    public  static Map<String,Object> delPaymentInfos(Map<String,Object> paras){
+        Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Content-Type", ListUtil.toList("application/json; charset=UTF-8"));
-        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
         headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
-        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("84215040"));
-        headers.put("X-Apple-I-MD-M",ListUtil.toList("Q2OtXd0fi23JpGxDq05FG3ROgkEVQu92XZBrKZZSA2DlFswLisjD31ycS05u7hliBihILZlRF2bCOwq2"));
-        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABDi8d9/9w4AeM0Z1VLqcbepAAAAAg=="));
-        headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZegAAAABlOJfilEK2op9puR0mWkNMNbkQemE67dE="));
-        String cookie="amp=oz+QsprugugNdH1dOqMziD+7NvCu3VFV2kRYPsMiEIlb3hzkd/PsiDnk4JV67cWA5Je3PwIHiUiPIdGoCN0PJhtoUBNgSfNoxyITDAAzXtw=; itst=0; mt-tkn-8135448658=Ai3J5B6alaoTmz6Vm48bshOWYZhNUFol2BoFDaOs3JfvzKabPxOauNjBsex20hTmVDQi9Fx3bnfeG8u35zUhEFoLy7XNrr4yKAh1Bveid2muByG4G/coH1ocF2qA5qykNzSBEbvhHNadzQyDs7dRbk2uuB6GpnDKPdGcEwrS9k2WnOYoenymHasURo9geVUuetLqf2I=; mz_mt0-8135448658=AgW7tbN1lanI9hjtOLDaVbhkN6ni8hxRqgEI7SCiqCIFz5Gc1WSKVo4SMHGjkbsKNGykyDIU1FHNVEf6ThJwxR3P5ZHSgt3MHDEZSjQswhQ3LRBzt/asKQLyf1qEqUl2Y+f4LrQ6tWQOqL0lzzS9C+819PUZEyNviBxvQX05XDcp5wntHBk1AleGft1q2mqWWEnNmJA=; ampsc=1S1xXEF743014EgN2zwVoC1uUCvWW8kEvrQM29Lq7Pg=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZegAAAABlOJfjEwDr2i1W4JUHHV0HeCJRCoQjdDc=; mz_at_ssl-8135448658=AwUAAAECAAHZegAAAABlOJfjHk0UnNC2UHDOJ7R0KmUj7LBhnfE=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=SMrDJXV7QMq7HJtEIv3zKw; X-Dsid=8135448658; xp_ab=1#WqjkRLH+-2+p9nsgcq0#isj11bm+-2+oE0ebSx03#yNFpB6B+-2+EZQVyff00; xp_abc=oE0ebSx03; xp_ci=3z4Kdsj1zCuGz551z950zj3FC7lDW";
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        StringBuilder cookieBuilder = new StringBuilder();
+        for(String c : (List<String>)paras.get("cookies")){
+            cookieBuilder.append(";").append(c);
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+
+        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
                 .header(headers)
-                .cookie(cookie)
+                .cookie(cookies)
                 .execute();
         if(httpResponse.getStatus()==401){
-            result.put("code","-1");
+            result.put("code","1");
             result.put("message","未登录或登录超时");
         }else if(httpResponse.getStatus()==200){
             String paymentInfosJsonString= JSONUtil.parseObj(httpResponse.body()).getByPath("data.attributes.paymentInfos").toString();
@@ -164,14 +165,14 @@ public class ITunesUtil {
                 String paymentId= (String) ((JSONObject)jsonObject).getByPath("paymentId");
                 String paymentMethodType= (String) ((JSONObject)jsonObject).getByPath("paymentMethodType");
                 if(!"None".equalsIgnoreCase(paymentMethodType)){
-                    String url= MessageFormat.format("https://p30-buy.itunes.apple.com/account/stackable/paymentInfos/{0}/delete",paymentId);
+                    String url= MessageFormat.format("https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos/{0}/delete",paymentId);
                     HttpResponse delHttpResponse = HttpUtil.createRequest(Method.POST,url)
                             .header(headers)
-                            .cookie(cookie)
+                            .cookie(cookies)
                             .execute();
                 }
             }
-            result.put("code","0");
+            result.put("code","200");
             result.put("message","操作成功");
         }
         return result;

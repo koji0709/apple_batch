@@ -1,19 +1,8 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.db.ActiveEntity;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.utils.AppleIDUtil;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 
 import java.net.MalformedURLException;

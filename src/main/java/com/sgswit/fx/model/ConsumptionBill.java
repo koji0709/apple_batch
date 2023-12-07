@@ -3,6 +3,7 @@ package com.sgswit.fx.model;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 /**
@@ -41,7 +42,9 @@ public final class ConsumptionBill {
     private final SimpleStringProperty pwd;
 
     private final SimpleStringProperty accountBalance;
-
+    private final SimpleStringProperty whetherArrearage;
+    private final SimpleStringProperty name;
+    private final SimpleStringProperty familyDetails;
     public ConsumptionBill() {
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
@@ -57,6 +60,9 @@ public final class ConsumptionBill {
         this.shippingAddress = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
         this.accountBalance = new SimpleStringProperty();
+        this.whetherArrearage = new SimpleStringProperty();
+        this.name = new SimpleStringProperty();
+        this.familyDetails = new SimpleStringProperty();
     }
 
     public int getSeq() {
@@ -174,5 +180,29 @@ public final class ConsumptionBill {
 
     public void setAccountBalance(String accountBalance) {
         this.accountBalance.set(accountBalance);
+    }
+
+    public String getWhetherArrearage() {
+        return whetherArrearage.get();
+    }
+
+    public void setWhetherArrearage(String whetherArrearage) {
+        this.whetherArrearage.set(whetherArrearage);
+    }
+
+    public String getName() {
+        return name.get();
+    }
+
+    public void setName(String name) {
+        this.name.set(name);
+    }
+
+    public String getFamilyDetails() {
+        return familyDetails.get();
+    }
+
+    public void setFamilyDetails(String familyDetails) {
+        this.familyDetails.set(familyDetails);
     }
 }

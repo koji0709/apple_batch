@@ -97,7 +97,7 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        refreshUserInfo();
+        refreshRemainingPoints();
 
     }
 
@@ -306,7 +306,7 @@ public class MainController implements Initializable {
         browse(url);
     }
     @FXML
-    public void refreshUserInfo() {
+    public void refreshRemainingPoints() {
         //加载点数
         String s = PropertiesUtil.getOtherConfig("login.info");
         JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));

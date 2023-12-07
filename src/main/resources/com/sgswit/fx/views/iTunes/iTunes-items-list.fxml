@@ -31,7 +31,7 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="44.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="查询帐号信息" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onAction="#onQueryAccountInfoBtnClick" prefHeight="25.0" prefWidth="140.0" text="查询帐号信息" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>

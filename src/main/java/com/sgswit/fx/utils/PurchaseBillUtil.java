@@ -9,6 +9,8 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -62,6 +64,19 @@ public class PurchaseBillUtil {
 //            System.out.println(jsonStrList);
 //        }
         authenticate("djli0506@163.com","!!B0527s0207!!");
+
+
+//        Date nowDate= new Date();
+//        Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='djli0506@163.com' ORDER BY purchase_date ASC LIMIT 1;");
+//        nowDate.setTime(entityLast.getLong("purchase_date"));
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+//
+//        System.out.println(sdf.format(nowDate));
+//        System.out.println(entityLast.getStr("purchase_id"));
+
+
+
+
     }
 
     public static Map<String,Object> loginAndAuth(String account,String pwd){
@@ -88,7 +103,11 @@ public class PurchaseBillUtil {
         HttpResponse step0Res = federate(account,frameId,clientId, locationBase);
 
         HttpResponse step1Res = signinInit(account,a,frameId,clientId,locationBase,step0Res);
-
+        if(step1Res.getStatus()!=200){
+            result.put("code","1");
+            result.put("msg","错误码："+step1Res.getStatus());
+            return result;
+        }
         HttpResponse step2Res = signinCompete(account,pwd,a,g,n,ra,step1Res,pre2Response,frameId,clientId,locationBase);
 
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
@@ -624,9 +643,9 @@ public class PurchaseBillUtil {
                 .execute();
         if(searchResponse.getStatus()==200){
             JSON json=JSONUtil.parse(searchResponse.body());
+            jsonStrList.add(searchResponse.body());
             if(!StringUtils.isEmpty(json.getByPath("nextBatchId"))){
                 nextBatchId=json.getByPath("nextBatchId").toString();
-                jsonStrList.add(searchResponse.body());
                 search(jsonStrList,dsid,nextBatchId,token,searchCookies);
             }
         }
@@ -996,8 +1015,10 @@ public class PurchaseBillUtil {
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
 
-            String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+guid;
-            paras= accountSummary(paras,accountUrl);
+            ITunesUtil.delPaymentInfos(paras);
+
+
+            paras= accountSummary(paras);
 
             int accountPurchasesLast90Count=accountPurchasesLast90Count(paras);
             paras.put("purchasesLast90Count",accountPurchasesLast90Count);
@@ -1007,8 +1028,8 @@ public class PurchaseBillUtil {
 
         return paras;
     }
-    private static Map<String,Object> accountSummary(Map<String,Object> paras,String accountUrl) {
-
+    private static Map<String,Object> accountSummary(Map<String,Object> paras) {
+        String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+guid;
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
@@ -1033,13 +1054,14 @@ public class PurchaseBillUtil {
             //解析HTML
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
-            String countryName=element.child(5).getElementsByClass("info").get(0).child(0).text();
+            Element addressElement=element.getElementsByClass("address").get(0);
+            String countryName=addressElement.parent().parent().nextElementSibling().getElementsByClass("info").get(0).child(0).text();
             //账号国家
             paras.put("countryName",countryName);
             //寄送地址
-            String address=element.getElementsByClass("address").get(0).html().replace("<br>",",");
+            String address=addressElement.html().replace("<br>",",");
             paras.put("address",address);
-            String paymentMethod=element.child(3).getElementsByClass("info").text();
+            String paymentMethod=addressElement.parent().parent().previousElementSibling().getElementsByClass("info").text();
             paras.put("paymentMethod",paymentMethod);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1079,6 +1101,7 @@ public class PurchaseBillUtil {
         if(cookieBuilder.toString().length() > 0){
             cookies = cookieBuilder.toString().substring(1);
         }
+
         HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)
                 .cookie(cookies)

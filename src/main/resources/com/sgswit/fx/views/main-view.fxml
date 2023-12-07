@@ -17,7 +17,7 @@
                         <Font name="System Bold" size="30.0" />
                      </font>
                   </Label>
-                  <Label fx:id="remainingPoints" alignment="CENTER" contentDisplay="RIGHT" layoutX="250.0" layoutY="24.0" onMouseClicked="#refreshUserInfo" prefHeight="27.0" prefWidth="95.0" text="0" textFill="WHITE">
+                  <Label fx:id="remainingPoints" alignment="CENTER" contentDisplay="RIGHT" layoutX="250.0" layoutY="24.0" onMouseClicked="#refreshRemainingPoints" prefHeight="27.0" prefWidth="95.0" text="0" textFill="WHITE">
                      <font>
                         <Font size="20.0" />
                      </font>

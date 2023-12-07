@@ -1,6 +1,8 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -236,48 +239,52 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
     protected void onStopBtnClick(ActionEvent actionEvent) {
 
     }
-    private  void integratedData(ConsumptionBill consumptionBill,List<String> datas) throws Exception {
+    private  void integratedData(ConsumptionBill consumptionBill,List<String> datas) {
+        Date nowDate= new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");
         SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         BigDecimal costTotalAmount=BigDecimal.ZERO;
-        String currency="";
-        if(datas.size()>0){
-            String rangeSelectStr=rangeSelect.getSelectionModel().getSelectedItem();
-
-            String lastPurchaseDateInfoStr=JSONUtil.parseArray(JSONUtil.parse(datas.get(0)).getByPath("purchases")).get(0).toString();
-            String lastPurchaseDateStr= JSONUtil.parse(lastPurchaseDateInfoStr).getByPath("purchaseDate").toString();
-            Date  lastPurchaseDate = lastPurchaseDateStr.contains(".")?format2.parse(lastPurchaseDateStr):format.parse(lastPurchaseDateStr);
-
-            consumptionBill.setLastPurchaseDate(sdf.format(lastPurchaseDate));
-
-            JSONArray ds=JSONUtil.parseArray(JSONUtil.parse(datas.get(datas.size()-1)).getByPath("purchases"));
-            String earliestPurchaseDateInfoStr=ds.get(ds.size()-1).toString();
-            String earliestPurchaseDateStr= JSONUtil.parse(earliestPurchaseDateInfoStr).getByPath("purchaseDate").toString();
-            Date  earliestPurchaseDate = earliestPurchaseDateStr.contains(".")?format2.parse(earliestPurchaseDateStr):format.parse(earliestPurchaseDateStr);
-            consumptionBill.setEarliestPurchaseDate(sdf.format(earliestPurchaseDate));
-            for(String s:datas){
-                JSONArray purchaseInfoJsonArr=JSONUtil.parseArray(JSONUtil.parse(s).getByPath("purchases"));
-                for(Object o:purchaseInfoJsonArr){
-                    JSONObject json= (JSONObject) o;
-                    currency= ((JSONObject) o).getByPath("estimatedTotalAmount").toString().substring(0,1);
-                    String a= ((JSONObject) o).getByPath("estimatedTotalAmount").toString().substring(1);
-                    costTotalAmount=costTotalAmount.add(new BigDecimal(a));
+        String appleId=consumptionBill.getAccount();
+        try {
+            //删除历史记录
+            Db.use().del("purchase_record","apple_id",consumptionBill.getAccount());
+            String currency="";
+            if(datas.size()>0){
+                for(String s:datas){
+                    JSONArray purchaseInfoJsonArr=JSONUtil.parseArray(JSONUtil.parse(s).getByPath("purchases"));
+                    for(Object o:purchaseInfoJsonArr){
+                        JSONObject json= (JSONObject) o;
+                        //写入记录
+                        Entity entity=new Entity();
+                        entity.setTableName("purchase_record");
+                        entity.set("apple_id",consumptionBill.getAccount());
+                        entity.set("purchase_id",json.getByPath("purchaseId"));
+                        entity.set("weborder",json.getByPath("weborder"));
+                        String purchaseDateStr= json.getStr("purchaseDate");
+                        Date  purchaseDate = purchaseDateStr.contains(".")?format2.parse(purchaseDateStr):format.parse(purchaseDateStr);
+                        entity.set("purchase_date",purchaseDate.getTime());
+                        entity.set("estimated_total_amount",json.getByPath("estimatedTotalAmount"));
+                        entity.set("plis",json.getByPath("plis"));
+                        Db.use().insert(entity);
+                    }
                 }
-
             }
-            consumptionBill.setTotalConsumption(currency+costTotalAmount);
+
+            Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date ASC LIMIT 1;");
+            nowDate.setTime(entityLast.getLong("purchase_date"));
+            consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
+
+            Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date desc LIMIT 1;");
+            nowDate.setTime(entityEarliest.getLong("purchase_date"));
+            consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
 
 
-            accountTableView.refresh();
+
+
+
+        }catch (Exception e){
 
         }
-
-
-
     }
-
-
-
-
 }

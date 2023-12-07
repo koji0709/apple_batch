@@ -7,13 +7,18 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.system.UserInfo;
 import com.sgswit.fx.MainController;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.HttpUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.StageUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -89,28 +94,28 @@ public class SelfServiceChargeController implements Initializable {
                     alert.setTitle("充值提示");
                     alert.setHeaderText("充值成功！");
                     alert.show();
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            HttpResponse rsp = HttpUtil.get("/userInfo/getInfoByUserName/"+userName);
-                            boolean verify = HttpUtil.verifyRsp(rsp);
-                            if (!verify){
-                                return;
-                            }
-                            String userInfo=JSONUtil.parse(rsp.body()).getByPath("data").toString();
-                            PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
-                            mainController.refreshUserInfo();
-                        }
-                    });
-
-
-
+                    rsp = HttpUtil.get("/userInfo/getInfoByUserName/"+userName);
+                    boolean verify = HttpUtil.verifyRsp(rsp);
+                    if (!verify){
+                    }else{
+                        String userInfo=JSONUtil.parse(rsp.body()).getByPath("data").toString();
+                        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
+                    }
 
                 }
             }
             Stage stage = (Stage) confirmBtn.getScene().getWindow();
             stage.close();
+            refreshRemainingPoints();
         }
+    }
+    public static void refreshRemainingPoints(){
+        Stage main= StageUtil.get(StageEnum.MAIN);
+        Parent root =main.getScene().getRoot();
+        Label label = (Label) root.lookup("#remainingPoints");
+        String s = PropertiesUtil.getOtherConfig("login.info");
+        JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
+        Object remainingPointsObj= object.getByPath("remainingPoints");
+        label.setText(remainingPointsObj.toString());
     }
 }

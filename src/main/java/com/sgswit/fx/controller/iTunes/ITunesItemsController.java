@@ -37,8 +37,10 @@ public class ITunesItemsController {
         StageUtil.show(StageEnum.CONSUMPTION_BILL);
     }
 
+    public void onQueryAccountInfoBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.QUERY_ACCOUNT_INFO);
+    }
     public void onAppStoreDownloadBtnClick(){
         StageUtil.show(StageEnum.APPSTORE_DOWNLOAD);
     }
-
 }
