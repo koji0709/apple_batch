@@ -17,7 +17,8 @@ public enum StageEnum {
     SUPPORT_PIN("生成支持PIN","views/operation/support-pin.fxml",1260,650),
 
     /********** ICLOUD区 ***********/
-    CHECK_WHETHER("能否登录iCloud","views/iCloud/check-whether-icloud.fxml",1000,650),
+    CHECK_WHETHER_ICLOUD("能否登录iCloud","views/iCloud/check-whether-icloud.fxml",1000,650),
+    FAMILY_DETAILS("家庭共享详细","views/iCloud/family-details.fxml",1000,650),
 
     /********** ITUNES区 ***********/
     COUNTRY_MODIFY("账号国家修改","views/iTunes/country-modify.fxml",1100,650),

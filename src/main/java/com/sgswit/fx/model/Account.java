@@ -26,6 +26,7 @@ public class Account {
     private  final SimpleStringProperty targetCountry;
     private  final SimpleStringProperty dsid;
     private  final SimpleStringProperty support;
+    private  final SimpleStringProperty familyDetails;
 
     // 页面临时参数
     private SimpleStringProperty email;
@@ -67,6 +68,7 @@ public class Account {
         this.createTime = new SimpleStringProperty();
         this.inspection = new SimpleStringProperty();
         this.purchasesLast90Count = new SimpleStringProperty();
+        this.familyDetails = new SimpleStringProperty();
     }
 
 
@@ -331,6 +333,14 @@ public class Account {
 
     public void setPurchasesLast90Count(String purchasesLast90Count) {
         this.purchasesLast90Count.set(purchasesLast90Count);
+    }
+
+    public String getFamilyDetails() {
+        return familyDetails.get();
+    }
+
+    public void setFamilyDetails(String familyDetails) {
+        this.familyDetails.set(familyDetails);
     }
 
     @Override

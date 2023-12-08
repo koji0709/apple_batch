@@ -22,7 +22,10 @@ import java.io.IOException;
 public class ICloudItemsController {
 
     public void onCheckWhetherIcloudBtnClick(ActionEvent actionEvent) throws IOException {
-        StageUtil.show(StageEnum.CHECK_WHETHER);
+        StageUtil.show(StageEnum.CHECK_WHETHER_ICLOUD);
     }
 
+    public void onFamilyDetailsBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.FAMILY_DETAILS);
+    }
 }

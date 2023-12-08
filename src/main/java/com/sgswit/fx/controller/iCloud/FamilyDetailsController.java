@@ -1,14 +1,11 @@
 package com.sgswit.fx.controller.iCloud;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.dd.plist.NSObject;
-import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
@@ -38,12 +35,12 @@ import java.util.Map;
 
 /**
  * @author DeZh
- * @title: CheckWhetherIcloudController
+ * @title: FamilyDetailsController
  * @projectName appleBatch
  * @description: TODO
  * @date 2023/10/2714:40
  */
-public class CheckWhetherIcloudController {
+public class FamilyDetailsController {
 
     @FXML
     public TableColumn seq;
@@ -54,7 +51,7 @@ public class CheckWhetherIcloudController {
     @FXML
     public TableColumn dsid;
     @FXML
-    public TableColumn support;
+    public TableColumn familyDetails;
     @FXML
     public TableColumn note;
     @FXML
@@ -183,12 +180,17 @@ public class CheckWhetherIcloudController {
                     JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
-                        account.setSupport("支持");
+                        //获取家庭共享
+                        Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
+                        if("200".equals(res.get("code"))){
+                            account.setFamilyDetails(res.get("familyDetails").toString());
+                        }
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
+                            tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
                             message=comAppleMobileme.getByPath("status-message",String.class);
                         }else{
-                            account.setSupport("不支持");
+                            message="未激活iCloud账户";
                         }
                     }
                     JSONObject ids= delegates.getJSONObject("com.apple.private.ids");
@@ -217,7 +219,7 @@ public class CheckWhetherIcloudController {
         pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
         area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
         dsid.setCellValueFactory(new PropertyValueFactory<Account,String>("dsid"));
-        support.setCellValueFactory(new PropertyValueFactory<Account,String>("support"));
+        familyDetails.setCellValueFactory(new PropertyValueFactory<Account,String>("familyDetails"));
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
     }
     private void tableRefresh(Account account,String message){

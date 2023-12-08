@@ -24,7 +24,7 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="家庭共享详细" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#onFamilyDetailsBtnClick" prefHeight="25.0" prefWidth="140.0" text="家庭共享详细" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

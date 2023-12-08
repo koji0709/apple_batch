@@ -29,7 +29,10 @@ import java.util.regex.Pattern;
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"1948401156@qq.com","B0527s0207!" );
-        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
+//        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
+        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"gbkrccqrfbg@hotmail.com","Weiqi100287." );
+        String rb = response.charset("UTF-8").body();
+        JSONObject rspJSON = PListUtil.parse(rb);
         getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
@@ -102,7 +105,7 @@ public class ICloudUtil {
             res.put("dsid",dsid);
             boolean isMemberOfFamily = rspJSON.getByPath("is-member-of-family",Boolean.class);
             if(!isMemberOfFamily){
-                res.put("familyDesc","未加入家庭共享");
+                res.put("familyDetails","未加入家庭共享");
             }else{
                 //判断账户是否为组织者
                 JSONArray array= JSONUtil.parseArray(rspJSON.getStr("family-members"));
@@ -117,8 +120,11 @@ public class ICloudUtil {
                         members.add(memberDisplayLabel+"("+memberAppleId+")");
                     }
                 }
-                res.put("familyDesc",String.join("|",members));
+                res.put("familyDetails",String.join("|",members));
             }
+        }else {
+            res.put("code",response.getStatus());
+            res.put("msg",response.body());
         }
         return res;
 

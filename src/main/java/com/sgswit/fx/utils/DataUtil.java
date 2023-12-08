@@ -52,8 +52,17 @@ public class DataUtil {
 
     public static BaseAreaInfo getInfoByCountryCode(String countryCode){
         getCountry();
-        List<BaseAreaInfo> list= baseAreaInfoList.stream().filter(n->n.getCode().equals(countryCode)).collect(Collectors.toList());
+        List<BaseAreaInfo> list=new ArrayList<>();
+        if(countryCode.length()==3){
+            list= baseAreaInfoList.stream().filter(n->n.getCode().equals(countryCode)).collect(Collectors.toList());
+        }else if(countryCode.length()==2){
+            list= baseAreaInfoList.stream().filter(n->n.getCode2().equals(countryCode)).collect(Collectors.toList());
+        }
         return (list.size()==0)?null:list.get(0);
+    }
+    public static String getNameByCountryCode(String countryCode){
+        BaseAreaInfo areaInfo=getInfoByCountryCode(countryCode);
+        return (null==areaInfo)?"":areaInfo.getNameZh();
     }
 
     public static String getAddressFormat(String countryCode){
