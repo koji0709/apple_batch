@@ -52,18 +52,20 @@ public class PurchaseBillUtil_bak231206 {
 
 
 
-        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
-        if(res.get("code").equals("200")){
-            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
-            String token=loginResult.get("token").toString();
-            String dsid=loginResult.get("dsid").toString();
-            String searchCookies=loginResult.get("searchCookies").toString();
-            List<String > jsonStrList=new ArrayList<>();
-            jsonStrList.clear();
-            search(jsonStrList,dsid,"",token,searchCookies);
-            System.out.println(jsonStrList);
-        }
+//        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//        if(res.get("code").equals("200")){
+//            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
+//            String token=loginResult.get("token").toString();
+//            String dsid=loginResult.get("dsid").toString();
+//            String searchCookies=loginResult.get("searchCookies").toString();
+//            List<String > jsonStrList=new ArrayList<>();
+//            jsonStrList.clear();
+//            search(jsonStrList,dsid,"",token,searchCookies);
+//            System.out.println(jsonStrList);
+//        }
 //        authenticate("djli0506@163.com","!!B0527s0207!!");
+
+        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 
 
 //        Date nowDate= new Date();
@@ -78,7 +80,7 @@ public class PurchaseBillUtil_bak231206 {
 
 
     }
-
+    ///网页版版
     public static Map<String,Object> loginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
         result.put("code","200");
@@ -943,6 +945,7 @@ public class PurchaseBillUtil_bak231206 {
         }
         return cookieBuilder.toString();
     }
+    ///iTunes版
     public static Map<String,Object> authenticate(String account,String pwd){
         Map<String,Object> paras=new HashMap<>();
         paras.put("account",account);
@@ -971,7 +974,7 @@ public class PurchaseBillUtil_bak231206 {
             paras.put("authUrl",res.header("location"));
             paras.put("cookies",getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
-            if(res.getStatus()==302){
+            if(res.getStatus()==302 && attempt ==0){
                 return login(authCode,guid,1,paras);
             }
             String rb = res.charset("UTF-8").body();
@@ -983,8 +986,13 @@ public class PurchaseBillUtil_bak231206 {
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
             }
-            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
+            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 return login(authCode,guid,1,paras);
+            }
+
+            if(Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
+                paras.put("inspection","未过检");
+                return paras;
             }
 
             if(!StringUtils.isEmpty(failureType) && !StringUtils.isEmpty(customerMessage)){
@@ -1009,6 +1017,8 @@ public class PurchaseBillUtil_bak231206 {
             paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
+
+            ITunesUtil.delPaymentInfos(paras);
 
 
             paras= accountSummary(paras);

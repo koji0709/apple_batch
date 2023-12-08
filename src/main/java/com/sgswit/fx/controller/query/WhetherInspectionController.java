@@ -20,6 +20,7 @@ public class WhetherInspectionController extends TableView<Account> {
         openImportAccountView("account----pwd");
     }
 
+    @Override
     public void accountHandler(Account account) {
         Map<String, Object> res = PurchaseBillUtil.authenticate(account.getAccount(), account.getPwd());
         if(res.get("code").equals("200")){

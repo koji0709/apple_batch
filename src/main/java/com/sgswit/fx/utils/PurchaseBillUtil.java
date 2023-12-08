@@ -34,6 +34,7 @@ import org.seimicrawler.xpath.JXNode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -50,8 +51,17 @@ public class PurchaseBillUtil {
 
     public static void main( String[] args ) throws Exception {
 
+        String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
 
+        List<Entity> countInfo=Db.use().query(countSql);
+        List<String> purchaseRecord=new ArrayList<>(countInfo.size());
+        for(Entity entity:countInfo){
+            String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
+            purchaseRecord.add(s);
+        }
+        System.out.println(String.join("|",purchaseRecord));
 
+//        Map<String,Object> res=loginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //        if(res.get("code").equals("200")){
 //            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
@@ -63,7 +73,9 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-        authenticate("djli0506@163.com","!!B0527s0207!!");
+//        authenticate("djli0506@163.com","!!B0527s0207!!");
+
+//        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 
 
 //        Date nowDate= new Date();
@@ -78,7 +90,7 @@ public class PurchaseBillUtil {
 
 
     }
-
+    ///网页版版
     public static Map<String,Object> loginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
         result.put("code","200");
@@ -142,6 +154,11 @@ public class PurchaseBillUtil {
         HttpResponse step216Res = repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
         HttpResponse step22Res = repareComplete(step216Res, step2Res,frameId);
         Map<String,Object> loginResult= login(pre1Response,step22Res);
+        if(!loginResult.get("code").equals("200")){
+            result.put("code",loginResult.get("code"));
+            result.put("msg",loginResult.get("msg"));
+            return result;
+        }
         result.put("loginResult",loginResult);
         return result;
     }
@@ -562,6 +579,7 @@ public class PurchaseBillUtil {
     */
     public static Map<String,Object> login(HttpResponse pre1Response,HttpResponse step22Res) {
         Map<String,Object> result=new HashMap<>();
+        result.put("code","200");
         HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -590,6 +608,16 @@ public class PurchaseBillUtil {
                 .header(headers)
                 .cookie(loginCookies)
                 .execute();
+        if(400==loginResponse.getStatus()){
+            result.put("code","400");
+            String messageBodyLocKey=JSONUtil.parse(loginResponse.body()).getByPath("error.messageBodyLocKey",String.class);
+            if(messageBodyLocKey.equals("RAP2.Error.ACCOUNT_DISABLED.Body")){
+                result.put("msg","帐户存在欺诈行为，已被【双禁】。");
+            }
+            return result;
+        }
+        String countryCodeISO3A=JSONUtil.parse(loginResponse.body()).getByPath("ampAccount.countryCodeISO3A",String.class);
+        result.put("countryName",DataUtil.getNameByCountryCode(countryCodeISO3A));
         String token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
         String dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
         //查询方法
@@ -943,6 +971,7 @@ public class PurchaseBillUtil {
         }
         return cookieBuilder.toString();
     }
+    ///iTunes版
     public static Map<String,Object> authenticate(String account,String pwd){
         Map<String,Object> paras=new HashMap<>();
         paras.put("account",account);
@@ -982,12 +1011,16 @@ public class PurchaseBillUtil {
                 paras.put("code","1");
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
+            }else if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("You cannot login because your account has been locked")){
+                paras.put("code","1");
+                paras.put("msg","帐户存在欺诈行为，已被【双禁】。");
+                return paras;
             }
             if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 return login(authCode,guid,1,paras);
             }
 
-            if(Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
+            if(!StringUtils.isEmpty(customerMessage) &&customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 paras.put("inspection","未过检");
                 return paras;
             }
@@ -1014,9 +1047,6 @@ public class PurchaseBillUtil {
             paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
-
-            ITunesUtil.delPaymentInfos(paras);
-
 
             paras= accountSummary(paras);
 

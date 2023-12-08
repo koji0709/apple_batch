@@ -152,14 +152,18 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
                                         account.setNote("购买记录查询中...");
-                                        account.setArea(accountInfoMap.get("countryName").toString());
+
                                         account.setShippingAddress(accountInfoMap.get("address").toString());
                                         account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         accountTableView.refresh();
                                         Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
+
+
+
                                         String token=loginResult.get("token").toString();
                                         String dsid=loginResult.get("dsid").toString();
                                         String searchCookies=loginResult.get("searchCookies").toString();
+                                        account.setArea(loginResult.get("countryName").toString());
                                         List<String > jsonStrList=new ArrayList<>();
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
 
@@ -270,19 +274,25 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                     }
                 }
             }
-
+            //最近记录
             Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date ASC LIMIT 1;");
             nowDate.setTime(entityLast.getLong("purchase_date"));
             consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
-
+            //最早记录
             Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date desc LIMIT 1;");
             nowDate.setTime(entityEarliest.getLong("purchase_date"));
             consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
-
-
-
-
-
+            //消费总额
+            String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record;");
+            consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
+            String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
+            List<Entity> countInfo=Db.use().query(countSql);
+            List<String> purchaseRecord=new ArrayList<>(countInfo.size());
+            for(Entity entity:countInfo){
+                String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
+                purchaseRecord.add(s);
+            }
+            consumptionBill.setPurchaseRecord(String.join("|",purchaseRecord));
         }catch (Exception e){
 
         }
