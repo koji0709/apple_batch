@@ -18,6 +18,4 @@ public class Constant {
     public static final String ITSPOD = "itspod";
 
     public static final String X_APPLE_ORIG_URL = "x-apple-orig-url";
-
-    public static final String ACCOUNT_INVALID_HSA_TOKEN = "ACCOUNT_INVALID_HSA_TOKEN";
 }

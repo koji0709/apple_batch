@@ -13,6 +13,8 @@ public class AppstoreDownloadVo {
     private final SimpleStringProperty failNum;
     private final SimpleStringProperty note;
 
+    private final SimpleStringProperty createTime;
+
     public AppstoreDownloadVo(){
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
@@ -22,6 +24,7 @@ public class AppstoreDownloadVo {
         this.successNum = new SimpleStringProperty();
         this.failNum = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
+        this.createTime = new SimpleStringProperty();
     }
 
     public int getSeq() {
@@ -118,6 +121,18 @@ public class AppstoreDownloadVo {
 
     public void setNote(String note) {
         this.note.set(note);
+    }
+
+    public String getCreateTime() {
+        return createTime.get();
+    }
+
+    public SimpleStringProperty createTimeProperty() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime.set(createTime);
     }
 
     @Override
