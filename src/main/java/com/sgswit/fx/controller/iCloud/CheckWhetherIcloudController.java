@@ -4,11 +4,13 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ICloudUtil;
@@ -17,6 +19,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -56,7 +59,7 @@ public class CheckWhetherIcloudController {
     @FXML
     public TableColumn pwd;
     @FXML
-    public Button accoutQueryBtn;
+    public Button accountQueryBtn;
 
     @FXML
     private TableView accountTableView;
@@ -131,9 +134,9 @@ public class CheckWhetherIcloudController {
                 continue;
             }
             //非双重认证
-            accoutQueryBtn.setText("正在查询");
-            accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            accoutQueryBtn.setDisable(true);
+            accountQueryBtn.setText("正在查询");
+            accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+            accountQueryBtn.setDisable(true);
 
             account.setNote("正在登录...");
             accountTableView.refresh();
@@ -145,9 +148,9 @@ public class CheckWhetherIcloudController {
                         try {
                             checkCloudAcc(account);
                         } catch (Exception e) {
-                            accoutQueryBtn.setDisable(false);
-                            accoutQueryBtn.setText("开始执行");
-                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                             e.printStackTrace();
                         }
                     }finally {
@@ -155,9 +158,9 @@ public class CheckWhetherIcloudController {
                         Platform.runLater(new Task<Integer>() {
                             @Override
                             protected Integer call() {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                accountQueryBtn.setDisable(false);
+                                accountQueryBtn.setText("开始执行");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                                 return 1;
                             }
                         });
@@ -169,15 +172,14 @@ public class CheckWhetherIcloudController {
     protected void checkCloudAcc(Account account) {
         tableRefresh(account,"正在登录...");
         HttpResponse response= ICloudUtil.checkCloudAccount(IdUtil.fastUUID().toUpperCase(),account.getAccount(),account.getPwd() );
-        if(response.getStatus()!=200){
-            tableRefresh(account,"账号不存在或密码错误");
-        }else if(response.getStatus()==200){
+        if(response.getStatus()==200){
             try {
                 String rb = response.charset("UTF-8").body();
                 JSONObject rspJSON = PListUtil.parse(rb);
                 if("0".equals(rspJSON.getStr("status"))){
                     JSONObject delegates= rspJSON.getJSONObject("delegates");
-                    String status= delegates.getJSONObject("com.apple.mobileme").getByPath("status",String.class);
+                    JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
+                    String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
                         account.setSupport("支持");
                         JSONObject ids= delegates.getJSONObject("com.apple.private.ids");
@@ -189,8 +191,8 @@ public class CheckWhetherIcloudController {
                         }
                         tableRefresh(account,"查询成功");
                     }else{
-                        if("ACCOUNT_INVALID_HSA_TOKEN".equals(JSONUtil.parse(delegates.get("com.apple.mobileme")).getByPath("status-error",String.class))){
-                            tableRefresh(account,"已开通双重验证");
+                        if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
+                            tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
                         }else{
                             account.setSupport("不支持");
                             JSONObject ids= delegates.getJSONObject("com.apple.private.ids");
@@ -212,7 +214,7 @@ public class CheckWhetherIcloudController {
                 e.printStackTrace();
             }
         }else {
-            tableRefresh(account,"账号不存在或密码错误");
+            tableRefresh(account,response.body());
         }
 
 
@@ -229,5 +231,8 @@ public class CheckWhetherIcloudController {
     private void tableRefresh(Account account,String message){
         account.setNote(message);
         accountTableView.refresh();
+    }
+    @FXML
+    public void onStopBtnClick(ActionEvent actionEvent) {
     }
 }

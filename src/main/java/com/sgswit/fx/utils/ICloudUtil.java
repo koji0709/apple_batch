@@ -6,7 +6,9 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 
@@ -26,6 +28,7 @@ import java.util.regex.Pattern;
  */
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
+//        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"1948401156@qq.com","B0527s0207!" );
         HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
         getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
     }
@@ -77,6 +80,7 @@ public class ICloudUtil {
     }
     public static Map<String,Object> getFamilyDetails(String auth,String appleId){
         Map<String,Object> res=new HashMap<>();
+        res.put("code","200");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -100,10 +104,23 @@ public class ICloudUtil {
             if(!isMemberOfFamily){
                 res.put("familyDesc","未加入家庭共享");
             }else{
-                res.put("familyDesc","未加入家庭共享");
+                //判断账户是否为组织者
+                JSONArray array= JSONUtil.parseArray(rspJSON.getStr("family-members"));
+                List<String> members=new ArrayList<>(array.size());
+                for(Object object:array){
+                    JSONObject jsonObject= (JSONObject) object;
+                    String memberDisplayLabel=jsonObject.getStr("member-display-label");
+                    String memberAppleId=jsonObject.getStr("member-apple-id");
+                    if(appleId.equalsIgnoreCase(memberAppleId)){
+                        members.add(memberDisplayLabel+"(此账号)");
+                    }else{
+                        members.add(memberDisplayLabel+"("+memberAppleId+")");
+                    }
+                }
+                res.put("familyDesc",String.join("|",members));
             }
         }
-        return null;
+        return res;
 
 
     }
