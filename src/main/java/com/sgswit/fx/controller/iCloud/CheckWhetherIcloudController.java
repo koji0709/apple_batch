@@ -1,8 +1,10 @@
 package com.sgswit.fx.controller.iCloud;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
@@ -10,6 +12,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.PListUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -170,39 +173,38 @@ public class CheckWhetherIcloudController {
             tableRefresh(account,"账号不存在或密码错误");
         }else if(response.getStatus()==200){
             try {
-                NSObject nsObject = XMLPropertyListParser.parse(response.body().getBytes("UTF-8"));
-                Map<String,Object> stringObjectMap= (Map<String, Object>) JSONUtil.parse(nsObject.toJavaObject());
-                System.out.println(stringObjectMap);
-                if("0".equals(stringObjectMap.get("status").toString())){
-                    Map<String,Object> delegates= (Map<String, Object>) stringObjectMap.get("delegates");
-                    String status=JSONUtil.parse(delegates.get("com.apple.mobileme")).getByPath("status").toString();
+                String rb = response.charset("UTF-8").body();
+                JSONObject rspJSON = PListUtil.parse(rb);
+                if("0".equals(rspJSON.getStr("status"))){
+                    JSONObject delegates= rspJSON.getJSONObject("delegates");
+                    String status= delegates.getJSONObject("com.apple.mobileme").getByPath("status",String.class);
                     if("0".equals(status)){
                         account.setSupport("支持");
-                        Map<String,Object> ids= (Map<String, Object>) delegates.get("com.apple.private.ids");
-                        if("0".equals(ids.get("status").toString())){
-                            Object regionIdObj=JSONUtil.parse(ids.get("service-data")).getByPath("invitation-context.region-id");
-                            account.setArea(regionIdObj.toString());
+                        JSONObject ids= delegates.getJSONObject("com.apple.private.ids");
+                        if("0".equals(ids.getStr("status"))){
+                            String regionId=JSONUtil.parse(ids.get("service-data")).getByPath("invitation-context.region-id",String.class);
+                            account.setArea(regionId);
                         }else{
                             tableRefresh(account,"查询成功");
                         }
                         tableRefresh(account,"查询成功");
                     }else{
-                        if("ACCOUNT_INVALID_HSA_TOKEN".equals(JSONUtil.parse(delegates.get("com.apple.mobileme")).getByPath("status-error").toString())){
+                        if("ACCOUNT_INVALID_HSA_TOKEN".equals(JSONUtil.parse(delegates.get("com.apple.mobileme")).getByPath("status-error",String.class))){
                             tableRefresh(account,"已开通双重验证");
                         }else{
                             account.setSupport("不支持");
-                            Map<String,Object> ids= (Map<String, Object>) delegates.get("com.apple.private.ids");
-                            if("0".equals(ids.get("status").toString())){
-                                Object regionIdObj=JSONUtil.parse(ids.get("service-data")).getByPath("invitation-context.region-id");
-                                account.setArea(regionIdObj.toString());
+                            JSONObject ids= delegates.getJSONObject("com.apple.private.ids");
+                            if("0".equals(ids.getStr("status"))){
+                                String regionId=JSONUtil.parse(ids.get("service-data")).getByPath("invitation-context.region-id",String.class);
+                                account.setArea(regionId);
                             }else{
                                 tableRefresh(account,"查询成功");
                             }
                         }
                     }
-                    account.setDsid(stringObjectMap.get("dsid").toString());
+                    account.setDsid(rspJSON.getStr("dsid"));
                 }else{
-                    tableRefresh(account,stringObjectMap.get("status-message").toString());
+                    tableRefresh(account,rspJSON.getStr("status-message"));
                 }
 
             }catch (Exception e){
