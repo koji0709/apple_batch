@@ -27,12 +27,7 @@ import java.util.regex.Pattern;
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
         HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
-        String rb = response.charset("UTF-8").body();
-        JSONObject rspJSON = PListUtil.parse(rb);
-        String dsid = rspJSON.getStr("dsid");
-        String mmeAuthToken= rspJSON.getJSONObject("delegates").getJSONObject("com.apple.mobileme").getByPath("service-data.tokens.mmeAuthToken").toString();
-        String auth = Base64.encode(dsid+":"+mmeAuthToken);
-        getFamilyDetails(auth,"djli0506@163.com");
+        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         //clientId从数据库中获取每个appleId生成一个
@@ -72,8 +67,16 @@ public class ICloudUtil {
         return response;
     }
 
-
-    private static void getFamilyDetails(String auth,String appleId){
+    public static String getAuthByHttResponse(HttpResponse response){
+        String rb = response.charset("UTF-8").body();
+        JSONObject rspJSON = PListUtil.parse(rb);
+        String dsid = rspJSON.getStr("dsid");
+        String mmeAuthToken= rspJSON.getJSONObject("delegates").getJSONObject("com.apple.mobileme").getByPath("service-data.tokens.mmeAuthToken",String.class);
+        String auth = Base64.encode(dsid+":"+mmeAuthToken);
+        return auth;
+    }
+    public static Map<String,Object> getFamilyDetails(String auth,String appleId){
+        Map<String,Object> res=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -84,12 +87,24 @@ public class ICloudUtil {
         headers.put("X-MMe-Client-Info",ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AppleAccount/1.0 (com.apple.Preferences/198)>"));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
-
-        HttpResponse res = HttpUtil.createPost("https://setup.icloud.com/setup/family/getFamilyDetails")
+        HttpResponse response = HttpUtil.createPost("https://setup.icloud.com/setup/family/getFamilyDetails")
                 .header(headers)
                 .execute();
 
-        System.out.println(res.getStatus());
-        System.out.println(res.body());
+        if(200==response.getStatus()){
+            String rb = response.charset("UTF-8").body();
+            JSONObject rspJSON = PListUtil.parse(rb);
+            String dsid = rspJSON.getStr("dsid");
+            res.put("dsid",dsid);
+            boolean isMemberOfFamily = rspJSON.getByPath("is-member-of-family",Boolean.class);
+            if(!isMemberOfFamily){
+                res.put("familyDesc","未加入家庭共享");
+            }else{
+                res.put("familyDesc","未加入家庭共享");
+            }
+        }
+        return null;
+
+
     }
 }
