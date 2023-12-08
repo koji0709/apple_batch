@@ -60,15 +60,15 @@
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <children>
                                                         <Button onAction="#selectAllBtnAction" text="全    选"/>
-                                                        <Button text="添加选中项目"/>
-                                                        <Button text="将已添加的项目保存到本地文件"/>
+                                                        <Button onAction="#selectItemToCacheListBtnAction" text="添加选中项目"/>
+                                                        <Button onAction="#selectItemToLocalFileBtnAction" text="将已添加的项目保存到本地文件"/>
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                                     <children>
                                                         <Button onAction="#unselectAllBtnAction" text="全不选"/>
                                                         <Button onAction="#copySelectItemUrlBtnAction" text="复制选中URL"/>
-                                                        <Button onAction="#selectItemUrlToTxtBrnAction" text="将选中的URL地址添加到txt文件"/>
+                                                        <Button onAction="#selectItemUrlToTxtBtnAction" text="将选中的URL地址添加到txt文件"/>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -122,8 +122,8 @@
                         <TitledPane text="结果区" prefWidth="165" prefHeight="165" collapsible="false" animated="false">
                             <content>
                                 <VBox alignment="CENTER" style="-fx-padding: 10 10 10 10;-fx-spacing: 14">
-                                    <Label text="已添加 0 个项目"/>
-                                    <Button text="清空已导入项目"/>
+                                    <Label fx:id="itemNumLabel" text="已添加 0 个项目"/>
+                                    <Button onAction="#clearCacheListBtnAction" text="清空已导入项目"/>
                                     <CheckBox fx:id="loadLogoCheckBox" text="加载LOGO"/>
                                 </VBox>
                             </content>
@@ -138,7 +138,7 @@
                         <TableView fx:id="tableView" prefWidth="990" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" prefWidth="60" text="序号"  style="-fx-alignment: CENTER;"/>
-                                <TableColumn fx:id="select" prefWidth="50" text="选择"  style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="select" prefWidth="50" text=""  style="-fx-alignment: CENTER;"/>
                                 <TableColumn fx:id="iconImage" prefWidth="70" text="ICO"  style="-fx-alignment: CENTER;"/>
                                 <TableColumn fx:id="price" prefWidth="60" text="价格"  style="-fx-alignment: CENTER;"/>
                                 <TableColumn fx:id="trackName" prefWidth="730" text="项目名称"  style="-fx-alignment: CENTER-LEFT;"/>

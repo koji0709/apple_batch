@@ -18,4 +18,9 @@ public class Constant {
     public static final String ITSPOD = "itspod";
 
     public static final String X_APPLE_ORIG_URL = "x-apple-orig-url";
+
+    public static final String LOCAL_FILE_STORAGE_PATH = System.getProperty("user.home") + "/APPLE-BATCH";
+
+    public static final String LOCAL_FILE_EXTENSION = ".applebatch";
+
 }

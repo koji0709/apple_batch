@@ -2,8 +2,6 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -17,7 +15,6 @@ import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StoreFontsUtils;
 import com.sgswit.fx.utils.StringUtils;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,18 +26,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class AppstoreSearchController extends CommonView implements Initializable{
-
-    AppstoreDownloadController appstoreDownloadController;
 
     @FXML
     ToggleGroup itemTypeToggleGroup;
@@ -58,11 +48,10 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     CheckBox loadLogoCheckBox;
 
     @FXML
-    public javafx.scene.control.TableView<AppstoreItemVo> tableView;
+    Label itemNumLabel;
 
-    public void setAppstoreDownloadController(AppstoreDownloadController appstoreDownloadController) {
-        this.appstoreDownloadController = appstoreDownloadController;
-    }
+    @FXML
+    public javafx.scene.control.TableView<AppstoreItemVo> tableView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -84,6 +73,7 @@ public class AppstoreSearchController extends CommonView implements Initializabl
 
         // 搜索限制条数
         limitChoiceBox.setValue("20");
+
     }
 
 
@@ -185,7 +175,7 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     /**
      * 将选中的URL地址添加到txt文件
      */
-    public void selectItemUrlToTxtBrnAction(){
+    public void selectItemUrlToTxtBtnAction(){
         List<AppstoreItemVo> selectedItemList = getSelectedItem();
         if (selectedItemList.isEmpty()){
             alert("未选中数据");
@@ -193,16 +183,14 @@ public class AppstoreSearchController extends CommonView implements Initializabl
         }
 
         Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
-        Object userData = stage.getUserData();
-        if (userData == null){
-            alert("未配置URL文件地址");
+        AppstoreDownloadController appstoreDownload = (AppstoreDownloadController) stage.getUserData();
+        boolean selected = appstoreDownload.useUrlCheckBox.isSelected();
+        if (!selected){
+            alert("请先返回选中URL模式");
             return;
         }
 
-        Map<String,Object> userDataMap = (Map<String,Object>) userData;
-
-        TextField localUrlTextField = (TextField)userDataMap.get("localUrlTextField");
-        String localUrl = localUrlTextField.getText();
+        String localUrl = appstoreDownload.localUrlTextField.getText();
         if (StrUtil.isEmpty(localUrl)){
             alert("未配置URL文件地址");
             return;
@@ -220,7 +208,40 @@ public class AppstoreSearchController extends CommonView implements Initializabl
         }
 
         FileUtil.appendUtf8String(words, new File(localUrl));
+        appstoreDownload.urlModeHandler();
         alert("写入成功！");
+    }
+
+    /**
+     * 将选中的项目添加到本地文件
+     */
+    public void selectItemToLocalFileBtnAction(){
+        List<AppstoreItemVo> selectedItem = getSelectedItem();
+        Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
+        AppstoreDownloadController appstoreDownloadController = (AppstoreDownloadController) stage.getUserData();
+        appstoreDownloadController.selectItemToLocalFile(selectedItem);
+        alert("保存至本地文件成功");
+    }
+
+    /**
+     * 将选中的项目添加到缓存list总
+     */
+    public void selectItemToCacheListBtnAction(){
+        List<AppstoreItemVo> selectedItem = getSelectedItem();
+        Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
+        AppstoreDownloadController appstoreDownload = (AppstoreDownloadController) stage.getUserData();
+        appstoreDownload.appDataList.addAll(selectedItem);
+        itemNumLabel.setText("已添加 "+appstoreDownload.appDataList.size()+" 个项目");
+        appstoreDownload.refreshAppNumLabel();
+    }
+
+    /**
+     * 清空已导入项目
+     */
+    public void clearCacheListBtnAction(){
+        Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
+        AppstoreDownloadController appstoreDownload = (AppstoreDownloadController) stage.getUserData();
+        appstoreDownload.clearCacheListBtnAction();
     }
 
     private List<AppstoreItemVo> getSelectedItem(){

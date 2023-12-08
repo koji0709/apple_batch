@@ -431,7 +431,7 @@ public class ITunesUtil {
 
     public static void main(String[] args) throws Exception {
 //        accountPurchasesCount(null);
-        getPurchases(null);
+        //getPurchases(null);
 //        getPaymentInfos(null);
         // addOrEditBillingInfoSrv(null);
 //        Faker faker = new Faker(Locale.CHINA);
@@ -458,7 +458,9 @@ public class ITunesUtil {
 //        }
 //        Generex generex = new Generex("1[35789]\\d{9}");
 //            System.out.println(generex.random());
-//        downloadDemo();
+        //downloadDemo();
+        String s = "sdadsa/id123";
+        System.err.println(s.substring(s.indexOf("/id")+3));
     }
 
 
@@ -498,7 +500,8 @@ public class ITunesUtil {
                 if (!CollUtil.isEmpty(results)){
                     for (Object result : results) {
                         JSONObject track = (JSONObject) result;
-                        Long trackId = track.getLong("trackId");
+//                        Long trackId = track.getLong("trackId");
+                        Long trackId = 1232780281L;
                         String trackName = track.getStr("trackName");
                         String artworkUrl100 = track.getStr("artworkUrl100");
                         Double price = track.getDouble("price");
@@ -576,11 +579,18 @@ public class ITunesUtil {
                         });
 
                         // zip
-                        Path zipPath = Paths.get(filePath + fileName);
-                        File tmpFile = new File("tmp.plist");
-                        FileUtil.appendUtf8String(metadata.toString(),tmpFile);
-                        ZipUtil.append(zipPath,tmpFile.toPath());
-                        FileUtil.del(tmpFile);
+                        try {
+                            Path zipPath = Paths.get(filePath + fileName);
+                            File tmpFile = new File("tmp.plist");
+                            FileUtil.appendUtf8String(metadata.toString(),tmpFile);
+                            ZipUtil.append(zipPath,tmpFile.toPath());
+                            FileUtil.del(tmpFile);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }finally {
+                            FileUtil.del(new File("tmp.plist"));
+                        }
+
                     }
                 }
             }
