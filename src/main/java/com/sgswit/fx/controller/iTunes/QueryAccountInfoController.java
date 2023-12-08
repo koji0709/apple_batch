@@ -1,13 +1,20 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.ConsumptionBill;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -119,15 +126,45 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                     if(accountInfoMap.get("code").equals("200")){
                                         account.setNote("查询成功");
+                                        accountTableView.refresh();
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
 
                                         account.setArea(accountInfoMap.get("countryName").toString());
                                         account.setShippingAddress(accountInfoMap.get("address").toString());
                                         account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         account.setName(accountInfoMap.get("name").toString());
-                                        accountTableView.refresh();
-
-
+                                        account.setPurchaseRecord(accountInfoMap.get("purchasesLast90Count").toString());
+                                        //家庭共享信息
+                                        HttpResponse response= ICloudUtil.checkCloudAccount(IdUtil.fastUUID().toUpperCase(),account.getAccount(),account.getPwd() );
+                                        if(response.getStatus()==200){
+                                            try {
+                                                String rb = response.charset("UTF-8").body();
+                                                JSONObject rspJSON = PListUtil.parse(rb);
+                                                if("0".equals(rspJSON.getStr("status"))){
+                                                    JSONObject delegates= rspJSON.getJSONObject("delegates");
+                                                    JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
+                                                    String status= comAppleMobileme.getByPath("status",String.class);
+                                                    if("0".equals(status)){
+                                                        //获取家庭共享
+                                                        Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
+                                                        if("200".equals(res.get("code"))){
+                                                            account.setFamilyDetails(res.get("familyDetails").toString());
+                                                        }
+                                                    }else{
+                                                        if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
+                                                            account.setFamilyDetails("-");
+                                                        }else{
+                                                            account.setFamilyDetails("-");
+                                                        }
+                                                    }
+                                                }else{
+                                                }
+                                            }catch (Exception e){
+                                                account.setFamilyDetails("-");
+                                            }
+                                        }else {
+                                            account.setFamilyDetails("-");
+                                        }
 
 
 
