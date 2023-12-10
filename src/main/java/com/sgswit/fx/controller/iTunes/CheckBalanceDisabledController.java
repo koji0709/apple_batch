@@ -11,6 +11,10 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class CheckBalanceDisabledController extends TableView<Account> {
@@ -56,10 +60,18 @@ public class CheckBalanceDisabledController extends TableView<Account> {
             Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
             account.setBalance(balance);
             account.setDisableStatus( !isDisabledAccount ? "正常" : "禁用");
-
-            // todo 查询区域和区域代码
-            account.setArea("");
-            account.setAreaCode("");
+            String message=rspJSON.getByPath("dialog.message",String.class);
+            String pattern = "(?i)此 Apple ID 只能在(.*)购物";
+            Pattern p = Pattern.compile(pattern);
+            Matcher m = p.matcher(message);
+            String areaName="";
+            while (m.find()) {
+                System.out.println(m.group(1));
+                areaName=m.group(1);
+            }
+            String areaCode= DataUtil.getCodeByCountryName(areaName);
+            account.setArea(areaName);
+            account.setAreaCode(areaCode);
 
             setAndRefreshNote(account,"查询成功");
         } else if (authenticateRsp.getStatus() == 503){

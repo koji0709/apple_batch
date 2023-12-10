@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -69,11 +71,16 @@ public class DataUtil {
         BaseAreaInfo areaInfo=getInfoByCountryCode(countryCode);
         return (null==areaInfo)?"":areaInfo.getNameZh();
     }
+    public static String getCodeByCountryName(String countryName){
+        getCountry();
+        List<BaseAreaInfo> list= baseAreaInfoList.stream().filter(n->n.getNameZh().equals(countryName)).collect(Collectors.toList());
+        return (list.size()==0)?null:list.get(0).getCode();
+    }
 
     public static String getAddressFormat(String countryCode){
         Map<String,Object> result= new HashMap<>();
         try {
-                    List<String> fieldsList=new ArrayList<>();
+            List<String> fieldsList=new ArrayList<>();
             List<FieldModel> addressFormatList=new ArrayList<>();
             String jsonString = ResourceUtil.readUtf8Str("data/address_format.json");
             for(Object object:JSONUtil.parseArray(jsonString)){
@@ -143,6 +150,7 @@ public class DataUtil {
                 Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
+
         }finally {
         }
         return guid;
@@ -168,6 +176,8 @@ public class DataUtil {
 
     public static void main(String[] args) {
 //        getGuidByAppleId("djli0506@163.com");
-        getClientIdByAppleId("djli0506@163.com");
+//        getClientIdByAppleId("djli0506@163.com");
+
+
     }
 }
