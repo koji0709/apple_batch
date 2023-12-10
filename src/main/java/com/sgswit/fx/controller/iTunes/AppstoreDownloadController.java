@@ -129,11 +129,11 @@ public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
      */
     @Override
     public void accountHandler(AppstoreDownloadVo appstoreDownloadVo) {
-        String guid = PropertiesUtil.getOtherConfig("guid");
+
         Account account = new Account();
         account.setAccount(appstoreDownloadVo.getAccount());
         account.setPwd(appstoreDownloadVo.getPwd());
-
+        String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
         // 鉴权
         HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
         if (authRsp == null || authRsp.getStatus() != 200){

@@ -169,7 +169,7 @@ public class FamilyDetailsController {
     }
     protected void checkCloudAcc(Account account) {
         tableRefresh(account,"正在登录...");
-        HttpResponse response= ICloudUtil.checkCloudAccount(IdUtil.fastUUID().toUpperCase(),account.getAccount(),account.getPwd() );
+        HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
         if(response.getStatus()==200){
             try {
                 String rb = response.charset("UTF-8").body();

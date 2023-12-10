@@ -30,7 +30,7 @@ public class ICloudUtil {
     public static void main(String[] args) throws Exception {
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"1948401156@qq.com","B0527s0207!" );
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
-        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"gbkrccqrfbg@hotmail.com","Weiqi100287." );
+        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("gbkrccqrfbg@hotmail.com"),"gbkrccqrfbg@hotmail.com","Weiqi100287." );
         String rb = response.charset("UTF-8").body();
         JSONObject rspJSON = PListUtil.parse(rb);
         getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");

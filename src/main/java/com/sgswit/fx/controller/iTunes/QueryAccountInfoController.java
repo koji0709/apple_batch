@@ -135,7 +135,7 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
                                         account.setName(accountInfoMap.get("name").toString());
                                         account.setPurchaseRecord(accountInfoMap.get("purchasesLast90Count").toString());
                                         //家庭共享信息
-                                        HttpResponse response= ICloudUtil.checkCloudAccount(IdUtil.fastUUID().toUpperCase(),account.getAccount(),account.getPwd() );
+                                        HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
                                         if(response.getStatus()==200){
                                             try {
                                                 String rb = response.charset("UTF-8").body();

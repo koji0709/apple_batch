@@ -2,12 +2,17 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.db.Db;
+import cn.hutool.db.DbUtil;
+import cn.hutool.db.Entity;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.model.BaseAreaInfo;
+import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -124,5 +129,45 @@ public class DataUtil {
         }catch (Exception e){
 
         }
+    }
+    public static String getGuidByAppleId(String appleId){
+        String guid=null;
+        try {
+            guid= Db.use().queryString("SELECT guid FROM apple_id_base_info WHERE apple_id=?",appleId);
+            if(StringUtils.isEmpty(guid)){
+                guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+                Entity entity=new Entity();
+                entity.setTableName("apple_id_base_info");
+                entity.set("guid",guid);
+                entity.set("apple_id",appleId);
+                Db.use().insertOrUpdate(entity,"apple_id");
+            }
+        }catch (Exception e){
+        }finally {
+        }
+        return guid;
+    }
+    public static String getClientIdByAppleId(String appleId){
+        String clientId=null;
+        try {
+            clientId= Db.use().queryString("SELECT client_id FROM apple_id_base_info WHERE apple_id=?",appleId);
+            if(StringUtils.isEmpty(clientId)){
+                clientId = IdUtil.fastUUID().toUpperCase();
+                Entity entity=new Entity();
+                entity.setTableName("apple_id_base_info");
+                entity.set("apple_id",appleId);
+                entity.set("client_id",clientId);
+                Db.use().insertOrUpdate(entity,"apple_id");
+            }
+        }catch (Exception e){
+
+        }finally {
+        }
+        return clientId;
+    }
+
+    public static void main(String[] args) {
+//        getGuidByAppleId("djli0506@163.com");
+        getClientIdByAppleId("djli0506@163.com");
     }
 }

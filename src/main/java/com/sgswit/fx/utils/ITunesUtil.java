@@ -538,7 +538,7 @@ public class ITunesUtil {
         account.setAccount("qewqeq@2980.com");
         account.setPwd("dPFb6cSD41");
 
-        String guid = PropertiesUtil.getOtherConfig("guid");
+        String guid = DataUtil.getGuidByAppleId(account.getAccount());
         HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
         String storeFront = "";
 

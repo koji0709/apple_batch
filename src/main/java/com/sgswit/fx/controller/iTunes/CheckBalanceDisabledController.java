@@ -8,13 +8,12 @@ import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 
 
 public class CheckBalanceDisabledController extends TableView<Account> {
-
-    private String guid = PropertiesUtil.getOtherConfig("guid");
 
     /**
      * 导入账号按钮点击
@@ -29,6 +28,7 @@ public class CheckBalanceDisabledController extends TableView<Account> {
      */
     @Override
     public void accountHandler(Account account) {
+        String guid = DataUtil.getGuidByAppleId(account.getAccount());
         HttpResponse authenticateRsp = ITunesUtil.authenticate(account, guid);
         if (authenticateRsp.getStatus() == 200){
             NSObject rspNO = null;
