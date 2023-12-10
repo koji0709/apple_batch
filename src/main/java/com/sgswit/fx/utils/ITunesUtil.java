@@ -94,9 +94,6 @@ public class ITunesUtil {
         headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
 
         headers.put("User-Agent",ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("84215040"));
-        headers.put("X-Apple-I-MD-M",ListUtil.toList("lt89y8bICKDPdoxjtEfAL98ZNZQttGG2dsL/qVCzwd9B88Cw8MzRTteKf1Ry9hGcxk9Npb2KVcO6JwwH"));
-        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABCfxuM6E9qdX93eitacv74kAAAAAg=="));
         headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
@@ -121,6 +118,44 @@ public class ITunesUtil {
         }
         return result;
     }
+    /**
+    　*获取支付方式（iTunes版）
+      * @param
+     * @param paras
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/10 10:57
+    */
+    public  static HttpResponse getPaymentInfos(Map<String,Object> paras){
+        Map<String,Object> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Content-Type", ListUtil.toList("application/json; charset=UTF-8"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
+        headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        StringBuilder cookieBuilder = new StringBuilder();
+        for(String c : (List<String>)paras.get("cookies")){
+            cookieBuilder.append(";").append(c);
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+
+        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
+                .header(headers)
+                .cookie(cookies)
+                .execute();
+        return httpResponse;
+    }
+
+
     /**
     　* 删除所有支付方式（iTunes版）
       * @param
@@ -150,11 +185,8 @@ public class ITunesUtil {
         if(cookieBuilder.toString().length() > 0){
             cookies = cookieBuilder.toString().substring(1);
         }
-
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
-                .header(headers)
-                .cookie(cookies)
-                .execute();
+        //获取支付方式
+        HttpResponse httpResponse=getPaymentInfos(paras);
         if(httpResponse.getStatus()==401){
             result.put("code","1");
             result.put("message","未登录或登录超时");
@@ -180,62 +212,97 @@ public class ITunesUtil {
    /**
    　* 添加信用卡支付方式
      * @param
-    * @param response
+    * @param paras
    　* @return java.util.Map<java.lang.String,java.lang.String>
    　* @throws
    　* @author DeZh
    　* @date 2023/10/30 9:27
    */
-    public  static Map<String,String> addOrEditBillingInfoSrv(HttpResponse response){
+    public  static Map<String,String> addOrEditBillingInfoSrv(Map<String,Object> paras){
         Map<String,String> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
-        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
         headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
-        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("84215040"));
-        headers.put("X-Apple-I-MD-M",ListUtil.toList("Q2OtXd0fi23JpGxDq05FG3ROgkEVQu92XZBrKZZSA2DlFswLisjD31ycS05u7hliBihILZlRF2bCOwq2"));
-        headers.put("X-Apple-I-MD",ListUtil.toList("AAAABQAAABDi8d9/9w4AeM0Z1VLqcbepAAAAAg=="));
-        headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZegAAAABlOLXoltoOFu3Mj1DFABkqWdcFo7tV7Rc="));
-        String cookie="amia-8135448658=VbD6WfraX7qNPxiqXkGNeborLN/fKBZLIig2ZBquHUIfEAmgEkWIICpHO2T45z2NnivzJkUEtNVYefzyO3Qecg==; amp=dc7TigY0wSfgYzXi2RZwVAFXNDCYHv79584bpDKdacvAr+hDMWPZ5Gikvo6EN1iDmqCNmnUY1lTXAls/m1hFcRpyG7te50J3g00xQnWU+fc=; itst=0; mt-tkn-8135448658=AiERWD12++HIPsVY8Yu0OQd+4I4ffVkiNSp2/ydvXPfIqSbFQxvun0fOquelALrMd+mOPn/jQqCJc+X/5Xk3oioeMUL4m3GXnZ+2eGKuNUlSK1QdSR3mRh08tPYlwn8y7Kw5B2FuqrOuRh8UqdeNJ5jIDPMNOdPc4ElYwtI7qf8jQ/WRSfx0Iml8P/kXAZKS95Tbnps=; mz_mt0-8135448658=AkACU2Dzl5d1EaWKqQfgllH3ED5YfkoO9ltKvPqwL91we0a0eeU5JjTX0zSNdGvP/pTOX4uCgKCzl1NM+woJD9Sn/o1KsyZDs2W72wqeN+bnxjoKuZR4JKlv5JGopsBHPoWl3I08N7ZpsmEX/EY2na0lQxflPHeD0KNlejSBum9tmBKoCat8dHR/bHQ133ML7dez7Nk=; woinst=-1; wosid=TZ7hkqUbKXVoxfoabjLiRM; ns-mzf-inst=240-29-443-113-14-9041-3300019-30-mr30; hsaccnt=1; mzf_in=3300019; session-store-id=3A65CBB1CB654F4BE485A647BB95BD4E; ampsc=6p3fFPeDyggHqtPRNIwzzIGDP7U/8HVg/Vr4ptu5mg0=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZegAAAABlOLXoKQCwc4VyKu95DjkHFQXejTShp/o=; mz_at_ssl-8135448658=AwUAAAECAAHZegAAAABlOLXonXa9vKGzDKhHIOaOdRafsSoz9Xk=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=bihHyQCVFFaFe8hIMYGAXw; X-Dsid=8135448658; xp_ab=1#WqjkRLH+-2+p9nsgcq0#isj11bm+-2+oE0ebSx03#yNFpB6B+-2+EZQVyff00; xp_abc=oE0ebSx03; xp_ci=3z4Kdsj1zCuGz551z950zj3FC7lDW";
-        String creditCardNumber="4737029072047856";
-        String creditCardExpirationMonth="10";
-        String creditCardExpirationYear="2024";
-        String creditVerificationNumber="350";
-        String body=MessageFormat.format("paymentMethodType=CreditCard&needsTopUp=false&creditCardNumber={0}&isCameraInput=false&creditCardExpirationMonth={1}&creditCardExpirationYear={2}&creditVerificationNumber={3}",
-                creditCardNumber,creditCardExpirationMonth,creditCardExpirationYear,creditVerificationNumber);
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.POST,"https://p30-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv")
-                .header(headers)
-                .cookie(cookie)
-                .body(body)
-                .execute();
+
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+
+        StringBuilder cookieBuilder = new StringBuilder();
+        for(String c : (List<String>)paras.get("cookies")){
+            cookieBuilder.append(";").append(c);
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+        //获取支付方式
+        HttpResponse httpResponse=getPaymentInfos(paras);
         if(httpResponse.getStatus()==401){
-            result.put("code","-1");
+            result.put("code","1");
             result.put("message","未登录或登录超时");
         }else if(httpResponse.getStatus()==200){
-            String bodyJson=httpResponse.body();
-            int status= (int) JSONUtil.parseObj(bodyJson).getByPath("status");
-            if(status==0){
-                result.put("code","0");
-                result.put("message","成功");
-            }else{
-                String validationResults= JSONUtil.parseObj(bodyJson).getByPath("result.validationResults").toString();
-                JSONArray jsonArray=JSONUtil.parseArray(validationResults);
-                StringBuffer stringBuffer=new StringBuffer();
-                for(Object jsonObject:jsonArray){
-                    String errorString= (String) ((JSONObject)jsonObject).getByPath("errorString");
-                    stringBuffer.append(errorString);
-                    stringBuffer.append("\n");
-                }
+            Map<String, String> source=new HashMap<>();
+            String paymentInfosStr=JSONUtil.parse(httpResponse.body()).getByPath("data.attributes.paymentInfos",String.class);
+            JSONObject paymentInfo= (JSONObject) JSONUtil.parseArray(paymentInfosStr).get(0);
+            source= (Map<String, String>) paymentInfo.get("billingAddress");
+            source.put("phoneOfficeNumber",paymentInfo.getByPath("phone.phoneOfficeNumber",String.class));
+            source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
+
+            //支付信息
+            String creditCardNumber="5187 1800 1968 5639".replaceAll("\\s", "");
+            String creditCardExpirationMonth="01";
+            String creditCardExpirationYear="2025";
+            String creditVerificationNumber="864";
+            source.put("creditCardNumber",creditCardNumber);
+            source.put("creditCardExpirationMonth",creditCardExpirationMonth);
+            source.put("creditCardExpirationYear",creditCardExpirationYear);
+            source.put("creditVerificationNumber",creditVerificationNumber);
+
+            source.put("paymentMethodType",source.get("CreditCard"));
+            source.put("needsTopUp",source.get("false"));
+            source.put("creditCardType",source.get("UPCC"));
+            //转为url参数格式的字符串
+            String body=UrlParasUtil.asUrlParams(source);
+            HttpResponse response = HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv")
+                    .header(headers)
+                    .cookie(cookies)
+                    .body(body)
+                    .execute();
+            if(response.getStatus()==401){
                 result.put("code","-1");
-                result.put("message",stringBuffer.toString());
+                result.put("message","未登录或登录超时");
+            }else if(response.getStatus()==200){
+                String bodyJson=response.body();
+                int status= (int) JSONUtil.parseObj(bodyJson).getByPath("status");
+                if(status==0){
+                    result.put("code","0");
+                    result.put("message","成功");
+                }else{
+                    StringBuffer stringBuffer=new StringBuffer();
+                    Object validationResults= JSONUtil.parseObj(bodyJson).getByPath("result.validationResults");
+                    if(!StringUtils.isEmpty(validationResults)){
+                        JSONArray jsonArray=JSONUtil.parseArray(validationResults);
+                        for(Object jsonObject:jsonArray){
+                            String errorString= (String) ((JSONObject)jsonObject).getByPath("errorString");
+                            stringBuffer.append(errorString);
+                            stringBuffer.append("\n");
+                        }
+                    }else if(StringUtils.isEmpty( JSONUtil.parseObj(bodyJson).getByPath("errorMessageKey"))){
+                        String errorString= JSONUtil.parseObj(bodyJson).getByPath("errorMessageKey",String.class);
+                        stringBuffer.append(errorString);
+                    }
+                    result.put("code","-1");
+                    result.put("message",stringBuffer.toString());
+                }
             }
         }
+
+
         return result;
     }
 

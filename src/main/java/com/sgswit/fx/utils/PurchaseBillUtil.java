@@ -51,16 +51,6 @@ public class PurchaseBillUtil {
 
     public static void main( String[] args ) throws Exception {
 
-        String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
-
-        List<Entity> countInfo=Db.use().query(countSql);
-        List<String> purchaseRecord=new ArrayList<>(countInfo.size());
-        for(Entity entity:countInfo){
-            String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
-            purchaseRecord.add(s);
-        }
-        System.out.println(String.join("|",purchaseRecord));
-
 //        Map<String,Object> res=loginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //        if(res.get("code").equals("200")){
@@ -73,18 +63,9 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-//        authenticate("djli0506@163.com","!!B0527s0207!!");
+        authenticate("djli0506@163.com","!!B0527s0207!!");
 
 //        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-
-
-//        Date nowDate= new Date();
-//        Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='djli0506@163.com' ORDER BY purchase_date ASC LIMIT 1;");
-//        nowDate.setTime(entityLast.getLong("purchase_date"));
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-//
-//        System.out.println(sdf.format(nowDate));
-//        System.out.println(entityLast.getStr("purchase_id"));
 
 
 
