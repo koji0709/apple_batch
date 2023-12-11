@@ -526,8 +526,7 @@ public class ITunesUtil {
 //        Generex generex = new Generex("1[35789]\\d{9}");
 //            System.out.println(generex.random());
         //downloadDemo();
-        String s = "sdadsa/id123";
-        System.err.println(s.substring(s.indexOf("/id")+3));
+        subscriptionDemo();
     }
 
 
@@ -663,4 +662,50 @@ public class ITunesUtil {
             }
         }
     }
+
+    private static void subscriptionDemo(){
+        Account account = new Account();
+//        account.setAccount("djli0506@163.com");
+//        account.setPwd("!!B0527s0207!!");
+        account.setAccount("qewqeq@2980.com");
+        account.setPwd("dPFb6cSD41");
+
+        String guid = DataUtil.getGuidByAppleId(account.getAccount());
+        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        String storeFront = "";
+
+        // 鉴权
+        if (authRsp != null && authRsp.getStatus() == 200){
+            JSONObject authBody = PListUtil.parse(authRsp.body());
+            String firstName = authBody.getByPath("accountInfo.address.firstName",String.class);
+            String lastName  = authBody.getByPath("accountInfo.address.lastName",String.class);
+            String creditDisplay  = authBody.getByPath("creditDisplay",String.class);
+            Boolean isDisabledAccount  = authBody.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+
+            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
+            storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+
+            String itspod = authRsp.header(Constant.ITSPOD);
+            String dsPersonId = authBody.getStr("dsPersonId","");
+            String passwordToken = authBody.getStr("passwordToken","");
+
+            String url = "https://p"+itspod+"-buy.itunes.apple.com/commerce/account/subscriptions?prevpage=accountsettings&version=2.0";
+
+            HashMap<String, List<String>> headers = new HashMap<>();
+//            headers.put("User-Agent", ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
+            headers.put("User-Agent",ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+//            headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
+            headers.put("X-Dsid",ListUtil.toList(dsPersonId));
+            headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
+            headers.put("X-Token",ListUtil.toList(passwordToken));
+
+            HttpResponse subscriptionsRsp = HttpUtil.createGet(url)
+                    .header(headers)
+                    .cookie(authRsp.getCookies())
+                    .execute();
+            System.err.println(subscriptionsRsp);
+        }
+    }
+
+
 }
