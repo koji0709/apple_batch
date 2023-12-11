@@ -2,22 +2,15 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.model.Account;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author DeZh
@@ -30,10 +23,9 @@ public class ICloudUtil {
     public static void main(String[] args) throws Exception {
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"1948401156@qq.com","B0527s0207!" );
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
-        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("gbkrccqrfbg@hotmail.com"),"gbkrccqrfbg@hotmail.com","Weiqi100287." );
-        String rb = response.charset("UTF-8").body();
-        JSONObject rspJSON = PListUtil.parse(rb);
-        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
+        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
+//        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
+        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         //clientId从数据库中获取每个appleId生成一个
@@ -88,13 +80,13 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("%E8%AE%BE%E7%BD%AE/198 CFNetwork/1128.0.1 Darwin/19.6.0"));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<iPhone9,1> <iPhone OS;13.6;17G68> <com.apple.AppleAccount/1.0 (com.apple.Preferences/198)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
-        HttpResponse response = HttpUtil.createPost("https://setup.icloud.com/setup/family/getFamilyDetails")
+        HttpResponse response = HttpUtil.createGet("https://setup.icloud.com/setup/family/getFamilyDetails")
                 .header(headers)
                 .execute();
 
@@ -125,6 +117,60 @@ public class ICloudUtil {
         }else {
             res.put("code",response.getStatus());
             res.put("msg",response.body());
+        }
+        return res;
+
+
+    }
+    /**
+    　* 开通家庭共享 xxx@xx.com----密码--付款AppleID账号--付款密码
+      * @param
+     * @param auth
+     * @param appleId
+     * @param pwd
+     * @param payAppleId
+     * @param payAppleIdPwd
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/11 10:53
+    */
+    public static Map<String,Object> createFamily(String auth,String appleId,String pwd,String payAppleId,String payAppleIdPwd){
+        Map<String,Object> res=new HashMap<>();
+        res.put("code","200");
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Host", ListUtil.toList("setup.icloud.com"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language", ListUtil.toList("zh-cn"));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("Authorization",ListUtil.toList("Basic "+auth));
+
+        Map<String,Object> bodyMap=new HashMap<>();
+        bodyMap.put("organizerAppleId",appleId);
+        bodyMap.put("organizerAppleIdForPurchases",payAppleId);
+        bodyMap.put("organizerAppleIdForPurchasesPassword",payAppleIdPwd);
+        bodyMap.put("organizerShareMyLocationEnabledDefault",true);
+
+        HttpResponse response = HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/createFamily")
+                .header(headers)
+                .body(JSONUtil.toJsonStr(bodyMap))
+                .execute();
+        if(200==response.getStatus()){
+            String rb = response.charset("UTF-8").body();
+            if("0".equals(JSONUtil.parse(rb).getByPath("status"))){
+                res.put("msg","开通成功，家庭共享ID");
+            }
+        }else if(response.getStatus()==401){
+            res.put("code","1");
+            res.put("msg","未登录或登录超时");
+        }else if(response.getStatus()==422) {
+            String rb = response.charset("UTF-8").body();
+            res.put("code",JSONUtil.parse(rb).getByPath("status"));
+            res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
         }
         return res;
 
