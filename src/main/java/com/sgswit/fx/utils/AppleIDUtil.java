@@ -1006,15 +1006,26 @@ public class AppleIDUtil {
         return headers;
     }
 
-    private static String getCookie(HttpResponse resp) {
+    private static String getCookie(HttpResponse rsp) {
         StringBuilder cookieBuilder = new StringBuilder();
-        List<String> res1Cookies = resp.headerList("Set-Cookie");
+        List<String> res1Cookies = rsp.headers().get("Set-Cookie");
+        List<String> res2Cookies = rsp.headers().get("set-cookie");
+
         if (res1Cookies != null) {
             for (String item : res1Cookies) {
                 cookieBuilder.append(";").append(item);
             }
         }
-        return cookieBuilder.toString();
+        if (res2Cookies != null) {
+            for (String item : res2Cookies) {
+                cookieBuilder.append(";").append(item);
+            }
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+        return cookies;
     }
 
     private static void rspLog(Method method,String url,Integer status){

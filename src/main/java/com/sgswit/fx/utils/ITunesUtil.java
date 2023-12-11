@@ -494,6 +494,62 @@ public class ITunesUtil {
         return downloadRsp;
     }
 
+    /**
+     * 礼品卡兑换
+     */
+    private static HttpResponse redeem(HttpResponse authRsp,String guid,String cardCode){
+        JSONObject authBody = PListUtil.parse(authRsp.body());
+        String itspod = authRsp.header(Constant.ITSPOD);
+        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        String dsPersonId = authBody.getStr("dsPersonId","");
+        String passwordToken = authBody.getStr("passwordToken","");
+
+        String redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("Content-Type",ListUtil.toList("application/x-apple-plist"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("X-Dsid",ListUtil.toList(dsPersonId));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
+        headers.put("X-Token",ListUtil.toList(passwordToken));
+        headers.put("Connection",ListUtil.toList("close"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip"));
+
+
+        String redeemBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<plist version=\"1.0\">\n" +
+                "\t<dict>\n" +
+                "\t\t<key>attemptCount</key>\n" +
+                "\t\t<string>1</string>\n" +
+                "\t\t<key>cameraReCOGnizedCode</key>\n" +
+                "\t\t<string>false</string>\n" +
+                "\t\t<key>cl</key>\n" +
+                "\t\t<string>iTunes</string>\n" +
+                "\t\t<key>code</key>\n" +
+                "\t\t<string>"+ cardCode +"</string>\n" +
+                "\t\t<key>dsPersonId</key>\n" +
+                "\t\t<string>"+ dsPersonId +"</string>\n" +
+                "\t\t<key>guid</key>\n" +
+                "\t\t<string>"+ guid +"</string>\n" +
+                "\t\t<key>has4GBLimit</key>\n" +
+                "\t\t<string>false</string>\n" +
+                "\t\t<key>kbsync</key>\n" +
+                "\t\t<data></data>\n" +
+                "\t\t<key>pg</key>\n" +
+                "\t\t<string>Music</string>\n" +
+                "\t\t<key>response-content-type</key>\n" +
+                "\t\t<string>application/json</string>\n" +
+                "\t</dict>\n" +
+                "</plist>";
+            HttpResponse redeemRsp = HttpUtil.createPost(redeemUrl)
+                    .header(headers)
+                    .cookie(getCookie(authRsp))
+                    .body(redeemBody)
+                    .execute();
+            return redeemRsp;
+    }
+
+
     public static void main(String[] args) throws Exception {
 //        accountPurchasesCount(null);
         //getPurchases(null);
@@ -523,8 +579,10 @@ public class ITunesUtil {
 //        }
 //        Generex generex = new Generex("1[35789]\\d{9}");
 //            System.out.println(generex.random());
+
         //downloadDemo();
-        subscriptionDemo();
+//        subscriptionDemo();
+        redeemDemo();
     }
 
 
@@ -688,22 +746,82 @@ public class ITunesUtil {
             String passwordToken = authBody.getStr("passwordToken","");
 
             String url = "https://p"+itspod+"-buy.itunes.apple.com/commerce/account/subscriptions?prevpage=accountsettings&version=2.0";
-
             HashMap<String, List<String>> headers = new HashMap<>();
-//            headers.put("User-Agent", ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-            headers.put("User-Agent",ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
-//            headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
+            headers.put("Origin",List.of("https://finance-app.itunes.apple.com"));
+            headers.put("Referer",List.of("https://finance-app.itunes.apple.com"));
+            //headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+            headers.put("User-Agent", ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
+            headers.put("Accept-Encoding",List.of("gzip, deflate"));
+            headers.put("Connection",List.of("keep-alive"));
+            headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+            headers.put("Accept",List.of("*/*"));
+            headers.put("Accept-Language",List.of("zh-cn"));
+
             headers.put("X-Dsid",ListUtil.toList(dsPersonId));
             headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
             headers.put("X-Token",ListUtil.toList(passwordToken));
+            headers.put("Cookie",List.of(getCookie(authRsp)));
 
             HttpResponse subscriptionsRsp = HttpUtil.createGet(url)
                     .header(headers)
-                    .cookie(authRsp.getCookies())
+//                    .cookie(getCookie(authRsp))
                     .execute();
             System.err.println(subscriptionsRsp);
         }
     }
 
+    private static void redeemDemo(){
+        Account account = new Account();
+//        account.setAccount("djli0506@163.com");
+//        account.setPwd("!!B0527s0207!!");
+        account.setAccount("qewqeq@2980.com");
+        account.setPwd("dPFb6cSD41");
+
+        String guid = DataUtil.getGuidByAppleId(account.getAccount());
+        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+
+        // 鉴权
+        if (authRsp != null && authRsp.getStatus() == 200){
+            String cardCode = "XMPC3HRMNM6K5FXP";
+//            String cardCode = "erererrerewfrsf";
+            HttpResponse redeemRsp = ITunesUtil.redeem(authRsp, guid, cardCode);
+            if (redeemRsp.getStatus() == 200){
+                JSONObject redeemBody = JSONUtil.parseObj(redeemRsp.body());
+                System.err.println(redeemBody);
+                Integer status = redeemBody.getInt("status");
+                if (status != 0){
+                    String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage");
+                    String message = "代码[%s]兑换失败! %s";
+                    Console.log(String.format(message,cardCode,userPresentableErrorMessage));
+                }else{
+                    String message = "兑换券[%s]兑换成功!";
+                    Console.log(String.format(message,cardCode));
+                }
+            }
+        }
+
+    }
+
+    private static String getCookie(HttpResponse rsp) {
+        StringBuilder cookieBuilder = new StringBuilder();
+        List<String> res1Cookies = rsp.headers().get("Set-Cookie");
+        List<String> res2Cookies = rsp.headers().get("set-cookie");
+
+        if (res1Cookies != null) {
+            for (String item : res1Cookies) {
+                cookieBuilder.append(";").append(item);
+            }
+        }
+        if (res2Cookies != null) {
+            for (String item : res2Cookies) {
+                cookieBuilder.append(";").append(item);
+            }
+        }
+        String cookies = "";
+        if(cookieBuilder.toString().length() > 0){
+            cookies = cookieBuilder.toString().substring(1);
+        }
+        return cookies;
+    }
 
 }
