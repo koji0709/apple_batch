@@ -26,6 +26,7 @@ public class ICloudUtil {
         HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
 //        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
         createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
+        leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         //clientId从数据库中获取每个appleId生成一个
@@ -114,6 +115,9 @@ public class ICloudUtil {
                 }
                 res.put("familyDetails",String.join("|",members));
             }
+        }else if(response.getStatus()==401){
+            res.put("code","1");
+            res.put("msg","未登录或登录超时");
         }else {
             res.put("code",response.getStatus());
             res.put("msg",response.body());
@@ -161,8 +165,9 @@ public class ICloudUtil {
                 .execute();
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
-            if("0".equals(JSONUtil.parse(rb).getByPath("status"))){
-                res.put("msg","开通成功，家庭共享ID");
+            if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
+                String familyId=JSONUtil.parse(rb).getByPath("family.familyId",String.class);
+                res.put("msg","开通成功，家庭共享ID"+familyId);
             }
         }else if(response.getStatus()==401){
             res.put("code","1");
@@ -173,7 +178,47 @@ public class ICloudUtil {
             res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
         }
         return res;
-
-
+    }
+    /**
+    　*关闭家庭共享
+      * @param
+     * @param auth
+     * @param appleId
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/11 13:18
+    */
+    public static Map<String,Object> leaveFamily(String auth,String appleId){
+        Map<String,Object> res=new HashMap<>();
+        res.put("code","200");
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Host", ListUtil.toList("setup.icloud.com"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language", ListUtil.toList("zh-cn"));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("Authorization",ListUtil.toList("Basic "+auth));
+        HttpResponse response = HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/leaveFamily")
+                .header(headers)
+                .execute();
+        if(200==response.getStatus()){
+            String rb = response.charset("UTF-8").body();
+            System.out.println(JSONUtil.parse(rb).getByPath("status"));
+            if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
+                res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
+            }
+        }else if(response.getStatus()==401){
+            res.put("code","1");
+            res.put("msg","未登录或登录超时");
+        }else if(response.getStatus()==422) {
+            String rb = response.charset("UTF-8").body();
+            res.put("code",JSONUtil.parse(rb).getByPath("status"));
+            res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
+        }
+        return res;
     }
 }
