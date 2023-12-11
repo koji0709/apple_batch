@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller;
+package com.sgswit.fx.controller.base;
 
 import cn.hutool.core.io.FileUtil;
 import javafx.fxml.FXML;

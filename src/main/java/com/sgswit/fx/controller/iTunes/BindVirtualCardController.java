@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -38,7 +39,7 @@ import java.util.ResourceBundle;
  */
 public class BindVirtualCardController implements Initializable  {
     @FXML
-    private TableView accountTableView;
+    public TableColumn cardNo;
     @FXML
     private TableColumn seq;
     @FXML
@@ -47,7 +48,8 @@ public class BindVirtualCardController implements Initializable  {
     private TableColumn pwd;
     @FXML
     private TableColumn note;
-
+    @FXML
+    private TableView accountTableView;
     @FXML
     private Button accoutQueryBtn;
 
@@ -201,4 +203,6 @@ public class BindVirtualCardController implements Initializable  {
     }
 
 
+    public void onStopBtnClick(ActionEvent actionEvent) {
+    }
 }

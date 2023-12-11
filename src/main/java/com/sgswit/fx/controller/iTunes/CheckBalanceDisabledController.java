@@ -58,7 +58,7 @@ public class CheckBalanceDisabledController extends TableView<Account> {
             }
             String balance  = rspJSON.getByPath("creditDisplay",String.class);
             Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
-            account.setBalance(balance);
+            account.setBalance(StringUtils.isEmpty(balance)?"0":balance);
             account.setDisableStatus( !isDisabledAccount ? "正常" : "禁用");
             String message=rspJSON.getByPath("dialog.message",String.class);
             String pattern = "(?i)此 Apple ID 只能在(.*)购物";

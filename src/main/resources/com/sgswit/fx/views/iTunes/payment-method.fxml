@@ -131,9 +131,9 @@
                         <TableView fx:id="accountTableView" prefHeight="364.0">
                             <columns>
                                 <TableColumn fx:id="seq" prefWidth="67.00003051757812" text="序号" />
-                                <TableColumn fx:id="account" prefWidth="109.0" text="账号" />
-                                <TableColumn fx:id="pwd" prefWidth="114.0" text="密码" />
-                                <TableColumn fx:id="note" prefWidth="278.0" text="执行信息" />
+                                <TableColumn fx:id="account" prefWidth="174.00001525878906" text="账号" />
+                                <TableColumn fx:id="pwd" prefWidth="200.0" text="密码" />
+                                <TableColumn fx:id="note" prefWidth="377.0" text="执行信息" />
                             </columns>
                         </TableView>
                      </content>

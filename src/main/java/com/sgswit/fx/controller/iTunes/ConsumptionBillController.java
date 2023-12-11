@@ -159,6 +159,7 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         integratedData(account,jsonStrList);
 
                                         Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
                                         account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
                                         account.setShippingAddress(accountInfoMap.get("address").toString());

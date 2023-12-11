@@ -152,13 +152,15 @@ public class PaymentMethodController implements Initializable  {
                     try {
                         try {
                             account.setNote("登录中...");
+                            accountTableView.refresh();
                             Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                             if(!res.get("code").equals("200")){
                                 account.setNote(res.get("msg").toString());
                             }else{
                                 account.setNote("登录成功，数据删除中...");
+                                accountTableView.refresh();
                                 res=ITunesUtil.delPaymentInfos(res);
-                                if(!res.get("code").equals("200")){
+                                if(res.get("code").equals("200")){
                                     account.setNote("删除成功");
                                 }else{
                                     account.setNote(res.get("msg").toString());

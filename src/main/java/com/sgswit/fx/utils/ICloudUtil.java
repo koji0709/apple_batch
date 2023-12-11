@@ -25,7 +25,7 @@ public class ICloudUtil {
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
         HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
 //        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
-        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
+//        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
         leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){

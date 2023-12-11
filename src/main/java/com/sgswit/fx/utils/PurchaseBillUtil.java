@@ -939,14 +939,6 @@ public class PurchaseBillUtil {
 
         return sb.toString();
     }
-    private static String getCookies(HttpResponse response){
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> resCookies = response.headerList("Set-Cookie");
-        for(String item : resCookies){
-            cookieBuilder.append(";").append(item);
-        }
-        return cookieBuilder.toString();
-    }
     ///iTunes版
     public static Map<String,Object> authenticate(String account,String pwd){
         String guid=DataUtil.getGuidByAppleId(account);
@@ -1022,7 +1014,7 @@ public class PurchaseBillUtil {
             Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
             paras.put("isDisabledAccount",isDisabledAccount);
             paras.put("name",lastName +  " " + firstName);
-            paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
+            paras.put("creditDisplay",StringUtils.isEmpty(rspJSON.getStr("creditDisplay"))?"0":rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
             paras.put("guid",guid);

@@ -92,7 +92,7 @@ public class MainController implements Initializable {
         leftMenu.setBackground(Background.EMPTY);
         FXMLLoader fxmlLoader = new FXMLLoader();
         try {
-            Pane p = fxmlLoader.load(MainApplication.class.getResource("views/notice-view.fxml").openStream());
+            Pane p = fxmlLoader.load(MainApplication.class.getResource("views/base/notice-view.fxml").openStream());
             rightMainPane.getChildren().add(p);
         } catch (IOException e) {
             e.printStackTrace();
