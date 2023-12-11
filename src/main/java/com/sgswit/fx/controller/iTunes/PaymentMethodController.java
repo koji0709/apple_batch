@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -63,12 +64,6 @@ public class PaymentMethodController implements Initializable  {
     private TableColumn pwd;
     @FXML
     private TableColumn note;
-    @FXML
-    private TableColumn answer1;
-    @FXML
-    private TableColumn answer2;
-    @FXML
-    private TableColumn answer3;
 
     @FXML
     private Button accoutQueryBtn;
@@ -219,11 +214,9 @@ public class PaymentMethodController implements Initializable  {
         account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
         pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-        answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
-        answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
-        answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
-
     }
 
 
+    public void onStopBtnClick(ActionEvent actionEvent) {
+    }
 }
