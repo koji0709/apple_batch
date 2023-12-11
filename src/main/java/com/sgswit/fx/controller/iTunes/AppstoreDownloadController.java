@@ -411,8 +411,21 @@ public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
                     appstoreItemVoList.add(appstoreItemVo);
                 }
             }
-            appDataList.addAll(appstoreItemVoList);
+
+            // 去重
+            List<String> trackIdList = appDataList
+                    .stream()
+                    .map(appstoreItemVo -> appstoreItemVo.getTrackJson().getStr("trackId"))
+                    .collect(Collectors.toList());
+
+            List<AppstoreItemVo> selectList = appstoreItemVoList
+                    .stream()
+                    .filter(appstoreItemVo -> !trackIdList.contains(appstoreItemVo.getTrackJson().getStr("trackId")))
+                    .collect(Collectors.toList());
+
+            appDataList.addAll(selectList);
             refreshAppNumLabel();
+            alert("已添加"+selectList.size()+" 个项目");
         });
 
         VBox mainVbox = new VBox();

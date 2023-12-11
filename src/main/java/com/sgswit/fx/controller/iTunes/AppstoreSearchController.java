@@ -29,6 +29,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class AppstoreSearchController extends CommonView implements Initializable{
 
@@ -230,9 +232,22 @@ public class AppstoreSearchController extends CommonView implements Initializabl
         List<AppstoreItemVo> selectedItem = getSelectedItem();
         Stage stage = StageUtil.get(StageEnum.APPSTORE_SEARCH);
         AppstoreDownloadController appstoreDownload = (AppstoreDownloadController) stage.getUserData();
-        appstoreDownload.appDataList.addAll(selectedItem);
+
+        // 去重
+        List<String> trackIdList = appstoreDownload.appDataList
+                                                .stream()
+                                                .map(appstoreItemVo -> appstoreItemVo.getTrackJson().getStr("trackId"))
+                                                .collect(Collectors.toList());
+
+        List<AppstoreItemVo> selectList = selectedItem
+                .stream()
+                .filter(appstoreItemVo -> !trackIdList.contains(appstoreItemVo.getTrackJson().getStr("trackId")))
+                .collect(Collectors.toList());
+
+        appstoreDownload.appDataList.addAll(selectList);
         itemNumLabel.setText("已添加 "+appstoreDownload.appDataList.size()+" 个项目");
         appstoreDownload.refreshAppNumLabel();
+        alert("已添加"+selectList.size()+" 个项目");
     }
 
     /**
