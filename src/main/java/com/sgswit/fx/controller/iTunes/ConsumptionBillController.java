@@ -148,32 +148,21 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                     if(res.get("code").equals("200")){
                                         account.setNote("登录成功，数据查询中...");
                                         accountTableView.refresh();
-                                        Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                        account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
-                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
-                                        account.setNote("购买记录查询中...");
-
-                                        account.setShippingAddress(accountInfoMap.get("address").toString());
-                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
-                                        accountTableView.refresh();
                                         Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
-
-
-
                                         String token=loginResult.get("token").toString();
                                         String dsid=loginResult.get("dsid").toString();
                                         String searchCookies=loginResult.get("searchCookies").toString();
                                         account.setArea(loginResult.get("countryName").toString());
                                         List<String > jsonStrList=new ArrayList<>();
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
-
                                         //整合数据
                                         integratedData(account,jsonStrList);
 
-
-
-
-
+                                        Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                        account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
+                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
+                                        account.setShippingAddress(accountInfoMap.get("address").toString());
+                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         account.setNote("查询完成");
                                         accountTableView.refresh();
                                     }else{

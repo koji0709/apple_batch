@@ -125,6 +125,7 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
                                 try {
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                     if(accountInfoMap.get("code").equals("200")){
+                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
                                         account.setNote("查询成功");
                                         accountTableView.refresh();
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
@@ -133,7 +134,8 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
                                         account.setShippingAddress(accountInfoMap.get("address").toString());
                                         account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         account.setName(accountInfoMap.get("name").toString());
-                                        account.setPurchaseRecord(accountInfoMap.get("purchasesLast90Count").toString());
+                                        int purchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
+                                        account.setPurchaseRecord(String.valueOf(purchasesLast90Count));
                                         //家庭共享信息
                                         HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
                                         if(response.getStatus()==200){

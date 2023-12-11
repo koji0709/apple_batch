@@ -45,12 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PurchaseBillUtil {
-    public static String guid = PropertiesUtil.getOtherConfig("guid");
-
-    public static String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
-
     public static void main( String[] args ) throws Exception {
-
 //        Map<String,Object> res=loginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //        if(res.get("code").equals("200")){
@@ -954,6 +949,8 @@ public class PurchaseBillUtil {
     }
     ///iTunes版
     public static Map<String,Object> authenticate(String account,String pwd){
+        String guid=DataUtil.getGuidByAppleId(account);
+        String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
         Map<String,Object> paras=new HashMap<>();
         paras.put("account",account);
         paras.put("pwd",pwd);
@@ -1028,19 +1025,15 @@ public class PurchaseBillUtil {
             paras.put("creditDisplay",rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
-
-            paras= accountSummary(paras);
-
-            int accountPurchasesLast90Count=accountPurchasesLast90Count(paras);
-            paras.put("purchasesLast90Count",accountPurchasesLast90Count);
+            paras.put("guid",guid);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return paras;
     }
-    private static Map<String,Object> accountSummary(Map<String,Object> paras) {
-        String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+guid;
+    public static Map<String,Object> accountSummary(Map<String, Object> paras) {
+        String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+paras.get("guid");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));

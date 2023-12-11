@@ -24,17 +24,14 @@ public class WhetherInspectionController extends TableView<Account> {
     public void accountHandler(Account account) {
         Map<String, Object> res = PurchaseBillUtil.authenticate(account.getAccount(), account.getPwd());
         if(res.get("code").equals("200")){
+            int purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
             account.setInspection(res.get("inspection") != null? res.get("inspection").toString():"已过检");
-            account.setPurchasesLast90Count(res.get("purchasesLast90Count") != null? res.get("purchasesLast90Count").toString():"0");
+            account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
             account.setNote("查询成功");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
         }else {
-            account.setState("账号或密码错误");
-            account.setBalance("账号或密码错误");
-            account.setNote("查询成功");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
+            account.setNote(res.get("msg").toString());
         }
+        accountTableView.refresh();
+        insertLocalHistory(List.of(account));
     }
 }

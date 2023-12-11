@@ -254,15 +254,13 @@ public class ITunesUtil {
             source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
 
             //支付信息
-            String creditCardNumber="5187 1800 1968 5639".replaceAll("\\s", "");
-            String creditCardExpirationMonth="01";
-            String creditCardExpirationYear="2025";
-            String creditVerificationNumber="864";
-            source.put("creditCardNumber",creditCardNumber);
-            source.put("creditCardExpirationMonth",creditCardExpirationMonth);
-            source.put("creditCardExpirationYear",creditCardExpirationYear);
-            source.put("creditVerificationNumber",creditVerificationNumber);
-
+            source.put("creditCardNumber",paras.get("creditCardNumber").toString());
+            source.put("creditCardExpirationMonth",paras.get("creditCardExpirationMonth").toString());
+            source.put("creditCardExpirationYear",paras.get("creditCardExpirationYear").toString());
+            source.put("creditVerificationNumber",paras.get("creditVerificationNumber").toString());
+            source.put("paymentMethodType",source.get("CreditCard"));
+            source.put("needsTopUp",source.get("false"));
+            source.put("creditCardType",source.get("UPCC"));
             source.put("paymentMethodType",source.get("CreditCard"));
             source.put("needsTopUp",source.get("false"));
             source.put("creditCardType",source.get("UPCC"));

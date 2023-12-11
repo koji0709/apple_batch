@@ -43,4 +43,8 @@ public class ITunesItemsController {
     public void onAppStoreDownloadBtnClick(){
         StageUtil.show(StageEnum.APPSTORE_DOWNLOAD);
     }
+
+    public void onBindVirtualCardBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.BIND_VIRTUAL_CARD);
+    }
 }
