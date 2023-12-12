@@ -28,4 +28,17 @@ public class ICloudItemsController {
     public void onFamilyDetailsBtnClick(ActionEvent actionEvent) {
         StageUtil.show(StageEnum.FAMILY_DETAILS);
     }
+
+    public void onDredgeFamilyBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.DREDGE_FAMILY);
+    }
+
+    public void onCloseFamilyBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.CLOSE_FAMILY);
+    }
+
+    public void onFamilyMembersBtnClick(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.FAMILY_MEMBERS);
+    }
+
 }
