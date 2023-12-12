@@ -24,8 +24,12 @@ public class WhetherInspectionController extends TableView<Account> {
     public void accountHandler(Account account) {
         Map<String, Object> res = PurchaseBillUtil.authenticate(account.getAccount(), account.getPwd());
         if(res.get("code").equals("200")){
-            int purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
-            account.setInspection(res.get("inspection") != null? res.get("inspection").toString():"已过检");
+            int purchasesLast90Count=0;
+            boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+            if(hasInspectionFlag){
+                purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
+            }
+            account.setInspection(hasInspectionFlag? "已过检":"未过检");
             account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
             account.setNote("查询成功");
         }else {

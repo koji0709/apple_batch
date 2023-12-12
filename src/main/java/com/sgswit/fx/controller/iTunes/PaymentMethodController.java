@@ -10,10 +10,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.CommController;
+import com.sgswit.fx.controller.common.CommDataInputPopupController;
 import com.sgswit.fx.controller.iTunes.bo.BillingAddress;
 import com.sgswit.fx.controller.iTunes.bo.OwnerName;
 import com.sgswit.fx.controller.iTunes.bo.PaymentModel;
 import com.sgswit.fx.controller.iTunes.bo.PhoneNumber;
+import com.sgswit.fx.enums.DataImportEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.ITunesUtil;
@@ -85,33 +87,8 @@ public class PaymentMethodController implements Initializable  {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户导入");
-
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.showAndWait();
-
-        AccountInputPopupController c = fxmlLoader.getController();
-        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-            return;
-        }
-        String[] lineArray = c.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setSeq(list.size()+1);
-            account.setAccount(its[0]);
-            account.setPwd(its[1]);
-            list.add(account);
-        }
+        CommDataInputPopupController<Account> controller=new CommDataInputPopupController<>();
+        controller.importData(list, DataImportEnum.DELETE_PAYMENT);
         initAccountTableView();
         accountTableView.setEditable(true);
         accountTableView.setItems(list);
@@ -157,6 +134,12 @@ public class PaymentMethodController implements Initializable  {
                             if(!res.get("code").equals("200")){
                                 account.setNote(res.get("msg").toString());
                             }else{
+                                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                                if(!hasInspectionFlag){
+                                    account.setNote("此 Apple ID 尚未用于 App Store。");
+                                    accountTableView.refresh();
+                                    return;
+                                }
                                 account.setNote("登录成功，数据删除中...");
                                 accountTableView.refresh();
                                 res=ITunesUtil.delPaymentInfos(res);

@@ -139,8 +139,14 @@ public class BindVirtualCardController implements Initializable  {
                             account.setNote("登录中...");
                             Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                             if(!res.get("code").equals("200")){
-                                account.setNote(res.get("msg").toString());
+                                account.setNote(String.valueOf(res.get("msg")));
                             }else{
+                                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                                if(!hasInspectionFlag){
+                                    account.setNote("此 Apple ID 尚未用于 App Store。");
+                                    accountTableView.refresh();
+                                    return;
+                                }
                                 account.setNote("登录成功，数据删除中...");
                                 res=ITunesUtil.delPaymentInfos(res);
                                 if(!res.get("code").equals("200")){

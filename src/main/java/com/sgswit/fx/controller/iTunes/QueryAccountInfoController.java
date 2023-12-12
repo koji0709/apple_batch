@@ -125,6 +125,13 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
                                 try {
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                     if(accountInfoMap.get("code").equals("200")){
+                                        boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
+                                        if(!hasInspectionFlag){
+                                            account.setNote("此 Apple ID 尚未用于 App Store。");
+                                            accountTableView.refresh();
+                                            return;
+                                        }
+
                                         accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
                                         account.setNote("查询成功");
                                         accountTableView.refresh();

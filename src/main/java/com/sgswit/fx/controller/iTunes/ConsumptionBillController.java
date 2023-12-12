@@ -144,9 +144,29 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                         public void run(){
                             try {
                                 try {
+                                    account.setNote("登录中...");
+                                    accountTableView.refresh();
+                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                    if(!accountInfoMap.get("code").equals("200")){
+                                        account.setNote(String.valueOf(accountInfoMap.get("msg")));
+                                        return;
+                                    }else{
+                                        boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
+                                        if(!hasInspectionFlag){
+                                            account.setNote("此 Apple ID 尚未用于 App Store。");
+                                            accountTableView.refresh();
+                                            return;
+                                        }
+                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
+                                        account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
+                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
+                                        account.setShippingAddress(accountInfoMap.get("address").toString());
+                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
+                                        accountTableView.refresh();
+                                    }
+
                                     Map<String,Object> res= PurchaseBillUtil.loginAndAuth(account.getAccount(),account.getPwd());
                                     if(res.get("code").equals("200")){
-                                        account.setNote("登录成功，数据查询中...");
                                         accountTableView.refresh();
                                         Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
                                         String token=loginResult.get("token").toString();
@@ -157,17 +177,10 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
                                         //整合数据
                                         integratedData(account,jsonStrList);
-
-                                        Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
-                                        account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
-                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
-                                        account.setShippingAddress(accountInfoMap.get("address").toString());
-                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
                                         account.setNote("查询完成");
                                         accountTableView.refresh();
                                     }else{
-                                        account.setNote(res.get("msg").toString());
+                                        account.setNote(String.valueOf(res.get("msg")));
                                         accountTableView.refresh();
                                     }
                                 } catch (Exception e) {

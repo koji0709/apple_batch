@@ -59,9 +59,10 @@ public class PurchaseBillUtil {
 //            System.out.println(jsonStrList);
 //        }
         authenticate("djli0506@163.com","!!B0527s0207!!");
+//        authenticate("1948401156@qq.com","B0527s0207!");
 
 //        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-
+//        authenticate("epine@163.com","Jtsfh1982");
 
 
 
@@ -989,9 +990,9 @@ public class PurchaseBillUtil {
             if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 return login(authCode,guid,1,paras);
             }
-
+            paras.put("hasInspectionFlag",true);
             if(!StringUtils.isEmpty(customerMessage) &&customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
-                paras.put("inspection","未过检");
+                paras.put("hasInspectionFlag",false);
                 return paras;
             }
 
