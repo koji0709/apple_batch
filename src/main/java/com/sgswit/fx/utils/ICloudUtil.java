@@ -221,6 +221,17 @@ public class ICloudUtil {
         }
         return res;
     }
+    /**
+    　* 获取付款方式
+      * @param
+     * @param auth
+     * @param appleId
+     * @param organizerDsid
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/12 13:34
+    */
     public static Map<String,Object> getiTunesAccountPaymentInfo(String auth,String appleId,String organizerDsid){
         Map<String,Object> res=new HashMap<>();
         res.put("code","200");
