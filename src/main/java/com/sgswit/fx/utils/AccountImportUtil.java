@@ -28,6 +28,11 @@ public class AccountImportUtil<T>{
         put("phone","手机号");
         put("birthday","生日");
         put("email","邮箱");
+        put("paymentAccount","付款账号");
+        put("paymentPwd","付款账号密码");
+        put("memberAccount","成员账号");
+        put("memberPwd","成员账号密码");
+        put("cvv","安全吗（CVV）");
     }};
 
     public static String buildNote(String... formats){

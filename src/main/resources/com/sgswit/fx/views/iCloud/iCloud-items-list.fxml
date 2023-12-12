@@ -28,15 +28,15 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="44.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="开通家庭共享" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onAction="#onDredgeFamilyBtnClick" prefHeight="25.0" prefWidth="140.0" text="开通家庭共享" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="关闭家庭共享" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" onAction="#onCloseFamilyBtnClick" prefHeight="25.0" prefWidth="140.0" text="关闭家庭共享" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="添加家庭成员" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="104.0" mnemonicParsing="false" onAction="#onFamilyMembersBtnClick" prefHeight="25.0" prefWidth="140.0" text="添加家庭成员" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

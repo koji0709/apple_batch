@@ -39,6 +39,13 @@ public class Account {
     private SimpleStringProperty inspection;
     private SimpleStringProperty purchasesLast90Count;
 
+    private SimpleStringProperty paymentAccount;
+    private SimpleStringProperty paymentPwd;
+
+    private SimpleStringProperty memberAccount;
+    private SimpleStringProperty memberPwd;
+    private SimpleStringProperty cvv;
+
     public Account(){
         this.seq = new SimpleIntegerProperty();
         this.account = new SimpleStringProperty();
@@ -69,6 +76,11 @@ public class Account {
         this.inspection = new SimpleStringProperty();
         this.purchasesLast90Count = new SimpleStringProperty();
         this.familyDetails = new SimpleStringProperty();
+        this.paymentAccount = new SimpleStringProperty();
+        this.paymentPwd = new SimpleStringProperty();
+        this.memberAccount = new SimpleStringProperty();
+        this.memberPwd = new SimpleStringProperty();
+        this.cvv = new SimpleStringProperty();
     }
 
 
@@ -341,6 +353,66 @@ public class Account {
 
     public void setFamilyDetails(String familyDetails) {
         this.familyDetails.set(familyDetails);
+    }
+
+    public String getPaymentAccount() {
+        return paymentAccount.get();
+    }
+
+    public SimpleStringProperty paymentAccountProperty() {
+        return paymentAccount;
+    }
+
+    public void setPaymentAccount(String paymentAccount) {
+        this.paymentAccount.set(paymentAccount);
+    }
+
+    public String getPaymentPwd() {
+        return paymentPwd.get();
+    }
+
+    public SimpleStringProperty paymentPwdProperty() {
+        return paymentPwd;
+    }
+
+    public void setPaymentPwd(String paymentPwd) {
+        this.paymentPwd.set(paymentPwd);
+    }
+
+    public String getMemberAccount() {
+        return memberAccount.get();
+    }
+
+    public SimpleStringProperty memberAccountProperty() {
+        return memberAccount;
+    }
+
+    public void setMemberAccount(String memberAccount) {
+        this.memberAccount.set(memberAccount);
+    }
+
+    public String getMemberPwd() {
+        return memberPwd.get();
+    }
+
+    public SimpleStringProperty memberPwdProperty() {
+        return memberPwd;
+    }
+
+    public void setMemberPwd(String memberPwd) {
+        this.memberPwd.set(memberPwd);
+    }
+
+    public String getCvv() {
+        return cvv.get();
+    }
+
+    public SimpleStringProperty cvvProperty() {
+        return cvv;
+    }
+
+    public void setCvv(String cvv) {
+        this.cvv.set(cvv);
     }
 
     @Override
