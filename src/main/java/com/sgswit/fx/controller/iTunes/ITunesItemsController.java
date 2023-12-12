@@ -33,6 +33,10 @@ public class ITunesItemsController {
         StageUtil.show(StageEnum.CHECK_BALANCE_DISABLEDSTATUS);
     }
 
+    public void onBatchRedeemBtnClick(ActionEvent actionEvent){
+        StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM);
+    }
+
     public void onQueryPurchaseBillBtnClick(ActionEvent actionEvent) {
         StageUtil.show(StageEnum.CONSUMPTION_BILL);
     }

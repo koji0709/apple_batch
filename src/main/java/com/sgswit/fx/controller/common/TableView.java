@@ -5,10 +5,13 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
+import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
@@ -27,6 +30,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -75,8 +79,31 @@ public class TableView<T> extends CommonView {
         // 数据绑定
         ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
         for (TableColumn<T, ?> column : columns) {
-            column.setCellValueFactory(new PropertyValueFactory(column.getId()));
+            // 序号自动增长
+            if ("seq".equals(column.getId())){
+                column.setCellFactory(new Callback(){
+                    @Override
+                    public Object call(Object param) {
+                        TableCell cell = new TableCell() {
+                            @Override
+                            protected void updateItem(Object item, boolean empty) {
+                                super.updateItem(item, empty);
+                                this.setText(null);
+                                this.setGraphic(null);
+                                if (!empty) {
+                                    int rowIndex = this.getIndex() + 1;
+                                    this.setText(String.valueOf(rowIndex));
+                                }
+                            }
+                        };
+                        return cell;
+                    }
+                });
+            }else{
+                column.setCellValueFactory(new PropertyValueFactory(column.getId()));
+            }
         }
+
     }
 
     /**
@@ -210,13 +237,6 @@ public class TableView<T> extends CommonView {
         button.setOnAction(event -> {
             List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats), clz);
             accountList.addAll(accountList1);
-
-            for (int i = 0; i < accountList.size(); i++) {
-                ReflectUtil.invoke(
-                        accountList.get(i)
-                        , "setSeq"
-                        , i+1);
-            }
             accountTableView.setItems(accountList);
             accountNumLable.setText(accountList.size()+"");
             stage.close();
@@ -418,5 +438,22 @@ public class TableView<T> extends CommonView {
         if (saveLog){
             insertLocalHistory(List.of(account));
         }
+    }
+
+    public boolean itunesLoginVerify(HttpResponse authRsp,T account){
+        if (authRsp == null || StrUtil.isEmpty(authRsp.body())){
+            setAndRefreshNote(account,"登陆异常!");
+            return false;
+        }
+        JSONObject json = PListUtil.parse(authRsp.body());
+        String failureType     = json.getStr("failureType","");
+        String customerMessage = json.getStr("customerMessage","");
+        boolean verify = !(authRsp.getStatus() != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
+        if (verify){
+            setAndRefreshNote(account,"登陆成功");
+        }else{
+            setAndRefreshNote(account,"登陆异常!" + failureType + customerMessage);
+        }
+        return verify;
     }
 }

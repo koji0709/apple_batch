@@ -39,7 +39,7 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="苹果批量兑换" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+    <Button onAction="#onBatchRedeemBtnClick" layoutX="10.0" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="苹果批量兑换" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
