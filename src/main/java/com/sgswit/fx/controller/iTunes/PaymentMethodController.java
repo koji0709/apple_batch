@@ -87,8 +87,33 @@ public class PaymentMethodController implements Initializable  {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        CommDataInputPopupController<Account> controller=new CommDataInputPopupController<>();
-        controller.importData(list, DataImportEnum.DELETE_PAYMENT);
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+
+        Stage popupStage = new Stage();
+
+        popupStage.setTitle("账户导入");
+
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.showAndWait();
+
+        AccountInputPopupController c = fxmlLoader.getController();
+        if(null == c.getAccounts() || "".equals(c.getAccounts())){
+            return;
+        }
+        String[] lineArray = c.getAccounts().split("\n");
+        for(String item : lineArray){
+            String[] its = item.split("----");
+            Account account = new Account();
+            account.setSeq(list.size()+1);
+            account.setAccount(its[0]);
+            account.setPwd(its[1]);
+            list.add(account);
+        }
         initAccountTableView();
         accountTableView.setEditable(true);
         accountTableView.setItems(list);
