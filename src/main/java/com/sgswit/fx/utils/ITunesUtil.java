@@ -218,7 +218,7 @@ public class ITunesUtil {
    　* @author DeZh
    　* @date 2023/10/30 9:27
    */
-    public  static Map<String,String> addOrEditBillingInfoSrv(Map<String,Object> paras){
+    public  static Map<String,String> addCreditPayment(Map<String,Object> paras){
         Map<String,String> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
@@ -240,7 +240,6 @@ public class ITunesUtil {
         if(cookieBuilder.toString().length() > 0){
             cookies = cookieBuilder.toString().substring(1);
         }
-        //获取支付方式
         HttpResponse httpResponse=getPaymentInfos(paras);
         if(httpResponse.getStatus()==401){
             result.put("code","1");
@@ -254,16 +253,25 @@ public class ITunesUtil {
             source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
 
             //支付信息
-            source.put("creditCardNumber",paras.get("creditCardNumber").toString());
-            source.put("creditCardExpirationMonth",paras.get("creditCardExpirationMonth").toString());
-            source.put("creditCardExpirationYear",paras.get("creditCardExpirationYear").toString());
-            source.put("creditVerificationNumber",paras.get("creditVerificationNumber").toString());
+            source.put("creditCardNumber","5187180019685639");
+            source.put("creditCardExpirationMonth","1");
+            source.put("creditCardExpirationYear","2025");
+            source.put("creditVerificationNumber","864");
+            source.put("paymentMethodVersion","2.0");
+//            source.put("creditCardNumber",paras.get("creditCardNumber").toString());
+//            source.put("creditCardExpirationMonth",paras.get("creditCardExpirationMonth").toString());
+//            source.put("creditCardExpirationYear",paras.get("creditCardExpirationYear").toString());
+//            source.put("creditVerificationNumber",paras.get("creditVerificationNumber").toString());
             source.put("paymentMethodType",source.get("CreditCard"));
             source.put("needsTopUp",source.get("false"));
             source.put("creditCardType",source.get("UPCC"));
             source.put("paymentMethodType",source.get("CreditCard"));
             source.put("needsTopUp",source.get("false"));
             source.put("creditCardType",source.get("UPCC"));
+//            if(){
+//
+//                source.put("ccSubType",source.get("UPCC"));
+//            }
             //转为url参数格式的字符串
             String body=UrlParasUtil.asUrlParams(source);
             HttpResponse response = HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv")
@@ -276,7 +284,7 @@ public class ITunesUtil {
                 result.put("message","未登录或登录超时");
             }else if(response.getStatus()==200){
                 String bodyJson=response.body();
-                int status= (int) JSONUtil.parseObj(bodyJson).getByPath("status");
+                int status=JSONUtil.parseObj(bodyJson).getByPath("status",int.class);
                 if(status==0){
                     result.put("code","0");
                     result.put("message","成功");
