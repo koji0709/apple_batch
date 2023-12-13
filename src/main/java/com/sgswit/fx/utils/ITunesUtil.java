@@ -505,11 +505,12 @@ public class ITunesUtil {
     /**
      * 礼品卡兑换
      */
-    private static HttpResponse redeem(HttpResponse authRsp,String guid,String cardCode){
+    public static HttpResponse redeem(HttpResponse authRsp,String guid,String cardCode){
         JSONObject authBody = PListUtil.parse(authRsp.body());
         String itspod = authRsp.header(Constant.ITSPOD);
         String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
         String dsPersonId = authBody.getStr("dsPersonId","");
+//        String dsPersonId = "1234";
         String passwordToken = authBody.getStr("passwordToken","");
 
         String redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
@@ -799,10 +800,10 @@ public class ITunesUtil {
                 Integer status = redeemBody.getInt("status");
                 if (status != 0){
                     String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage");
-                    String message = "代码[%s]兑换失败! %s";
+                    String message = "礼品卡[%s]兑换失败! %s";
                     Console.log(String.format(message,cardCode,userPresentableErrorMessage));
                 }else{
-                    String message = "兑换券[%s]兑换成功!";
+                    String message = "礼品卡[%s]兑换成功!";
                     Console.log(String.format(message,cardCode));
                 }
             }

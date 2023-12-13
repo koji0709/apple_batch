@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<AnchorPane fx:controller="com.sgswit.fx.controller.iTunes.GiftCardBatchRedeemController"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!--上下布局。上面功能区，下面表格，设置内边距14px-->
+        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+            <children>
+                <!--功能区-->
+                <HBox style="-fx-spacing: 14">
+                    <children>
+                        <!--操作-->
+                        <TitledPane text="操作" prefWidth="380" prefHeight="165" contentDisplay="CENTER" collapsible="false" animated="false">
+                            <content>
+                                <GridPane prefWidth="400" prefHeight="140" >
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <!--列表总数-->
+                                        <HBox GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200" prefHeight="30">
+                                            <children>
+                                                <Label text="列表中账户数量：      "/>
+                                                <Label fx:id="accountNumLable" textFill="#e20404"/>
+                                            </children>
+                                        </HBox>
+
+                                        <!--开始执行-->
+                                        <Button fx:id="executeButton" text="开始执行" onAction="#executeButtonAction" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                                prefWidth="100" prefHeight="60" mnemonicParsing="false" textFill="#238142">
+                                            <font>
+                                                <Font name="System Bold" size="15"/>
+                                            </font>
+                                        </Button>
+
+                                        <!--操作按钮-->
+                                        <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="290" prefHeight="95" alignment="CENTER">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
+                                                                   prefWidth="130"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10"
+                                                                   prefWidth="130"/>
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10" prefHeight="30" vgrow="SOMETIMES"/>
+                                            </rowConstraints>
+                                            <children>
+                                                <Button text="导入账号" onAction="#importAccountButtonAction"
+                                                        GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="清空列表" onAction="#clearAccountListButtonAction"
+                                                        GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                                        prefWidth="100" mnemonicParsing="false" />
+                                                <Button text="本地记录" onAction="#localHistoryButtonAction"
+                                                        GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="导出Excel" onAction="#exportExcelButtonAction"
+                                                        GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                                <Button text="停止任务" onAction="#stopTaskButtonAction"
+                                                        GridPane.rowIndex="2" GridPane.columnIndex="0"
+                                                        prefWidth="100" mnemonicParsing="false"/>
+                                            </children>
+                                        </GridPane>
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+
+                        <!--配置信息-->
+                        <TitledPane text="配置信息" prefWidth="760" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER" spacing="14" style="-fx-font-size: 12">
+                                    <children>
+                                        <HBox spacing="30">
+                                            <children>
+                                                <VBox spacing="25">
+                                                    <children>
+                                                        <ChoiceBox prefWidth="440">
+                                                            <items>
+                                                                <FXCollections fx:factory="observableArrayList" >
+                                                                    <String fx:value="20" />
+                                                                    <String fx:value="40" />
+                                                                </FXCollections>
+                                                            </items>
+                                                        </ChoiceBox>
+                                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Button>检测账号</Button>
+                                                                <Button>输入双重验证码</Button>
+                                                                <Button>编辑或导入列表中的账号</Button>
+                                                                <Label prefWidth="90" text=""/>
+                                                                <Label text="0/0"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="5">
+                                                    <children>
+                                                        <Label>检测需要消耗点数：5</Label>
+                                                        <Label>国家：</Label>
+                                                        <Label>余额：</Label>
+                                                        <Label>状态：</Label>
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="5" alignment="CENTER">
+                                                    <children>
+                                                        <Button>礼品卡查询余额</Button>
+                                                        <Button>礼品卡检测专业版</Button>
+                                                        <Button>中国账号身份认证</Button>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <!--执行结果-->
+                        <TitledPane text="执行结果" prefWidth="110" prefHeight="165" collapsible="false" animated="false">
+                            <content>
+                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+                                    <Label text="账号总数：--"/>
+                                    <Label text="成功数：--"/>
+                                    <Label text="失败数：--"/>
+                                    <Label text="消耗点数：50"/>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                    </children>
+                </HBox>
+
+                <!--功能区2-->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <children>
+                        <CheckBox text="开启循环模式"/>
+                        <HBox spacing="4" alignment="CENTER">
+                            <children>
+                                <Label text="间隔："/>
+                                <TextField prefWidth="40"/>
+                                <Label text="秒"/>
+                            </children>
+                        </HBox>
+                        <Label textFill="red" text="讯果礼品卡大数据"/>
+                        <CheckBox text="出现频繁重新执行"/>
+                        <CheckBox text="同账号以单线程工作"/>
+                        <CheckBox text="隐藏导入密码"/>
+                        <CheckBox text="导入后滚动到最底行"/>
+                        <Button text="工作2窗口"/>
+                        <Button text="工作3窗口"/>
+                    </children>
+                </HBox>
+
+                <!--账号列表-->
+                <TitledPane text="账号列表" collapsible="false" animated="false">
+                    <content>
+                        <TableView fx:id="accountTableView" prefWidth="1160" prefHeight="500">
+                            <columns>
+                                <TableColumn fx:id="seq" text="序号"/>
+                                <TableColumn fx:id="account" prefWidth="250" text="账号"/>
+                                <TableColumn fx:id="giftCardCode" prefWidth="150" text="礼品卡"/>
+                                <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态"/>
+                                <TableColumn fx:id="execTime" prefWidth="130" text="执行时间"/>
+                                <TableColumn fx:id="note" prefWidth="400" text="执行信息"/>
+                            </columns>
+                        </TableView>
+                    </content>
+                </TitledPane>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

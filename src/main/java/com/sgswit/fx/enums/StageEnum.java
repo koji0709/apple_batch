@@ -34,6 +34,7 @@ public enum StageEnum {
     QUERY_ACCOUNT_INFO("查询账号信息","views/iTunes/account-info.fxml",1150,700),
     APPSTORE_DOWNLOAD("批量下载APP","views/iTunes/appstore_download.fxml"),
     APPSTORE_SEARCH("Appstore搜索","views/iTunes/appstore_search.fxml"),
+    GIFTCARD_BATCH_REDEEM("苹果批量兑换","views/iTunes/giftcard_batch_redeem.fxml"),
     /********** QUERY区 ***********/
     BIRTHDAY_COUNTRY_QUERY("查询生日国家","views/query/birthday-country.fxml",1100,650),
     BALANCE_QUERY("密保查询余额","views/query/balance-query.fxml",1100,700),

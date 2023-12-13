@@ -136,8 +136,8 @@ public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
         String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
         // 鉴权
         HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
-        if (authRsp == null || authRsp.getStatus() != 200){
-            setAndRefreshNote(appstoreDownloadVo,"登陆异常");
+        boolean verify = itunesLoginVerify(authRsp, appstoreDownloadVo);
+        if (!verify){
             return;
         }
 
@@ -498,20 +498,22 @@ public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
      * iv：偏移量，ECB模式不需要，CBC模式下必须为16位
      */
     public String encrypt(String text){
-        String key = "1234567812345678";
-        String iv = "1234567812345678";
-        AES aes = new AES(Mode.CBC, Padding.PKCS5Padding, key.getBytes(), iv.getBytes());
-        return aes.encryptBase64(text);
+//        String key = "1234567812345678";
+//        String iv = "1234567812345678";
+//        AES aes = new AES(Mode.CBC, Padding.PKCS5Padding, key.getBytes(), iv.getBytes());
+//        return aes.encryptBase64(text);
+        return text;
     }
 
     /**
      * 解密
      */
     public String decrypt(String encrypt){
-        String key = "1234567812345678";
-        String iv = "1234567812345678";
-        AES aes = new AES(Mode.CBC, Padding.PKCS5Padding, key.getBytes(), iv.getBytes());
-        return aes.decryptStr(encrypt);
+//        String key = "1234567812345678";
+//        String iv = "1234567812345678";
+//        AES aes = new AES(Mode.CBC, Padding.PKCS5Padding, key.getBytes(), iv.getBytes());
+//        return aes.decryptStr(encrypt);
+        return encrypt;
     }
 
 }
