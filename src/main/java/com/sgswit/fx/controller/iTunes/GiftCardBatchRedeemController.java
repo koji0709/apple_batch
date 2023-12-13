@@ -60,13 +60,29 @@ public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
         Integer status = redeemBody.getInt("status",-1);
         if (status != 0){
             String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage");
+            String messageKey = redeemBody.getStr("errorMessageKey","");
+
+            // 礼品卡无效
+            if ("MZFreeProductCode.NoSuch".equals(messageKey)){
+                giftCardRedeem.setGiftCardStatus("无效");
+            }
+            // 礼品卡已兑换
+            else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
+                giftCardRedeem.setGiftCardStatus("已兑换");
+            }else{
+                giftCardRedeem.setGiftCardStatus("兑换失败");
+            }
+
             String message = "礼品卡[%s]兑换失败! %s";
             message = String.format(message,giftCardCode,userPresentableErrorMessage);
             Console.log(message);
             setAndRefreshNote(giftCardRedeem,message);
             return;
         }
+        // 礼品卡兑换成功
         String message = "礼品卡[%s]兑换成功!";
+        giftCardRedeem.setGiftCardStatus("兑换成功");
+
         message = String.format(message,giftCardCode);
         setAndRefreshNote(giftCardRedeem,message);
     }
