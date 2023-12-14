@@ -2,6 +2,7 @@ package com.sgswit.fx.utils;
 
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -22,7 +23,7 @@ public class ShoppingUtil {
     private static String code = "200";
 
     // 获取产品
-    public static Map<String,Object> getProd() throws Exception {
+    public static Map<String,Object> getProd(Account account) throws Exception {
         Map<String,Object> prodMap = new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -42,7 +43,7 @@ public class ShoppingUtil {
         System.out.println(accRes.getStatus());
         System.out.println(accRes.headers());
 
-        CookieUtils.setCookies(accRes);
+        CookieUtils.setCookiesToMap(accRes,account.getCookieMap());
 
         System.out.println("------------------accessories----------------------------------------------");
 
@@ -62,7 +63,7 @@ public class ShoppingUtil {
         System.out.println(prodRes.getStatus());
         System.out.println(prodRes.headers());
 
-        CookieUtils.setCookies(prodRes);
+        CookieUtils.setCookiesToMap(prodRes,account.getCookieMap());
 
         System.out.println("------------------product----------------------------------------------");
 
@@ -82,7 +83,7 @@ public class ShoppingUtil {
                 if(as_sfa.length < 2 ){
                     continue;
                 }
-                Account.getCookieMap().put(as_sfa[0],as_sfa[1]);
+                account.getCookieMap().put(as_sfa[0],as_sfa[1]);
 
             }
 
@@ -114,7 +115,7 @@ public class ShoppingUtil {
                 System.out.println("-------cookies--------" + atbCookie);
                 if("as_atb".equals(atbCookie[0])) {
 
-                    Account.getCookieMap().put(atbCookie[0],atbCookie[1]);
+                    account.getCookieMap().put(atbCookie[0],atbCookie[1]);
 
                     String atbtoke = atbCookie[1].substring(atbCookie[1].lastIndexOf("|")+1);
                     inputMap.put("atbtoken",atbtoke);
@@ -133,7 +134,7 @@ public class ShoppingUtil {
     }
 
     // 添加到购物车
-    public static String add2bag(Map<String,Object> pordMap) throws Exception {
+    public static Map<String,Object> add2bag(Map<String,Object> pordMap,Account account) throws Exception {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -148,7 +149,7 @@ public class ShoppingUtil {
         HttpResponse res =  cn.hutool.http.HttpUtil.createPost(pordMap.get("url").toString())
                 .header(headers)
                 .form((Map<String,Object>)pordMap.get("body"))
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         if(res.getStatus() != 303){
@@ -158,15 +159,16 @@ public class ShoppingUtil {
         System.out.println(res.getStatus());
         System.out.println(res.headers());
 
-        CookieUtils.setCookies(res);
+        CookieUtils.setCookiesToMap(res,account.getCookieMap());
 
         System.out.println("------------------pdpAddToBag----------------------------------------------");
-
-        return code;
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("code",code);
+        return map;
     }
 
     // 查看购物车
-    public static Map<String,Map<String,Object>>  shopbag() throws Exception{
+    public static Map<String,Map<String,Object>>  shopbag(Account account) throws Exception{
 
         Map<String,Map<String,Object>> dataMap = new HashMap<>();
 
@@ -181,7 +183,7 @@ public class ShoppingUtil {
 
         HttpResponse res = HttpUtil.createGet("https://www.apple.com/shop/bag")
                 .header(headers)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
             code = "500";
@@ -234,7 +236,7 @@ public class ShoppingUtil {
     }
 
     // 提交购物车
-    public static Map<String,Object> checkoutCart(Map<String,Map<String,Object>> bag) throws Exception{
+    public static Map<String,Object> checkoutCart(Map<String,Map<String,Object>> bag,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -249,7 +251,7 @@ public class ShoppingUtil {
 
         HttpResponse res = cn.hutool.http.HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .form(bag.get("body"))
                 .execute();
         HashMap<String, Object> map = new HashMap<>();
@@ -268,7 +270,7 @@ public class ShoppingUtil {
     }
 
     //调登录页面
-    public static Map<String,String> shopSignIn(String url) throws Exception{
+    public static Map<String,String> shopSignIn(String url,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -282,7 +284,7 @@ public class ShoppingUtil {
 
         HttpResponse res = cn.hutool.http.HttpUtil.createGet(url)
                 .header(headers)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
             code = "500";
@@ -320,7 +322,7 @@ public class ShoppingUtil {
     }
 
     //回调applestore
-    public static Map<String,String> callBack(Map<String,String> signInMap) throws Exception{
+    public static Map<String,String> callBack(Map<String,String> signInMap,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -348,7 +350,7 @@ public class ShoppingUtil {
         HttpResponse resp = cn.hutool.http.HttpUtil.createPost(signInMap.get("callbackSignInUrl"))
                 .header(headers)
                 .form(paramMap)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
@@ -359,7 +361,7 @@ public class ShoppingUtil {
         System.out.println(resp.getStatus());
         System.out.println(resp.headers());
 
-        CookieUtils.setCookies(resp);
+        CookieUtils.setCookiesToMap(resp,account.getCookieMap());
 
         System.out.println(resp.body());
         JSONObject jo = JSONUtil.parseObj(resp.body());
@@ -375,7 +377,7 @@ public class ShoppingUtil {
     }
 
     //chechout start
-    public static String checkoutStart(Map<String,String> checkoutStartMap) throws Exception{
+    public static String checkoutStart(Map<String,String> checkoutStartMap,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -396,7 +398,7 @@ public class ShoppingUtil {
         HttpResponse resp = cn.hutool.http.HttpUtil.createPost(checkoutStartMap.get("url"))
                 .header(headers)
                 .form(paramMap)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         System.out.println("------------------checkoutStart-----------------------------------------------");
@@ -412,7 +414,7 @@ public class ShoppingUtil {
     }
 
     //提交
-    public static Map<String,String> checkout(String checkoutUrl) throws Exception{
+    public static Map<String,String> checkout(String checkoutUrl,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -427,7 +429,7 @@ public class ShoppingUtil {
 
         HttpResponse resp = cn.hutool.http.HttpUtil.createGet(checkoutUrl)
                 .header(headers)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
@@ -463,7 +465,7 @@ public class ShoppingUtil {
     }
 
     //选择shipping - 邮寄
-    public static String fillmentToShipping(Map<String,String> checkoutMap) throws Exception{
+    public static String fillmentToShipping(Map<String,String> checkoutMap,Account account) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -492,7 +494,7 @@ public class ShoppingUtil {
         HttpResponse resp = cn.hutool.http.HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
@@ -553,7 +555,7 @@ public class ShoppingUtil {
         HttpResponse resp = cn.hutool.http.HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
@@ -572,7 +574,7 @@ public class ShoppingUtil {
     }
 
     //确认地址 - 显示账户余额
-    public static HttpResponse selectedAddress(Map<String,String> checkoutMap) {
+    public static HttpResponse selectedAddress(Map<String,String> checkoutMap,Account account) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
@@ -595,7 +597,7 @@ public class ShoppingUtil {
 
         HttpResponse resp = HttpUtil.createPost(url)
                 .header(headers)
-                .cookie(CookieUtils.getCookies())
+                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
 
         System.out.println("------------------selectedAddress-----------------------------------------------");

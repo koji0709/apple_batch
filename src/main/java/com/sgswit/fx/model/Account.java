@@ -36,7 +36,7 @@ public class Account {
     private  String country;
     private  List<String> cookies;
 
-    private static  Map<String,String> cookieMap;
+    private  Map<String,String> cookieMap;
 
     // 页面临时参数
     private SimpleStringProperty email;
@@ -93,7 +93,7 @@ public class Account {
         this.cvv = new SimpleStringProperty();
     }
 
-    public static Map<String, String> getCookieMap() {
+    public  Map<String, String> getCookieMap() {
         if(cookieMap == null){
             cookieMap = new HashMap<>();
         }
@@ -440,6 +440,10 @@ public class Account {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public void setCookieMap(Map<String, String> cookieMap) {
+        this.cookieMap = cookieMap;
     }
 
     @Override

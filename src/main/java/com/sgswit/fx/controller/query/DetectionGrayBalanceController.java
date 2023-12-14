@@ -60,7 +60,7 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             // 获取产品
             account.setNote("获取商品中");
             accountTableView.refresh();
-            Map<String,Object> prodMap = ShoppingUtil.getProd();
+            Map<String,Object> prodMap = ShoppingUtil.getProd(account);
             if("500".equals(prodMap.get("code"))){
                 tableRefresh(account,"获取商品失败");
                 return;
@@ -68,19 +68,19 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             // 添加到购物车
             account.setNote("添加到购物车中");
             accountTableView.refresh();
-            String s = ShoppingUtil.add2bag(prodMap);
-            if("500".equals(s)){
+            Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap,account);
+            if("500".equals(addMap.get("code"))){
                 tableRefresh(account,"添加到购物车失败");
                 return;
             }
             // 查看购物车
-            Map<String,Map<String,Object>> bag = ShoppingUtil.shopbag();
+            Map<String,Map<String,Object>> bag = ShoppingUtil.shopbag(account);
             if("500".equals(bag.get("code").get("code"))){
                 tableRefresh(account,"查看购物车失败");
                 return;
             }
             // 提交购物车
-            Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag);
+            Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag,account);
             if("500".equals(cheMap.get("code"))){
                 tableRefresh(account,"提交购物车失败");
                 return;
@@ -88,7 +88,7 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             //调登录页面
             account.setNote("登录页面加载中");
             accountTableView.refresh();
-            Map<String,String> signInMap = ShoppingUtil.shopSignIn(cheMap.get("url").toString());
+            Map<String,String> signInMap = ShoppingUtil.shopSignIn(cheMap.get("url").toString(),account);
             if("500".equals(signInMap.get("code"))){
                 tableRefresh(account,"调登录页面失败");
                 return;
@@ -107,16 +107,16 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             account.setNote("登录成功");
             accountTableView.refresh();
             //回调applestore
-            Map<String,String> checkoutStartMap = ShoppingUtil.callBack(signInMap);
+            Map<String,String> checkoutStartMap = ShoppingUtil.callBack(signInMap,account);
             if("500".equals(prodMap.get("code"))){
                 tableRefresh(account,"回调失败");
                 return;
             }
             //chechout start
-            String checkoutUrl = ShoppingUtil.checkoutStart(checkoutStartMap);
+            String checkoutUrl = ShoppingUtil.checkoutStart(checkoutStartMap,account);
 
             //提交
-            Map<String,String> checkoutMap = ShoppingUtil.checkout(checkoutUrl);
+            Map<String,String> checkoutMap = ShoppingUtil.checkout(checkoutUrl,account);
             if("500".equals(checkoutMap.get("code"))){
                 tableRefresh(account,"查询失败");
                 return;
@@ -124,7 +124,7 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             //选择shipping - 邮寄
             account.setNote("正在查询余额");
             accountTableView.refresh();
-            String fillment = ShoppingUtil.fillmentToShipping(checkoutMap);
+            String fillment = ShoppingUtil.fillmentToShipping(checkoutMap,account);
             if("500".equals(fillment)){
                 tableRefresh(account,"查询失败");
                 return;
@@ -138,7 +138,7 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             account.setState(map.get("address"));
             accountTableView.refresh();
             //确认地址 - 显示账户余额
-            HttpResponse httpResponse = ShoppingUtil.selectedAddress(checkoutMap);
+            HttpResponse httpResponse = ShoppingUtil.selectedAddress(checkoutMap,account);
             if(httpResponse.getStatus() != 200){
                 tableRefresh(account,"查询失败");
                 return;

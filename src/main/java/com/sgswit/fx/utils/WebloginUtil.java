@@ -187,7 +187,7 @@ public class WebloginUtil {
 //        System.out.println("------------------sigin---------cookies--------------------------------------");
 //        System.out.println(res.headers().get("Set-Cookie"));
 
-        CookieUtils.setCookies(res);
+        CookieUtils.setCookiesToMap(res,account.getCookieMap());
         account.setCountry(res.header("X-Apple-ID-Account-Country"));
 //        System.out.println("------------------sigin---------cookies--------------------------------------");
 //        System.out.println(res.body());
