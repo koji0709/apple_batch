@@ -55,6 +55,7 @@ public class DredgeFamilyController extends TableView<Account> {
 
     @Override
     public void accountHandler(Account account){
+        tableRefresh(account,"正在登录...");
         HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
         if(response.getStatus()==200){
             try {
@@ -66,7 +67,7 @@ public class DredgeFamilyController extends TableView<Account> {
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
-                        //获取家庭共享
+                        tableRefresh(account,"登录成功，正在开通...");
                         Map<String,Object> res=ICloudUtil.createFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount(),account.getPwd(),account.getPaymentAccount(),account.getPaymentPwd());
                         if("200".equals(res.get("code"))){
                             message = "开通成功";

@@ -137,7 +137,12 @@ public class BindVirtualCardController implements Initializable  {
                     try {
                         try {
                             account.setNote("登录中...");
-                            Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                            Map<String,Object> res= PurchaseBillUtil.authenticate("djli0506@163.com","!!B0527s0207!!");
+                            res.put("creditCardNumber","5187180019685639");
+                            res.put("creditCardExpirationMonth","1");
+                            res.put("creditCardExpirationYear","2025");
+                            res.put("creditVerificationNumber","864");
+//                            Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                             if(!res.get("code").equals("200")){
                                 account.setNote(String.valueOf(res.get("msg")));
                             }else{
@@ -147,12 +152,12 @@ public class BindVirtualCardController implements Initializable  {
                                     accountTableView.refresh();
                                     return;
                                 }
-                                account.setNote("登录成功，数据删除中...");
-                                res=ITunesUtil.delPaymentInfos(res);
-                                if(!res.get("code").equals("200")){
-                                    account.setNote("删除成功");
+                                account.setNote("登录成功，正在验证银行卡信息...");
+                                Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,"01");
+                                if(!addCreditPaymentRes.get("code").equals("200")){
+                                    account.setNote(String.valueOf(res.get("msg")));
                                 }else{
-                                    account.setNote(res.get("msg").toString());
+                                    account.setNote(String.valueOf(res.get("msg")));
                                 }
                             }
                             accountTableView.refresh();

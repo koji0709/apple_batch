@@ -154,6 +154,7 @@ public class ShoppingUtil {
 
         if(res.getStatus() != 303){
             code = "500";
+
         }
         System.out.println("------------------pdpAddToBag-----------------------------------------------");
         System.out.println(res.getStatus());
@@ -532,7 +533,9 @@ public class ShoppingUtil {
 
         Map<String,Object> paramMap = new HashMap<>();
 
-        String address = "美国";
+        String countryName=DataUtil.getNameByCountryCode(account.getCountry());
+
+
         //TODO: 需要根据appleid 所属国家， 调整如下相关地址
         if("USA".equals(account.getCountry())){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
@@ -569,7 +572,7 @@ public class ShoppingUtil {
         System.out.println("------------------checkoutStart-----------------------------------------------");
         Map<String, String> map = new HashMap<>();
         map.put("code",code);
-        map.put("address",address);
+        map.put("address",countryName);
         return map;
     }
 

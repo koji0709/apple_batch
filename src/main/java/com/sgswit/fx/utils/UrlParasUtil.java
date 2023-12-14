@@ -56,24 +56,4 @@ public class UrlParasUtil {
         }
         return resMap;
     }
-    public static String asUrlParams(Map<String, String> source){
-        Iterator<String> it = source.keySet().iterator();
-        StringBuilder paramStr = new StringBuilder();
-        while (it.hasNext()){
-            String key = it.next();
-            String value = source.get(key);
-            if (StringUtils.isEmpty(value)){
-                continue;
-            }
-            try {
-                // URL 编码
-                value = URLEncoder.encode(value, "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                // do nothing
-            }
-            paramStr.append("&").append(key).append("=").append(value);
-        }
-        // 去掉第一个&
-        return paramStr.substring(1);
-    }
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -1042,13 +1043,7 @@ public class PurchaseBillUtil_bak231206 {
         headers.put("Accept-Encoding",ListUtil.toList("gzip"));
 
         StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
         try {
             HttpResponse res = HttpUtil.createGet(accountUrl)
                     .header(headers)
@@ -1097,13 +1092,7 @@ public class PurchaseBillUtil_bak231206 {
         headers.put("X-Token",ListUtil.toList(ListUtil.toList(paras.get("passwordToken").toString())));
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
         StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
 
         HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)

@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -48,6 +49,7 @@ public class PurchaseBillUtil {
     public static void main( String[] args ) throws Exception {
 //        Map<String,Object> res=loginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//
 //        if(res.get("code").equals("200")){
 //            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
 //            String token=loginResult.get("token").toString();
@@ -58,7 +60,15 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-        authenticate("djli0506@163.com","!!B0527s0207!!");
+        Map<String,Object> res= authenticate("josepharnoldc4@outlook.com","Zxc112211");
+        ITunesUtil.appStoreOverCheck(res);
+//        Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
+//        res.put("creditCardNumber","5187180019685639");
+//        res.put("creditCardExpirationMonth","1");
+//        res.put("creditCardExpirationYear","2025");
+//        res.put("creditVerificationNumber","864");
+//        Map<String,Object> resMap=ITunesUtil.addCreditPayment(res,"01");
+
 //        authenticate("1948401156@qq.com","B0527s0207!");
 
 //        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
@@ -139,18 +149,6 @@ public class PurchaseBillUtil {
         result.put("loginResult",loginResult);
         return result;
     }
-    public static List<String> getCookiesFromHeader(HttpResponse response){
-        List<String> cookies = new ArrayList<>();
-        if(response.headers().get("Set-Cookie") != null){
-            cookies.addAll(response.headers().get("Set-Cookie"));
-        }
-        if(response.headers().get("set-cookie") != null){
-            cookies.addAll(response.headers().get("set-cookie"));
-        }
-        return cookies;
-    }
-
-
 
     public static Map<String,Object> jXDocument(HttpResponse pre1){
         Map<String,Object> res=new HashMap<>();
@@ -598,14 +596,10 @@ public class PurchaseBillUtil {
         String token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
         String dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
         //查询方法
-        StringBuilder searchCookieBuilder = new StringBuilder();
-        for(String item : getCookiesFromHeader(loginResponse)){
-            searchCookieBuilder.append(";").append(item);
-        }
-        for (String item : getCookiesFromHeader(step22Res)) {
-            searchCookieBuilder.append(";").append(item);
-        }
-        String searchCookies = searchCookieBuilder.substring(1);
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(loginResponse,cookiesMap);
+        CookieUtils.setCookiesToMap(step22Res,cookiesMap);
+        String searchCookies = MapUtil.join(cookiesMap,";","=",true);
         result.put("token",token);
         result.put("dsid",dsid);
         result.put("searchCookies",searchCookies);
@@ -969,7 +963,7 @@ public class PurchaseBillUtil {
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("itspod",res.header(Constant.ITSPOD));
             paras.put("authUrl",res.header("location"));
-            paras.put("cookies",getCookiesFromHeader(res));
+            paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             if(res.getStatus()==302 && attempt ==0){
                 return login(authCode,guid,1,paras);
@@ -993,6 +987,8 @@ public class PurchaseBillUtil {
             paras.put("hasInspectionFlag",true);
             if(!StringUtils.isEmpty(customerMessage) &&customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 paras.put("hasInspectionFlag",false);
+                String appStoreOverCheckUrl=rspJSON.getByPath("dialog.okButtonAction.url",String.class);
+                paras.put("appStoreOverCheckUrl",appStoreOverCheckUrl);
                 return paras;
             }
 
@@ -1035,14 +1031,7 @@ public class PurchaseBillUtil {
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip"));
 
-        StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
         try {
             HttpResponse res = HttpUtil.createGet(accountUrl)
                     .header(headers)
@@ -1090,14 +1079,7 @@ public class PurchaseBillUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("X-Token",ListUtil.toList(ListUtil.toList(paras.get("passwordToken").toString())));
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
-        StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
 
         HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)

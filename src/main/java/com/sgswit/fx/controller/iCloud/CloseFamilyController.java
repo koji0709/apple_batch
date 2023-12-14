@@ -33,6 +33,7 @@ public class CloseFamilyController extends TableView<Account> {
 
     @Override
     public void accountHandler(Account account){
+        tableRefresh(account,"正在登录...");
         HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
         if(response.getStatus()==200){
             try {
@@ -44,6 +45,7 @@ public class CloseFamilyController extends TableView<Account> {
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
+                        tableRefresh(account,"登录成功，正在关闭...");
                         //关闭家庭共享
                         Map<String,Object> res=ICloudUtil.leaveFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
                         if("200".equals(res.get("code"))){

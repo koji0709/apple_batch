@@ -6,12 +6,15 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
+import cn.hutool.http.useragent.OS;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -74,14 +77,14 @@ public class ITunesUtil {
         return step4Res;
     }
     /**
-    　* 统计购买记录
-      * @param
+     　* 统计购买记录
+     * @param
      * @param response
     　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
     　* @throws
     　* @author DeZh
     　* @date 2023/10/19 10:09
-    */
+     */
     public  static List<Map<String,String>> accountPurchasesCount(HttpResponse response){
         List<Map<String,String>> result=new ArrayList<>();
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -119,14 +122,14 @@ public class ITunesUtil {
         return result;
     }
     /**
-    　*获取支付方式（iTunes版）
-      * @param
+     　*获取支付方式（iTunes版）
+     * @param
      * @param paras
     　* @return java.util.Map<java.lang.String,java.lang.Object>
     　* @throws
     　* @author DeZh
     　* @date 2023/12/10 10:57
-    */
+     */
     public  static HttpResponse getPaymentInfos(Map<String,Object> paras){
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -139,14 +142,7 @@ public class ITunesUtil {
         headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
-        StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
 
         HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
                 .header(headers)
@@ -157,14 +153,14 @@ public class ITunesUtil {
 
 
     /**
-    　* 删除所有支付方式（iTunes版）
-      * @param
+     　* 删除所有支付方式（iTunes版）
+     * @param
      * @param paras
     　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
     　* @throws
     　* @author DeZh
     　* @date 2023/10/25 11:49
-    */
+     */
     public  static Map<String,Object> delPaymentInfos(Map<String,Object> paras){
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -177,14 +173,7 @@ public class ITunesUtil {
         headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
-        StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
+        String cookies = MapUtil.getStr(paras,"cookies","");
         //获取支付方式
         HttpResponse httpResponse=getPaymentInfos(paras);
         if(httpResponse.getStatus()==401){
@@ -209,17 +198,18 @@ public class ITunesUtil {
         }
         return result;
     }
-   /**
-   　* 添加信用卡支付方式
+    /**
+     　* 添加信用卡支付方式
      * @param
-    * @param paras
-   　* @return java.util.Map<java.lang.String,java.lang.String>
-   　* @throws
-   　* @author DeZh
-   　* @date 2023/10/30 9:27
-   */
-    public  static Map<String,String> addCreditPayment(Map<String,Object> paras){
-        Map<String,String> result=new HashMap<>();
+     * @param paras
+     * @param step 01-发送短信验证码，02-提交信息
+    　* @return java.util.Map<java.lang.String,java.lang.String>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/10/30 9:27
+     */
+    public  static Map<String,Object> addCreditPayment(Map<String,Object> paras,String step){
+        Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
@@ -231,86 +221,135 @@ public class ITunesUtil {
 
         headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
-
-        StringBuilder cookieBuilder = new StringBuilder();
-        for(String c : (List<String>)paras.get("cookies")){
-            cookieBuilder.append(";").append(c);
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
-        HttpResponse httpResponse=getPaymentInfos(paras);
-        if(httpResponse.getStatus()==401){
-            result.put("code","1");
-            result.put("message","未登录或登录超时");
-        }else if(httpResponse.getStatus()==200){
-            Map<String, String> source=new HashMap<>();
-            String paymentInfosStr=JSONUtil.parse(httpResponse.body()).getByPath("data.attributes.paymentInfos",String.class);
-            JSONObject paymentInfo= (JSONObject) JSONUtil.parseArray(paymentInfosStr).get(0);
-            source= (Map<String, String>) paymentInfo.get("billingAddress");
-            source.put("phoneOfficeNumber",paymentInfo.getByPath("phone.phoneOfficeNumber",String.class));
-            source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
-
-            //支付信息
-            source.put("creditCardNumber","5187180019685639");
-            source.put("creditCardExpirationMonth","1");
-            source.put("creditCardExpirationYear","2025");
-            source.put("creditVerificationNumber","864");
-            source.put("paymentMethodVersion","2.0");
-//            source.put("creditCardNumber",paras.get("creditCardNumber").toString());
-//            source.put("creditCardExpirationMonth",paras.get("creditCardExpirationMonth").toString());
-//            source.put("creditCardExpirationYear",paras.get("creditCardExpirationYear").toString());
-//            source.put("creditVerificationNumber",paras.get("creditVerificationNumber").toString());
-            source.put("paymentMethodType",source.get("CreditCard"));
-            source.put("needsTopUp",source.get("false"));
-            source.put("creditCardType",source.get("UPCC"));
-            source.put("paymentMethodType",source.get("CreditCard"));
-            source.put("needsTopUp",source.get("false"));
-            source.put("creditCardType",source.get("UPCC"));
-//            if(){
-//
-//                source.put("ccSubType",source.get("UPCC"));
-//            }
-            //转为url参数格式的字符串
-            String body=UrlParasUtil.asUrlParams(source);
-            HttpResponse response = HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv")
-                    .header(headers)
-                    .cookie(cookies)
-                    .body(body)
-                    .execute();
-            if(response.getStatus()==401){
-                result.put("code","-1");
+        String paymentInfoResponseBody="";
+        if("01".equals(step)){
+            HttpResponse httpResponse=getPaymentInfos(paras);
+            if(httpResponse.getStatus()==401){
+                result.put("code","1");
                 result.put("message","未登录或登录超时");
-            }else if(response.getStatus()==200){
-                String bodyJson=response.body();
-                int status=JSONUtil.parseObj(bodyJson).getByPath("status",int.class);
-                if(status==0){
-                    result.put("code","0");
-                    result.put("message","成功");
-                }else{
-                    StringBuffer stringBuffer=new StringBuffer();
-                    Object validationResults= JSONUtil.parseObj(bodyJson).getByPath("result.validationResults");
-                    if(!StringUtils.isEmpty(validationResults)){
-                        JSONArray jsonArray=JSONUtil.parseArray(validationResults);
-                        for(Object jsonObject:jsonArray){
-                            String errorString= (String) ((JSONObject)jsonObject).getByPath("errorString");
-                            stringBuffer.append(errorString);
-                            stringBuffer.append("\n");
-                        }
-                    }else if(StringUtils.isEmpty( JSONUtil.parseObj(bodyJson).getByPath("errorMessageKey"))){
-                        String errorString= JSONUtil.parseObj(bodyJson).getByPath("errorMessageKey",String.class);
-                        stringBuffer.append(errorString);
-                    }
-                    result.put("code","-1");
-                    result.put("message",stringBuffer.toString());
-                }
+                return result;
+            }else if(httpResponse.getStatus()==200){
+                paymentInfoResponseBody=httpResponse.body();
+                paras.put("paymentInfoResponseBody",paymentInfoResponseBody);
+            }
+        }else if("02".equals(step)){
+            paymentInfoResponseBody=MapUtil.getStr(paras,"paymentInfoResponseBody");
+        }
+        Map<String, String> source=new HashMap<>();
+        String paymentInfosStr=JSONUtil.parse(paymentInfoResponseBody).getByPath("data.attributes.paymentInfos",String.class);
+        JSON paymentInfo=null;
+        String ccSubType=null;
+        for(Object paymentInfoObj:JSONUtil.parseArray(paymentInfosStr)){
+            paymentInfo=JSONUtil.parse(paymentInfoObj);
+            String cc=paymentInfo.getByPath("ccSubType",String.class);
+            if(!StringUtils.isEmpty(cc)){
+                ccSubType=cc;
             }
         }
+        String phoneOfficeNumber=paymentInfo.getByPath("phone.phoneOfficeNumber",String.class);
+//        String phoneOfficeNumber="13910958206";
+        source=JSONUtil.toBean(paymentInfo.getByPath("billingAddress",String.class),Map.class);
+        source.put("phoneOfficeNumber",phoneOfficeNumber);
+        source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
 
-
+        //支付信息
+        source.put("paymentMethodType","CreditCard");
+        if(!StringUtils.isEmpty(ccSubType)){
+            source.put("ccSubType",ccSubType);
+        }
+        source.put("paymentMethodVersion","2.0");
+        source.put("needsTopUp","false");
+        source.put("isCameraInput","false");
+        source.put("creditCardNumber",MapUtil.getStr(paras,"creditCardNumber",""));
+        source.put("creditCardType","UPCC");
+        source.put("creditCardExpirationMonth",MapUtil.getStr(paras,"creditCardExpirationMonth",""));
+        source.put("creditCardExpirationYear",MapUtil.getStr(paras,"creditCardExpirationYear",""));
+        source.put("creditVerificationNumber",MapUtil.getStr(paras,"creditVerificationNumber",""));
+        source.put("paymentMethodType","CreditCard");
+        if("02".equals(step)){
+            source.put("liteSessionId",MapUtil.getStr(paras,"liteSessionId",""));
+            source.put("transactionId",MapUtil.getStr(paras,"transactionId",""));
+            source.put("smsCode",MapUtil.getStr(paras,"smsCode",""));
+        }
+        //转为url参数格式的字符串
+        String body=MapUtil.join(source,"&","=",false);
+        String guid=MapUtil.getStr(paras,"guid","");
+        HttpResponse response = HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv?guid="+guid)
+                .header(headers)
+                .cookie(MapUtil.getStr(paras,"cookies",""))
+                .body(body)
+                .execute();
+        if(response.getStatus()==401){
+            result.put("code","-1");
+            result.put("message","未登录或登录超时");
+        }else if(response.getStatus()==200){
+            JSON bodyJson= JSONUtil.parse(response.body());
+            int status=bodyJson.getByPath("status",int.class);
+            if(status==0){
+                if("01".equals(step)){
+                    String liteSessionId= bodyJson.getByPath("result.liteSessionId",String.class);
+                    String transactionId= bodyJson.getByPath("result.transactionId",String.class);
+                    paras.put("liteSessionId",liteSessionId);
+                    paras.put("transactionId",transactionId);
+                    result.put("code","200");
+                    result.put("message","请输入发送至手机【"+phoneOfficeNumber+"】的银联验证码");
+                    result.put("data",paras);
+                }else{
+                    result.put("code","200");
+                    result.put("message","成功");
+                }
+            }else{
+                StringBuffer stringBuffer=new StringBuffer();
+                Object validationResults= bodyJson.getByPath("result.validationResults");
+                if(!StringUtils.isEmpty(validationResults)){
+                    JSONArray jsonArray=JSONUtil.parseArray(validationResults);
+                    for(Object jsonObject:jsonArray){
+                        String validationRuleName=JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                        switch (validationRuleName){
+                            case "INVALID_PHONE_NUMBER":
+                                stringBuffer.append("手机号码不正确，请更新并重试。");
+                                stringBuffer.append("\n");
+                                break;
+                            default:
+                                String errorString= JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                                stringBuffer.append(errorString);
+                                stringBuffer.append("\n");
+                        }
+                    }
+                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey"))){
+                    String userPresentableErrorMessage= bodyJson.getByPath("userPresentableErrorMessage",String.class);
+                    stringBuffer.append(userPresentableErrorMessage);
+                }
+                result.put("code","-1");
+                result.put("message",stringBuffer.toString());
+            }
+        }
         return result;
     }
+
+
+    public  static Map<String,Object> appStoreOverCheck(Map<String,Object> paras){
+        Map<String,Object> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("Content-Type", ListUtil.toList("text/html"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        String cookies = MapUtil.getStr(paras,"cookies","");
+        String appStoreOverCheckUrl = MapUtil.getStr(paras,"appStoreOverCheckUrl","");
+        //获取支付方式
+        HttpResponse response = HttpUtil.createRequest(Method.GET,appStoreOverCheckUrl)
+                .header(headers)
+                .cookie(cookies)
+                .execute();
+        System.out.println(response.getStatus());
+        System.out.println(response.body());
+        return result;
+    }
+
 
     /**
      * 鉴权
