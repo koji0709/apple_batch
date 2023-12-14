@@ -12,20 +12,165 @@ import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
 
+    @FXML
+    ComboBox<String> accountComboBox;
+
+    @FXML
+    Label countryLabel;
+
+    @FXML
+    Label blanceLabel;
+
+    @FXML
+    Label statusLabel;
+
+    /**
+     * 导入账号
+     */
     public void importAccountButtonAction() {
-        openImportAccountView(GiftCardRedeem.class,"account----pwd----giftCardCode");
+        Stage stage = new Stage();
+        Insets padding = new Insets(0, 0, 0, 20);
+
+        Label label1 = new Label("说明：");
+        Label label2 = new Label("1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡");
+        label2.setPadding(padding);
+        Label label3 = new Label("2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。");
+        label3.setPadding(padding);
+
+        VBox vBox = new VBox();
+        vBox.setSpacing(5);
+        vBox.setPadding(new Insets(5, 5, 5, 5));
+        vBox.getChildren().addAll(label1,label2,label3);
+
+        TextArea area = new TextArea();
+        area.setPrefHeight(250);
+        area.setPrefWidth(560);
+
+        VBox vBox2 = new VBox();
+        vBox2.setPadding(new Insets(0,0,0,205));
+        Button button = new Button("导入账号");
+        button.setTextFill(Paint.valueOf("#067019"));
+        button.setPrefWidth(150);
+        button.setPrefHeight(50);
+
+        button.setOnAction(event -> {
+            if (StrUtil.isEmpty(area.getText())){
+                Console.log("导入账号为空");
+                stage.close();
+                return;
+            }
+
+            List<GiftCardRedeem> accountList1 = parseAccount(area.getText());
+
+            // 将新录入的账号补充到下拉框
+            for (GiftCardRedeem giftCardRedeem : accountList1) {
+                String item = giftCardRedeem.getAccount()+"----"+giftCardRedeem.getPwd();
+                if (!accountComboBox.getItems().contains(item)){
+                    accountComboBox.getItems().add(item);
+                }
+            }
+
+            accountList.addAll(accountList1);
+            accountTableView.setItems(accountList);
+            accountNumLable.setText(accountList.size()+"");
+            stage.close();
+        });
+
+        vBox2.getChildren().addAll(button);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(20);
+        mainVbox.setPadding(new Insets(20));
+        mainVbox.getChildren().addAll(vBox,area,vBox2);
+
+        Group root = new Group(mainVbox);
+        stage.setTitle("账号导入");
+        stage.setScene(new Scene(root, 600, 450));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.showAndWait();
+    }
+
+    public List<GiftCardRedeem> parseAccount(String accountStr){
+        List<GiftCardRedeem> accountList1 = new ArrayList<>();
+        accountStr = accountStr.replaceAll("----","-");
+        if (accountStr.contains("{-}")){
+            accountStr = accountStr.replace("{-}",AccountImportUtil.REPLACE_MENT);
+        }
+
+        String[] accList = accountStr.split("\n");
+
+        for (int i = 0; i < accList.length; i++) {
+            String acc = accList[i];
+            if (StrUtil.isEmpty(acc)){
+                continue;
+            }
+            List<String> valList = Arrays.asList(acc.split("-"));
+            // 单礼品卡模式
+            if (valList.size()==1){
+                String accountComboBoxValue = accountComboBox.getValue();
+                if (StrUtil.isEmpty(accountComboBoxValue)){
+                    continue;
+                }
+                String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
+                if (accountComboBoxValueArr.length != 2){
+                    continue;
+                }
+                String account = accountComboBoxValueArr[0];
+                String pwd     = accountComboBoxValueArr[1];
+                GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                giftCardRedeem.setAccount(account);
+                giftCardRedeem.setPwd(pwd);
+                giftCardRedeem.setGiftCardCode(valList.get(0));
+                accountList1.add(giftCardRedeem);
+            }else{// 账号礼品卡模式
+                if (valList.size() >= 3){
+                    String account = valList.get(0);
+                    String pwd     = valList.get(1);
+                    for (int j = 2; j < valList.size(); j++) {
+                        GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                        giftCardRedeem.setAccount(account);
+                        giftCardRedeem.setPwd(pwd);
+                        giftCardRedeem.setGiftCardCode(valList.get(j));
+                        accountList1.add(giftCardRedeem);
+                    }
+                }
+            }
+        }
+
+        return accountList1;
     }
 
     /**
      * qewqeq@2980.com----dPFb6cSD41----XMPC3HRMNM6K5FXP
-     * @param giftCardRedeem
      */
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
@@ -85,6 +230,94 @@ public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
 
         message = String.format(message,giftCardCode);
         setAndRefreshNote(giftCardRedeem,message);
+    }
+
+    /**
+     * 检测账号按钮点击
+     */
+    public void checkAccountBtnAction(){
+        String accountComboBoxValue = accountComboBox.getValue();
+        if (StrUtil.isEmpty(accountComboBoxValue)){
+            alert("请先录入账号信息");
+            return;
+        }
+        String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
+        if (accountComboBoxValueArr.length != 2){
+            alert("账号信息格式不正确！格式：账号----密码");
+            return;
+        }
+
+        whatsName("查询中...");
+
+        String account = accountComboBoxValueArr[0];
+        String pwd     = accountComboBoxValueArr[1];
+        String guid = DataUtil.getGuidByAppleId(account);
+
+        Account account1 = new Account();
+        account1.setAccount(account);
+        account1.setPwd(pwd);
+        NSObject rspNO = null;
+        try {
+            HttpResponse authenticateRsp = ITunesUtil.authenticate(account1, guid);
+            if (authenticateRsp.getStatus() == 503) {
+                alert("操作频繁！");
+                whatsName("");
+                return;
+            }
+
+            if (authenticateRsp.getStatus() != 200){
+                alert("AppleID或密码错误，或需输入双重验证码");
+                whatsName("");
+                return;
+            }
+            rspNO = XMLPropertyListParser.parse(authenticateRsp.body().getBytes("UTF-8"));
+        } catch (Exception e) {
+            alert("查询失败");
+            whatsName("");
+            return;
+        }
+
+        JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
+        String failureType = rspJSON.getStr("failureType");
+        String customerMessage = rspJSON.getStr("customerMessage");
+        if (!StrUtil.isEmpty(failureType) || !StrUtil.isEmpty(customerMessage)){
+            if (!StrUtil.isEmpty(customerMessage)){
+                alert(customerMessage);
+                return;
+            }
+            if (!StrUtil.isEmpty(failureType)){
+                alert(failureType);
+                return;
+            }
+        }
+        String  balance           = rspJSON.getStr("creditDisplay","0");
+        Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
+        String  status            = !isDisabledAccount ? "正常" : "禁用";
+
+        String message=rspJSON.getByPath("dialog.message",String.class);
+        String pattern = "(?i)此 Apple ID 只能在(.*)购物";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(message);
+        String areaName="";
+        while (m.find()) {
+            areaName=m.group(1);
+        }
+        countryLabel.setText("国家：" + areaName);
+        blanceLabel.setText( "余额：" + balance);
+        statusLabel.setText( "状态：" + status);
+    }
+
+    public void whatsName(String message){
+        countryLabel.setText("国家：" + message);
+        blanceLabel.setText( "余额：" + message);
+        statusLabel.setText( "状态：" + message);
+    }
+
+    /**
+     * 礼品卡查询余额按钮点击
+     */
+    public void giftCardBlanceBtnAction(){
+        StageUtil.show(StageEnum.GIFTCARD_BLANCE);
     }
 
 }

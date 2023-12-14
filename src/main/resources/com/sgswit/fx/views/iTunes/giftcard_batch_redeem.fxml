@@ -89,17 +89,10 @@
                                             <children>
                                                 <VBox spacing="25">
                                                     <children>
-                                                        <ChoiceBox prefWidth="440">
-                                                            <items>
-                                                                <FXCollections fx:factory="observableArrayList" >
-                                                                    <String fx:value="20" />
-                                                                    <String fx:value="40" />
-                                                                </FXCollections>
-                                                            </items>
-                                                        </ChoiceBox>
+                                                        <ComboBox fx:id="accountComboBox" editable="true" prefWidth="440"/>
                                                         <HBox spacing="5" alignment="CENTER_LEFT">
                                                             <children>
-                                                                <Button>检测账号</Button>
+                                                                <Button onAction="#checkAccountBtnAction">检测账号</Button>
                                                                 <Button>输入双重验证码</Button>
                                                                 <Button>编辑或导入列表中的账号</Button>
                                                                 <Label prefWidth="90" text=""/>
@@ -112,15 +105,15 @@
                                                 <VBox spacing="5">
                                                     <children>
                                                         <Label>检测需要消耗点数：5</Label>
-                                                        <Label>国家：</Label>
-                                                        <Label>余额：</Label>
-                                                        <Label>状态：</Label>
+                                                        <Label fx:id="countryLabel">国家：</Label>
+                                                        <Label fx:id="blanceLabel">余额：</Label>
+                                                        <Label fx:id="statusLabel">状态：</Label>
                                                     </children>
                                                 </VBox>
 
                                                 <VBox spacing="5" alignment="CENTER">
                                                     <children>
-                                                        <Button>礼品卡查询余额</Button>
+                                                        <Button onAction="#giftCardBlanceBtnAction">礼品卡查询余额</Button>
                                                         <Button>礼品卡检测专业版</Button>
                                                         <Button>中国账号身份认证</Button>
                                                     </children>
@@ -175,10 +168,11 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" prefWidth="250" text="账号"/>
+                                <TableColumn fx:id="pwd" prefWidth="100" text="账号"/>
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="礼品卡"/>
                                 <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态"/>
                                 <TableColumn fx:id="execTime" prefWidth="130" text="执行时间"/>
-                                <TableColumn fx:id="note" prefWidth="400" text="执行信息"/>
+                                <TableColumn fx:id="note" prefWidth="300" text="执行信息"/>
                             </columns>
                         </TableView>
                     </content>

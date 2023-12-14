@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class AccountImportUtil<T>{
 
-    private static final String REPLACE_MENT = "####.##";
+    public static final String REPLACE_MENT = "####.##";
 
     private static final Map<String,String> kvMap = new HashMap<>(){{
         put("account","账号");
@@ -53,10 +53,6 @@ public class AccountImportUtil<T>{
     public List<T> parseAccount(String accountStr, List<String> formatList,Class<T> clz){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
         accountStr = accountStr.replaceAll("----","-");
-
-        if (accountStr.contains("{-}")){
-            accountStr = accountStr.replace("{-}",REPLACE_MENT);
-        }
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");

@@ -324,6 +324,10 @@ public class ITunesUtil {
             authRsp = authenticate(account, guid , authUrl);
         }
 
+        if (authRsp.getStatus() != 200){
+            return authRsp;
+        }
+
         JSONObject json = PListUtil.parse(authRsp.body());
         String failureType     = json.getStr("failureType","");
         String customerMessage = json.getStr("customerMessage","");
