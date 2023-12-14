@@ -127,7 +127,7 @@
                                         <TableColumn fx:id="lastPurchaseDate" prefWidth="100.0" text="最新购买日期" />
                                         <TableColumn fx:id="earliestPurchaseDate" prefWidth="100.0" text="最早购买日期" />
                                         <TableColumn fx:id="totalConsumption" prefWidth="100.0" text="消费总额" />
-                                        <TableColumn fx:id="totalRefundAmount" prefWidth="100.0" text="退款总额" />
+                                        <TableColumn fx:id="totalRefundAmount" prefWidth="100.0" text="退款总额" visible="false" />
                                         <TableColumn fx:id="purchaseRecord" prefWidth="120.0" text="购买记录" />
                                         <TableColumn fx:id="paymentInformation" prefWidth="120.0" text="付款信息" />
                                         <TableColumn fx:id="shippingAddress" prefWidth="120.0" text="寄送地址" />

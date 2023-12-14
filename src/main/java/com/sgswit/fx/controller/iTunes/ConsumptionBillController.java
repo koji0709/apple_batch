@@ -146,6 +146,7 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                 try {
                                     account.setNote("登录中...");
                                     accountTableView.refresh();
+                                    int accountPurchasesLast90Count=0;
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                     if(!accountInfoMap.get("code").equals("200")){
                                         account.setNote(String.valueOf(accountInfoMap.get("msg")));
@@ -162,6 +163,9 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
                                         account.setShippingAddress(accountInfoMap.get("address").toString());
                                         account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
+
+                                        accountPurchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
+                                        account.setNote("数据加载中...");
                                         accountTableView.refresh();
                                     }
 
@@ -176,7 +180,8 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         List<String > jsonStrList=new ArrayList<>();
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
                                         //整合数据
-                                        integratedData(account,jsonStrList);
+                                        integratedData(new HashMap<>(), accountPurchasesLast90Count,account,jsonStrList);
+
                                         account.setNote("查询完成");
                                         accountTableView.refresh();
                                     }else{
@@ -246,7 +251,7 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
     protected void onStopBtnClick(ActionEvent actionEvent) {
 
     }
-    private  void integratedData(ConsumptionBill consumptionBill,List<String> datas) {
+    private  void integratedData(Map<String,Object> queryParas,int accountPurchasesLast90Count,ConsumptionBill consumptionBill,List<String> datas) {
         Date nowDate= new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");
         SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -290,14 +295,24 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
             consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
             String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
             List<Entity> countInfo=Db.use().query(countSql);
-            List<String> purchaseRecord=new ArrayList<>(countInfo.size());
+            List<Map<String,String>> purchaseRecord=new ArrayList<>(countInfo.size());
+            List<String> sList=new ArrayList<>(countInfo.size());
             for(Entity entity:countInfo){
                 String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
-                purchaseRecord.add(s);
+                purchaseRecord.add(new HashMap<>(){{
+                    put("yyyy",entity.getStr("yyyy"));
+                    put("count",entity.getStr("count"));
+                }});
             }
-            consumptionBill.setPurchaseRecord(String.join("|",purchaseRecord));
-        }catch (Exception e){
+            Collections.sort(purchaseRecord, (o1, o2) -> (Long.valueOf(o2.get("yyyy")).compareTo(Long.valueOf(o1.get("yyyy")))));
+            for(Map<String,String> map:purchaseRecord){
+                String s=String.format("%s[%s]",map.get("yyyy"),map.get("count"));
+                sList.add(s);
+            }
 
+            String accountPurchasesLast90CountStr=String.format("%s[%s]","90天内",accountPurchasesLast90Count);
+            consumptionBill.setPurchaseRecord(accountPurchasesLast90CountStr+"|"+String.join("|",sList));
+        }catch (Exception e){
         }
     }
 }
