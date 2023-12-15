@@ -29,7 +29,7 @@ public class Constant {
     public static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
-        put("your account is disabled.","出于安全原因，你的账户已被锁定。");
+        put("Your account is disabled.","出于安全原因，你的账户已被锁定。");
         put("You cannot login because your account has been locked","帐户存在欺诈行为，已被【双禁】。");
         put(CustomerMessageBadLogin,"Apple ID或密码错误。或需要输入验证码！");
         put(CustomerMessageNotYetUsediTunesStore,"此 Apple ID 尚未用于 App Store。");

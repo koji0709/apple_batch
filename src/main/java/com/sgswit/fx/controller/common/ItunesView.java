@@ -103,7 +103,7 @@ public class ItunesView<T> extends TableView<T> {
         String message = "登陆失败。";
         if (!StrUtil.isEmpty(customerMessage)){
             for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
-                if (customerMessage.contains(entry.getKey())){
+                if (customerMessage.toUpperCase().contains(entry.getKey().toUpperCase())){
                     message = entry.getValue();
                     break;
                 }
