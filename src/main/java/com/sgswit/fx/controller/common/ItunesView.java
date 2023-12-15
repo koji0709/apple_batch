@@ -7,6 +7,7 @@ import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.StringUtils;
 import javafx.beans.property.SimpleStringProperty;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -36,7 +37,7 @@ public class ItunesView<T> extends TableView<T> {
         if (status == 302){
             return itunesLogin(accountModel, authCode,guid,url,show2FADialog,1);
         }
-
+        
         if (status != 200){
             return authRsp;
         }
@@ -59,7 +60,7 @@ public class ItunesView<T> extends TableView<T> {
         }
 
         // 双重认证
-        if("".equals(failureType) && "".equals(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+        if(attempt == 0 && "".equals(failureType) && "".equals(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
             if (show2FADialog){
                 authCode = dialog("验证码","请输入双重验证码：");
                 if (StrUtil.isEmpty(authCode)){
@@ -70,6 +71,8 @@ public class ItunesView<T> extends TableView<T> {
             url = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
             return itunesLogin(accountModel, authCode,guid,url,show2FADialog,1);
         }
+
+
 
         return authRsp;
     }
@@ -93,16 +96,31 @@ public class ItunesView<T> extends TableView<T> {
             JSONObject json = PListUtil.parse(authRsp.body());
             String failureType     = json.getStr("failureType","");
             String customerMessage = json.getStr("customerMessage","");
+
             boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
-            if (verify){
-                setAndRefreshNote(account,"登陆成功");
-                return true;
-            }else{
-                setAndRefreshNote(account,"AppleID或密码错误，或需输入双重验证码。");
+            if (!verify){
+                if (!StrUtil.isEmpty(customerMessage)){
+                    if(customerMessage.contains("your account is disabled")) {
+                        setAndRefreshNote(account,"出于安全原因，你的账户已被锁定。");
+                    }
+                    if(customerMessage.contains("You cannot login because your account has been locked")){
+                        setAndRefreshNote(account,"帐户存在欺诈行为，已被【双禁】。");
+                    }
+                    if(Constant.CustomerMessageBadLogin.equals(customerMessage)){
+                        setAndRefreshNote(account,"Apple ID或密码错误。或需要输入验证码！");
+                    }
+                    if(customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
+                        setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
+                    }
+                    return false;
+                }
+                setAndRefreshNote(account,"登陆失败。");
                 return false;
             }
+            setAndRefreshNote(account,"登陆成功。");
+            return true;
         }catch (Exception e){
-            setAndRefreshNote(account,"AppleID或密码错误，或需输入双重验证码。");
+            setAndRefreshNote(account,"登陆失败。");
             return false;
         }
     }
