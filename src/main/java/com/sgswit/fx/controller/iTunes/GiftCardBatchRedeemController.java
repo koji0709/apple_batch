@@ -34,6 +34,7 @@ import javafx.stage.StageStyle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,12 +59,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     /**
      * 导入账号
      */
-//    @Override
     public void importAccountButtonAction() {
         String desc = "说明：\n" +
                 "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountViewCustomize(desc);
+        openImportAccountView(Collections.emptyList(),desc);
     }
 
     @Override

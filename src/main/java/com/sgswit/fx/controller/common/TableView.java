@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
@@ -186,6 +187,7 @@ public class TableView<T> extends CommonView {
 
     /**
      * 导入账号按钮点击
+     * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
      */
     public void openImportAccountView(List<String> formats) {
         String desc = "说明：\n" +
@@ -195,7 +197,9 @@ public class TableView<T> extends CommonView {
     }
 
     public void openImportAccountView(List<String> formats,String desc){
-        this.formats = formats;
+        if (!CollUtil.isEmpty(formats)){
+            this.formats = formats;
+        }
         Stage stage = new Stage();
         Label descLabel = new Label(desc);
         descLabel.setWrapText(true);
@@ -234,13 +238,6 @@ public class TableView<T> extends CommonView {
         stage.setResizable(false);
         stage.initStyle(StageStyle.UTILITY);
         stage.showAndWait();
-    }
-
-    /**
-     * 如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
-     */
-    public void openImportAccountViewCustomize(String desc){
-        openImportAccountView(Collections.emptyList(),desc);
     }
 
     /**
