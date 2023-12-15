@@ -17,7 +17,7 @@ import java.util.Map;
 public class WhetherInspectionController extends TableView<Account> {
 
     public void onAccountInputBtnClick(){
-        openImportAccountView("account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
     @Override

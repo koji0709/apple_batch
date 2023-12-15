@@ -44,7 +44,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView("account----pwd-answer1-answer2-answer3");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
     }
 
     @Override

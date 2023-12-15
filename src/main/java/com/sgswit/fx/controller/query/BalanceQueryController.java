@@ -18,7 +18,7 @@ public class BalanceQueryController extends TableView<Account> {
 
 
     public void onAccountInputBtnClick(){
-        openImportAccountView("account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
 

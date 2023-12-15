@@ -26,7 +26,7 @@ import java.util.*;
 public class WhetherAppleIdController extends TableView<Account> {
 
     public void openImportAccountView(){
-        openImportAccountView("account");
+        openImportAccountView(List.of("account"));
     }
 
     @Override

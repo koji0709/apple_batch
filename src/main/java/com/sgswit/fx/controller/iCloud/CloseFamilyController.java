@@ -28,7 +28,7 @@ public class CloseFamilyController extends TableView<Account> {
 
 
     public void openImportAccountView(){
-        openImportAccountView("account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
     @Override

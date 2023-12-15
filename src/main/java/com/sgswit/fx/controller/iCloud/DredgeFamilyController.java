@@ -50,7 +50,7 @@ public class DredgeFamilyController extends TableView<Account> {
 
 
     public void openImportAccountView(){
-        openImportAccountView("account----pwd----paymentAccount----paymentPwd");
+        openImportAccountView(List.of("account----pwd----paymentAccount----paymentPwd"));
     }
 
     @Override

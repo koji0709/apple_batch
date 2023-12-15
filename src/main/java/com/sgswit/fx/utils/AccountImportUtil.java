@@ -36,10 +36,10 @@ public class AccountImportUtil<T>{
         put("giftCardCode","礼品卡");
     }};
 
-    public static String buildNote(String... formats){
+    public static String buildNote(List<String> formats){
         String result = "";
-        for (int i = 0; i < formats.length; i++) {
-            String format = formats[i];
+        for (int i = 0; i < formats.size(); i++) {
+            String format = formats.get(i);
             result = i == 0 ? format : result + " 或 " + format;
         }
         for (String key : kvMap.keySet()) {
@@ -50,7 +50,7 @@ public class AccountImportUtil<T>{
         return result;
     }
 
-    public List<T> parseAccount(String accountStr, List<String> formatList,Class<T> clz){
+    public List<T> parseAccount(Class<T> clz,String accountStr, List<String> formatList){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
         accountStr = accountStr.replaceAll("----","-");
 

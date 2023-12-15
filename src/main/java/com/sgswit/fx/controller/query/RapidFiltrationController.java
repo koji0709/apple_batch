@@ -33,7 +33,7 @@ public class RapidFiltrationController extends TableView<Account> {
 
     @FXML
     public void onAccountInputBtnClick(){
-        openImportAccountView(Account.class,"account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
 

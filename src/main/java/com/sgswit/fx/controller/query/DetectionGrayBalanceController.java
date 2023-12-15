@@ -23,7 +23,7 @@ import java.util.Map;
 public class DetectionGrayBalanceController extends TableView<Account> {
 
     public void openImportAccountView(ActionEvent actionEvent) {
-        openImportAccountView("account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
     @Override

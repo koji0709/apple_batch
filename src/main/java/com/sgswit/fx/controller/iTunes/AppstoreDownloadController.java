@@ -113,7 +113,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView(AppstoreDownloadVo.class,"account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
     @Override

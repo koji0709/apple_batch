@@ -12,6 +12,7 @@ import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,7 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView("account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
     /**

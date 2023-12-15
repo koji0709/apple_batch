@@ -83,7 +83,7 @@ public class QueryAccountInfoController extends TableView<ConsumptionBill> imple
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(ConsumptionBill.class,"account----pwd");
+        super.openImportAccountView(List.of("account----pwd"));
     }
 
     @FXML

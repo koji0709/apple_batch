@@ -10,6 +10,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -21,7 +22,7 @@ public class SupportPinController extends AppleIdView {
      * 导入账号
      */
     public void importAccountButtonAction(){
-        openImportAccountView("account----pwd-answer1-answer2-answer3");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
     }
 
     @Override

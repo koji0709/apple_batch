@@ -34,7 +34,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView("account----pwd-answer1-answer2-answer3-email");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-email"));
     }
 
     @Override

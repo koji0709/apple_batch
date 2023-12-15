@@ -21,7 +21,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView("account----pwd-answer1-answer2-answer3-birthday");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-birthday"));
     }
 
     @Override

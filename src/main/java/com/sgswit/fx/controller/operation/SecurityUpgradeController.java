@@ -26,7 +26,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView("account----pwd-answer1-answer2-answer3-phone");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-phone"));
     }
 
     @Override

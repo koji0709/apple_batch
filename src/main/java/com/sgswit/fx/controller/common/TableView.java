@@ -58,6 +58,9 @@ public class TableView<T> extends CommonView {
 
     ReentrantLock reentrantLock = new ReentrantLock();
 
+    private Class clz = Account.class;
+    private List<String> formats;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
@@ -104,6 +107,14 @@ public class TableView<T> extends CommonView {
             }
         }
 
+        // 初始化泛型
+        Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
+        this.clz = Account.class;
+        if (!typeMap.isEmpty()){
+            for (Map.Entry<Type, Type> typeEntry : typeMap.entrySet()) {
+                this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
+            }
+        }
     }
 
     /**
@@ -114,7 +125,7 @@ public class TableView<T> extends CommonView {
     }
 
     /**
-     * 按钮点击
+     * 执行按钮点击
      */
     public void executeButtonAction() {
         // 校验
@@ -168,60 +179,26 @@ public class TableView<T> extends CommonView {
 
     }
 
-    public void setExecuteButtonStatus(boolean isRunning){
-        // 修改按钮状态
-        if (executeButton != null) {
-            if (isRunning){
-                executeButton.setText("正在查询");
-                executeButton.setTextFill(Paint.valueOf("#FF0000"));
-                executeButton.setDisable(true);
-            } else {
-                executeButton.setTextFill(Paint.valueOf("#238142"));
-                executeButton.setText("开始执行");
-                executeButton.setDisable(false);
-            }
-        }
-    }
-
     /**
      * 每一个账号的处理器
      */
     public void accountHandler(T account){}
 
     /**
-     * 停止任务按钮点击
+     * 导入账号按钮点击
      */
-    public void stopTaskButtonAction(){
-        reentrantLock.lock();
-        // 停止任务, 恢复按钮状态
-        setExecuteButtonStatus(false);
+    public void openImportAccountView(List<String> formats) {
+        String desc = "说明：\n" +
+                "    1.格式为: "+AccountImportUtil.buildNote(formats)+"\n" +
+                "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
+        openImportAccountView(formats,desc);
     }
 
-    /**
-     * 导入账号
-     */
-    public void openImportAccountView(String... formats){
-        openImportAccountView(Account.class,formats);
-    }
-
-    /**
-     * todo 如果不是Account.class, 请调用此方法
-     */
-    public void openImportAccountView(Class clz,String... formats){
-
+    public void openImportAccountView(List<String> formats,String desc){
+        this.formats = formats;
         Stage stage = new Stage();
-        Insets padding = new Insets(0, 0, 0, 20);
-
-        Label label1 = new Label("说明：");
-        Label label2 = new Label("1.格式为: " + AccountImportUtil.buildNote(formats) + "。");
-        label2.setPadding(padding);
-        Label label3 = new Label("2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。");
-        label3.setPadding(padding);
-
-        VBox vBox = new VBox();
-        vBox.setSpacing(5);
-        vBox.setPadding(new Insets(5, 5, 5, 5));
-        vBox.getChildren().addAll(label1,label2,label3);
+        Label descLabel = new Label(desc);
+        descLabel.setWrapText(true);
 
         TextArea area = new TextArea();
         area.setPrefHeight(250);
@@ -235,10 +212,12 @@ public class TableView<T> extends CommonView {
         button.setPrefHeight(50);
 
         button.setOnAction(event -> {
-            List<T> accountList1 = new AccountImportUtil().parseAccount(area.getText(),Arrays.asList(formats), clz);
-            accountList.addAll(accountList1);
-            accountTableView.setItems(accountList);
-            accountNumLable.setText(accountList.size()+"");
+            List<T> accountList1 = parseAccount(area.getText());
+            if (!accountList1.isEmpty()){
+                accountList.addAll(accountList1);
+                accountTableView.setItems(accountList);
+                accountNumLable.setText(accountList.size()+"");
+            }
             stage.close();
         });
         vBox2.getChildren().addAll(button);
@@ -246,7 +225,7 @@ public class TableView<T> extends CommonView {
         VBox mainVbox = new VBox();
         mainVbox.setSpacing(20);
         mainVbox.setPadding(new Insets(20));
-        mainVbox.getChildren().addAll(vBox,area,vBox2);
+        mainVbox.getChildren().addAll(descLabel,area,vBox2);
 
         Group root = new Group(mainVbox);
         stage.setTitle("账号导入");
@@ -258,35 +237,23 @@ public class TableView<T> extends CommonView {
     }
 
     /**
-     * 清空列表按钮点击
+     * 如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
      */
-    public void clearAccountListButtonAction(){
-        accountList.clear();
-        accountNumLable.setText("");
+    public void openImportAccountViewCustomize(String desc){
+        openImportAccountView(Collections.emptyList(),desc);
     }
 
     /**
-     * 插入本地执行记录
+     * 如果有自己的解析方法,则重写这个方法
+     * @param accountStr
+     * @return
      */
-    public void insertLocalHistory(List<T> accountList){
-        if (accountList.isEmpty()){
-            return;
+    public List<T> parseAccount(String accountStr){
+        if (this.clz == null || this.formats.isEmpty()){
+            Console.log("需要先确定TableView上的泛型,以及初始化导入账号格式");
+            return Collections.emptyList();
         }
-
-        List<Entity> insertList = new ArrayList<>();
-        for (T account : accountList) {
-            Entity entity = new Entity();
-            entity.setTableName("local_history");
-            entity.set("clz_name",ClassUtil.getClassName(this,false));
-            entity.set("row_json", JSONUtil.toJsonStr(account));
-            entity.set("create_time",System.currentTimeMillis());
-            insertList.add(entity);
-        }
-        try {
-            DbUtil.use().insert(insertList);
-        } catch (SQLException e) {
-            Console.log("SQLite保存失败！ saveList: {}",insertList);
-        }
+        return new AccountImportUtil().parseAccount(clz,accountStr,formats);
     }
 
     /**
@@ -341,8 +308,8 @@ public class TableView<T> extends CommonView {
         // 按钮绑定事件
         HashMap<Object, Object> params = new HashMap<>();
         params.put("clz_name",ClassUtil.getClassName(this, false));
-        Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
         // 获取当前controller上的泛型(数据对象)
+        Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
         Class clz = Account.class;
         if (!typeMap.isEmpty()){
             for (Map.Entry<Type, Type> typeEntry : typeMap.entrySet()) {
@@ -393,6 +360,47 @@ public class TableView<T> extends CommonView {
     }
 
     /**
+     * 停止任务按钮点击
+     */
+    public void stopTaskButtonAction(){
+        reentrantLock.lock();
+        // 停止任务, 恢复按钮状态
+        setExecuteButtonStatus(false);
+    }
+
+    /**
+     * 清空列表按钮点击
+     */
+    public void clearAccountListButtonAction(){
+        accountList.clear();
+        accountNumLable.setText("");
+    }
+
+    /**
+     * 插入本地执行记录
+     */
+    public void insertLocalHistory(List<T> accountList){
+        if (accountList.isEmpty()){
+            return;
+        }
+
+        List<Entity> insertList = new ArrayList<>();
+        for (T account : accountList) {
+            Entity entity = new Entity();
+            entity.setTableName("local_history");
+            entity.set("clz_name",ClassUtil.getClassName(this,false));
+            entity.set("row_json", JSONUtil.toJsonStr(account));
+            entity.set("create_time",System.currentTimeMillis());
+            insertList.add(entity);
+        }
+        try {
+            DbUtil.use().insert(insertList);
+        } catch (SQLException e) {
+            Console.log("SQLite保存失败！ saveList: {}",insertList);
+        }
+    }
+
+    /**
      * 导出Excel按钮点击
      */
     public void exportExcelButtonAction(){
@@ -417,6 +425,22 @@ public class TableView<T> extends CommonView {
             return !StrUtil.isEmpty(note);
         }
         return !StrUtil.isEmpty(noteObj.toString());
+    }
+
+
+    public void setExecuteButtonStatus(boolean isRunning){
+        // 修改按钮状态
+        if (executeButton != null) {
+            if (isRunning){
+                executeButton.setText("正在查询");
+                executeButton.setTextFill(Paint.valueOf("#FF0000"));
+                executeButton.setDisable(true);
+            } else {
+                executeButton.setTextFill(Paint.valueOf("#238142"));
+                executeButton.setText("开始执行");
+                executeButton.setDisable(false);
+            }
+        }
     }
 
     /**

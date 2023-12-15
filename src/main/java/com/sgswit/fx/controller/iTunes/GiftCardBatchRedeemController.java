@@ -58,71 +58,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     /**
      * 导入账号
      */
+//    @Override
     public void importAccountButtonAction() {
-        Stage stage = new Stage();
-        Insets padding = new Insets(0, 0, 0, 20);
-
-        Label label1 = new Label("说明：");
-        Label label2 = new Label("1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡");
-        label2.setPadding(padding);
-        Label label3 = new Label("2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。");
-        label3.setPadding(padding);
-
-        VBox vBox = new VBox();
-        vBox.setSpacing(5);
-        vBox.setPadding(new Insets(5, 5, 5, 5));
-        vBox.getChildren().addAll(label1,label2,label3);
-
-        TextArea area = new TextArea();
-        area.setPrefHeight(250);
-        area.setPrefWidth(560);
-
-        VBox vBox2 = new VBox();
-        vBox2.setPadding(new Insets(0,0,0,205));
-        Button button = new Button("导入账号");
-        button.setTextFill(Paint.valueOf("#067019"));
-        button.setPrefWidth(150);
-        button.setPrefHeight(50);
-
-        button.setOnAction(event -> {
-            if (StrUtil.isEmpty(area.getText())){
-                Console.log("导入账号为空");
-                stage.close();
-                return;
-            }
-
-            List<GiftCardRedeem> accountList1 = parseAccount(area.getText());
-
-            // 将新录入的账号补充到下拉框
-            for (GiftCardRedeem giftCardRedeem : accountList1) {
-                String item = giftCardRedeem.getAccount()+"----"+giftCardRedeem.getPwd();
-                if (!accountComboBox.getItems().contains(item)){
-                    accountComboBox.getItems().add(item);
-                }
-            }
-
-            accountList.addAll(accountList1);
-            accountTableView.setItems(accountList);
-            accountNumLable.setText(accountList.size()+"");
-            stage.close();
-        });
-
-        vBox2.getChildren().addAll(button);
-
-        VBox mainVbox = new VBox();
-        mainVbox.setSpacing(20);
-        mainVbox.setPadding(new Insets(20));
-        mainVbox.getChildren().addAll(vBox,area,vBox2);
-
-        Group root = new Group(mainVbox);
-        stage.setTitle("账号导入");
-        stage.setScene(new Scene(root, 600, 450));
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setResizable(false);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.showAndWait();
+        String desc = "说明：\n" +
+                "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
+                "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
+        openImportAccountViewCustomize(desc);
     }
 
+    @Override
     public List<GiftCardRedeem> parseAccount(String accountStr){
         List<GiftCardRedeem> accountList1 = new ArrayList<>();
         accountStr = accountStr.replaceAll("----","-");

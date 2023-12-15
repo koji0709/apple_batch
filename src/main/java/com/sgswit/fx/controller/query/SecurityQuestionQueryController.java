@@ -30,7 +30,7 @@ import java.util.List;
 public class SecurityQuestionQueryController extends TableView<Problem> {
 
     public void onAccountInputBtnClick(){
-        openImportAccountView(Problem.class,"account----pwd");
+        openImportAccountView(List.of("account----pwd"));
     }
 
 

@@ -77,7 +77,7 @@ public class FamilyMembersController extends TableView<Account> {
 
 
     public void openImportAccountView(){
-        openImportAccountView("account----pwd----memberAccount----memberPwd----cvv","account----pwd----memberAccount");
+        openImportAccountView(List.of("account----pwd----memberAccount----memberPwd----cvv","account----pwd----memberAccount"));
     }
 
     @Override

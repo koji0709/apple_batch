@@ -22,7 +22,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
 
     public void onAccountInputBtnClick(){
-        openImportAccountView(Account.class,"account----pwd-answer1-answer2-answer3");
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
     }
 
     @Override
