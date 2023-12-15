@@ -71,9 +71,6 @@ public class ItunesView<T> extends TableView<T> {
             url = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
             return itunesLogin(accountModel, authCode,guid,url,show2FADialog,1);
         }
-
-
-
         return authRsp;
     }
 
@@ -103,7 +100,7 @@ public class ItunesView<T> extends TableView<T> {
                 return true;
             }
             if (!StrUtil.isEmpty(customerMessage)){
-                if(customerMessage.contains("your account is disabled")) {
+                if(customerMessage.contains("your account is disabled.")) {
                     setAndRefreshNote(account,"出于安全原因，你的账户已被锁定。");
                 }
                 if(customerMessage.contains("You cannot login because your account has been locked")){
@@ -112,14 +109,13 @@ public class ItunesView<T> extends TableView<T> {
                 if(Constant.CustomerMessageBadLogin.equals(customerMessage)){
                     setAndRefreshNote(account,"Apple ID或密码错误。或需要输入验证码！");
                 }
+
                 if(customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                     setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
                 }
+                setAndRefreshNote(account,"登陆失败");
                 return false;
             }
-            setAndRefreshNote(account,"登陆失败。");
-            return false;
-
         }catch (Exception e){
             setAndRefreshNote(account,"登陆失败。");
             return false;
