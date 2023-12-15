@@ -440,20 +440,4 @@ public class TableView<T> extends CommonView {
         }
     }
 
-    public boolean itunesLoginVerify(HttpResponse authRsp,T account){
-        if (authRsp == null || StrUtil.isEmpty(authRsp.body())){
-            setAndRefreshNote(account,"登陆异常!");
-            return false;
-        }
-        JSONObject json = PListUtil.parse(authRsp.body());
-        String failureType     = json.getStr("failureType","");
-        String customerMessage = json.getStr("customerMessage","");
-        boolean verify = !(authRsp.getStatus() != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
-        if (verify){
-            setAndRefreshNote(account,"登陆成功");
-        }else{
-            setAndRefreshNote(account,"登陆异常!" + failureType + customerMessage);
-        }
-        return verify;
-    }
 }

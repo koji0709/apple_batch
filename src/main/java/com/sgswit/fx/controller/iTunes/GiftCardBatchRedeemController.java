@@ -10,6 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.StageEnum;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
+public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     @FXML
     ComboBox<String> accountComboBox;
@@ -50,6 +51,9 @@ public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
 
     @FXML
     Label statusLabel;
+
+    @FXML
+    Label checkAccountDescLabel;
 
     /**
      * 导入账号
@@ -182,7 +186,7 @@ public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
         account.setPwd(giftCardRedeem.getPwd());
 
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        HttpResponse authRsp = itunesLogin(giftCardRedeem, guid, true);
 
         // 鉴权
         boolean verify = itunesLoginVerify(authRsp,giftCardRedeem);
@@ -238,72 +242,44 @@ public class GiftCardBatchRedeemController extends TableView<GiftCardRedeem> {
     public void checkAccountBtnAction(){
         String accountComboBoxValue = accountComboBox.getValue();
         if (StrUtil.isEmpty(accountComboBoxValue)){
-            alert("请先录入账号信息");
+            checkAccountDescLabel.setText("请先输入账号信息");
             return;
         }
         String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
         if (accountComboBoxValueArr.length != 2){
-            alert("账号信息格式不正确！格式：账号----密码");
+            checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
             return;
         }
 
+        checkAccountDescLabel.setText("");
         whatsName("查询中...");
 
         String account = accountComboBoxValueArr[0];
         String pwd     = accountComboBoxValueArr[1];
         String guid = DataUtil.getGuidByAppleId(account);
 
-        Account account1 = new Account();
-        account1.setAccount(account);
-        account1.setPwd(pwd);
-        NSObject rspNO = null;
-        try {
-            HttpResponse authenticateRsp = ITunesUtil.authenticate(account1, guid);
-            if (authenticateRsp.getStatus() == 503) {
-                alert("操作频繁！");
-                whatsName("");
-                return;
-            }
+        GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+        giftCardRedeem.setAccount(account);
+        giftCardRedeem.setPwd(pwd);
 
-            if (authenticateRsp.getStatus() != 200){
-                alert("AppleID或密码错误，或需输入双重验证码");
-                whatsName("");
-                return;
-            }
-            rspNO = XMLPropertyListParser.parse(authenticateRsp.body().getBytes("UTF-8"));
-        } catch (Exception e) {
-            alert("查询失败");
+        HttpResponse authRsp = itunesLogin(giftCardRedeem, guid, true);
+        boolean verify = itunesLoginVerify(authRsp, giftCardRedeem);
+        if (!verify){
             whatsName("");
+            checkAccountDescLabel.setText(giftCardRedeem.getNote());
             return;
         }
 
-        JSONObject rspJSON = (JSONObject) JSONUtil.parse(rspNO.toJavaObject());
-        String failureType = rspJSON.getStr("failureType");
-        String customerMessage = rspJSON.getStr("customerMessage");
-        if (!StrUtil.isEmpty(failureType) || !StrUtil.isEmpty(customerMessage)){
-            if (!StrUtil.isEmpty(customerMessage)){
-                alert(customerMessage);
-                return;
-            }
-            if (!StrUtil.isEmpty(failureType)){
-                alert(failureType);
-                return;
-            }
-        }
+        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
+        country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
+        JSONObject rspJSON = PListUtil.parse(authRsp.body());
         String  balance           = rspJSON.getStr("creditDisplay","0");
         Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
         String  status            = !isDisabledAccount ? "正常" : "禁用";
 
-        String message=rspJSON.getByPath("dialog.message",String.class);
-        String pattern = "(?i)此 Apple ID 只能在(.*)购物";
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(message);
-        String areaName="";
-        while (m.find()) {
-            areaName=m.group(1);
-        }
-        countryLabel.setText("国家：" + areaName);
-        blanceLabel.setText( "余额：" + balance);
+        countryLabel.setText("国家：" + country);
+        blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
         statusLabel.setText( "状态：" + status);
     }
 

@@ -350,39 +350,7 @@ public class ITunesUtil {
         return result;
     }
 
-
-    /**
-     * 鉴权
-     */
-    public static HttpResponse authenticate(Account account,String guid){
-        String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid=" + guid;
-
-        HttpResponse authRsp = authenticate(account, guid, authUrl);
-        if (authRsp.getStatus() == 302){
-            authUrl = authRsp.header("Location");
-            authRsp = authenticate(account, guid , authUrl);
-        }
-
-        if (authRsp.getStatus() != 200){
-            return authRsp;
-        }
-
-        JSONObject json = PListUtil.parse(authRsp.body());
-        String failureType     = json.getStr("failureType","");
-        String customerMessage = json.getStr("customerMessage","");
-
-        if(Constant.FailureTypeInvalidCredentials.equals(failureType)){
-           authRsp = authenticate(account, guid, authUrl);
-        }
-
-        if("".equals(failureType) || "".equals(customerMessage)){
-            return authRsp;
-        }
-
-        return authRsp;
-    }
-
-    private static HttpResponse authenticate(Account account,String guid,String authUrl){
+    public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
@@ -399,14 +367,14 @@ public class ITunesUtil {
                 "        <key>guid</key>" +
                 "        <string>%s</string>" +
                 "        <key>password</key>" +
-                "        <string>%s</string>" +
+                "        <string>%s%s</string>" +
                 "        <key>rmp</key>" +
                 "        <string>0</string>" +
                 "        <key>why</key>" +
                 "        <string>signIn</string>" +
                 "    </dict>" +
                 "</plist>";
-        authBody = String.format(authBody,account.getAccount(),guid,account.getPwd());
+        authBody = String.format(authBody,account,guid,pwd,authCode);
         HttpResponse authRsp = HttpUtil.createPost(authUrl)
                 .header(headers)
                 .body(authBody, ContentType.FORM_URLENCODED.getValue())
@@ -646,7 +614,8 @@ public class ITunesUtil {
         account.setPwd("dPFb6cSD41");
 
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
+        HttpResponse authRsp = null;
         String storeFront = "";
 
         // 鉴权
@@ -779,7 +748,8 @@ public class ITunesUtil {
         account.setPwd("dPFb6cSD41");
 
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
+        HttpResponse authRsp = null;
         String storeFront = "";
 
         // 鉴权
@@ -830,8 +800,8 @@ public class ITunesUtil {
         account.setPwd("dPFb6cSD41");
 
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
-
+        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
+        HttpResponse authRsp = null;
         // 鉴权
         if (authRsp != null && authRsp.getStatus() == 200){
             String cardCode = "XMPC3HRMNM6K5FXP";

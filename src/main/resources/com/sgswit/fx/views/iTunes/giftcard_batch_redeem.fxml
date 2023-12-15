@@ -4,8 +4,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
 <AnchorPane fx:controller="com.sgswit.fx.controller.iTunes.GiftCardBatchRedeemController"
             maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
@@ -89,16 +87,21 @@
                                             <children>
                                                 <VBox spacing="25">
                                                     <children>
-                                                        <ComboBox fx:id="accountComboBox" editable="true" prefWidth="440"/>
-                                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                                        <ComboBox fx:id="accountComboBox" editable="true" prefWidth="440" promptText="账号----密码"/>
+                                                        <VBox spacing="3">
                                                             <children>
-                                                                <Button onAction="#checkAccountBtnAction">检测账号</Button>
-                                                                <Button>输入双重验证码</Button>
-                                                                <Button>编辑或导入列表中的账号</Button>
-                                                                <Label prefWidth="90" text=""/>
-                                                                <Label text="0/0"/>
+                                                                <HBox spacing="5" alignment="CENTER_LEFT">
+                                                                    <children>
+                                                                        <Button onAction="#checkAccountBtnAction">检测账号</Button>
+                                                                        <Button>输入双重验证码</Button>
+                                                                        <Button>编辑或导入列表中的账号</Button>
+                                                                        <Label prefWidth="90"/>
+                                                                        <Label text="0/0"/>
+                                                                    </children>
+                                                                </HBox>
+                                                                <Label fx:id="checkAccountDescLabel" textFill="red"/>
                                                             </children>
-                                                        </HBox>
+                                                        </VBox>
                                                     </children>
                                                 </VBox>
 

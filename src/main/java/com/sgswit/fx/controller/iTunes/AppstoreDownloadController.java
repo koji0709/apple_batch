@@ -18,6 +18,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 
@@ -58,7 +59,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
+public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
 
     @FXML
     CheckBox useUrlCheckBox;
@@ -129,13 +130,9 @@ public class AppstoreDownloadController extends TableView<AppstoreDownloadVo> {
      */
     @Override
     public void accountHandler(AppstoreDownloadVo appstoreDownloadVo) {
-
-        Account account = new Account();
-        account.setAccount(appstoreDownloadVo.getAccount());
-        account.setPwd(appstoreDownloadVo.getPwd());
-        String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
         // 鉴权
-        HttpResponse authRsp = ITunesUtil.authenticate(account,guid);
+        String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
+        HttpResponse authRsp = itunesLogin(appstoreDownloadVo, guid, false);
         boolean verify = itunesLoginVerify(authRsp, appstoreDownloadVo);
         if (!verify){
             return;
