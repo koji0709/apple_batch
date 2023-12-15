@@ -1,19 +1,10 @@
 package com.sgswit.fx.controller.iTunes;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

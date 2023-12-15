@@ -1,42 +1,14 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.controller.common.TableView;
-import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.Balance;
-import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.ShoppingUtil;
 import com.sgswit.fx.utils.WebloginUtil;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +70,7 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             accountTableView.refresh();
             HttpResponse signInResp = WebloginUtil.signin(signInMap,account);
             if(signInResp.getStatus() != 200){
-                tableRefresh(account,"登录失败");
+                tableRefresh(account,"账号或密码错误");
                 return;
             }
             if(!"sa".equals(JSONUtil.parseObj(signInResp.body()).getStr("authType"))){

@@ -58,6 +58,8 @@ public class ShoppingUtil {
 
         if(prodRes.getStatus() != 200){
             code = "500";
+            prodMap.put("code",code);
+            return prodMap;
         }
         System.out.println("------------------product-----------------------------------------------");
         System.out.println(prodRes.getStatus());
@@ -100,6 +102,8 @@ public class ShoppingUtil {
                 .header(headers).execute();
         if(atbRes.getStatus() != 200){
             code = "500";
+            prodMap.put("code",code);
+            return prodMap;
         }
         System.out.println("------------------beacon/atb-----------------------------------------------");
         System.out.println(atbRes.getStatus());
@@ -135,6 +139,7 @@ public class ShoppingUtil {
 
     // 添加到购物车
     public static Map<String,Object> add2bag(Map<String,Object> pordMap,Account account) throws Exception {
+        HashMap<String, Object> map = new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -154,7 +159,8 @@ public class ShoppingUtil {
 
         if(res.getStatus() != 303){
             code = "500";
-
+            map.put("code",code);
+            return map;
         }
         System.out.println("------------------pdpAddToBag-----------------------------------------------");
         System.out.println(res.getStatus());
@@ -163,14 +169,14 @@ public class ShoppingUtil {
         CookieUtils.setCookiesToMap(res,account.getCookieMap());
 
         System.out.println("------------------pdpAddToBag----------------------------------------------");
-        HashMap<String, Object> map = new HashMap<>();
+
         map.put("code",code);
         return map;
     }
 
     // 查看购物车
     public static Map<String,Map<String,Object>>  shopbag(Account account) throws Exception{
-
+        Map<String,Object> map = new HashMap<>();
         Map<String,Map<String,Object>> dataMap = new HashMap<>();
 
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -188,6 +194,8 @@ public class ShoppingUtil {
                 .execute();
         if(res.getStatus() != 200){
             code = "500";
+            dataMap.put("code",map);
+            return dataMap;
         }
         //System.out.println("------------------shopbag-----------------------------------------------");
         System.out.println(res.getStatus());
@@ -228,7 +236,7 @@ public class ShoppingUtil {
 
         dataMap.put("body",bodys);
 
-        Map<String,Object> map = new HashMap<>();
+
         map.put("code",code);
         dataMap.put("code",map);
         System.out.println("---------datamap----------" + dataMap);
@@ -257,7 +265,8 @@ public class ShoppingUtil {
                 .execute();
         HashMap<String, Object> map = new HashMap<>();
         if(res.getStatus() != 200){
-            code = "500";
+            map.put("code","500");
+            return map;
         }
         System.out.println("------------------checkout-----------------------------------------------");
         System.out.println(res.getStatus());
@@ -266,13 +275,13 @@ public class ShoppingUtil {
 
         JSONObject jo = JSONUtil.parseObj(res.body());
         map.put("url",jo.getByPath("head.data.url").toString());
-        map.put("code",code);
         return map;
     }
 
     //调登录页面
     public static Map<String,String> shopSignIn(String url,Account account) throws Exception{
 
+        Map<String,String> dataMap = new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
@@ -289,6 +298,8 @@ public class ShoppingUtil {
                 .execute();
         if(res.getStatus() != 200){
             code = "500";
+            dataMap.put("code","500");
+            return dataMap;
         }
         System.out.println("------------------shopSignIn-----------------------------------------------");
         System.out.println(res.getStatus());
@@ -300,7 +311,7 @@ public class ShoppingUtil {
         Elements initDataElement = prodDoc.select("script[id=init_data]");
         JSONObject meta = JSONUtil.parseObj(initDataElement.html());
 
-        Map<String,String> dataMap = new HashMap<>();
+
 
         String x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
         String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
@@ -318,12 +329,13 @@ public class ShoppingUtil {
         dataMap.put("serviceKey",serviceKey);
         dataMap.put("serviceURL",serviceURL);
         dataMap.put("callbackSignInUrl",callbackSignInUrl);
-        dataMap.put("code",code);
         return dataMap;
     }
 
     //回调applestore
     public static Map<String,String> callBack(Map<String,String> signInMap,Account account) throws Exception{
+
+        Map<String,String> ret = new HashMap<>();
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -356,6 +368,8 @@ public class ShoppingUtil {
 
         if(resp.getStatus() != 200){
             code = "500";
+            ret.put("code",code);
+            return ret;
         }
         System.out.println("------------------callBack-----------------------------------------------");
 
@@ -370,7 +384,7 @@ public class ShoppingUtil {
         String pltn = jo.getByPath("head.data.args.pltn").toString();
         System.out.println("------------------callBack-----------------------------------------------");
 
-        Map<String,String> ret = new HashMap<>();
+
         ret.put("url",url);
         ret.put("pltn",pltn);
         ret.put("code",code);
@@ -417,6 +431,8 @@ public class ShoppingUtil {
     //提交
     public static Map<String,String> checkout(String checkoutUrl,Account account) throws Exception{
 
+        Map<String,String> dataMap = new HashMap<>();
+
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
@@ -435,6 +451,8 @@ public class ShoppingUtil {
 
         if(resp.getStatus() != 200){
             code = "500";
+            dataMap.put("code",code);
+            return dataMap;
         }
         System.out.println("------------------checkout-----------------------------------------------");
 
@@ -448,7 +466,7 @@ public class ShoppingUtil {
         Elements initDataElement = prodDoc.select("script[id=init_data]");
         JSONObject meta = JSONUtil.parseObj(initDataElement.html());
 
-        Map<String,String> dataMap = new HashMap<>();
+
 
         String x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
         String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
@@ -533,9 +551,6 @@ public class ShoppingUtil {
 
         Map<String,Object> paramMap = new HashMap<>();
 
-        String countryName=DataUtil.getNameByCountryCode(account.getCountry());
-
-
         //TODO: 需要根据appleid 所属国家， 调整如下相关地址
         if("USA".equals(account.getCountry())){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
@@ -552,6 +567,85 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","US");
         }
 
+        if("JPN".equals(account.getCountry())){
+            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","番地など");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","951-8073");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","新宿区");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","山形県");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","JP");
+        }
+
+        if("DEU".equals(account.getCountry())){
+            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","99085 Erfurt");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","Thälmannstraße 51");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","68089");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Erfurt");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","DE");
+        }
+
+        if("AUS".equals(account.getCountry())){
+            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","29Chao4HaiLi701ST");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","8000");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Victoria");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","VIC");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","AU");
+        }
+
+        if("CAN".equals(account.getCountry())){
+            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","11755 108 Ave NW");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","V0T 1H0");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.cityTypeAhead.city","Edmonton");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","AB");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","CA");
+        }
+
+        if("GBR".equals(account.getCountry())){
+            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street2","94 Broadway");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street","Swanley");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.postalCode","EC7I 5OD");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.city","London, England");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode","GB");
+        }
+
+        String nameByCountryCode = DataUtil.getNameByCountryCode(account.getCountry());
 
         String url = checkoutMap.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
 
@@ -572,7 +666,7 @@ public class ShoppingUtil {
         System.out.println("------------------checkoutStart-----------------------------------------------");
         Map<String, String> map = new HashMap<>();
         map.put("code",code);
-        map.put("address",countryName);
+        map.put("address",nameByCountryCode);
         return map;
     }
 
