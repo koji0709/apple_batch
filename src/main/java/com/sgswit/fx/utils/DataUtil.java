@@ -13,6 +13,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;

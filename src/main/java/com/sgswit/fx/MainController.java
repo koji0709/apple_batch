@@ -6,7 +6,6 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.ProjectValues;
 import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StringUtils;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -17,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -26,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -310,11 +309,11 @@ public class MainController implements Initializable {
         //加载点数
         String s = PropertiesUtil.getOtherConfig("login.info");
         JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
-        Object remainingPointsObj= object.getByPath("remainingPoints");
-        if(StringUtils.isEmpty(remainingPointsObj)){
+        String points= object.getByPath("remainingPoints",String.class);
+        if(StringUtils.isEmpty(points)){
             remainingPoints.setText("0");
         }else{
-            remainingPoints.setText(remainingPointsObj.toString());
+            remainingPoints.setText(points);
         }
     }
 }

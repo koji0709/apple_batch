@@ -7,8 +7,10 @@ import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PListUtil;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.beans.property.SimpleStringProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.helper.StringUtil;
+
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -38,7 +40,7 @@ public class ItunesView<T> extends TableView<T> {
         if (status == 302){
             return itunesLogin(accountModel, authCode,guid,url,show2FADialog,1);
         }
-        
+
         if (status != 200){
             return authRsp;
         }
@@ -103,7 +105,7 @@ public class ItunesView<T> extends TableView<T> {
         String message = "登陆失败。";
         if (!StrUtil.isEmpty(customerMessage)){
             for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
-                if (customerMessage.toUpperCase().contains(entry.getKey().toUpperCase())){
+                if (StringUtils.containsIgnoreCase(customerMessage,entry.getKey())){
                     message = entry.getValue();
                     break;
                 }

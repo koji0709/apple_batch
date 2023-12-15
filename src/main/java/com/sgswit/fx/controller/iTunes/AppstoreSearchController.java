@@ -14,7 +14,6 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StoreFontsUtils;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,11 +24,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class AppstoreSearchController extends CommonView implements Initializable{

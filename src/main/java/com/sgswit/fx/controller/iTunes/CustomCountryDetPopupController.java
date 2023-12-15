@@ -11,7 +11,6 @@ import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -30,6 +29,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -219,7 +219,7 @@ public class CustomCountryDetPopupController implements Initializable {
                         }
                     }else{
                         KeyValuePair keyValuePair=  (KeyValuePair)((ChoiceBox)node).getSelectionModel().getSelectedItem();
-                        if(StringUtils.isEmpty(keyValuePair) && fieldModelList.get(0).isRequired()){
+                        if(null==keyValuePair && fieldModelList.get(0).isRequired()){
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("提示");
                             alert.setHeaderText("请检查必填项");

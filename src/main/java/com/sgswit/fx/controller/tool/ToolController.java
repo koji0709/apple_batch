@@ -9,10 +9,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.URL;

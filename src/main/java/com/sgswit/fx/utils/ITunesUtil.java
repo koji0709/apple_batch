@@ -23,6 +23,7 @@ import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -300,7 +301,7 @@ public class ITunesUtil {
                 }
             }else{
                 StringBuffer stringBuffer=new StringBuffer();
-                Object validationResults= bodyJson.getByPath("result.validationResults");
+                String validationResults= bodyJson.getByPath("result.validationResults",String.class);
                 if(!StringUtils.isEmpty(validationResults)){
                     JSONArray jsonArray=JSONUtil.parseArray(validationResults);
                     for(Object jsonObject:jsonArray){
@@ -316,7 +317,7 @@ public class ITunesUtil {
                                 stringBuffer.append("\n");
                         }
                     }
-                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey"))){
+                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){
                     String userPresentableErrorMessage= bodyJson.getByPath("userPresentableErrorMessage",String.class);
                     stringBuffer.append(userPresentableErrorMessage);
                 }

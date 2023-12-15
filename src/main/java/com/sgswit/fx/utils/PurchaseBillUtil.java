@@ -10,18 +10,15 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
-import cn.hutool.db.Db;
-import cn.hutool.db.Entity;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -29,20 +26,11 @@ import org.bouncycastle.crypto.util.DigestFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.seimicrawler.xpath.JXDocument;
-import org.seimicrawler.xpath.JXNode;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PurchaseBillUtil {
@@ -60,8 +48,14 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-        Map<String,Object> res= authenticate("josepharnoldc4@outlook.com","Zxc112211");
-        ITunesUtil.appStoreOverCheck(res);
+//        Map<String,Object> res= authenticate("josepharnoldc4@outlook.com","Zxc112211");
+for (int i=0;i<10;i++){
+    Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
+
+}
+
+
+//        ITunesUtil.appStoreOverCheck(res);
 //        Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
 //        res.put("creditCardNumber","5187180019685639");
 //        res.put("creditCardExpirationMonth","1");
@@ -643,7 +637,7 @@ public class PurchaseBillUtil {
         if(searchResponse.getStatus()==200){
             JSON json=JSONUtil.parse(searchResponse.body());
             jsonStrList.add(searchResponse.body());
-            if(!StringUtils.isEmpty(json.getByPath("nextBatchId"))){
+            if(!StringUtils.isEmpty(json.getByPath("nextBatchId",String.class))){
                 nextBatchId=json.getByPath("nextBatchId").toString();
                 search(jsonStrList,dsid,nextBatchId,token,searchCookies);
             }
@@ -967,12 +961,17 @@ public class PurchaseBillUtil {
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             if(res.getStatus()==302 && attempt ==0){
                 return login(authCode,guid,1,paras);
+            }else if(res.getStatus()==503){
+                paras.put("code","1");
+                paras.put("msg","操作过于频繁请稍后。");
+                return paras;
             }
             String rb = res.charset("UTF-8").body();
             JSONObject rspJSON = PListUtil.parse(rb);
             String failureType = rspJSON.getStr("failureType");
             String customerMessage = rspJSON.getStr("customerMessage");
-            if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("your account is disabled")){
+            if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"account is disabled")){
+//            if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("account is disabled")){
                 paras.put("code","1");
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
@@ -1003,7 +1002,7 @@ public class PurchaseBillUtil {
             }
             if(StringUtils.isEmpty(failureType) && StringUtils.isEmpty(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
                 paras.put("code","1");
-                paras.put("msg","Apple ID或密码错误。或需要输入验证码！");
+                paras.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
                 return paras;
             }
             String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);

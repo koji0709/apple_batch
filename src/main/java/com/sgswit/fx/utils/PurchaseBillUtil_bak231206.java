@@ -22,6 +22,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -647,7 +648,7 @@ public class PurchaseBillUtil_bak231206 {
         if(searchResponse.getStatus()==200){
             JSON json=JSONUtil.parse(searchResponse.body());
             jsonStrList.add(searchResponse.body());
-            if(!StringUtils.isEmpty(json.getByPath("nextBatchId"))){
+            if(!StringUtils.isEmpty(json.getByPath("nextBatchId",String.class))){
                 nextBatchId=json.getByPath("nextBatchId").toString();
                 search(jsonStrList,dsid,nextBatchId,token,searchCookies);
             }

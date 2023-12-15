@@ -10,9 +10,8 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
-import com.sgswit.fx.utils.StringUtils;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.*;
 
 /**

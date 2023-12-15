@@ -1,32 +1,14 @@
 package com.sgswit.fx.controller.iCloud;
 
-import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.PListUtil;
-import com.sgswit.fx.utils.StringUtils;
-import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
-import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
-
-import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
 
 /**
  * <p>

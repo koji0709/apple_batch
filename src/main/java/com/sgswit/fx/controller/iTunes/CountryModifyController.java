@@ -21,8 +21,6 @@ import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.StageUtil;
-import com.sgswit.fx.utils.StringUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -39,6 +37,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
