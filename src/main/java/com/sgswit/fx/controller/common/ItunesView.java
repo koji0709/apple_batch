@@ -120,6 +120,8 @@ public class ItunesView<T> extends TableView<T> {
             setAndRefreshNote(account,"登陆失败。");
             return false;
         }
+        setAndRefreshNote(account,"登陆失败");
+        return false;
     }
 
 }
