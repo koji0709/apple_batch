@@ -10,6 +10,7 @@ import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.StringUtils;
 import javafx.beans.property.SimpleStringProperty;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ItunesView<T> extends TableView<T> {
@@ -89,38 +90,26 @@ public class ItunesView<T> extends TableView<T> {
             return false;
         }
 
-        try {
-            JSONObject json = PListUtil.parse(authRsp.body());
-            String failureType     = json.getStr("failureType","");
-            String customerMessage = json.getStr("customerMessage","");
+        JSONObject json = PListUtil.parse(authRsp.body());
+        String failureType     = json.getStr("failureType","");
+        String customerMessage = json.getStr("customerMessage","");
 
-            boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
-            if (verify){
-                setAndRefreshNote(account,"登陆成功。");
-                return true;
-            }
-            if (!StrUtil.isEmpty(customerMessage)){
-                if(customerMessage.contains("your account is disabled.")) {
-                    setAndRefreshNote(account,"出于安全原因，你的账户已被锁定。");
-                }
-                if(customerMessage.contains("You cannot login because your account has been locked")){
-                    setAndRefreshNote(account,"帐户存在欺诈行为，已被【双禁】。");
-                }
-                if(Constant.CustomerMessageBadLogin.equals(customerMessage)){
-                    setAndRefreshNote(account,"Apple ID或密码错误。或需要输入验证码！");
-                }
-
-                if(customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
-                    setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
-                }
-                setAndRefreshNote(account,"登陆失败");
-                return false;
-            }
-        }catch (Exception e){
-            setAndRefreshNote(account,"登陆失败。");
-            return false;
+        boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
+        if (verify){
+            setAndRefreshNote(account,"登陆成功。");
+            return true;
         }
-        setAndRefreshNote(account,"登陆失败");
+
+        String message = "登陆失败。";
+        if (!StrUtil.isEmpty(customerMessage)){
+            for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
+                if (customerMessage.contains(entry.getKey())){
+                    message = entry.getValue();
+                    break;
+                }
+            }
+        }
+        setAndRefreshNote(account,message);
         return false;
     }
 
