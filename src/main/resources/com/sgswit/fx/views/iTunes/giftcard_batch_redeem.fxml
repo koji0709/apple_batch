@@ -171,7 +171,7 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" prefWidth="250" text="账号"/>
-                                <TableColumn fx:id="pwd" prefWidth="100" text="账号"/>
+                                <TableColumn fx:id="pwd" prefWidth="100" text="密码"/>
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="礼品卡"/>
                                 <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态"/>
                                 <TableColumn fx:id="execTime" prefWidth="130" text="执行时间"/>
