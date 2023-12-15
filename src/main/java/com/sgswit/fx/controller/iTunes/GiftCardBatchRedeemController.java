@@ -158,9 +158,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             // 礼品卡无效
             if ("MZFreeProductCode.NoSuch".equals(messageKey)){
                 giftCardRedeem.setGiftCardStatus("无效");
-            }
-            // 礼品卡已兑换
-            else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
+            } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){// 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("已兑换");
             }else{
                 giftCardRedeem.setGiftCardStatus("兑换失败");

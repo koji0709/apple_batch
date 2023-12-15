@@ -33,12 +33,12 @@ public class ItunesView<T> extends TableView<T> {
         url = authRsp.header("location");
 
         int status = authRsp.getStatus();
-        if (status == 503){
-            return  authRsp;
-        }
-
         if (status == 302){
             return itunesLogin(accountModel, authCode,guid,url,show2FADialog,1);
+        }
+
+        if (status != 200){
+            return authRsp;
         }
 
         JSONObject authBody        = PListUtil.parse(authRsp.body());
