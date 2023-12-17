@@ -1,11 +1,13 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.common.CommDataInputPopupController;
 import com.sgswit.fx.enums.DataImportEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
+import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
@@ -25,6 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,7 +44,7 @@ import java.util.ResourceBundle;
  */
 public class BindVirtualCardController implements Initializable  {
     @FXML
-    public TableColumn cardNo;
+    public TableColumn creditInfo;
     @FXML
     private TableColumn seq;
     @FXML
@@ -53,7 +56,7 @@ public class BindVirtualCardController implements Initializable  {
     @FXML
     private TableView accountTableView;
     @FXML
-    private Button accoutQueryBtn;
+    private Button accountQueryBtn;
 
     @FXML
     private Button accountExportBtn;
@@ -72,8 +75,49 @@ public class BindVirtualCardController implements Initializable  {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        CommDataInputPopupController<CreditCard> controller=new CommDataInputPopupController<>();
-        controller.importData(list, DataImportEnum.BIND_VIRTUAL_CARD);
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/virtualCard-input-popup.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 500, 300);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+
+        Stage popupStage = new Stage();
+
+        popupStage.setTitle("信用卡导入");
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.showAndWait();
+
+        VirtualCardInputPopupController c = fxmlLoader.getController();
+        if(null == c.getData() || "".equals(c.getData())){
+            return;
+        }
+        String[] lineArray = c.getData().split("\n");
+        for(String item : lineArray){
+            boolean f=false;
+            //判断是否符合正则表达式
+            CreditCard creditCard = new CreditCard();
+            String[] array=item.split("----");
+            if(array.length==3){
+                creditCard.setSeq(list.size()+1);
+                creditCard.setAccount(array[0]);
+                creditCard.setPwd(array[1]);
+                creditCard.setCreditInfo(array[2]);
+                String cCreditInfoRegex = "\\w{1,40}/\\d{6}/\\w{3}";
+                if(array[2].matches(cCreditInfoRegex)){
+                    f=true;
+                    String[] creditInfoArr=array[2].split("/");
+                    creditCard.setCreditCardNumber(creditInfoArr[0]);
+                    creditCard.setCreditVerificationNumber(creditInfoArr[2]);
+                    String monthAndYear=creditInfoArr[1];
+                    creditCard.setCreditCardExpirationMonth(Integer.valueOf(monthAndYear.substring(0,2)).toString());
+                    creditCard.setCreditCardExpirationYear(monthAndYear.substring(2));
+                }
+            }
+            if(f){
+                list.add(creditCard);
+            }
+        }
         initAccountTableView();
         accountTableView.setEditable(true);
         accountTableView.setItems(list);
@@ -104,16 +148,15 @@ public class BindVirtualCardController implements Initializable  {
                     public void run(){
                         try {
                             try {
-                                accoutQueryBtn.setText("正在查询");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                                accoutQueryBtn.setDisable(true);
+                                accountQueryBtn.setText("正在查询");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                                accountQueryBtn.setDisable(true);
                                 account.setNote("正在登录...");
-                                Map<String,Object> res= PurchaseBillUtil.authenticate("djli0506@163.com","!!B0527s0207!!");
-                                res.put("creditCardNumber","5187180019685639");
-                                res.put("creditCardExpirationMonth","1");
-                                res.put("creditCardExpirationYear","2025");
-                                res.put("creditVerificationNumber","864");
-//                            Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                res.put("creditCardNumber",account.getCreditCardNumber());
+                                res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
+                                res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
+                                res.put("creditVerificationNumber",account.getCreditVerificationNumber());
                                 if(!res.get("code").equals("200")){
                                     account.setNote(String.valueOf(res.get("msg")));
                                 }else{
@@ -124,18 +167,19 @@ public class BindVirtualCardController implements Initializable  {
                                         return;
                                     }
                                     account.setNote("登录成功，正在验证银行卡信息...");
+                                    accountTableView.refresh();
                                     Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,"01");
                                     if(!addCreditPaymentRes.get("code").equals("200")){
-                                        account.setNote(String.valueOf(res.get("msg")));
+                                        account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
                                     }else{
-                                        account.setNote(String.valueOf(res.get("msg")));
+                                        account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
                                     }
                                 }
                                 accountTableView.refresh();
                             } catch (Exception e) {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                accountQueryBtn.setDisable(false);
+                                accountQueryBtn.setText("开始执行");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                                 e.printStackTrace();
                             }
                         }finally {
@@ -143,9 +187,9 @@ public class BindVirtualCardController implements Initializable  {
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
-                                    accoutQueryBtn.setDisable(false);
-                                    accoutQueryBtn.setText("开始执行");
-                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                                     return 1;
                                 }
                             });
@@ -182,6 +226,7 @@ public class BindVirtualCardController implements Initializable  {
         account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
         pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+        creditInfo.setCellValueFactory(new PropertyValueFactory<Account,String>("creditInfo"));
 
     }
 

@@ -13,8 +13,6 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class CheckBalanceDisabledController extends ItunesView<Account> {

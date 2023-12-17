@@ -20,7 +20,6 @@ public class CreditCard {
     private final SimpleStringProperty creditVerificationNumber;
     private final SimpleStringProperty creditInfo;
     private final SimpleStringProperty note;
-    private final SimpleStringProperty monthAndYear;
 
     public CreditCard() {
         this.seq = new SimpleIntegerProperty();
@@ -32,7 +31,6 @@ public class CreditCard {
         this.creditVerificationNumber = new SimpleStringProperty();
         this.creditInfo = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
-        this.monthAndYear = new SimpleStringProperty();
     }
 
     public int getSeq() {
@@ -126,13 +124,5 @@ public class CreditCard {
 
     public void setNote(String note) {
         this.note.set(note);
-    }
-
-    public String getMonthAndYear() {
-        return monthAndYear.get();
-    }
-
-    public void setMonthAndYear(String monthAndYear) {
-        this.monthAndYear.set(monthAndYear);
     }
 }
