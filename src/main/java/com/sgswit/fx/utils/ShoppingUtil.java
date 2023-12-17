@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ShoppingUtil {
-
-    private static String code = "200";
-
     // 获取产品
     public static Map<String,Object> getProd(Account account) throws Exception {
         Map<String,Object> prodMap = new HashMap<>();
@@ -37,7 +34,9 @@ public class ShoppingUtil {
         HttpResponse accRes = cn.hutool.http.HttpUtil.createGet("https://www.apple.com/shop/iphone/accessories")
                 .header(headers).execute();
         if(accRes.getStatus() != 200){
-            code = "500";
+            prodMap.put("msg","获取产品失败！");
+            prodMap.put("code","1");
+            return prodMap;
         }
         System.out.println("------------------accessories-----------------------------------------------");
         System.out.println(accRes.getStatus());
@@ -57,8 +56,8 @@ public class ShoppingUtil {
                 .header(headers).execute();
 
         if(prodRes.getStatus() != 200){
-            code = "500";
-            prodMap.put("code",code);
+            prodMap.put("msg","获取产品失败！");
+            prodMap.put("code","1");
             return prodMap;
         }
         System.out.println("------------------product-----------------------------------------------");
@@ -101,8 +100,8 @@ public class ShoppingUtil {
         HttpResponse atbRes = cn.hutool.http.HttpUtil.createGet("https://www.apple.com/shop/beacon/atb")
                 .header(headers).execute();
         if(atbRes.getStatus() != 200){
-            code = "500";
-            prodMap.put("code",code);
+            prodMap.put("msg","获取产品失败！");
+            prodMap.put("code","1");
             return prodMap;
         }
         System.out.println("------------------beacon/atb-----------------------------------------------");
@@ -133,7 +132,7 @@ public class ShoppingUtil {
         prodMap.put("url","https://www.apple.com" + action);
         prodMap.put("body",inputMap);
         prodMap.put("referer",productUrl);
-        prodMap.put("code",code);
+        prodMap.put("code","200");
         return prodMap;
     }
 
@@ -158,8 +157,8 @@ public class ShoppingUtil {
                 .execute();
 
         if(res.getStatus() != 303){
-            code = "500";
-            map.put("code",code);
+            map.put("msg","添加到购物车失败！");
+            map.put("code","1");
             return map;
         }
         System.out.println("------------------pdpAddToBag-----------------------------------------------");
@@ -170,7 +169,7 @@ public class ShoppingUtil {
 
         System.out.println("------------------pdpAddToBag----------------------------------------------");
 
-        map.put("code",code);
+        map.put("code","200");
         return map;
     }
 
@@ -193,7 +192,8 @@ public class ShoppingUtil {
                 .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
-            code = "500";
+            map.put("msg","查看购物车失败！");
+            map.put("code","1");
             dataMap.put("code",map);
             return dataMap;
         }
@@ -237,7 +237,7 @@ public class ShoppingUtil {
         dataMap.put("body",bodys);
 
 
-        map.put("code",code);
+        map.put("code","200");
         dataMap.put("code",map);
         System.out.println("---------datamap----------" + dataMap);
         System.out.println("------------------shopbag----------------------------------------------");
@@ -265,7 +265,8 @@ public class ShoppingUtil {
                 .execute();
         HashMap<String, Object> map = new HashMap<>();
         if(res.getStatus() != 200){
-            map.put("code","500");
+            map.put("code","1");
+            map.put("msg","提交购物车失败");
             return map;
         }
         System.out.println("------------------checkout-----------------------------------------------");
@@ -275,6 +276,7 @@ public class ShoppingUtil {
 
         JSONObject jo = JSONUtil.parseObj(res.body());
         map.put("url",jo.getByPath("head.data.url").toString());
+        map.put("code","200");
         return map;
     }
 
@@ -297,8 +299,8 @@ public class ShoppingUtil {
                 .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
-            code = "500";
-            dataMap.put("code","500");
+            dataMap.put("code","1");
+            dataMap.put("msg","登录页面获取失败");
             return dataMap;
         }
         System.out.println("------------------shopSignIn-----------------------------------------------");
@@ -329,6 +331,7 @@ public class ShoppingUtil {
         dataMap.put("serviceKey",serviceKey);
         dataMap.put("serviceURL",serviceURL);
         dataMap.put("callbackSignInUrl",callbackSignInUrl);
+        dataMap.put("code","200");
         return dataMap;
     }
 
@@ -367,8 +370,8 @@ public class ShoppingUtil {
                 .execute();
 
         if(resp.getStatus() != 200){
-            code = "500";
-            ret.put("code",code);
+            ret.put("code","1");
+            ret.put("msg","页面跳转失败");
             return ret;
         }
         System.out.println("------------------callBack-----------------------------------------------");
@@ -387,7 +390,7 @@ public class ShoppingUtil {
 
         ret.put("url",url);
         ret.put("pltn",pltn);
-        ret.put("code",code);
+        ret.put("code","200");
         return ret;
     }
 
@@ -450,8 +453,8 @@ public class ShoppingUtil {
                 .execute();
 
         if(resp.getStatus() != 200){
-            code = "500";
-            dataMap.put("code",code);
+            dataMap.put("code","1");
+            dataMap.put("msg","提交操作失败");
             return dataMap;
         }
         System.out.println("------------------checkout-----------------------------------------------");
@@ -479,7 +482,7 @@ public class ShoppingUtil {
         dataMap.put("syntax",syntax);
 
         dataMap.put("url",checkoutUrl);
-        dataMap.put("code",code);
+        dataMap.put("code","200");
         return dataMap;
     }
 
@@ -525,7 +528,7 @@ public class ShoppingUtil {
         System.out.println(resp.headers());
 
         System.out.println("------------------fillmentToShipping-----------------------------------------------");
-        return code;
+        return "200";
     }
 
     //填写shipping - 地址
@@ -654,9 +657,11 @@ public class ShoppingUtil {
                 .form(paramMap)
                 .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
                 .execute();
-
+        Map<String, String> map = new HashMap<>();
         if(resp.getStatus() != 200){
-            code = "500";
+            map.put("code","1");
+            map.put("msg","填写shipping地址失败");
+            return map;
         }
         System.out.println("------------------checkoutStart-----------------------------------------------");
 
@@ -664,8 +669,7 @@ public class ShoppingUtil {
         System.out.println(resp.headers());
 
         System.out.println("------------------checkoutStart-----------------------------------------------");
-        Map<String, String> map = new HashMap<>();
-        map.put("code",code);
+        map.put("code","200");
         map.put("address",nameByCountryCode);
         return map;
     }

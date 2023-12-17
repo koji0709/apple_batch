@@ -1,5 +1,8 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.lang.Console;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.enums.DataImportEnum;
@@ -21,8 +24,8 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author DELL
@@ -32,14 +35,15 @@ public class CommDataInputPopupController<T> implements Initializable {
     public VBox notes;
     @FXML
     private TextArea accountTextArea;
-    private List<String> description;
+    private static String kk=null;
+    private static DataImportEnum dataImportEnum=null;
     @FXML
     private Button accountImportBtn;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Insets padding = new Insets(0, 0, 0, 20);
         int index=1;
-        for (String s:description){
+        for (String s:dataImportEnum.getDescription()){
             Label label = new Label(index+"."+s);
             label.setPadding(padding);
             notes.setSpacing(5);
@@ -60,27 +64,14 @@ public class CommDataInputPopupController<T> implements Initializable {
     public String getAccounts(){
         return this.accountTextArea.getText();
     }
-
-
-    public void importData(ObservableList<T> list, DataImportEnum dataImportEnum) throws IOException {
-        Insets padding = new Insets(0, 0, 0, 20);
-           int index=1;
-//        for (String s:description){
-//            Label label = new Label(s);
-//            label.setPadding(padding);
-//            notes.setSpacing(5);
-//            notes.setPadding(new Insets(5, 5, 5, 5));
-//            notes.getChildren().add(label);
-//            index++;
-//        }
+    public void importData(ObservableList<T> list,DataImportEnum importEnum) throws IOException {
+        dataImportEnum=importEnum;
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/comm-data-input-popup.fxml"));
-        description=dataImportEnum.getDescription();
         Scene scene = new Scene(fxmlLoader.load(), 600, 450);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
         Stage popupStage = new Stage();
         popupStage.setScene(scene);
-
 
 
 
@@ -90,37 +81,7 @@ public class CommDataInputPopupController<T> implements Initializable {
 
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
-
-
-
         popupStage.showAndWait();
-        Account account = new Account();
-        account.setSeq(list.size()+1);
-        account.setAccount("123");
-        list.add((T)account);
-
-//        CommDataInputPopupController c = fxmlLoader.getController();
-//        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-//            return;
-//        }
-//        String[] lineArray = c.getAccounts().split("\n");
-//        for(String item : lineArray){
-//            String[] its = item.split("----");
-//            Account account = new Account();
-//            account.setSeq(list.size()+1);
-//            account.setAccount(its[0]);
-//
-//            String[] pas = its[1].split("-");
-//            if(pas.length == 4){
-//                account.setPwd(pas[0]);
-//                account.setAnswer1(pas[1]);
-//                account.setAnswer2(pas[2]);
-//                account.setAnswer3(pas[3]);
-//            }else{
-//                account.setPwd(its[1]);
-//            }
-//            list.add(account);
-//        }
 
 
     }

@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.query;
 
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class WhetherInspectionController extends TableView<Account> {
+public class WhetherInspectionController extends CustomTableView<Account> {
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));

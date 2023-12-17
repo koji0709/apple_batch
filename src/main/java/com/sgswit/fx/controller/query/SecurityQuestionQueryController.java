@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
@@ -27,7 +27,7 @@ import java.util.List;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class SecurityQuestionQueryController extends TableView<Problem> {
+public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
@@ -42,6 +42,10 @@ public class SecurityQuestionQueryController extends TableView<Problem> {
         account.setPwd(problem.getPwd());
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
+        if (step1Res.getStatus() != 503) {
+            queryFail(problem,"操作过于频繁。");
+            return;
+        }
         if (step1Res.getStatus() != 409) {
             queryFail(problem);
             return;
@@ -75,6 +79,11 @@ public class SecurityQuestionQueryController extends TableView<Problem> {
     private void queryFail(Problem problem) {
         String note = "查询失败，请确认用户名密码是否正确";
         problem.setNote(note);
+        accountTableView.refresh();
+        insertLocalHistory(List.of(problem));
+    }
+    private void queryFail(Problem problem,String notes) {
+        problem.setNote(notes);
         accountTableView.refresh();
         insertLocalHistory(List.of(problem));
     }

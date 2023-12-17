@@ -19,7 +19,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;

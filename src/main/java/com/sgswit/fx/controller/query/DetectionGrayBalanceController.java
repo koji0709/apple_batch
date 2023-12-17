@@ -1,9 +1,10 @@
 package com.sgswit.fx.controller.query;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ShoppingUtil;
 import com.sgswit.fx.utils.WebloginUtil;
@@ -20,7 +21,7 @@ import java.util.Map;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class DetectionGrayBalanceController extends TableView<Account> {
+public class DetectionGrayBalanceController extends CustomTableView<Account> {
 
     public void openImportAccountView(ActionEvent actionEvent) {
         openImportAccountView(List.of("account----pwd"));
@@ -33,36 +34,36 @@ public class DetectionGrayBalanceController extends TableView<Account> {
             account.setNote("获取商品中");
             accountTableView.refresh();
             Map<String,Object> prodMap = ShoppingUtil.getProd(account);
-            if("500".equals(prodMap.get("code"))){
-                tableRefresh(account,"获取商品失败");
+            if(!"200".equals(prodMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(prodMap,"msg"));
                 return;
             }
             // 添加到购物车
             account.setNote("添加到购物车中");
             accountTableView.refresh();
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap,account);
-            if("500".equals(addMap.get("code"))){
-                tableRefresh(account,"添加到购物车失败");
+            if(!"200".equals(addMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(addMap,"msg"));
                 return;
             }
             // 查看购物车
             Map<String,Map<String,Object>> bag = ShoppingUtil.shopbag(account);
-            if("500".equals(bag.get("code").get("code"))){
-                tableRefresh(account,"查看购物车失败");
+            if(!"200".equals(bag.get("code").get("code"))){
+                tableRefresh(account, MapUtil.getStr(bag.get("code"),"msg"));
                 return;
             }
             // 提交购物车
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag,account);
-            if("500".equals(cheMap.get("code"))){
-                tableRefresh(account,"提交购物车失败");
+            if(!"200".equals(cheMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(cheMap,"msg"));
                 return;
             }
             //调登录页面
             account.setNote("登录页面加载中");
             accountTableView.refresh();
             Map<String,String> signInMap = ShoppingUtil.shopSignIn(cheMap.get("url").toString(),account);
-            if("500".equals(signInMap.get("code"))){
-                tableRefresh(account,"调登录页面失败");
+            if(!"200".equals(signInMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(signInMap,"msg"));
                 return;
             }
             //登录
@@ -74,14 +75,14 @@ public class DetectionGrayBalanceController extends TableView<Account> {
                 return;
             }
             if(!"sa".equals(JSONUtil.parseObj(signInResp.body()).getStr("authType"))){
-                tableRefresh(account,"双重认证用户");
+                tableRefresh(account,"该账户为双重认证用户");
             }
             account.setNote("登录成功");
             accountTableView.refresh();
             //回调applestore
             Map<String,String> checkoutStartMap = ShoppingUtil.callBack(signInMap,account);
-            if("500".equals(prodMap.get("code"))){
-                tableRefresh(account,"回调失败");
+            if(!"200".equals(checkoutStartMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(checkoutStartMap,"msg"));
                 return;
             }
             //chechout start
@@ -89,22 +90,22 @@ public class DetectionGrayBalanceController extends TableView<Account> {
 
             //提交
             Map<String,String> checkoutMap = ShoppingUtil.checkout(checkoutUrl,account);
-            if("500".equals(checkoutMap.get("code"))){
-                tableRefresh(account,"查询失败");
+            if(!"200".equals(checkoutMap.get("code"))){
+                tableRefresh(account, MapUtil.getStr(checkoutMap,"msg"));
                 return;
             }
             //选择shipping - 邮寄
             account.setNote("正在查询余额");
             accountTableView.refresh();
             String fillment = ShoppingUtil.fillmentToShipping(checkoutMap,account);
-            if("500".equals(fillment)){
+            if(!"200".equals(fillment)){
                 tableRefresh(account,"查询失败");
                 return;
             }
             //填写shipping - 地址
             Map<String, String> map = ShoppingUtil.shippingToBilling(checkoutMap, account);
-            if("500".equals(map.get("code"))){
-                tableRefresh(account,"查询失败");
+            if(!"200".equals(map.get("code"))){
+                tableRefresh(account, MapUtil.getStr(map,"msg"));
                 return;
             }
             account.setState(map.get("address"));

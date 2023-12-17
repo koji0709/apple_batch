@@ -2,7 +2,10 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.common.CommDataInputPopupController;
+import com.sgswit.fx.enums.DataImportEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
@@ -22,7 +25,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -56,7 +58,7 @@ public class BindVirtualCardController implements Initializable  {
     @FXML
     private Button accountExportBtn;
 
-    private ObservableList<Account> list = FXCollections.observableArrayList();
+    private ObservableList<CreditCard> list = FXCollections.observableArrayList();
 
     public BindVirtualCardController(){
 
@@ -70,33 +72,8 @@ public class BindVirtualCardController implements Initializable  {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户导入");
-
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.showAndWait();
-
-        AccountInputPopupController c = fxmlLoader.getController();
-        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-            return;
-        }
-        String[] lineArray = c.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setSeq(list.size()+1);
-            account.setAccount(its[0]);
-            account.setPwd(its[1]);
-            list.add(account);
-        }
+        CommDataInputPopupController<CreditCard> controller=new CommDataInputPopupController<>();
+        controller.importData(list, DataImportEnum.BIND_VIRTUAL_CARD);
         initAccountTableView();
         accountTableView.setEditable(true);
         accountTableView.setItems(list);
@@ -118,69 +95,64 @@ public class BindVirtualCardController implements Initializable  {
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-        int n=0;
-        for(Account account:list) {
-            //判断是否已执行或执行中,避免重复执行
+        for(CreditCard account:list){
             if (!StrUtil.isEmptyIfStr(account.getNote())) {
                 continue;
             }else{
-                n++;
-            }
-        }
-        if(n==0){
-            return;
-        }
-        for(Account account:list){
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run(){
                         try {
-                            account.setNote("登录中...");
-                            Map<String,Object> res= PurchaseBillUtil.authenticate("djli0506@163.com","!!B0527s0207!!");
-                            res.put("creditCardNumber","5187180019685639");
-                            res.put("creditCardExpirationMonth","1");
-                            res.put("creditCardExpirationYear","2025");
-                            res.put("creditVerificationNumber","864");
+                            try {
+                                accoutQueryBtn.setText("正在查询");
+                                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                                accoutQueryBtn.setDisable(true);
+                                account.setNote("正在登录...");
+                                Map<String,Object> res= PurchaseBillUtil.authenticate("djli0506@163.com","!!B0527s0207!!");
+                                res.put("creditCardNumber","5187180019685639");
+                                res.put("creditCardExpirationMonth","1");
+                                res.put("creditCardExpirationYear","2025");
+                                res.put("creditVerificationNumber","864");
 //                            Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                            if(!res.get("code").equals("200")){
-                                account.setNote(String.valueOf(res.get("msg")));
-                            }else{
-                                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-                                if(!hasInspectionFlag){
-                                    account.setNote("此 Apple ID 尚未用于 App Store。");
-                                    accountTableView.refresh();
-                                    return;
-                                }
-                                account.setNote("登录成功，正在验证银行卡信息...");
-                                Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,"01");
-                                if(!addCreditPaymentRes.get("code").equals("200")){
+                                if(!res.get("code").equals("200")){
                                     account.setNote(String.valueOf(res.get("msg")));
                                 }else{
-                                    account.setNote(String.valueOf(res.get("msg")));
+                                    boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                                    if(!hasInspectionFlag){
+                                        account.setNote("此 Apple ID 尚未用于 App Store。");
+                                        accountTableView.refresh();
+                                        return;
+                                    }
+                                    account.setNote("登录成功，正在验证银行卡信息...");
+                                    Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,"01");
+                                    if(!addCreditPaymentRes.get("code").equals("200")){
+                                        account.setNote(String.valueOf(res.get("msg")));
+                                    }else{
+                                        account.setNote(String.valueOf(res.get("msg")));
+                                    }
                                 }
-                            }
-                            accountTableView.refresh();
-                        } catch (Exception e) {
-                            accoutQueryBtn.setDisable(false);
-                            accoutQueryBtn.setText("开始执行");
-                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            e.printStackTrace();
-                        }
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
+                                accountTableView.refresh();
+                            } catch (Exception e) {
                                 accoutQueryBtn.setDisable(false);
                                 accoutQueryBtn.setText("开始执行");
                                 accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
+                                e.printStackTrace();
                             }
-                        });
+                        }finally {
+                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+                            Platform.runLater(new Task<Integer>() {
+                                @Override
+                                protected Integer call() {
+                                    accoutQueryBtn.setDisable(false);
+                                    accoutQueryBtn.setText("开始执行");
+                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    return 1;
+                                }
+                            });
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
         }
     }
     private void queryFail(Account account) {

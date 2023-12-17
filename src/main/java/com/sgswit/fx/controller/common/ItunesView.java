@@ -15,7 +15,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class ItunesView<T> extends TableView<T> {
+public class ItunesView<T> extends CustomTableView<T> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

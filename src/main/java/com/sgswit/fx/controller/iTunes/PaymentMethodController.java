@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
@@ -26,7 +27,6 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -39,7 +39,7 @@ import java.util.ResourceBundle;
 　* @author DeZh
 　* @date 2023/10/27 10:10
  */
-public class PaymentMethodController implements Initializable  {
+public class PaymentMethodController extends CustomTableView<Account> implements Initializable  {
     @FXML
     private TableView accountTableView;
     @FXML
@@ -52,7 +52,7 @@ public class PaymentMethodController implements Initializable  {
     private TableColumn note;
 
     @FXML
-    private Button accoutQueryBtn;
+    private Button accountQueryBtn;
 
     @FXML
     private Button accountExportBtn;
@@ -66,41 +66,13 @@ public class PaymentMethodController implements Initializable  {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        super.initialize(url,resourceBundle);
     }
 
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户导入");
-
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.showAndWait();
-
-        AccountInputPopupController c = fxmlLoader.getController();
-        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-            return;
-        }
-        String[] lineArray = c.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setSeq(list.size()+1);
-            account.setAccount(its[0]);
-            account.setPwd(its[1]);
-            list.add(account);
-        }
-        initAccountTableView();
-        accountTableView.setEditable(true);
-        accountTableView.setItems(list);
+        openImportAccountView(List.of("account----pwd"));
     }
 
     @FXML
@@ -119,66 +91,66 @@ public class PaymentMethodController implements Initializable  {
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-        int n=0;
-        for(Account account:list) {
-            //判断是否已执行或执行中,避免重复执行
-            if (!StrUtil.isEmptyIfStr(account.getNote())) {
-                continue;
-            }else{
-                n++;
-            }
-        }
-        if(n==0){
+        list=accountTableView.getItems();
+        if(list.size() < 1){
             return;
         }
         for(Account account:list){
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
+            if (!StrUtil.isEmptyIfStr(account.getNote())) {
+                continue;
+            }else{
+                new Thread(new Runnable() {
+                    @Override
+                    public void run(){
                         try {
-                            account.setNote("登录中...");
-                            accountTableView.refresh();
-                            Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                            if(!res.get("code").equals("200")){
-                                account.setNote(res.get("msg").toString());
-                            }else{
-                                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-                                if(!hasInspectionFlag){
-                                    account.setNote("此 Apple ID 尚未用于 App Store。");
-                                    accountTableView.refresh();
-                                    return;
-                                }
-                                account.setNote("登录成功，数据删除中...");
+                            try {
+                                accountQueryBtn.setText("正在查询");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                                accountQueryBtn.setDisable(true);
+                                account.setNote("正在登录...");
                                 accountTableView.refresh();
-                                res=ITunesUtil.delPaymentInfos(res);
-                                if(res.get("code").equals("200")){
-                                    account.setNote("删除成功");
-                                }else{
+                                Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                if(!res.get("code").equals("200")){
                                     account.setNote(res.get("msg").toString());
+                                }else{
+                                    boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                                    if(!hasInspectionFlag){
+                                        account.setNote("此 Apple ID 尚未用于 App Store。");
+                                        accountTableView.refresh();
+                                        return;
+                                    }
+                                    account.setNote("登录成功，数据删除中...");
+                                    accountTableView.refresh();
+                                    res=ITunesUtil.delPaymentInfos(res);
+                                    if(res.get("code").equals("200")){
+                                        account.setNote("删除成功");
+                                    }else{
+                                        account.setNote(res.get("msg").toString());
+                                    }
                                 }
+                                accountTableView.refresh();
+                            } catch (Exception e) {
+                                accountQueryBtn.setDisable(false);
+                                accountQueryBtn.setText("开始执行");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                e.printStackTrace();
                             }
-                            accountTableView.refresh();
-                        } catch (Exception e) {
-                            accoutQueryBtn.setDisable(false);
-                            accoutQueryBtn.setText("开始执行");
-                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            e.printStackTrace();
+                        }finally {
+                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+                            Platform.runLater(new Task<Integer>() {
+                                @Override
+                                protected Integer call() {
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    return 1;
+                                }
+                            });
                         }
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
-                            }
-                        });
                     }
-                }
-            }).start();
+                }).start();
+            }
+
         }
     }
     private void queryFail(Account account) {

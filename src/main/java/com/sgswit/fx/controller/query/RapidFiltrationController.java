@@ -5,7 +5,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class RapidFiltrationController extends TableView<Account> {
+public class RapidFiltrationController extends CustomTableView<Account> {
 
     @FXML
     public void onAccountInputBtnClick(){
@@ -61,7 +61,7 @@ public class RapidFiltrationController extends TableView<Account> {
             //非双重认证
             String body = step21Res.body();
             String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
-            List<Question> qs = JSONUtil.toList(questions, Question.class);
+//            List<Question> qs = JSONUtil.toList(questions, Question.class);
 
             account.setNote("密码正确");
             accountTableView.refresh();

@@ -1,6 +1,7 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.db.Db;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.KeyValuePair;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 
 /**

@@ -11,6 +11,7 @@ import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.DataUtil;
@@ -32,9 +33,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * @author DeZh
@@ -43,7 +49,7 @@ import java.util.Map;
  * @description: TODO
  * @date 2023/10/2714:40
  */
-public class CheckWhetherIcloudController {
+public class CheckWhetherIcloudController extends CustomTableView<Account>  implements Serializable {
 
     @FXML
     public TableColumn seq;
@@ -66,37 +72,13 @@ public class CheckWhetherIcloudController {
     private TableView accountTableView;
 
     private ObservableList<Account> list = FXCollections.observableArrayList();
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
+    }
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户导入");
-
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
-
-        AccountInputPopupController c = fxmlLoader.getController();
-        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-            return;
-        }
-        String[] lineArray = c.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setSeq(list.size()+1);
-            account.setAccount(its[0]);
-            account.setPwd(its[1]);
-            list.add(account);
-        }
-        initAccountTableView();
-        accountTableView.setEditable(true);
-        accountTableView.setItems(list);
+        super.openImportAccountView(List.of("account----pwd"));
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
@@ -125,7 +107,7 @@ public class CheckWhetherIcloudController {
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-
+        list=accountTableView.getItems();
         if(list.size() < 1){
             return;
         }
@@ -133,41 +115,43 @@ public class CheckWhetherIcloudController {
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(account.getNote())){
                 continue;
-            }
-            //非双重认证
-            accountQueryBtn.setText("正在查询");
-            accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            accountQueryBtn.setDisable(true);
+            }else{
+                //非双重认证
+                accountQueryBtn.setText("正在查询");
+                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accountQueryBtn.setDisable(true);
 
-            account.setNote("正在登录...");
-            accountTableView.refresh();
+                account.setNote("正在登录...");
+                accountTableView.refresh();
 
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run(){
                         try {
-                            checkCloudAcc(account);
-                        } catch (Exception e) {
-                            accountQueryBtn.setDisable(false);
-                            accountQueryBtn.setText("开始执行");
-                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            e.printStackTrace();
-                        }
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
+                            try {
+                                checkCloudAcc(account);
+                            } catch (Exception e) {
                                 accountQueryBtn.setDisable(false);
                                 accountQueryBtn.setText("开始执行");
                                 accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
+                                e.printStackTrace();
                             }
-                        });
+                        }finally {
+                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+                            Platform.runLater(new Task<Integer>() {
+                                @Override
+                                protected Integer call() {
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    return 1;
+                                }
+                            });
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
+
         }
     }
     protected void checkCloudAcc(Account account) {
@@ -200,11 +184,23 @@ public class CheckWhetherIcloudController {
                     account.setDsid(rspJSON.getStr("dsid"));
                     tableRefresh(account,message);
                 }else{
-                    tableRefresh(account,rspJSON.getStr("status-message"));
+                    String message="";
+                    for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
+                        if (StringUtils.containsIgnoreCase(rspJSON.getStr("status-message"),entry.getKey())){
+                            message=entry.getValue();
+                            break;
+                        }
+                    }
+                    if(!StringUtils.isEmpty(message)){
+                        tableRefresh(account,message);
+                    }else{
+                        tableRefresh(account,rspJSON.getStr("status-message"));
+                    }
+
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"账号不存在或密码错误");
+                tableRefresh(account,"Apple ID或密码错误。");
                 e.printStackTrace();
             }
         }else {

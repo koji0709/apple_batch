@@ -10,7 +10,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
@@ -40,7 +40,7 @@ import java.util.*;
  * @description: TODO
  * @date 2023/10/219:01
  */
-public class QueryAccountInfoController extends TableView<ConsumptionBill> implements Initializable {
+public class QueryAccountInfoController extends CustomTableView<ConsumptionBill> implements Initializable {
     @FXML
     public TableColumn seq;
     @FXML

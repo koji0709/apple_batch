@@ -8,6 +8,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.application.Platform;
@@ -35,7 +36,7 @@ import java.util.List;
  * @description: TODO
  * @date 2023/10/2615:27
  */
-public class CommController<T> extends com.sgswit.fx.controller.common.TableView {
+public class CommController<T> extends CustomTableView {
     /**
     　* 操作方法
       * @param
@@ -70,18 +71,8 @@ public class CommController<T> extends com.sgswit.fx.controller.common.TableView
     　* @date 2023/10/26 23:00
     */
     protected void onAccountQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
-        int n=0;
         //判断是否有待执行的数据
-        for(T account:list) {
-            //判断是否已执行或执行中,避免重复执行
-            Object note = getFieldValueByObject(account, "note");
-            if (!StrUtil.isEmptyIfStr(note)) {
-                continue;
-            }else{
-                n++;
-            }
-        }
-        if(n==0){
+        if(list.size()<1){
             return;
         }
         for(T account:list){

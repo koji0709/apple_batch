@@ -12,6 +12,8 @@ public class Constant {
 
     public static final String CustomerMessageNotYetUsediTunesStore = "has not yet been used with the iTunes Store.";
 
+    public static final String AppleIdOrPasswordIncorrectly = "Your Apple ID or password was entered incorrectly.";
+
     public static final String CustomerMessageBadLogin             = "MZFinance.BadLogin.Configurator_message";
     public static final String CustomerMessageSubscriptionRequired = "Subscription Required";
 
@@ -33,5 +35,6 @@ public class Constant {
         put("You cannot login because your account has been locked","帐户存在欺诈行为，已被【双禁】。");
         put(CustomerMessageBadLogin,"Apple ID或密码错误。或需要输入验证码！");
         put(CustomerMessageNotYetUsediTunesStore,"此 Apple ID 尚未用于 App Store。");
+        put(AppleIdOrPasswordIncorrectly,"Apple ID或密码错误。");
     }};
 }

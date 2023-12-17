@@ -11,7 +11,7 @@ import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;

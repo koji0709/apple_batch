@@ -2,6 +2,7 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
@@ -21,11 +22,11 @@ import java.util.*;
  */
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
-//        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"1948401156@qq.com","B0527s0207!" );
+        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.2121" );
 //        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
-        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
+//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
 //        getiTunesAccountPaymentInfo(getAuthByHttResponse(response),"djli0506@163.com","8135448658");
-        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
+//        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
 //        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
 //        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
 //        leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
@@ -38,7 +39,7 @@ public class ICloudUtil {
         headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language", ListUtil.toList(" zh-CN,zh;q=0.9,en;q=0"));
+        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
 
         String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<plist version=\"1.0\">" +

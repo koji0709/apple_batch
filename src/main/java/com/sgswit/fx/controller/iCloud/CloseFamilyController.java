@@ -5,11 +5,12 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
  * @author yanggang
  * @createTime 2023/12/11
  */
-public class CloseFamilyController extends TableView<Account> {
+public class CloseFamilyController extends CustomTableView<Account> {
 
 
     public void openImportAccountView(){
@@ -62,11 +63,22 @@ public class CloseFamilyController extends TableView<Account> {
                     }
                     tableRefresh(account,message);
                 }else{
-                    tableRefresh(account,rspJSON.getStr("status-message"));
+                    String message="";
+                    for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
+                        if (StringUtils.containsIgnoreCase(rspJSON.getStr("status-message"),entry.getKey())){
+                            message=entry.getValue();
+                            break;
+                        }
+                    }
+                    if(!StringUtils.isEmpty(message)){
+                        tableRefresh(account,message);
+                    }else{
+                        tableRefresh(account,rspJSON.getStr("status-message"));
+                    }
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"账号不存在或密码错误");
+                tableRefresh(account,"Apple ID或密码错误。");
                 e.printStackTrace();
             }
         }else {

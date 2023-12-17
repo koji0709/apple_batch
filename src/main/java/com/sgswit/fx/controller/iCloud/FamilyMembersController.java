@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.iCloud;
 
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
  * @author yanggang
  * @createTime 2023/12/11
  */
-public class FamilyMembersController extends TableView<Account> {
+public class FamilyMembersController extends CustomTableView<Account> {
 
 
     public ComboBox nameGenerationTypeChoiceBox;

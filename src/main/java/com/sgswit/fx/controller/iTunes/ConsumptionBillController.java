@@ -8,7 +8,8 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.utils.*;
@@ -42,7 +43,7 @@ import java.util.*;
  * @description: TODO
  * @date 2023/10/219:01
  */
-public class ConsumptionBillController extends TableView<ConsumptionBill> implements Initializable {
+public class ConsumptionBillController extends CustomTableView<ConsumptionBill> implements Initializable {
     @FXML
     public TableColumn seq;
     @FXML
@@ -177,7 +178,8 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
                                         String dsid=loginResult.get("dsid").toString();
                                         String searchCookies=loginResult.get("searchCookies").toString();
                                         account.setArea(loginResult.get("countryName").toString());
-                                        List<String > jsonStrList=new ArrayList<>();
+                                        List<String> jsonStrList=new ArrayList<>();
+                                        jsonStrList.clear();
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
                                         //整合数据
                                         integratedData(new HashMap<>(), accountPurchasesLast90Count,account,jsonStrList);
@@ -291,9 +293,9 @@ public class ConsumptionBillController extends TableView<ConsumptionBill> implem
             nowDate.setTime(entityEarliest.getLong("purchase_date"));
             consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
             //消费总额
-            String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record;");
+            String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record  where apple_id='"+appleId+"';");
             consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
-            String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
+            String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record where apple_id='"+appleId+"' GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
             List<Entity> countInfo=Db.use().query(countSql);
             List<Map<String,String>> purchaseRecord=new ArrayList<>(countInfo.size());
             List<String> sList=new ArrayList<>(countInfo.size());

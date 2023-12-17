@@ -1,8 +1,11 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.db.Db;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

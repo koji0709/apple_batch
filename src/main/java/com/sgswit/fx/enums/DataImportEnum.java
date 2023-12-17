@@ -6,6 +6,10 @@ import javafx.stage.StageStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author DELL
+ */
+
 public enum DataImportEnum {
     /********** OPERATION区 ***********/
 
@@ -15,9 +19,13 @@ public enum DataImportEnum {
 
     /********** ITUNES区 ***********/
 //    COUNTRY_MODIFY("账号国家修改","views/iTunes/country-modify.fxml",1100,650),
-    DELETE_PAYMENT("account----pwd",new ArrayList<>(){{
-        add("1.格式为:账号----密码。");
-        add("2.一次可以输入多条账户信息，每条账户单独一行;如果数据中有-符号,则使用{-}替换。");
+    BIND_VIRTUAL_CARD("account----pwd----creditCardNumber/monthAndYear/creditVerificationNumber",new ArrayList<>(){{
+        add("格式为:帐号---密码----卡号/月份年份/安全码。");
+        add("一次可以输入多条账户信息，每条账户单独一行;如果数据中有-符号,则使用{-}替换。");
+    }}),
+    COMM("account----pwd",new ArrayList<>(){{
+        add("格式为:账号----密码。");
+        add("一次可以输入多条账户信息，每条账户单独一行;如果数据中有-符号,则使用{-}替换。");
     }}),
 //    BIND_VIRTUAL_CARD("绑定虚拟卡","views/iTunes/bind-virtual-card.fxml",1100,650),
 //    GIFTCARD_BLANCE("礼品卡查余额","views/iTunes/giftCard-balance-check.fxml",1100,650),

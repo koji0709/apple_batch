@@ -8,7 +8,7 @@ import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 

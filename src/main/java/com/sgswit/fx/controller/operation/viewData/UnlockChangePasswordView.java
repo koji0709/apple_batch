@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.operation.viewData;
 
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -9,7 +9,7 @@ import javafx.scene.control.TextField;
 /**
  * 账号解锁改密view元素
  */
-public class UnlockChangePasswordView extends TableView<Account> {
+public class UnlockChangePasswordView extends CustomTableView<Account> {
 
     /**
      * 随机ip代理

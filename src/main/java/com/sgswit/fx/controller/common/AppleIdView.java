@@ -5,7 +5,6 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
-import com.sgswit.fx.controller.common.TableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +17,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AppleIdView extends TableView<Account> {
+public class AppleIdView extends CustomTableView<Account> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

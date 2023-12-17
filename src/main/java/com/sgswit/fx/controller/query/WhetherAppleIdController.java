@@ -7,7 +7,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.TableView;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ import java.util.*;
  * @author yanggang
  * @createTime 2023/09/23
  */
-public class WhetherAppleIdController extends TableView<Account> {
+public class WhetherAppleIdController extends CustomTableView<Account> {
 
     public void openImportAccountView(){
         openImportAccountView(List.of("account"));
@@ -46,13 +46,13 @@ public class WhetherAppleIdController extends TableView<Account> {
             return;
         }
         JSONObject object = JSONUtil.parseObj(body);
-        String capId = object.get("id").toString();
-        String capToken = object.get("token").toString();
+        String capId = object.getStr("id");
+        String capToken = object.getStr("token");
 
         //解析图片
-        JSONObject object1 = JSONUtil.parseObj(JSONUtil.parseObj(body).get("payload").toString());
-        Object content = object1.get("content");
-        String predict = OcrUtil.recognize(content.toString());
+        JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
+        String content = payloadJson.getStr("content");
+        String predict = OcrUtil.recognize(content);
             String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
             HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                     .body(bodys)

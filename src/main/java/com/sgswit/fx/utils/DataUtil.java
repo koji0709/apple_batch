@@ -151,8 +151,9 @@ public class DataUtil {
                 Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
-
+            guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
         }finally {
+
         }
         return guid;
     }
@@ -169,7 +170,7 @@ public class DataUtil {
                 Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
-
+            clientId = IdUtil.fastUUID().toUpperCase();
         }finally {
         }
         return clientId;
