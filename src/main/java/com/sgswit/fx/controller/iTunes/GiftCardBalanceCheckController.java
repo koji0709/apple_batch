@@ -1,14 +1,18 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.GiftCardUtil;
+import com.sgswit.fx.utils.StageUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -26,11 +31,13 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
@@ -72,12 +79,12 @@ public class GiftCardBalanceCheckController implements Initializable {
     @FXML
     private TableView accountTableView;
 
-    private HttpResponse httpResponse;
-
     private ObservableList<GiftCard> list = FXCollections.observableArrayList();
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-    private static HashMap<String, String> paras = new HashMap<>();
+
+    private static Map<String,Object> hashMap=new HashMap<>();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         getCountry();
@@ -109,7 +116,7 @@ public class GiftCardBalanceCheckController implements Initializable {
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                loginAndInit();
+                loginAndInit(hashMap);
             }
         });
     }
@@ -172,72 +179,63 @@ public class GiftCardBalanceCheckController implements Initializable {
     }
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
-        loginAndInit();
+        loginAndInit(hashMap);
     }
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
+        if(StringUtils.isEmpty(account_pwd.getText())){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("信息");
+            alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+            alert.show();
+            return;
+        }
+        Map<String,Object> res=new HashMap<>();
         if(list.size() < 1){
             return;
         }
-        if(null==httpResponse){
-            loginAndInit();
+        if(null==hashMap || hashMap.size()==0){
+            loginAndInit(res);
+            hashMap=res;
+        }else{
+            res=hashMap;
         }
         for(GiftCard giftCard:list){
+//            checkBalance(giftCard, res);
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
                 continue;
-            }
-            accoutQueryBtn.setText("正在查询");
-            accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            accoutQueryBtn.setDisable(true);
-            giftCard.setNote("正在登录...");
-            accountTableView.refresh();
-            try {
-                checkBalance(giftCard);
-            } catch (Exception e) {
-                accoutQueryBtn.setDisable(false);
-                accoutQueryBtn.setText("开始执行");
-                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                e.printStackTrace();
-            }finally {
-                //JavaFX Application Thread会逐个阻塞的执行这些任务
-                Platform.runLater(new Task<Integer>() {
-                    @Override
-                    protected Integer call() {
-                        accoutQueryBtn.setDisable(false);
-                        accoutQueryBtn.setText("开始执行");
-                        accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                        return 1;
-                    }
-                });
-            }
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run(){
-//                    try {
+            }else{
+                checkBalance(giftCard, res);
+//                Map<String, Object> finalRes = res;
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run(){
 //                        try {
-//                            checkBalance(giftCard);
-//                        } catch (Exception e) {
-//                            accoutQueryBtn.setDisable(false);
-//                            accoutQueryBtn.setText("开始执行");
-//                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-//                            e.printStackTrace();
-//                        }
-//                    }finally {
-//                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-//                        Platform.runLater(new Task<Integer>() {
-//                            @Override
-//                            protected Integer call() {
+//                            try {
+//                                checkBalance(giftCard, finalRes);
+//                            } catch (Exception e) {
 //                                accoutQueryBtn.setDisable(false);
 //                                accoutQueryBtn.setText("开始执行");
 //                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-//                                return 1;
+//                                e.printStackTrace();
 //                            }
-//                        });
+//                        }finally {
+//                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+//                            Platform.runLater(new Task<Integer>() {
+//                                @Override
+//                                protected Integer call() {
+//                                    accoutQueryBtn.setDisable(false);
+//                                    accoutQueryBtn.setText("开始执行");
+//                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+//                                    return 1;
+//                                }
+//                            });
+//                        }
 //                    }
-//                }
-//            }).start();
+//                }).start();
+            }
         }
     }
     /**
@@ -248,7 +246,7 @@ public class GiftCardBalanceCheckController implements Initializable {
     　* @author DeZh
     　* @date 2023/11/1 11:15
     */
-    protected void loginAndInit(){
+    protected void loginAndInit(Map<String,Object> paras){
         if(StringUtils.isEmpty(account_pwd.getText())){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
@@ -279,45 +277,26 @@ public class GiftCardBalanceCheckController implements Initializable {
 
         //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
         HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
-        String location = pre2.header("Location");
-        String locationBase = location.substring(0,location.indexOf("shop"));
-        JXDocument underTest = JXDocument.create(pre3.body());
-        List<JXNode> nodes = underTest.selN("//script");
-        String metaXml = nodes.get(nodes.size()-1).value().toString();
-        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
-        JSON meta = JSONUtil.parse(metaJson);
-        String modelVersion = (String) meta.getByPath("meta.h.modelVersion");
-        String syntax = (String) meta.getByPath("meta.h.syntax");
-        String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
-        paras.put("location",location);
-        paras.put("syntax",syntax);
-        paras.put("x_aos_stk",x_aos_stk);
-        paras.put("modelVersion",modelVersion);
-        paras.put("locationBase",locationBase);
-        Map<String,Object> jx=GiftCardUtil.jXDocument(pre2, pre3);
-        String a=jx.get("a").toString();
-        BigInteger n=new BigInteger(jx.get("n").toString());
-        BigInteger ra=new BigInteger(jx.get("ra").toString());
-        BigInteger g=new BigInteger(jx.get("g").toString());
 
-        HttpResponse step0Res = GiftCardUtil.federate(account);
+        paras=GiftCardUtil.jXDocument(pre2, pre3,paras);
 
-        HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res);
+        HttpResponse step0Res = GiftCardUtil.federate(account,paras);
+        String a= MapUtil.getStr(paras,"a");
+        HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,paras);
 
-        HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,a,g,n,ra,step1Res,pre1,pre3);
+        HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,paras,step1Res,pre1,pre3);
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             alertMessage.setText(JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message").toString());
             alertMessage.setTextFill(Paint.valueOf("red"));
             return ;
         }
         //step3 shop signin
-        HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1);
+        HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,paras);
         alertMessage.setText("初始化成功，下次启动将自动执行初始化");
         alertMessage.setTextFill(Paint.valueOf("#238142"));
-        httpResponse=step3Res;
 
     }
-    protected void checkBalance(GiftCard giftCard) {
+    protected void checkBalance(GiftCard giftCard,Map<String,Object> paras) {
         Date nowDate=new Date();
         tableRefresh(giftCard,"正在登录...");
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
@@ -361,5 +340,6 @@ public class GiftCardBalanceCheckController implements Initializable {
     }
 
     public void onStopBtnClick(ActionEvent actionEvent) {
+
     }
 }
