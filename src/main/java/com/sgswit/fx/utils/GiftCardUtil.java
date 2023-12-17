@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -32,27 +33,6 @@ import java.util.TimeZone;
 
 public class GiftCardUtil {
 
-    public static String callbackSignInUrl = "";
-    public static String serviceURL = "";
-    public static String serviceKey = "";
-
-    public static String as_sfa_cookie = "";
-
-    public static String x_aos_stk="";
-    public static String x_aos_model_page="";
-    public static String modelVersion="";
-    public static String syntax="";
-
-    public static String location = "";
-    public static String locationBase = "";
-    public static String locationSSi  = "";
-
-    public static String frameId = "";
-    public static String clientId = "";
-
-    public static Integer xAppleHcBits = 0;
-    public static String xAppleHcChallenge = "";
-
     public static void main( String[] args ){
         //https://secure.store.apple.com/shop/giftcard/balance
         HttpResponse pre1 = shopPre1("us");
@@ -69,18 +49,15 @@ public class GiftCardUtil {
 
         //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
         HttpResponse pre3 = shopPre3(pre1,pre2);
-        Map<String,Object> jx=jXDocument(pre2, pre3);
+        Map<String,Object> paras=new HashMap<>();
+
+        Map<String,Object> jx=jXDocument(pre2, pre3,paras);
         String a=jx.get("a").toString();
-        BigInteger n=new BigInteger(jx.get("n").toString());
-        BigInteger ra=new BigInteger(jx.get("ra").toString());
-        BigInteger g=new BigInteger(jx.get("g").toString());
+        HttpResponse step0Res = federate("djli0506@163.com",paras);
 
+        HttpResponse step1Res = signinInit("djli0506@163.com",a,step0Res,paras);
 
-        HttpResponse step0Res = federate("djli0506@163.com");
-
-        HttpResponse step1Res = signinInit("djli0506@163.com",a,step0Res);
-
-        HttpResponse step2Res = signinCompete("djli0506@163.com","!!B0527s0207!",a,g,n,ra,step1Res,pre1,pre3);
+        HttpResponse step2Res = signinCompete("djli0506@163.com","!!B0527s0207!!",paras,step1Res,pre1,pre3);
         if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
             JSON json = JSONUtil.parse(step2Res.body());
             String error=json.getByPath("serviceErrors.message").toString();
@@ -88,10 +65,10 @@ public class GiftCardUtil {
             return ;
         }
         //step3 shop signin
-        HttpResponse step3Res = shopSignin(step2Res,pre1);
+        HttpResponse step3Res = shopSignin(step2Res,pre1,paras);
 
 
-        HttpResponse step4Res = checkBalance(null,"XGXR W4FG WD3L 4LZJ");
+        HttpResponse step4Res = checkBalance(paras,"XGXR W4FG WD3L 4LZJ");
         if(step4Res.getStatus()!=200){
             System.out.println("网络错误");
         }else{
@@ -100,48 +77,6 @@ public class GiftCardUtil {
         System.out.println(step4Res.getStatus());
         System.out.println(step4Res.body());
 
-    }
-    public static Map<String,Object> jXDocument(HttpResponse pre2, HttpResponse pre3){
-        Map<String,Object> res=new HashMap<>();
-        JXDocument underTest = JXDocument.create(pre3.body());
-
-        List<JXNode>  nodes = underTest.selN("//script");
-        String as_sfa = nodes.get(0).value().toString();
-        as_sfa_cookie   = as_sfa.substring(as_sfa.indexOf("as_sfa"),as_sfa.indexOf("\";"));
-        String metaXml = nodes.get(nodes.size()-1).value().toString();
-        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
-        JSON meta = JSONUtil.parse(metaJson);
-        x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
-        x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
-        modelVersion = (String) meta.getByPath("meta.h.modelVersion");
-        syntax = (String) meta.getByPath("meta.h.syntax");
-        serviceKey = (String) meta.getByPath("signIn.customerLoginIDMS.d.serviceKey");
-        serviceURL = (String) meta.getByPath("signIn.customerLoginIDMS.d.serviceURL");
-        callbackSignInUrl = (String) meta.getByPath("signIn.customerLoginIDMS.d.callbackSignInUrl");
-        clientId = serviceKey;
-        frameId  = createFrameId();
-
-        location = pre2.header("Location");
-        locationBase = location.substring(0,location.indexOf("shop"));
-        locationSSi  =  location.substring(location.indexOf("?"));
-        // get x-apple-hc
-        HttpResponse pre4 = signFrame();
-        xAppleHcBits = Integer.parseInt(pre4.header("X-Apple-HC-Bits"));
-        xAppleHcChallenge = pre4.header("X-Apple-HC-Challenge");
-
-        //step1  signin
-        String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
-        BigInteger n = new BigInteger(nHex,16);
-        BigInteger g = new BigInteger("2");
-
-        byte[] rb = RandomUtil.randomBytes(32);
-        BigInteger ra = new BigInteger(1,rb);
-        String a = calA(ra,n);
-        res.put("g",g);
-        res.put("n",n);
-        res.put("ra",ra);
-        res.put("a",a);
-        return res;
     }
     public static HttpResponse shopPre1(String countryCode){
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -187,10 +122,69 @@ public class GiftCardUtil {
                 .execute();
         return res;
     }
+    public static Map<String,Object> jXDocument(HttpResponse pre2, HttpResponse pre3,Map<String,Object> paras){
+        JXDocument underTest = JXDocument.create(pre3.body());
+
+        List<JXNode>  nodes = underTest.selN("//script");
+        String as_sfa = nodes.get(0).value().toString();
+        String as_sfa_cookie   = as_sfa.substring(as_sfa.indexOf("as_sfa"),as_sfa.indexOf("\";"));
+        paras.put("as_sfa_cookie",as_sfa_cookie);
 
 
-    private static HttpResponse signFrame(){
+        String metaXml = nodes.get(nodes.size()-1).value().toString();
+        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
+        JSON meta = JSONUtil.parse(metaJson);
+        String x_aos_model_page =meta.getByPath("meta.h.x-aos-model-page",String.class);
+        paras.put("x_aos_model_page",x_aos_model_page);
+        String x_aos_stk = meta.getByPath("meta.h.x-aos-stk",String.class);
+        paras.put("x_aos_stk",x_aos_stk);
+        String modelVersion =  meta.getByPath("meta.h.modelVersion",String.class);
+        paras.put("modelVersion",modelVersion);
+        String syntax = meta.getByPath("meta.h.syntax",String.class);
+        paras.put("syntax",syntax);
+        String serviceKey =meta.getByPath("signIn.customerLoginIDMS.d.serviceKey",String.class);
+        paras.put("serviceKey",serviceKey);
+        String serviceURL =meta.getByPath("signIn.customerLoginIDMS.d.serviceURL",String.class);
+        paras.put("serviceURL",serviceURL);
+        String callbackSignInUrl = meta.getByPath("signIn.customerLoginIDMS.d.callbackSignInUrl",String.class);
+        paras.put("callbackSignInUrl",callbackSignInUrl);
+        String clientId = serviceKey;
+        paras.put("clientId",clientId);
+        String frameId  = createFrameId();
+        paras.put("frameId",frameId);
+        String location = pre2.header("Location");
+        paras.put("location",location);
+        String locationBase = location.substring(0,location.indexOf("shop"));
+        paras.put("locationBase",locationBase);
+        String locationSSi  =  location.substring(location.indexOf("?"));
+        paras.put("locationSSi",locationSSi);
+        // get x-apple-hc
+        HttpResponse pre4 = signFrame(paras);
+        paras.put("callbackSignInUrl",callbackSignInUrl);
+        int xAppleHcBits = Integer.parseInt(pre4.header("X-Apple-HC-Bits"));
+        paras.put("xAppleHcBits",xAppleHcBits);
+        String xAppleHcChallenge = pre4.header("X-Apple-HC-Challenge");
+        paras.put("xAppleHcChallenge",xAppleHcChallenge);
+        //step1  signin
+        String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
+        BigInteger n = new BigInteger(nHex,16);
+        BigInteger g = new BigInteger("2");
+
+        byte[] rb = RandomUtil.randomBytes(32);
+        BigInteger ra = new BigInteger(1,rb);
+        String a = calA(ra,n);
+        paras.put("g",g);
+        paras.put("n",n);
+        paras.put("ra",ra);
+        paras.put("a",a);
+        return paras;
+    }
+
+    private static HttpResponse signFrame(Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
+        String locationBase= MapUtil.getStr(paras,"locationBase");
+        String frameId= MapUtil.getStr(paras,"frameId");
+        String clientId= MapUtil.getStr(paras,"clientId");
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
@@ -207,7 +201,10 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse federate(String account){
+    public static HttpResponse federate(String account,Map<String,Object> paras){
+        String frameId= MapUtil.getStr(paras,"frameId");
+        String clientId= MapUtil.getStr(paras,"clientId");
+        String locationBase= MapUtil.getStr(paras,"locationBase");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -247,9 +244,11 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse signinInit(String account,String a ,HttpResponse res1){
+    public static HttpResponse signinInit(String account,String a ,HttpResponse res1,Map<String,Object> paras){
+        String frameId= MapUtil.getStr(paras,"frameId");
+        String clientId= MapUtil.getStr(paras,"clientId");
+        String locationBase= MapUtil.getStr(paras,"locationBase");
         HashMap<String, List<String>> headers = new HashMap<>();
-
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
@@ -290,7 +289,18 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse signinCompete(String account,String pwd,String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse pre1,HttpResponse pre3){
+    public static HttpResponse signinCompete(String account,String pwd,Map<String,Object> paras,HttpResponse res1,HttpResponse pre1,HttpResponse pre3){
+        String frameId= MapUtil.getStr(paras,"frameId");
+        String clientId= MapUtil.getStr(paras,"clientId");
+        String locationBase= MapUtil.getStr(paras,"locationBase");
+        String a= MapUtil.getStr(paras,"a");
+        String as_sfa_cookie= MapUtil.getStr(paras,"as_sfa_cookie");
+        int xAppleHcBits= MapUtil.getInt(paras,"xAppleHcBits");
+        String xAppleHcChallenge= MapUtil.getStr(paras,"xAppleHcChallenge");
+        BigInteger g= MapUtil.get(paras,"g",BigInteger.class);
+        BigInteger n= MapUtil.get(paras,"n",BigInteger.class);
+        BigInteger ra= MapUtil.get(paras,"ra",BigInteger.class);
+
 
         HashMap<String, List<String>> headers = new HashMap<>();
 
@@ -338,41 +348,36 @@ public class GiftCardUtil {
         String c = (String)json.getByPath("c");
 
         Map map = calM(account, pwd, a, iter, salt, b, g, n, ra);
-        Map<String,Object> paras=new HashMap<>(){{
+        Map<String,Object> bodyParas=new HashMap<>(){{
             put("accountName",account);
             put("rememberMe",false);
             put("m1",map.get("m1"));
             put("c",c);
             put("m2",map.get("m2"));
         }};
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> res1Cookies = res1.headerList("Set-Cookie");
-        for(String item : res1Cookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        List<String> pre3Cookies = pre3.headerList("Set-Cookie");
-        for(String item : pre3Cookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        List<String> pre1Cookies = pre1.headerList("Set-Cookie");
-        for(String item : pre1Cookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        cookieBuilder.append(";").append(as_sfa_cookie);
-
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(res1,cookiesMap);
+        CookieUtils.setCookiesToMap(pre3,cookiesMap);
+        CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        cookies=cookies+";"+as_sfa_cookie;
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
-                .body(JSONUtil.toJsonStr(paras))
-                .cookie(cookieBuilder.toString())
+                .body(JSONUtil.toJsonStr(bodyParas))
+                .cookie(cookies)
                 .execute();
         return res;
     }
 
 
-    public static HttpResponse shopSignin(HttpResponse step2Res,HttpResponse pre1){
+    public static HttpResponse shopSignin(HttpResponse step2Res,HttpResponse pre1,Map<String,Object> paras){
+        String syntax= MapUtil.getStr(paras,"syntax");
+        String modelVersion= MapUtil.getStr(paras,"modelVersion");
+        String x_aos_stk= MapUtil.getStr(paras,"x_aos_stk");
+        String locationBase= MapUtil.getStr(paras,"locationBase");
+        String location= MapUtil.getStr(paras,"location");
+        String x_aos_model_page= MapUtil.getStr(paras,"x_aos_model_page");
+        String as_sfa_cookie= MapUtil.getStr(paras,"as_sfa_cookie");
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("*/*"));
@@ -401,22 +406,12 @@ public class GiftCardUtil {
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
 
-        StringBuilder cookieBuilder = new StringBuilder();
-
-
-        List<String> pre1Cookies = pre1.headerList("Set-Cookie");
-        for(String item : pre1Cookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        List<String> step2ResCookies = step2Res.headerList("Set-Cookie");
-        for(String item : step2ResCookies){
-            cookieBuilder.append(";").append(item);
-        }
-
-        cookieBuilder.append(";").append(as_sfa_cookie);
-//
-        String cookies = cookieBuilder.substring(1);
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        CookieUtils.setCookiesToMap(step2Res,cookiesMap);
+        CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        cookies=cookies+";"+as_sfa_cookie;
 
         Map<String,Object> paramMap = new HashMap<>();
 
@@ -434,7 +429,7 @@ public class GiftCardUtil {
         return res3;
     }
 
-    public static HttpResponse checkBalance( HashMap<String, String> paras,String giftCardPin){
+    public static HttpResponse checkBalance( Map<String, Object> paras,String giftCardPin){
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
@@ -443,14 +438,14 @@ public class GiftCardUtil {
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
         headers.put("referer",ListUtil.toList(paras.get("locationBase")+ "shop/giftcard/balance"));
-        headers.put("origin",ListUtil.toList(paras.get("locationBase")));
+        headers.put("origin",ListUtil.toList(MapUtil.getStr(paras,"locationBase")));
 
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         headers.put("x-aos-model-page", ListUtil.toList("giftCardBalancePage"));
-        headers.put("x-aos-stk",ListUtil.toList(paras.get("x_aos_stk")));
-        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList( paras.get("syntax")));
+        headers.put("x-aos-stk",ListUtil.toList(MapUtil.getStr(paras,"x_aos_stk")));
+        headers.put("modelVersion",ListUtil.toList(MapUtil.getStr(paras,"modelVersion")));
+        headers.put("syntax",ListUtil.toList(MapUtil.getStr(paras,"syntax")));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -460,12 +455,11 @@ public class GiftCardUtil {
 
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
-
-        HttpResponse res4 = HttpUtil.createPost(paras.get("location").substring(0,paras.get("location").indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
+        String location=MapUtil.getStr(paras,"location");
+        HttpResponse res4 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
                 .header(headers)
                 .form(data)
                 .execute();
-        System.out.println(res4.body());
         return res4;
     }
 
