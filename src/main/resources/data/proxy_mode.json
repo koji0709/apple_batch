@@ -1,0 +1,17 @@
+[{
+  "key": "0",
+  "value": "不使用代理",
+  "maxThreadCount": 5
+}, {
+  "key": "1",
+  "value": "API或导入代理",
+  "maxThreadCount": 600
+}, {
+  "key": "2",
+  "value": "使用隧道代理",
+  "maxThreadCount": 600
+}, {
+  "key": "3",
+  "value": "使用内置代理",
+  "maxThreadCount": 40
+}]

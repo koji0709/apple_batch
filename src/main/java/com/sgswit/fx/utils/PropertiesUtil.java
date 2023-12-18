@@ -1,8 +1,10 @@
 package com.sgswit.fx.utils;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * @author DeZh
@@ -34,6 +36,28 @@ public class PropertiesUtil {
         }
         return res;
     }
+    /**
+     * 获取Map指定key的值，并转换为Integer
+     *
+     * @param key 键
+     * @return 值
+     * @since 4.0.6
+     */
+    public static Integer getOtherInt(String key) {
+        Integer res = null;
+        try {
+            PropertiesConfiguration propsConfig = new PropertiesConfiguration(CUSTOMER_CONFIG);
+            if(StringUtils.isEmpty(propsConfig.getString(key))){
+                res=0;
+            }else{
+                res=Integer.valueOf(propsConfig.getString(key));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     public static boolean getOtherBool(String key,boolean f) {
         boolean res = false;
         try {

@@ -37,6 +37,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -62,7 +63,7 @@ public class CustomTableView<T> extends CommonView {
 
     private Class clz = Account.class;
     private List<String> formats;
-
+    private static ExecutorService executor = ThreadUtil.newExecutor(2);
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
@@ -177,7 +178,7 @@ public class CustomTableView<T> extends CommonView {
                 setExecuteButtonStatus(false);
             });
         };
-        ThreadUtil.execute(task);
+        executor.execute(task);
 
     }
 

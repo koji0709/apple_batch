@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  */
 public class DataUtil {
     private static List<BaseAreaInfo> baseAreaInfoList;
+    private static List<Map> proxyModeList;
     /**
     　* @description: 获取国家地区码表
       * @param
@@ -40,6 +41,17 @@ public class DataUtil {
     　* @author DeZh
     　* @date 2023/9/20 8:49
     */
+    public static List<Map> getProxyModeList(){
+        try {
+            if(null==proxyModeList || proxyModeList.size()==0){
+                String jsonString = ResourceUtil.readUtf8Str("data/proxy_mode.json");
+                proxyModeList= JSONUtil.toList(jsonString, Map.class);
+            }
+        }catch (Exception e){
+            proxyModeList=new ArrayList<>();
+        }
+        return proxyModeList;
+    }
     public static List<BaseAreaInfo> getCountry(){
         try {
             if(null==baseAreaInfoList || baseAreaInfoList.size()==0){

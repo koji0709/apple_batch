@@ -1,10 +1,12 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.db.Db;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.KeyValuePair;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ProjectValues;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StyleUtil;
@@ -32,6 +34,7 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -43,7 +46,7 @@ public class MainController implements Initializable {
     @FXML
     public Label remainingPoints;
     @FXML
-    private ChoiceBox<KeyValuePair> agencyMode = new ChoiceBox<KeyValuePair>();
+    private ChoiceBox<Map> proxyMode = new ChoiceBox<>();
     @FXML
     private CheckBox isAutoLogin;
     @FXML
@@ -52,12 +55,7 @@ public class MainController implements Initializable {
     private Integer tempIndex;
 
 
-    private final List<KeyValuePair> agencyModeList =new ArrayList<>(){{
-        add(new KeyValuePair("none","不使用代理"));
-        add(new KeyValuePair("api","API或导入代理"));
-        add(new KeyValuePair("tunnel","使用隧道代理"));
-        add(new KeyValuePair("in","使用内置代理"));
-    }};
+    private final List<Map> proxyModeList = DataUtil.getProxyModeList();
 
     /**
     　* @description:初始化页面数据
@@ -70,20 +68,21 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //初始化代理模式
-        agencyMode.getItems().addAll(agencyModeList);
-        agencyMode.converterProperty().set(new StringConverter<KeyValuePair>() {
+        proxyMode.getItems().addAll(proxyModeList);
+        proxyMode.converterProperty().set(new StringConverter<Map>() {
             @Override
-            public String toString(KeyValuePair object) {
-                return object.getValue();
+            public String toString(Map map) {
+                return MapUtil.getStr(map,"value");
             }
 
             @Override
-            public KeyValuePair fromString(String string) {
+            public Map fromString(String string) {
                 return null;
             }
         });
-        agencyMode.getSelectionModel().select(0);
-        agencyModeListener();
+        Integer proxyModeIndex=PropertiesUtil.getOtherInt("proxyMode");
+        proxyMode.getSelectionModel().select(proxyModeIndex);
+        proxyModeListener();
 
         //初始化是否自动登录
         isAutoLogin.setSelected(PropertiesUtil.getOtherBool("login.auto",false));
@@ -203,19 +202,14 @@ public class MainController implements Initializable {
 
 
     /**代理模式监听*/
-    protected void agencyModeListener(){
-//        loginMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
-//            @Override
-//            public void changed(ObservableValue observableValue, Object o, Object t1) {
-//
-//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//                alert.setTitle("提示");
-//                String msg= MessageFormat.format("{0}修改成功，配置已生效！",loginModeList.get(Integer.valueOf(t1.toString())).getValue());
-//                alert.setHeaderText(msg);
-//                alert.show();
-//                //修改本地配置文件
-//            }
-//        });
+    protected void proxyModeListener(){
+        proxyMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object o, Object t1) {
+                //修改本地配置文件
+                PropertiesUtil.setOtherConfig("proxyMode",t1.toString());
+            }
+        });
 
     }
     /**是否自动登录监听*/
