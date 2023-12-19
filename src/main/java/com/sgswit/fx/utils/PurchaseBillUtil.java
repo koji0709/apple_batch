@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
@@ -26,6 +27,7 @@ import org.bouncycastle.crypto.util.DigestFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -49,19 +51,25 @@ public class PurchaseBillUtil {
 //            System.out.println(jsonStrList);
 //        }
 //        Map<String,Object> res= authenticate("josepharnoldc4@outlook.com","Zxc112211");
-for (int i=0;i<10;i++){
-    Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
-
-}
+//for (int i=0;i<10;i++){
+//    Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
+//
+//}
 
 
 //        ITunesUtil.appStoreOverCheck(res);
-//        Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
-//        res.put("creditCardNumber","5187180019685639");
-//        res.put("creditCardExpirationMonth","1");
-//        res.put("creditCardExpirationYear","2025");
-//        res.put("creditVerificationNumber","864");
-//        Map<String,Object> resMap=ITunesUtil.addCreditPayment(res,"01");
+        Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
+        res.put("creditCardNumber","6222530919802624");
+        res.put("creditCardExpirationMonth","7");
+        res.put("creditCardExpirationYear","2026");
+        res.put("creditVerificationNumber","016");
+        res=ITunesUtil.addCreditPayment(res,"01");
+        System.err.println("请输入验证码：");
+        String smsCode = cn.hutool.core.lang.Console.input().trim();
+        System.out.println(smsCode);
+        res.put("smsCode",smsCode);
+        res=ITunesUtil.addCreditPayment(res,"02");
+
 
 //        authenticate("1948401156@qq.com","B0527s0207!");
 

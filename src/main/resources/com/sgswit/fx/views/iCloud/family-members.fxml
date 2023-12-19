@@ -149,10 +149,11 @@
                                             </children>
                                         </VBox>
                                     </VBox>
-                                    <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="400.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
+                                    <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="470.0" style="-fx-padding: 10;">
                                         <children>
                                             <Label text="添加或移除家庭成员需要组织者账号权限。" textFill="#169BD5" />
-                                            <Label text="添加家庭成员导入格式：组织者帐号----组织者密码----添加帐号----添加帐号密码----安全码(CVV)" textFill="#169BD5" />
+                                            <Label prefWidth="384.0" text="添加家庭成员导入格式：组织者帐号----组织者密码----添加帐" textFill="#169BD5" />
+                                            <Label layoutX="20.0" layoutY="63.0" prefWidth="384.0" text="号----添加帐号密码----安全码(CVV)" textFill="#169BD5" />
                                             <Label text="移除家庭成员导入格式：组织者帐号----组织者密码----成员帐号或成员Dsid" textFill="#169BD5" />
                                         </children>
                                     </VBox>

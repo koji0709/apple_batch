@@ -70,7 +70,7 @@ public class GiftCardBalanceCheckController implements Initializable {
     @FXML
     public TextField account_pwd;
     @FXML
-    public Button accoutQueryBtn;
+    public Button accountQueryBtn;
     @FXML
     public Label alertMessage;
     @FXML
@@ -216,9 +216,9 @@ public class GiftCardBalanceCheckController implements Initializable {
 //                            try {
 //                                checkBalance(giftCard, finalRes);
 //                            } catch (Exception e) {
-//                                accoutQueryBtn.setDisable(false);
-//                                accoutQueryBtn.setText("开始执行");
-//                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+//                                accountQueryBtn.setDisable(false);
+//                                accountQueryBtn.setText("开始执行");
+//                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
 //                                e.printStackTrace();
 //                            }
 //                        }finally {
@@ -226,9 +226,9 @@ public class GiftCardBalanceCheckController implements Initializable {
 //                            Platform.runLater(new Task<Integer>() {
 //                                @Override
 //                                protected Integer call() {
-//                                    accoutQueryBtn.setDisable(false);
-//                                    accoutQueryBtn.setText("开始执行");
-//                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+//                                    accountQueryBtn.setDisable(false);
+//                                    accountQueryBtn.setText("开始执行");
+//                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
 //                                    return 1;
 //                                }
 //                            });

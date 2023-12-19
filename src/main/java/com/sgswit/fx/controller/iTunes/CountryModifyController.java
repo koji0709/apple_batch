@@ -77,7 +77,7 @@ public class CountryModifyController extends CommController<Account> implements 
     private TableColumn answer3;
 
     @FXML
-    private Button accoutQueryBtn;
+    private Button accountQueryBtn;
 
     @FXML
     private Button accountExportBtn;
@@ -253,7 +253,7 @@ public class CountryModifyController extends CommController<Account> implements 
             alert.show();
             return;
         }
-        super.onAccountQueryBtnClick(accoutQueryBtn,accountTableView,list);
+        super.onAccountQueryBtnClick(accountQueryBtn,accountTableView,list);
     }
 
 

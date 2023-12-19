@@ -24,6 +24,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -62,7 +63,7 @@ public class CommController<T> extends CustomTableView {
     /**
     　* 点击执行查询
       * @param
-     * @param accoutQueryBtn
+     * @param accountQueryBtn
      * @param accountTableView
      * @param list
     　* @return void
@@ -70,7 +71,7 @@ public class CommController<T> extends CustomTableView {
     　* @author DeZh
     　* @date 2023/10/26 23:00
     */
-    protected void onAccountQueryBtnClick(Button accoutQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
+    protected void onAccountQueryBtnClick(Button accountQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
         //判断是否有待执行的数据
         if(list.size()<1){
             return;
@@ -84,12 +85,12 @@ public class CommController<T> extends CustomTableView {
             Object answer1=getFieldValueByObject(account,"answer1");
             if(StrUtil.isEmptyIfStr(answer1)){
                 //双重认证
-                secondSec(account,accoutQueryBtn,accountTableView);
+                secondSec(account,accountQueryBtn,accountTableView);
             }else{
                 //非双重认证
-                accoutQueryBtn.setText("正在查询");
-                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accoutQueryBtn.setDisable(true);
+                accountQueryBtn.setText("正在查询");
+                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accountQueryBtn.setDisable(true);
 
                 setFieldValueByObject(account, "正在登录...","note");
                 accountTableView.refresh();
@@ -97,23 +98,27 @@ public class CommController<T> extends CustomTableView {
                 new Thread(new Runnable() {
                     @Override
                     public void run(){
+
                         try {
+                            noSecondSec(account,accountQueryBtn,accountTableView);
+                        } catch (Exception e) {
                             try {
-                                noSecondSec(account,accoutQueryBtn,accountTableView);
-                            } catch (Exception e) {
-                                accoutQueryBtn.setDisable(false);
-                                accoutQueryBtn.setText("开始执行");
-                                accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                e.printStackTrace();
+                                setFieldValueByObject(account, "操作失败，接口异常","note");
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            e.printStackTrace();
                         }finally {
                             //JavaFX Application Thread会逐个阻塞的执行这些任务
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
-                                    accoutQueryBtn.setDisable(false);
-                                    accoutQueryBtn.setText("开始执行");
-                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                                     return 1;
                                 }
                             });
@@ -124,7 +129,7 @@ public class CommController<T> extends CustomTableView {
         }
     }
 
-    private boolean secondSec(T account,Button accoutQueryBtn,TableView accountTableView) throws Exception {
+    private boolean secondSec(T account,Button accountQueryBtn,TableView accountTableView) throws Exception {
         //step1 sign 登录
         Object accountName=getFieldValueByObject(account,"account");
         Object pwd=getFieldValueByObject(account,"pwd");
@@ -141,13 +146,13 @@ public class CommController<T> extends CustomTableView {
         HttpResponse step1Res = AppleIDUtil.signin(a);
 
         if (step1Res.getStatus() != 409) {
-            queryFail(account, accoutQueryBtn, accountTableView);
+            queryFail(account, accountQueryBtn, accountTableView);
             return false;
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
-            queryFail(account, accoutQueryBtn, accountTableView);
+            queryFail(account, accountQueryBtn, accountTableView);
             return false;
         }
 
@@ -174,10 +179,14 @@ public class CommController<T> extends CustomTableView {
 
                 String type = s.getSecurityType();
                 String code = s.getSecurityCode();
+                if(StringUtils.isEmpty(code)){
+                    return false;
+                }
 
-                accoutQueryBtn.setText("正在查询");
-                accoutQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accoutQueryBtn.setDisable(true);
+
+                accountQueryBtn.setText("正在查询");
+                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accountQueryBtn.setDisable(true);
 
                 setFieldValueByObject(account, "正在验证验证码...","note");
                 accountTableView.refresh();
@@ -188,24 +197,24 @@ public class CommController<T> extends CustomTableView {
                         try {
                             HttpResponse step22Res = AppleIDUtil.securityCode(step21Res, type, code);
                             if (step22Res.getStatus() != 204 && step22Res.getStatus() != 200) {
-                                queryFail(account, accoutQueryBtn, accountTableView);
+                                queryFail(account, accountQueryBtn, accountTableView);
                             }
                             setFieldValueByObject(account, "登录成功","note");
                             accountTableView.refresh();
                             queryOrUpdate(account, step22Res);
                         } catch (Exception e) {
-                            accoutQueryBtn.setDisable(false);
-                            accoutQueryBtn.setText("开始执行");
-                            accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                             e.printStackTrace();
                         } finally {
                             //JavaFX Application Thread会逐个阻塞的执行这些任务
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
-                                    accoutQueryBtn.setDisable(false);
-                                    accoutQueryBtn.setText("开始执行");
-                                    accoutQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
                                     return 1;
                                 }
                             });
@@ -226,7 +235,7 @@ public class CommController<T> extends CustomTableView {
         return true;
     }
 
-    private boolean noSecondSec(T account,Button accoutQueryBtn,TableView accountTableView) throws Exception {
+    private boolean noSecondSec(T account,Button accountQueryBtn,TableView accountTableView) throws Exception {
         //step1 sign 登录
         Object accountName=getFieldValueByObject(account,"account");
         Object pwd=getFieldValueByObject(account,"pwd");
@@ -243,13 +252,13 @@ public class CommController<T> extends CustomTableView {
         HttpResponse step1Res = AppleIDUtil.signin(a);
 
         if (step1Res.getStatus() != 409) {
-            queryFail(account, accoutQueryBtn, accountTableView);
+            queryFail(account, accountQueryBtn, accountTableView);
             return false;
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
-            queryFail(account, accoutQueryBtn, accountTableView);
+            queryFail(account, accountQueryBtn, accountTableView);
             return false;
         }
 
@@ -290,7 +299,7 @@ public class CommController<T> extends CustomTableView {
         }
         return true;
     }
-    private void queryFail(T account,Button accoutQueryBtn,TableView accountTableView) throws Exception {
+    private void queryFail(T account,Button accountQueryBtn,TableView accountTableView) throws Exception {
         String note = "查询失败，请确认用户名密码是否正确";
         account=setFieldValueByObject(account, note,"note");
         accountTableView.refresh();

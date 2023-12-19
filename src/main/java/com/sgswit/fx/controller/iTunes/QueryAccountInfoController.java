@@ -184,6 +184,8 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                                         accountTableView.refresh();
                                     }
                                 } catch (Exception e) {
+                                    account.setNote("操作失败，接口异常");
+                                    accountTableView.refresh();
                                     accountQueryBtn.setDisable(false);
                                     accountQueryBtn.setText("开始执行");
                                     accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
