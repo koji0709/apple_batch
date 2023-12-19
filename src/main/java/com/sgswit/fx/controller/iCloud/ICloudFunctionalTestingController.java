@@ -35,13 +35,15 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
             return;
         }
 
-        String areaCode = authRsp.header("X-Apple-ID-Account-Country");
-        iCloudFunctionalTesting.setArea(DataUtil.getNameByCountryCode(areaCode));
-
         JSONObject jo = JSONUtil.parseObj(authRsp.body());
         String icloudMail = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
         if(StrUtil.isNotEmpty(icloudMail)){
             iCloudFunctionalTesting.setIcloudMail(icloudMail);
+        }
+
+        String areaCode = jo.getByPath("dsInfo.countryCode",String.class);
+        if (!StrUtil.isEmpty(areaCode)){
+            iCloudFunctionalTesting.setArea(DataUtil.getNameByCountryCode(areaCode));
         }
 
         JSONObject webservices = (JSONObject) jo.getByPath("webservices");
