@@ -35,6 +35,9 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
             return;
         }
 
+        String areaCode = authRsp.header("X-Apple-ID-Account-Country");
+        iCloudFunctionalTesting.setArea(DataUtil.getNameByCountryCode(areaCode));
+
         JSONObject jo = JSONUtil.parseObj(authRsp.body());
         String icloudMail = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
         if(StrUtil.isNotEmpty(icloudMail)){
