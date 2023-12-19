@@ -262,7 +262,9 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void showDocument() throws IOException {
-        Desktop.getDesktop().browse(URI.create("tencent://message/?uin=1215489895"));
+        Setting config = new Setting("config.properties");
+        String customerServiceQQ= config.getStr("customer.service.qq");
+        Desktop.getDesktop().browse(URI.create("tencent://message/?uin="+customerServiceQQ));
     }
 
 }
