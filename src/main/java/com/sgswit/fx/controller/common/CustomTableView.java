@@ -464,7 +464,9 @@ public class CustomTableView<T> extends CommonView {
         }
         accountTableView.refresh();
         if (saveLog){
-            insertLocalHistory(List.of(account));
+            ThreadUtil.execute(() -> {
+                insertLocalHistory(List.of(account));
+            });
         }
     }
 
