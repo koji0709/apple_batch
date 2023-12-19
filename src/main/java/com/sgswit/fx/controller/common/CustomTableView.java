@@ -171,7 +171,7 @@ public class CustomTableView<T> extends CommonView {
                     try{
                         accountHandler(account);
                     }catch (Exception e){
-                        setAndRefreshNote(account,"执行结束;" + e.getMessage(),false);
+                        setAndRefreshNote(account,"接口数据处理异常",true);
                         e.printStackTrace();
                     }
                 });
