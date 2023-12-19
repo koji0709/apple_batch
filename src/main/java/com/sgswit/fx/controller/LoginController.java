@@ -19,6 +19,10 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -257,9 +261,8 @@ public class LoginController extends CommonView implements Initializable {
         alert(HttpUtil.message(rsp));
     }
 
-    public void showDocument(){
-        String url = "https://qm.qq.com/q/soD5j3tlEk";
-        HostServicesUtil.getHostServices().showDocument(url); // 在默认
+    public void showDocument() throws IOException {
+        Desktop.getDesktop().browse(URI.create("tencent://message/?uin=1215489895"));
     }
 
 }
