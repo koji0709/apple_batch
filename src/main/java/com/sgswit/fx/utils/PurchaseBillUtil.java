@@ -1004,15 +1004,16 @@ public class PurchaseBillUtil {
                 paras.put("msg",customerMessage);
                 return paras;
             }
-            if(!StringUtils.isEmpty(failureType)){
-                paras.put("code","1");
-                return paras;
-            }
             if(StringUtils.isEmpty(failureType) && StringUtils.isEmpty(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
                 paras.put("code","1");
                 paras.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
                 return paras;
             }
+            if(!StringUtils.isEmpty(failureType)){
+                paras.put("code","1");
+                return paras;
+            }
+
             String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
             String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
             Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);

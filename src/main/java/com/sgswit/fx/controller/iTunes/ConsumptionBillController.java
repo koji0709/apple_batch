@@ -151,6 +151,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
                                     if(!accountInfoMap.get("code").equals("200")){
                                         account.setNote(String.valueOf(accountInfoMap.get("msg")));
+                                        accountTableView.refresh();
                                         return;
                                     }else{
                                         boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
