@@ -287,11 +287,11 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                 }
             }
             //最近记录
-            Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date ASC LIMIT 1;");
+            Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  desc LIMIT 1;");
             nowDate.setTime(entityLast.getLong("purchase_date"));
             consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
             //最早记录
-            Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date desc LIMIT 1;");
+            Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  ASC LIMIT 1;");
             nowDate.setTime(entityEarliest.getLong("purchase_date"));
             consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
             //消费总额
