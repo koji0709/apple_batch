@@ -29,6 +29,7 @@ public class Constant {
     public static final String LOCAL_FILE_EXTENSION = ".applebatch";
 
     public static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
+    public static final String BROWSER_CLIENT_INFO = "{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNAA1ckHmeHZ.QxQeLaD.SAuXjodUW1BNyhw.Tf5.EKWJ9Zb4JRJE_.z9Oyd7lY5BNleBBNlYCa1nkBMfs.5o8\"}";
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
         put("Your account is disabled.","出于安全原因，你的账户已被锁定。");

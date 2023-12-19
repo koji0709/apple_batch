@@ -41,4 +41,16 @@ public class ICloudItemsController {
         StageUtil.show(StageEnum.FAMILY_MEMBERS);
     }
 
+    public void iCloudFunctionalTestingBtnClick(){
+        StageUtil.show(StageEnum.ICLOUD_FUNCTIONAL_TESTING);
+    }
+
+    public void iCloudWebRepairBtnClick(){
+        StageUtil.show(StageEnum.ICLOUD_WEB_REPAIR);
+    }
+
+    public void iCloudactivateMailBtnClick(){
+        StageUtil.show(StageEnum.ICLOUD_ACTIVATE_MAIL);
+    }
+
 }

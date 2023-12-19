@@ -40,15 +40,15 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0" layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="iCloud功能检测" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="134.0" mnemonicParsing="false" onAction="#iCloudFunctionalTestingBtnClick" prefHeight="25.0" prefWidth="140.0" text="iCloud功能检测" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="修复网页iCloud" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#iCloudWebRepairBtnClick" prefHeight="25.0" prefWidth="140.0" text="修复网页iCloud" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="激活iCloud邮箱" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
+    <Button mnemonicParsing="false" onAction="#iCloudactivateMailBtnClick" prefHeight="25.0" prefWidth="140.0" text="激活iCloud邮箱" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
