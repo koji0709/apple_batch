@@ -68,9 +68,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         }
 
         // 412普通登陆, 409双重登陆
-        String sessionToken = "";
         HttpResponse singInLocalRes = singInRes;
-
         if (status == 412){
             HttpResponse repairRes = ICloudUtil.appleIDrepair(singInRes);
             //获取session-id，后续操作需基于该id进行处理
@@ -82,14 +80,16 @@ public class ICloudView<T> extends CustomTableView<T> {
             HttpResponse completeRes = ICloudUtil.appleIDrepairComplete(singInRes,options2Res,clientId,sessionId);
 
             //处理后，获取account 信息
-            sessionToken = completeRes.header("X-Apple-Session-Token");
             singInLocalRes = completeRes;
         }
 
         HttpResponse authRsp = null;
+        String sessionToken = singInLocalRes.header("X-Apple-Session-Token");
+
         if (!StrUtil.isEmpty(sessionToken)){
             authRsp = ICloudUtil.accountLogin(singInLocalRes, domain);
         }
+
         return authRsp;
     }
 

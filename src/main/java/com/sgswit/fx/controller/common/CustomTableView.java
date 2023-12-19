@@ -169,7 +169,12 @@ public class CustomTableView<T> extends CommonView {
                 ThreadUtil.sleep(500);
                 ThreadUtil.execute(()->{
                     setAndRefreshNote(account,"执行中",false);
-                    accountHandler(account);
+                    try{
+                        accountHandler(account);
+                    }catch (Exception e){
+                        setAndRefreshNote(account,"接口数据处理异常",true);
+                        e.printStackTrace();
+                    }
                 });
             }
 
