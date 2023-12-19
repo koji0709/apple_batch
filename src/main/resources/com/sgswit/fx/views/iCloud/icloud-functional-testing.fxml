@@ -101,10 +101,10 @@
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="150" text="账号" />
                                 <TableColumn fx:id="pwd" prefWidth="100" text="密码" />
-                                <TableColumn fx:id="answer1" prefWidth="100" text="账号地区" />
-                                <TableColumn fx:id="answer2" prefWidth="100" text="邮箱功能" />
-                                <TableColumn fx:id="answer3" prefWidth="120" text="iCloud专属邮箱" />
-                                <TableColumn fx:id="pin" prefWidth="120" text="iCloud账户" />
+                                <TableColumn fx:id="area" prefWidth="100" text="账号地区" />
+                                <TableColumn fx:id="mailStatus" prefWidth="100" text="邮箱功能" />
+                                <TableColumn fx:id="icloudMail" prefWidth="120" text="iCloud专属邮箱" />
+                                <TableColumn fx:id="isIcloudAccount" prefWidth="120" text="iCloud账户" />
                                 <TableColumn fx:id="note" prefWidth="240" text="执行信息" />
                             </columns>
                         </TableView>

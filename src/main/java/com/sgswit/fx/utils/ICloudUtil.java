@@ -679,8 +679,8 @@ public class ICloudUtil {
         Map<String,String> signInMap = new HashMap<>();
         signInMap.put("clientId",clientId);
         signInMap.put("redirectUri",redirectUri);
-        signInMap.put("account","1");
-        signInMap.put("pwd","!!B0527s0207!!1");
+        signInMap.put("account","djli0506@163.com");
+        signInMap.put("pwd","!!B0527s0207!!");
 
         //登录 通用 www.icloud.com
         HttpResponse singInRes = ICloudWeblogin.signin(signInMap);
@@ -699,9 +699,7 @@ public class ICloudUtil {
         }
 
         // 412普通登陆, 409双重登陆
-        String sessionToken = "";
         HttpResponse singInLocalRes = singInRes;
-
         if (status == 412){
             HttpResponse repairRes = appleIDrepair(singInRes);
             //获取session-id，后续操作需基于该id进行处理
@@ -713,17 +711,18 @@ public class ICloudUtil {
             HttpResponse completeRes = appleIDrepairComplete(singInRes,options2Res,clientId,sessionId);
 
             //处理后，获取account 信息
-            sessionToken = completeRes.header("X-Apple-Session-Token");
             singInLocalRes = completeRes;
         }
 
         HttpResponse authRsp = null;
+        String sessionToken = singInLocalRes.header("X-Apple-Session-Token");
         if (!StrUtil.isEmpty(sessionToken)){
             authRsp = accountLogin(singInLocalRes, domain);
         }
 
         if (authRsp != null){
             JSONObject jo = JSONUtil.parseObj(authRsp.body());
+            System.err.println(jo);
             String icloudMail = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
             if(StrUtil.isNotEmpty(icloudMail)){
                 //
@@ -745,4 +744,5 @@ public class ICloudUtil {
             System.out.println("------------------accountLogin----------------------------------------------");
         }
     }
+
 }

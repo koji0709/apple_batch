@@ -30,7 +30,7 @@ public class ICloudView<T> extends CustomTableView<T> {
     /**
      * iTunes登陆鉴权
      */
-    private HttpResponse iCloudLogin(T accountModel){
+    public HttpResponse iCloudLogin(T accountModel){
         String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
         String pwd     = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
 
