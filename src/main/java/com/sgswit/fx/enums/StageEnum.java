@@ -22,6 +22,9 @@ public enum StageEnum {
     DREDGE_FAMILY("开通家庭共享","views/iCloud/dredge-family.fxml",1000,650),
     CLOSE_FAMILY("关闭家庭共享","views/iCloud/close-family.fxml",1000,650),
     FAMILY_MEMBERS("管理家庭成员","views/iCloud/family-members.fxml",1000,650),
+    ICLOUD_FUNCTIONAL_TESTING("iCloud功能检测","views/iCloud/icloud-functional-testing.fxml",1000,650),
+    ICLOUD_WEB_REPAIR("修复网页iCloud","views/iCloud/icloud-web-repair.fxml",1000,650),
+    ICLOUD_ACTIVATE_MAIL("激活iCloud邮箱","views/iCloud/icloud-activate-mail.fxml",1000,650),
 
     /********** ITUNES区 ***********/
     COUNTRY_MODIFY("账号国家修改","views/iTunes/country-modify.fxml",1100,650),
