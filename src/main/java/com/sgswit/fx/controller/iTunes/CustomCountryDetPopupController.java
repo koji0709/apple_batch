@@ -203,7 +203,11 @@ public class CustomCountryDetPopupController implements Initializable {
                     String newId=node.getId().replace("_",".");
                     String fieldId=node.getId().split("_")[1];
                     BillingAddressParas.Paras parasObj=BillingAddressParas.getParasInfoByPath(node.getId());
-                    List<FieldModel> fieldModelList= addressFormatList.stream().filter(n->n.getId().equals(fieldId)).collect(Collectors.toList());
+                    if ("stateProvinceName".equalsIgnoreCase(fieldId)){
+                        fieldId="stateProvince";
+                    }
+                    String finalFieldId = fieldId;
+                    List<FieldModel> fieldModelList= addressFormatList.stream().filter(n->n.getId().equals(finalFieldId)).collect(Collectors.toList());
                     if(parasObj.getType().equals("text")){
                         String value=((TextField)node).getText();
                         if(StringUtils.isEmpty(value) && fieldModelList.get(0).isRequired()){
