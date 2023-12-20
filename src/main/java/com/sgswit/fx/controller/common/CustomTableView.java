@@ -457,6 +457,14 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
+    public void setAndRefreshNote(T account,String note,String defaultNote){
+        note = StrUtil.isEmpty(note) ? defaultNote : note;
+        setAndRefreshNote(account,note,true);
+    }
+
+    /**
+     * 设置账号的执行信息,以及刷新列表保存本地记录
+     */
     public void setAndRefreshNote(T account,String note,boolean saveLog){
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
         if (hasNote){
@@ -468,6 +476,22 @@ public class CustomTableView<T> extends CommonView {
                 insertLocalHistory(List.of(account));
             });
         }
+    }
+
+    public void appendAndRefreshNote(T account,String note){
+        appendAndRefreshNote(account,"",note);
+    }
+
+    public void appendAndRefreshNote(T account,String note,String defaultNote){
+        note = StrUtil.isEmpty(note) ? defaultNote : note;
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (hasNote){
+            String note1 = ReflectUtil.invoke(account,"getNote");
+            note1 = StrUtil.isEmpty(note1) ? "" : note1;
+            note = note1 + note + ";";
+            ReflectUtil.invoke(account,"setNote",note);
+        }
+        accountTableView.refresh();
     }
 
 }
