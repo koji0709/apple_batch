@@ -64,7 +64,7 @@ public class CustomTableView<T> extends CommonView {
 
     private Class clz = Account.class;
     private List<String> formats;
-    private static ExecutorService executor = ThreadUtil.newExecutor(5);
+    private static ExecutorService executor = ThreadUtil.newExecutor(1);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
