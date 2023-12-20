@@ -40,6 +40,11 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account.getAccount());
+        if (verifyAppleIdRsp.getStatus() == 503){
+            setAndRefreshNote(account,"操作频繁");
+            return;
+        }
+
         if (verifyAppleIdRsp.getStatus() != 302) {
             setAndRefreshNote(account,"验证码自动识别失败");
             return;
@@ -52,6 +57,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                 account.setPwd(newPassword);
                 setAndRefreshNote(account,"关闭双重验证成功");
             }else{
+                // todo 看是否能够获取到失败原因
                 setAndRefreshNote(account,"关闭双重验证失败");
             }
         }

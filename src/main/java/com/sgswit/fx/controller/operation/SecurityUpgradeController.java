@@ -41,6 +41,10 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         // todo 目前固定中国手机号码
         String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
         HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(scnt, account.getPwd(), body);
+        if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
+            setAndRefreshNote(account,"操作频繁");
+            return;
+        }
         if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
             setAndRefreshNote(account,"发送验证码失败");
             return;

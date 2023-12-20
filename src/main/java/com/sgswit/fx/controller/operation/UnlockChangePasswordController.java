@@ -2,6 +2,8 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -56,5 +58,24 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
             String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
             setAndRefreshNote(account,failMessage);
         }
+    }
+
+    public boolean hasFailMessage(HttpResponse rsp) {
+        String body = rsp.body();
+        if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
+            return false;
+        }
+        Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
+        return null != hasError && (boolean) hasError;
+    }
+
+    public String failMessage(HttpResponse rsp) {
+        String message = "";
+        Object service_errors = JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
+        for (Object o : JSONUtil.parseArray(service_errors)) {
+            JSONObject jsonObject = (JSONObject) o;
+            message += jsonObject.getByPath("message") + ";";
+        }
+        return message;
     }
 }

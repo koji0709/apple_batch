@@ -34,17 +34,21 @@ public class SupportPinController extends AppleIdView {
         }
 
         HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
-        setAndRefreshNote(account,"生成支持PIN失败！");
-
         String body = supportPinRsp.body();
-        if (!StrUtil.isEmpty(body) && JSONUtil.isTypeJSON(body)){
-            JSON parse = JSONUtil.parse(body);
-            String pin = parse.getByPath("pin", String.class);
-            if (!StrUtil.isEmpty(pin)){
-                account.setPin(pin);
-                account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
-                setAndRefreshNote(account,"生成支持PIN成功!");
-            }
+        if (StrUtil.isEmpty(body) || !JSONUtil.isTypeJSON(body)){
+            setAndRefreshNote(account,"生成支持PIN失败！");
+            return;
         }
+
+        JSON parse = JSONUtil.parse(body);
+        String pin = parse.getByPath("pin", String.class);
+        if (StrUtil.isEmpty(pin)){
+            setAndRefreshNote(account,"生成支持PIN失败！");
+            return;
+        }
+
+        account.setPin(pin);
+        account.setPinExpir(DateUtil.format(DateUtil.offsetMinute(new Date(), 30),"yyyy-MM-dd HH:mm"));
+        setAndRefreshNote(account,"生成支持PIN成功!");
     }
 }

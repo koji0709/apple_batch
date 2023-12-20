@@ -55,6 +55,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
             HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
             System.err.println(updateAppleIdRsp);
+            // todo 判断状态码
         }
 
         // 新增救援邮件
@@ -67,6 +68,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                 if (addRescueEmailRsp.getStatus() == 200){
                     setAndRefreshNote(account,"新增救援邮箱成功");
                 }else{
+                    // todo 看是否有具体错误信息
                     setAndRefreshNote(account,"新增救援邮箱失败");
                 }
             }else{
