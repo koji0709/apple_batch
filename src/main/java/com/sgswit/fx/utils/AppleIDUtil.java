@@ -518,8 +518,7 @@ public class AppleIDUtil {
     /**
      * 移除所有设备
      */
-    public static void removeDevices(){
-        HttpResponse deviceListRsp = getDeviceList();
+    public static void removeDevices(HttpResponse deviceListRsp){
         String body = deviceListRsp.body();
         JSONObject bodyJSON = JSONUtil.parseObj(body);
         List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
@@ -533,8 +532,9 @@ public class AppleIDUtil {
                 rspLog(Method.DELETE,url,rsp.getStatus());
             }
         }
-
     }
+
+
 
     /**
      * 修改appleId时发送邮件

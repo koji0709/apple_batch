@@ -1,7 +1,12 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
@@ -44,7 +49,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
+        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"));
     }
 
     @Override
@@ -113,20 +118,27 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
 
-        String scnt = loginAndGetScnt(account);
-        if (StrUtil.isEmpty(scnt)){
+        HttpResponse tokenRsp = login(account);
+        if (tokenRsp == null){
             return;
         }
+
+        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
+        JSON accountJSON = JSONUtil.parse(accountRsp.body());
+        String countryName = accountJSON.getByPath("account.person.primaryAddress.countryName",String.class);
+        String birthday = accountJSON.getByPath("account.person.birthday",String.class);
+        account.setCountry(countryName);
+        account.setBirthday(birthday);
 
         // 修改密码
         if (updatePwdCheckBoxSelected){
             String newPwd = pwdTextField.getText();
             HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
             if (updatePasswordRsp.getStatus() != 200){
-                setAndRefreshNote(account,"修改密码失败");
+                appendAndRefreshNote(account,getValidationErrors(updatePasswordRsp.body()),"修改密码失败");
             }else{
                 account.setPwd(newPwd);
-                setAndRefreshNote(account,"修改密码成功");
+                appendAndRefreshNote(account,"修改密码成功");
             }
         }
 
@@ -135,10 +147,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
             HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
             if (updateBirthdayRsp.getStatus() != 200){
-                setAndRefreshNote(account,"修改生日失败");
+                appendAndRefreshNote(account,getValidationErrors(updateBirthdayRsp.body()),"修改生日失败");
             }else{
                 account.setBirthday(birthdayDatePickerValue.toString());
-                setAndRefreshNote(account,"修改生日成功");
+                appendAndRefreshNote(account,"修改生日成功");
             }
         }
 
@@ -160,10 +172,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
             HttpResponse updateNameRsp = AppleIDUtil.updateName(loginAndGetScnt(account), account.getPwd(), firstName, lastName);
             if (updateNameRsp.getStatus() != 200){
-                setAndRefreshNote(account,"姓名修改失败");
+                appendAndRefreshNote(account,getValidationErrors(updateNameRsp.body()),"修改姓名失败");
             }else{
                 account.setName(firstName + lastName);
-                setAndRefreshNote(account,"姓名修改成功");
+                appendAndRefreshNote(account,"姓名修改成功");
             }
         }
 
@@ -187,31 +199,49 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
             HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
             if (updateQuestionsRsp.getStatus() != 200){
-                setAndRefreshNote(account,"修改密保失败");
+                appendAndRefreshNote(account,getValidationErrors(updateQuestionsRsp.body()),"修改密保失败");
             }else{
                 account.setAnswer1(answer1TextFieldText);
                 account.setAnswer2(answer2TextFieldText);
                 account.setAnswer3(answer3TextFieldText);
-                setAndRefreshNote(account,"修改密保成功");
+                appendAndRefreshNote(account,"修改密保成功");
             }
         }
 
         // 移除设备
         if (removeDeviceCheckBoxSelected){
             loginAndGetScnt(account);
-            AppleIDUtil.removeDevices();
+            HttpResponse deviceListRsp = AppleIDUtil.getDeviceList();
+            String body = deviceListRsp.body();
+            JSONObject bodyJSON = JSONUtil.parseObj(body);
+            List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
+
+            if (CollUtil.isEmpty(deviceIdList)){
+                appendAndRefreshNote(account,"该账号下暂无设备");
+            }else{
+                AppleIDUtil.removeDevices(deviceListRsp);
+                appendAndRefreshNote(account,"移除设备成功");
+            }
         }
 
         // 移除救援邮箱
         if (removeRescueEmailCheckBoxSelected){
             HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(loginAndGetScnt(account), account.getPwd());
             if (deleteRescueEmailRsp.getStatus() != 204){
-                setAndRefreshNote(account,"移除救援邮箱失败");
+                appendAndRefreshNote(account,getValidationErrors(deleteRescueEmailRsp.body()),"移除救援邮箱失败");
             }else{
-                setAndRefreshNote(account,"移除救援邮箱成功");
+                appendAndRefreshNote(account,"移除救援邮箱成功");
             }
         }
+        setAndRefreshNote(account, account.getNote());
+    }
 
+    public String getValidationErrors(String body){
+        List errorMessageList = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
+        if (CollUtil.isEmpty(errorMessageList)){
+            return "";
+        }
+        return String.join(";",errorMessageList);
     }
 
 }

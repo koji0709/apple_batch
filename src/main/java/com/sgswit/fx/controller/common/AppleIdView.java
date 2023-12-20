@@ -57,7 +57,11 @@ public class AppleIdView extends CustomTableView<Account> {
     public HttpResponse login(Account account,String at){
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
-        if(signInRsp.getStatus()!=409){
+        if (signInRsp.getStatus() == 503){
+            setAndRefreshNote(account,"操作频繁");
+            return null;
+        }
+        if(signInRsp.getStatus() != 409){
             setAndRefreshNote(account,"请检查用户名密码是否正确");
             return null;
         }
