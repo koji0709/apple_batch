@@ -49,7 +49,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
+        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"));
     }
 
     @Override
@@ -211,7 +211,17 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 移除设备
         if (removeDeviceCheckBoxSelected){
             loginAndGetScnt(account);
-            AppleIDUtil.removeDevices();
+            HttpResponse deviceListRsp = AppleIDUtil.getDeviceList();
+            String body = deviceListRsp.body();
+            JSONObject bodyJSON = JSONUtil.parseObj(body);
+            List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
+
+            if (CollUtil.isEmpty(deviceIdList)){
+                appendAndRefreshNote(account,"该账号下暂无设备");
+            }else{
+                AppleIDUtil.removeDevices(deviceListRsp);
+                appendAndRefreshNote(account,"移除设备成功");
+            }
         }
 
         // 移除救援邮箱

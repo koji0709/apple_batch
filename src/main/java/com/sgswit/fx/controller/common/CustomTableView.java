@@ -42,6 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * account表格视图
+ *
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommonView {
@@ -64,18 +65,19 @@ public class CustomTableView<T> extends CommonView {
     private Class clz = Account.class;
     private List<String> formats;
     private static ExecutorService executor = ThreadUtil.newExecutor(5);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url,resourceBundle);
+        super.initialize(url, resourceBundle);
 
         // 获取当前stage
-        if ( url != null ){
+        if (url != null) {
             String file = url.getFile();
-            if (file != null){
+            if (file != null) {
                 String view = file.substring(file.indexOf("views/"));
                 LinkedHashMap<String, StageEnum> stageMap = EnumUtil.getEnumMap(StageEnum.class);
-                stageMap.forEach((stageName,stageEnum)->{
-                    if (view.equals(stageEnum.getView())){
+                stageMap.forEach((stageName, stageEnum) -> {
+                    if (view.equals(stageEnum.getView())) {
                         stage = stageEnum;
                     }
                 });
@@ -86,8 +88,8 @@ public class CustomTableView<T> extends CommonView {
         ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
         for (TableColumn<T, ?> column : columns) {
             // 序号自动增长
-            if ("seq".equals(column.getId())){
-                column.setCellFactory(new Callback(){
+            if ("seq".equals(column.getId())) {
+                column.setCellFactory(new Callback() {
                     @Override
                     public Object call(Object param) {
                         TableCell cell = new TableCell() {
@@ -105,7 +107,7 @@ public class CustomTableView<T> extends CommonView {
                         return cell;
                     }
                 });
-            }else{
+            } else {
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
         }
@@ -113,7 +115,7 @@ public class CustomTableView<T> extends CommonView {
         // 初始化泛型
         Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
         this.clz = Account.class;
-        if (!typeMap.isEmpty()){
+        if (!typeMap.isEmpty()) {
             for (Map.Entry<Type, Type> typeEntry : typeMap.entrySet()) {
                 this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
@@ -123,7 +125,7 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 执行前, 一般做一些参数校验
      */
-    public boolean executeButtonActionBefore(){
+    public boolean executeButtonActionBefore() {
         return true;
     }
 
@@ -141,6 +143,12 @@ public class CustomTableView<T> extends CommonView {
             return;
         }
 
+        // 检测最后一个是否被处理过,如果被处理过说明整个列表都被处理过,无需再次处理
+        if (isProcessed(accountList.get(accountList.size()-1))){
+            alert("账号都已处理！");
+            return;
+        }
+
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
 
@@ -154,43 +162,44 @@ public class CustomTableView<T> extends CommonView {
         Runnable task = () -> {
             for (int i = 0; i < accountList.size(); i++) {
                 T account = accountList.get(i);
-                if (reentrantLock.isLocked()){
+                if (reentrantLock.isLocked()) {
                     return;
                 }
                 boolean processed = isProcessed(account);
-                if (processed){
+                if (processed) {
                     continue;
                 }
 
                 // 有些方法执行太快会显示过于频繁,每处理十个账号休息1s
-                if (i != 0 && i % 10 == 0){
+                if (i != 0 && i % 10 == 0) {
                     ThreadUtil.sleep(500);
                 }
                 ThreadUtil.sleep(500);
-                ThreadUtil.execute(()->{
-                    setAndRefreshNote(account,"执行中",false);
-                    try{
+                ThreadUtil.execute(() -> {
+                    setAndRefreshNote(account, "执行中", false);
+                    try {
                         accountHandler(account);
-                    }catch (Exception e){
-                        setAndRefreshNote(account,"接口数据处理异常",true);
+                    } catch (Exception e) {
+                        setAndRefreshNote(account, "接口数据处理异常", true);
                         e.printStackTrace();
                     }
                 });
+                if (i == accountList.size() - 1) {
+                    // 任务执行结束, 恢复执行按钮状态
+                    Platform.runLater(() -> setExecuteButtonStatus(false));
+                }
             }
 
-            Platform.runLater(() -> {
-                // 任务执行结束, 恢复执行按钮状态
-                setExecuteButtonStatus(false);
-            });
         };
-        executor.execute(task);
 
+        executor.execute(task);
     }
 
     /**
      * 每一个账号的处理器
      */
-    public void accountHandler(T account){}
+    public void accountHandler(T account) {
+    }
 
     /**
      * 导入账号按钮点击
@@ -198,13 +207,13 @@ public class CustomTableView<T> extends CommonView {
      */
     public void openImportAccountView(List<String> formats) {
         String desc = "说明：\n" +
-                "    1.格式为: "+AccountImportUtil.buildNote(formats)+"\n" +
+                "    1.格式为: " + AccountImportUtil.buildNote(formats) + "\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountView(formats,desc);
+        openImportAccountView(formats, desc);
     }
 
-    public void openImportAccountView(List<String> formats,String desc){
-        if (!CollUtil.isEmpty(formats)){
+    public void openImportAccountView(List<String> formats, String desc) {
+        if (!CollUtil.isEmpty(formats)) {
             this.formats = formats;
         }
         Stage stage = new Stage();
@@ -216,7 +225,7 @@ public class CustomTableView<T> extends CommonView {
         area.setPrefWidth(560);
 
         VBox vBox2 = new VBox();
-        vBox2.setPadding(new Insets(0,0,0,205));
+        vBox2.setPadding(new Insets(0, 0, 0, 205));
         Button button = new Button("导入账号");
         button.setTextFill(Paint.valueOf("#067019"));
         button.setPrefWidth(150);
@@ -224,10 +233,10 @@ public class CustomTableView<T> extends CommonView {
 
         button.setOnAction(event -> {
             List<T> accountList1 = parseAccount(area.getText());
-            if (!accountList1.isEmpty()){
+            if (!accountList1.isEmpty()) {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
-                accountNumLable.setText(accountList.size()+"");
+                accountNumLable.setText(accountList.size() + "");
             }
             stage.close();
         });
@@ -236,7 +245,7 @@ public class CustomTableView<T> extends CommonView {
         VBox mainVbox = new VBox();
         mainVbox.setSpacing(20);
         mainVbox.setPadding(new Insets(20));
-        mainVbox.getChildren().addAll(descLabel,area,vBox2);
+        mainVbox.getChildren().addAll(descLabel, area, vBox2);
 
         Group root = new Group(mainVbox);
         stage.setTitle("账号导入");
@@ -249,21 +258,22 @@ public class CustomTableView<T> extends CommonView {
 
     /**
      * 如果有自己的解析方法,则重写这个方法
+     *
      * @param accountStr
      * @return
      */
-    public List<T> parseAccount(String accountStr){
-        if (this.clz == null || this.formats.isEmpty()){
+    public List<T> parseAccount(String accountStr) {
+        if (this.clz == null || this.formats.isEmpty()) {
             Console.log("需要先确定TableView上的泛型,以及初始化导入账号格式");
             return Collections.emptyList();
         }
-        return new AccountImportUtil().parseAccount(clz,accountStr,formats);
+        return new AccountImportUtil().parseAccount(clz, accountStr, formats);
     }
 
     /**
      * 本地记录按钮点击
      */
-    public void localHistoryButtonAction(){
+    public void localHistoryButtonAction() {
         // 操作区
         String branch = stage != null ? stage.getTitle() : "";
         Label branchLabel = new Label("当前数据分支:" + branch);
@@ -286,7 +296,7 @@ public class CustomTableView<T> extends CommonView {
         HBox box1 = new HBox();
         box1.setSpacing(15);
         box1.setAlignment(Pos.CENTER_LEFT);
-        box1.getChildren().addAll(branchLabel,keywordsLabel,keywordsTextField,searchBtn,search100Btn,clearBtn,countLabel);
+        box1.getChildren().addAll(branchLabel, keywordsLabel, keywordsTextField, searchBtn, search100Btn, clearBtn, countLabel);
 
         // 表格区
         HBox box2 = new HBox();
@@ -295,7 +305,7 @@ public class CustomTableView<T> extends CommonView {
 
         // 动态渲染列,且增加操作时间字段
         for (TableColumn<T, ?> tableViewColumn : this.accountTableView.getColumns()) {
-            TableColumn<T,?> tableColumn = new TableColumn<>(tableViewColumn.getText());
+            TableColumn<T, ?> tableColumn = new TableColumn<>(tableViewColumn.getText());
             tableColumn.setId(tableViewColumn.getId());
             tableColumn.setPrefWidth(tableViewColumn.getPrefWidth());
             tableColumn.setCellValueFactory(new PropertyValueFactory<>(tableColumn.getId()));
@@ -304,26 +314,26 @@ public class CustomTableView<T> extends CommonView {
         // 把序号列删除掉
         localHistoryTableView.getColumns().remove(0);
         // 添加入库时间
-        TableColumn<Account,String> createTime = new TableColumn<>("入库时间");
+        TableColumn<Account, String> createTime = new TableColumn<>("入库时间");
         createTime.setPrefWidth(120);
         createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         localHistoryTableView.getColumns().add(createTime);
 
         // 按钮绑定事件
         HashMap<Object, Object> params = new HashMap<>();
-        params.put("clz_name",ClassUtil.getClassName(this, false));
+        params.put("clz_name", ClassUtil.getClassName(this, false));
         // 获取当前controller上的泛型(数据对象)
         Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
         Class clz = Account.class;
-        if (!typeMap.isEmpty()){
+        if (!typeMap.isEmpty()) {
             for (Map.Entry<Type, Type> typeEntry : typeMap.entrySet()) {
                 clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
         Class finalClz = clz;
         searchBtn.setOnAction(actionEvent -> {
-            if (!StrUtil.isEmpty(keywordsTextField.getText())){
-                params.put("row_json",keywordsTextField.getText());
+            if (!StrUtil.isEmpty(keywordsTextField.getText())) {
+                params.put("row_json", keywordsTextField.getText());
             }
             List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
@@ -332,11 +342,11 @@ public class CustomTableView<T> extends CommonView {
         });
 
         search100Btn.setOnAction(actionEvent -> {
-            if (!StrUtil.isEmpty(keywordsTextField.getText())){
-                params.put("row_json",keywordsTextField.getText());
+            if (!StrUtil.isEmpty(keywordsTextField.getText())) {
+                params.put("row_json", keywordsTextField.getText());
             }
-            params.put("limit","LIMIT 100");
-            List<T> accountList = SQLiteUtil.selectLocalHistoryList(params,finalClz);
+            params.put("limit", "LIMIT 100");
+            List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
             localHistoryTableView.getItems().clear();
             localHistoryTableView.getItems().addAll(accountList);
@@ -351,7 +361,7 @@ public class CustomTableView<T> extends CommonView {
         VBox mainVbox = new VBox();
         mainVbox.setSpacing(15);
         mainVbox.setPadding(new Insets(10));
-        mainVbox.getChildren().addAll(box1,box2);
+        mainVbox.getChildren().addAll(box1, box2);
 
         Group root = new Group(mainVbox);
         Stage stage = new Stage();
@@ -366,7 +376,7 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 停止任务按钮点击
      */
-    public void stopTaskButtonAction(){
+    public void stopTaskButtonAction() {
         reentrantLock.lock();
         // 停止任务, 恢复按钮状态
         setExecuteButtonStatus(false);
@@ -375,7 +385,7 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 清空列表按钮点击
      */
-    public void clearAccountListButtonAction(){
+    public void clearAccountListButtonAction() {
         accountList.clear();
         accountNumLable.setText("");
     }
@@ -383,8 +393,8 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 插入本地执行记录
      */
-    public void insertLocalHistory(List<T> accountList){
-        if (accountList.isEmpty()){
+    public void insertLocalHistory(List<T> accountList) {
+        if (accountList.isEmpty()) {
             return;
         }
 
@@ -392,39 +402,39 @@ public class CustomTableView<T> extends CommonView {
         for (T account : accountList) {
             Entity entity = new Entity();
             entity.setTableName("local_history");
-            entity.set("clz_name",ClassUtil.getClassName(this,false));
+            entity.set("clz_name", ClassUtil.getClassName(this, false));
             entity.set("row_json", JSONUtil.toJsonStr(account));
-            entity.set("create_time",System.currentTimeMillis());
+            entity.set("create_time", System.currentTimeMillis());
             insertList.add(entity);
         }
         try {
             DbUtil.use().insert(insertList);
         } catch (SQLException e) {
-            Console.log("SQLite保存失败！ saveList: {}",insertList);
+            Console.log("SQLite保存失败！ saveList: {}", insertList);
         }
     }
 
     /**
      * 导出Excel按钮点击
      */
-    public void exportExcelButtonAction(){
+    public void exportExcelButtonAction() {
         alert("导出Excel按钮点击");
     }
 
     /**
      * 账号是否被处理过
      */
-    public boolean isProcessed(T account){
+    public boolean isProcessed(T account) {
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-        if (!hasNote){
+        if (!hasNote) {
             return false;
         }
         Object noteObj = ReflectUtil.getFieldValue(account, "note");
-        if (noteObj instanceof StringProperty){
+        if (noteObj instanceof StringProperty) {
             StringProperty note = (StringProperty) noteObj;
             return !StrUtil.isEmpty(note.getValue());
         }
-        if (noteObj instanceof String){
+        if (noteObj instanceof String) {
             String note = (String) noteObj;
             return !StrUtil.isEmpty(note);
         }
@@ -432,10 +442,10 @@ public class CustomTableView<T> extends CommonView {
     }
 
 
-    public void setExecuteButtonStatus(boolean isRunning){
+    public void setExecuteButtonStatus(boolean isRunning) {
         // 修改按钮状态
         if (executeButton != null) {
-            if (isRunning){
+            if (isRunning) {
                 executeButton.setText("正在查询");
                 executeButton.setTextFill(Paint.valueOf("#FF0000"));
                 executeButton.setDisable(true);
@@ -450,46 +460,46 @@ public class CustomTableView<T> extends CommonView {
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
-    public void setAndRefreshNote(T account,String note){
-        setAndRefreshNote(account,note,true);
+    public void setAndRefreshNote(T account, String note) {
+        setAndRefreshNote(account, note, true);
     }
 
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
-    public void setAndRefreshNote(T account,String note,String defaultNote){
+    public void setAndRefreshNote(T account, String note, String defaultNote) {
         note = StrUtil.isEmpty(note) ? defaultNote : note;
-        setAndRefreshNote(account,note,true);
+        setAndRefreshNote(account, note, true);
     }
 
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
-    public void setAndRefreshNote(T account,String note,boolean saveLog){
+    public void setAndRefreshNote(T account, String note, boolean saveLog) {
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-        if (hasNote){
-            ReflectUtil.invoke(account,"setNote",note);
+        if (hasNote) {
+            ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
-        if (saveLog){
+        if (saveLog) {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
             });
         }
     }
 
-    public void appendAndRefreshNote(T account,String note){
-        appendAndRefreshNote(account,"",note);
+    public void appendAndRefreshNote(T account, String note) {
+        appendAndRefreshNote(account, "", note);
     }
 
-    public void appendAndRefreshNote(T account,String note,String defaultNote){
+    public void appendAndRefreshNote(T account, String note, String defaultNote) {
         note = StrUtil.isEmpty(note) ? defaultNote : note;
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-        if (hasNote){
-            String note1 = ReflectUtil.invoke(account,"getNote");
+        if (hasNote) {
+            String note1 = ReflectUtil.invoke(account, "getNote");
             note1 = StrUtil.isEmpty(note1) ? "" : note1;
             note = note1 + note + ";";
-            ReflectUtil.invoke(account,"setNote",note);
+            ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
     }
