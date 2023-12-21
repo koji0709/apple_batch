@@ -379,9 +379,14 @@ public class CustomTableView<T> extends CommonView {
      * 停止任务按钮点击
      */
     public void stopTaskButtonAction() {
-        reentrantLock.lock();
-        // 停止任务, 恢复按钮状态
-        setExecuteButtonStatus(false);
+        try {
+            reentrantLock.lock();
+            // 停止任务, 恢复按钮状态
+            setExecuteButtonStatus(false);
+        }catch (Exception e){
+
+        }
+
     }
 
     /**

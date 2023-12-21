@@ -2,17 +2,16 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.sgswit.fx.controller.common.CommSecuritycodePopupController;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.controller.common.CommDataInputPopupController;
-import com.sgswit.fx.enums.DataImportEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
-import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,13 +23,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -152,7 +154,15 @@ public class BindVirtualCardController implements Initializable  {
                                 accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
                                 accountQueryBtn.setDisable(true);
                                 account.setNote("正在登录...");
-                                Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+                                Map<String,Object> res=new HashMap<>();
+                                if(step.equals("02")){
+                                    res=account.getAuthData();
+                                    res.put("smsCode",account.getSmsCode());
+                                }else{
+                                    res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                                }
+
                                 res.put("creditCardNumber",account.getCreditCardNumber());
                                 res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
                                 res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
@@ -168,15 +178,20 @@ public class BindVirtualCardController implements Initializable  {
                                     }
                                     account.setNote("登录成功，正在验证银行卡信息...");
                                     accountTableView.refresh();
-                                    Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,"01");
-                                    if(!addCreditPaymentRes.get("code").equals("200")){
-                                        account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
+
+                                    Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
+                                    if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+                                        Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
+                                        account.setAuthData(mapConvertToObservableMap(data));
                                     }else{
-                                        account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
+
                                     }
+                                    account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
                                 }
                                 accountTableView.refresh();
                             } catch (Exception e) {
+                                account.setNote("操作失败，接口异常");
+                                accountTableView.refresh();
                                 accountQueryBtn.setDisable(false);
                                 accountQueryBtn.setText("开始执行");
                                 accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -199,6 +214,19 @@ public class BindVirtualCardController implements Initializable  {
             }
         }
     }
+
+
+
+   public static ObservableMap<String,Object> mapConvertToObservableMap(Map<String,Object> data){
+       ObservableMap<String, Object> observableMap =FXCollections.observableHashMap();
+       for (String key:data.keySet()){
+           observableMap.put(key,data.get(key));
+       }
+       return observableMap;
+    }
+
+
+
     private void queryFail(Account account) {
         String note = "查询失败，请确认用户名密码是否正确";
         account.setNote(note);
@@ -232,5 +260,62 @@ public class BindVirtualCardController implements Initializable  {
 
 
     public void onStopBtnClick(ActionEvent actionEvent) {
+    }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        try {
+//
+            ObservableList<CreditCard>  selectedRows=accountTableView.getSelectionModel().getSelectedItems();
+            if(selectedRows.size()==0){
+                return;
+            }
+            CreditCard account=selectedRows.get(0);
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-securitycode-popup.fxml"));
+
+            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
+            scene.getRoot().setStyle("-fx-font-family: 'serif'");
+
+            CommSecuritycodePopupController s = fxmlLoader.getController();
+            s.setAccount(account.getAccount());
+
+            Stage popupStage = new Stage();
+            popupStage.setTitle("双重验证码输入页面");
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.setScene(scene);
+            popupStage.setResizable(false);
+            popupStage.initStyle(StageStyle.UTILITY);
+            popupStage.showAndWait();
+
+            String code = s.getSecurityCode();
+            account.setSmsCode(code);
+            account.setStep("02");
+            if (StringUtils.isEmpty(code)){
+                return;
+            }
+            String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+            Map<String,Object> res=new HashMap<>();
+            if(step.equals("02")){
+                res=account.getAuthData();
+                res.put("smsCode",account.getSmsCode());
+            }else{
+                res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+            }
+
+            res.put("creditCardNumber",account.getCreditCardNumber());
+            res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
+            res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
+            res.put("creditVerificationNumber",account.getCreditVerificationNumber());
+            Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
+            if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+                addCreditPaymentRes.get("data");
+                account.setAuthData((ObservableMap<String, Object>) addCreditPaymentRes.get("data"));
+            }else{
+
+            }
+            account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
+            accountTableView.refresh();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

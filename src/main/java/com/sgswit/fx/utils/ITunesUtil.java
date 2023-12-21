@@ -218,9 +218,6 @@ public class ITunesUtil {
      */
     public  static Map<String,Object> addCreditPayment(Map<String,Object> paras,String step){
 
-        if("02".equals(step)){
-            paras=(Map<String,Object>)paras.get("data");
-        }
 
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -260,7 +257,7 @@ public class ITunesUtil {
             }
         }
         String phoneOfficeNumber=paymentInfo.getByPath("phone.phoneOfficeNumber",String.class);
-        phoneOfficeNumber="13910958216";
+//        phoneOfficeNumber="13910958216";
         source=JSONUtil.toBean(paymentInfo.getByPath("billingAddress",String.class),Map.class);
         source.put("phoneOfficeNumber",phoneOfficeNumber);
         source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
@@ -300,44 +297,44 @@ public class ITunesUtil {
             int status=bodyJson.getByPath("status",int.class);
             result.put("data",paras);
             result.put("code","200");
-//            if(status==0){
-//                if("01".equals(step)){
-//                    String liteSessionId= bodyJson.getByPath("result.liteSessionId",String.class);
-//                    String transactionId= bodyJson.getByPath("result.transactionId",String.class);
-//                    paras.put("liteSessionId",liteSessionId);
-//                    paras.put("transactionId",transactionId);
-//                    result.put("code","200");
-//                    result.put("message","请输入发送至手机【"+phoneOfficeNumber+"】的银联验证码");
-//                    result.put("data",paras);
-//                }else{
-//                    result.put("code","200");
-//                    result.put("message","添加成功");
-//                }
-//            }else{
-//                StringBuffer stringBuffer=new StringBuffer();
-//                String validationResults= bodyJson.getByPath("result.validationResults",String.class);
-//                if(!StringUtils.isEmpty(validationResults)){
-//                    JSONArray jsonArray=JSONUtil.parseArray(validationResults);
-//                    for(Object jsonObject:jsonArray){
-//                        String validationRuleName=JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
-//                        switch (validationRuleName){
-//                            case "INVALID_PHONE_NUMBER":
-//                                stringBuffer.append("手机号码不正确，请更新并重试。");
-//                                stringBuffer.append("\n");
-//                                break;
-//                            default:
-//                                String errorString= JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
-//                                stringBuffer.append(errorString);
-//                                stringBuffer.append("\n");
-//                        }
-//                    }
-//                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){
-//                    String userPresentableErrorMessage= bodyJson.getByPath("userPresentableErrorMessage",String.class);
-//                    stringBuffer.append(userPresentableErrorMessage);
-//                }
-//                result.put("code","-1");
-//                result.put("message",stringBuffer.toString());
-//            }
+            if(status==0){
+                if("01".equals(step)){
+                    String liteSessionId= bodyJson.getByPath("result.liteSessionId",String.class);
+                    String transactionId= bodyJson.getByPath("result.transactionId",String.class);
+                    paras.put("liteSessionId",liteSessionId);
+                    paras.put("transactionId",transactionId);
+                    result.put("code","200");
+                    result.put("message","请输入发送至手机【"+phoneOfficeNumber+"】的银联验证码");
+                    result.put("data",paras);
+                }else{
+                    result.put("code","200");
+                    result.put("message","添加成功");
+                }
+            }else{
+                StringBuffer stringBuffer=new StringBuffer();
+                String validationResults= bodyJson.getByPath("result.validationResults",String.class);
+                if(!StringUtils.isEmpty(validationResults)){
+                    JSONArray jsonArray=JSONUtil.parseArray(validationResults);
+                    for(Object jsonObject:jsonArray){
+                        String validationRuleName=JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                        switch (validationRuleName){
+                            case "INVALID_PHONE_NUMBER":
+                                stringBuffer.append("手机号码不正确，请更新并重试。");
+                                stringBuffer.append("\n");
+                                break;
+                            default:
+                                String errorString= JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                                stringBuffer.append(errorString);
+                                stringBuffer.append("\n");
+                        }
+                    }
+                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){
+                    String userPresentableErrorMessage= bodyJson.getByPath("userPresentableErrorMessage",String.class);
+                    stringBuffer.append(userPresentableErrorMessage);
+                }
+                result.put("code","-1");
+                result.put("message",stringBuffer.toString());
+            }
         }
         return result;
     }

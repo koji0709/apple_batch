@@ -39,30 +39,30 @@ import java.util.List;
  */
 public class CommController<T> extends CustomTableView {
     /**
-    　* 操作方法
-      * @param
+     　* 操作方法
+     * @param
      * @param account
      * @param step1Res
     　* @return void
     　* @throws
     　* @author DeZh
     　* @date 2023/11/23 16:31
-    */
+     */
     protected void queryOrUpdate(T account, HttpResponse step1Res){
     }
     /**
-    　添加日志方法
-      * @param
+     　添加日志方法
+     * @param
      * @param account
     　* @return void
     　* @throws
     　* @author DeZh
     　* @date 2023/12/3 16:32
-    */
+     */
     protected void insertLocalLog(T account){}
     /**
-    　* 点击执行查询
-      * @param
+     　* 点击执行查询
+     * @param
      * @param accountQueryBtn
      * @param accountTableView
      * @param list
@@ -70,7 +70,7 @@ public class CommController<T> extends CustomTableView {
     　* @throws
     　* @author DeZh
     　* @date 2023/10/26 23:00
-    */
+     */
     protected void onAccountQueryBtnClick(Button accountQueryBtn,TableView accountTableView,ObservableList<T> list) throws Exception{
         //判断是否有待执行的数据
         if(list.size()<1){
@@ -168,7 +168,7 @@ public class CommController<T> extends CustomTableView {
                 Scene scene = new Scene(fxmlLoader.load(), 600, 350);
                 scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
-                SecuritycodePopupController s = (SecuritycodePopupController) fxmlLoader.getController();
+                SecuritycodePopupController s = fxmlLoader.getController();
                 s.setAccount(a.getAccount());
 
                 Stage popupStage = new Stage();
@@ -307,65 +307,65 @@ public class CommController<T> extends CustomTableView {
         insertLocalHistory(List.of(account));
     }
     /**
-    　* 反射获取属性值
-      * @param
+     　* 反射获取属性值
+     * @param
      * @param object
      * @param targetFieldName
     　* @return java.lang.Object
     　* @throws
     　* @author DeZh
     　* @date 2023/10/26 23:04
-    */
+     */
     private Object getFieldValueByObject(T object, String targetFieldName) throws Exception {
         // 获取该对象的Class
-         Class objClass = object.getClass();
-         // 获取所有的属性数组
-         Field[] fields = objClass.getDeclaredFields();
-         for (Field field:fields) {
-             // 属性名称
-             String currentFieldName = field.getName();
-             if(currentFieldName.equals(targetFieldName)){
-                 field.setAccessible(true);
-                 Class<?> fieldType = field.getType();
-                 Object value=null;
-                 if (fieldType == SimpleStringProperty.class) {
-                     value=((SimpleStringProperty)field.get(object)).getValue();
-                 } else if (fieldType == SimpleIntegerProperty.class) {
-                     value=((SimpleIntegerProperty)field.get(object)).getValue();
-                 }else{
-                     field.get(object);
-                 }
-                 return value;
-             }
+        Class objClass = object.getClass();
+        // 获取所有的属性数组
+        Field[] fields = objClass.getDeclaredFields();
+        for (Field field:fields) {
+            // 属性名称
+            String currentFieldName = field.getName();
+            if(currentFieldName.equals(targetFieldName)){
+                field.setAccessible(true);
+                Class<?> fieldType = field.getType();
+                Object value=null;
+                if (fieldType == SimpleStringProperty.class) {
+                    value=((SimpleStringProperty)field.get(object)).getValue();
+                } else if (fieldType == SimpleIntegerProperty.class) {
+                    value=((SimpleIntegerProperty)field.get(object)).getValue();
+                }else{
+                    field.get(object);
+                }
+                return value;
+            }
 
         }
         return null;
     }
-   /**
-   　* 反射设置属性值
+    /**
+     　* 反射设置属性值
      * @param
-    * @param object
-    * @param value
-    * @param targetFieldName
-   　* @return T
-   　* @throws
-   　* @author DeZh
-   　* @date 2023/10/26 23:04
-   */
+     * @param object
+     * @param value
+     * @param targetFieldName
+    　* @return T
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/10/26 23:04
+     */
     private T setFieldValueByObject(T object, Object value,String targetFieldName) throws Exception {
         // 获取该对象的Class
-         Class objClass = object.getClass();
-         // 获取所有的属性数组
-         Field[] fields = objClass.getDeclaredFields();
-         for (Field field:fields) {
-             // 属性名称
-             String currentFieldName = field.getName();
-             if(currentFieldName.equals(targetFieldName)){
-                 field.setAccessible(true);
-                 field.set(object,new SimpleStringProperty(value.toString()));
-                 return object;
-             }
-         }
-         return object;
+        Class objClass = object.getClass();
+        // 获取所有的属性数组
+        Field[] fields = objClass.getDeclaredFields();
+        for (Field field:fields) {
+            // 属性名称
+            String currentFieldName = field.getName();
+            if(currentFieldName.equals(targetFieldName)){
+                field.setAccessible(true);
+                field.set(object,new SimpleStringProperty(value.toString()));
+                return object;
+            }
+        }
+        return object;
     }
 }
