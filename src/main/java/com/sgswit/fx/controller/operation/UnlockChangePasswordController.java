@@ -60,22 +60,4 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         }
     }
 
-    public boolean hasFailMessage(HttpResponse rsp) {
-        String body = rsp.body();
-        if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
-            return false;
-        }
-        Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
-        return null != hasError && (boolean) hasError;
-    }
-
-    public String failMessage(HttpResponse rsp) {
-        String message = "";
-        Object service_errors = JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
-        for (Object o : JSONUtil.parseArray(service_errors)) {
-            JSONObject jsonObject = (JSONObject) o;
-            message += jsonObject.getByPath("message") + ";";
-        }
-        return message;
-    }
 }

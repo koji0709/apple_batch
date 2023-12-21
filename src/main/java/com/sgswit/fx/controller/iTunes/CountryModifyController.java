@@ -265,7 +265,7 @@ public class CountryModifyController extends CommController<Account> implements 
             account.setNote("正在修改");
             accountTableView.refresh();
             //step3 token
-            HttpResponse step3Res = AppleIDUtil.token(step1Res);
+            HttpResponse step3Res = AppleIDUtil.token(account,step1Res);
 
             //step4 manager
             if(step3Res.getStatus() != 200){
@@ -307,7 +307,7 @@ public class CountryModifyController extends CommController<Account> implements 
                 //生成填充数据
                 body=generateFillData(countryCode);
             }
-            HttpResponse step4Res = AppleIDUtil.account(step3Res);
+            HttpResponse step4Res = AppleIDUtil.account(account);
             String managerBody = step4Res.body();
             JSON manager = JSONUtil.parse(managerBody);
             String area = (String) manager.getByPath("account.person.primaryAddress.countryName");

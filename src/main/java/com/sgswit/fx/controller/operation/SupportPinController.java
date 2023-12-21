@@ -34,16 +34,24 @@ public class SupportPinController extends AppleIdView {
         }
 
         HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
+
+        if (supportPinRsp.getStatus() == 503){
+            setAndRefreshNote(account,"操作频繁");
+            return;
+        }
+
         String body = supportPinRsp.body();
         if (StrUtil.isEmpty(body) || !JSONUtil.isTypeJSON(body)){
             setAndRefreshNote(account,"生成支持PIN失败！");
             return;
         }
 
+        String errorMessage = hasFailMessage(supportPinRsp) ? failMessage(supportPinRsp) : "生成支持PIN失败";
+
         JSON parse = JSONUtil.parse(body);
         String pin = parse.getByPath("pin", String.class);
         if (StrUtil.isEmpty(pin)){
-            setAndRefreshNote(account,"生成支持PIN失败！");
+            setAndRefreshNote(account, errorMessage);
             return;
         }
 

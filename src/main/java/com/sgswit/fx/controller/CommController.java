@@ -157,7 +157,7 @@ public class CommController<T> extends CustomTableView {
         }
 
         //step2 auth 获取认证信息
-        HttpResponse step21Res = AppleIDUtil.auth(step1Res);
+        HttpResponse step21Res = AppleIDUtil.auth(a,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("hsa2".equals(authType)) {
             // 双重验证
@@ -195,7 +195,8 @@ public class CommController<T> extends CustomTableView {
                     @Override
                     public void run(){
                         try {
-                            HttpResponse step22Res = AppleIDUtil.securityCode(step21Res, type, code);
+                            a.setSecurityCode(type+"-"+code);
+                            HttpResponse step22Res = AppleIDUtil.securityCode(a,step21Res);
                             if (step22Res.getStatus() != 204 && step22Res.getStatus() != 200) {
                                 queryFail(account, accountQueryBtn, accountTableView);
                             }
@@ -266,16 +267,16 @@ public class CommController<T> extends CustomTableView {
         if ("sa".equals(authType)) {
             //非双重认证
             //step2 获取认证信息 -- 需要输入密保
-            HttpResponse step21Res = AppleIDUtil.auth(step1Res);
+            HttpResponse authRsp = AppleIDUtil.auth(a,step1Res);
             setFieldValueByObject(account, "正在验证密保问题...","note");
             accountTableView.refresh();
-            HttpResponse step211Res = AppleIDUtil.questions(step21Res, a);
+            HttpResponse step211Res = AppleIDUtil.questions(a, authRsp);
             if (step211Res.getStatus() != 412) {
                 setFieldValueByObject(account, "正在验证密保问题...","note");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
             }
-            HttpResponse step212Res = AppleIDUtil.accountRepair(step211Res);
+            HttpResponse step212Res = AppleIDUtil.accountRepair(a,step211Res);
             String XAppleIDSessionId = "";
             String scnt = step212Res.header("scnt");
             List<String> cookies = step212Res.headerList("Set-Cookie");
@@ -284,11 +285,11 @@ public class CommController<T> extends CustomTableView {
                     XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
                 }
             }
-            HttpResponse step213Res = AppleIDUtil.repareOptions(step211Res, step212Res);
-            HttpResponse step214Res = AppleIDUtil.securityUpgrade(step213Res, XAppleIDSessionId, scnt);
-            HttpResponse step215Res = AppleIDUtil.securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
-            HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
-            HttpResponse step22Res = AppleIDUtil.repareComplete(step216Res, step211Res);
+            HttpResponse step213Res = AppleIDUtil.repareOptions(a,step211Res,step212Res);
+            HttpResponse step214Res = AppleIDUtil.securityUpgrade(a,step213Res,XAppleIDSessionId,scnt);
+            HttpResponse step215Res = AppleIDUtil.securityUpgradeSetuplater(a,step214Res,XAppleIDSessionId,scnt);
+            HttpResponse step216Res = AppleIDUtil.repareOptionsSecond(a,step215Res,XAppleIDSessionId,scnt);
+            HttpResponse step22Res = AppleIDUtil.repareComplete(a,step216Res,step211Res);
             setFieldValueByObject(account, "登录成功","note");
             accountTableView.refresh();
             queryOrUpdate(account, step22Res);

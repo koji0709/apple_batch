@@ -31,7 +31,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
         if(tokenRsp.getStatus() != 200){
             queryFail(account);
         }
-        HttpResponse step4Res = AppleIDUtil.account(tokenRsp);
+        HttpResponse step4Res = AppleIDUtil.account(account);
         String managerBody = step4Res.body();
         JSON manager = JSONUtil.parse(managerBody);
 

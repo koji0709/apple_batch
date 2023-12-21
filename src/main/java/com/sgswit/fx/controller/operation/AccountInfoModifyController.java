@@ -58,14 +58,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updateBirthdayCheckBoxSelected = updateBirthdayCheckBox.isSelected();
         boolean updateNameCheckBoxSelected = updateNameCheckBox.isSelected();
         boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
-        boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
-        boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
 
-        if (! (updatePwdCheckBoxSelected || updateBirthdayCheckBoxSelected || updateNameCheckBoxSelected
-                || updatePasswordProtectionCheckBoxSelected || removeDeviceCheckBoxSelected || removeRescueEmailCheckBoxSelected)){
-            alert("请至少选择一项修改项");
-            return false;
-        }
         // 修改密码
         if (updatePwdCheckBoxSelected){
             String newPwd = pwdTextField.getText();
@@ -123,17 +116,18 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             return;
         }
 
-        HttpResponse accountRsp = AppleIDUtil.account(tokenRsp);
+        HttpResponse accountRsp = AppleIDUtil.account(account);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
         String countryName = accountJSON.getByPath("account.person.primaryAddress.countryName",String.class);
         String birthday = accountJSON.getByPath("account.person.birthday",String.class);
-        account.setCountry(countryName);
+        // todo 状态
+        account.setArea(countryName);
         account.setBirthday(birthday);
 
         // 修改密码
         if (updatePwdCheckBoxSelected){
             String newPwd = pwdTextField.getText();
-            HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
+            HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
             if (updatePasswordRsp.getStatus() != 200){
                 appendAndRefreshNote(account,getValidationErrors(updatePasswordRsp.body()),"修改密码失败");
             }else{
@@ -145,7 +139,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
             LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
-            HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
+            HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
             if (updateBirthdayRsp.getStatus() != 200){
                 appendAndRefreshNote(account,getValidationErrors(updateBirthdayRsp.body()),"修改生日失败");
             }else{
@@ -170,7 +164,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 lastName  = faker.name().lastName();
             }
 
-            HttpResponse updateNameRsp = AppleIDUtil.updateName(loginAndGetScnt(account), account.getPwd(), firstName, lastName);
+            HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
             if (updateNameRsp.getStatus() != 200){
                 appendAndRefreshNote(account,getValidationErrors(updateNameRsp.body()),"修改姓名失败");
             }else{
@@ -197,7 +191,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
                     ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
                     ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
-            HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
+            HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
             if (updateQuestionsRsp.getStatus() != 200){
                 appendAndRefreshNote(account,getValidationErrors(updateQuestionsRsp.body()),"修改密保失败");
             }else{
@@ -210,8 +204,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         // 移除设备
         if (removeDeviceCheckBoxSelected){
-            loginAndGetScnt(account);
-            HttpResponse deviceListRsp = AppleIDUtil.getDeviceList();
+            HttpResponse deviceListRsp = AppleIDUtil.getDeviceList(account);
             String body = deviceListRsp.body();
             JSONObject bodyJSON = JSONUtil.parseObj(body);
             List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
@@ -226,14 +219,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         // 移除救援邮箱
         if (removeRescueEmailCheckBoxSelected){
-            HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(loginAndGetScnt(account), account.getPwd());
+            HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
             if (deleteRescueEmailRsp.getStatus() != 204){
                 appendAndRefreshNote(account,getValidationErrors(deleteRescueEmailRsp.body()),"移除救援邮箱失败");
             }else{
                 appendAndRefreshNote(account,"移除救援邮箱成功");
             }
         }
-        setAndRefreshNote(account, account.getNote());
+        setAndRefreshNote(account, account.getNote() + "所有操作执行完毕。");
     }
 
     public String getValidationErrors(String body){

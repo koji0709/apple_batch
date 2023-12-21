@@ -175,9 +175,11 @@ public class CustomTableView<T> extends CommonView {
                     ThreadUtil.sleep(500);
                 }
                 ThreadUtil.sleep(500);
+
+//                Platform.runLater(() -> {
                 ThreadUtil.execute(() -> {
-                    setAndRefreshNote(account, "执行中", false);
                     try {
+                        setAndRefreshNote(account, "执行中", false);
                         accountHandler(account);
                     } catch (Exception e) {
                         setAndRefreshNote(account, "接口数据处理异常", true);
@@ -480,7 +482,7 @@ public class CustomTableView<T> extends CommonView {
         if (hasNote) {
             ReflectUtil.invoke(account, "setNote", note);
         }
-        accountTableView.refresh();
+        //accountTableView.refresh();
         if (saveLog) {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
@@ -498,6 +500,7 @@ public class CustomTableView<T> extends CommonView {
         if (hasNote) {
             String note1 = ReflectUtil.invoke(account, "getNote");
             note1 = StrUtil.isEmpty(note1) ? "" : note1;
+            note1 = note1.startsWith("执行中") ? "" : note1;
             note = note1 + note + ";";
             ReflectUtil.invoke(account, "setNote", note);
         }

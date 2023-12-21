@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 
-/**
- * 官网修改资料controller
- */
 public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
@@ -31,10 +28,10 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
     }
 
     /**
-     * 导入账号按钮点击
+     * 导入账号按钮点击 kojitest001@outlook.com----Xx97595031-kojitest002@outlook.com
      */
     public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-email"));
+        openImportAccountView(List.of("account----pwd-email","account----pwd-answer1-answer2-answer3-email"));
     }
 
     @Override
@@ -42,18 +39,20 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 
-        if (StrUtil.isEmpty(loginAndGetScnt(account))){
-            return;
-        }
-
         // 更改AppleId
         if ("更改AppleId".equals(opType)) {
             // 发送邮件
             HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(loginAndGetScnt(account), account.getPwd(), account.getEmail());
 
             // 更改AppleID
-            String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
+            String verifyCode = dialog("["+account.getEmail()+"] 邮箱验证码","请输入邮件验证码：");
             HttpResponse updateAppleIdRsp = AppleIDUtil.updateAppleId(verifyRsp, account.getEmail(), verifyCode);
+
+            // 成功
+            if (updateAppleIdRsp.getStatus() == 302){
+
+            }
+
             System.err.println(updateAppleIdRsp);
             // todo 判断状态码
         }
@@ -80,7 +79,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         if (updateAccountInfoCheckBoxSelected){
             LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
             if (birthdayDatePickerValue != null){
-                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(loginAndGetScnt(account), birthdayDatePickerValue.toString());
+                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
                     setAndRefreshNote(account,"修改生日失败");
                 }else{
@@ -92,7 +91,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
             String newPwd = pwdTextField.getText();
             if (!StrUtil.isEmpty(newPwd)){
-                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(loginAndGetScnt(account), account.getPwd(), newPwd);
+                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
                     setAndRefreshNote(account,"修改密码失败");
                 }else{
@@ -112,7 +111,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                         ,answer1TextFieldText,130,"你少年时代最好的朋友叫什么名字？"
                         ,answer2TextFieldText,136,"你的理想工作是什么？"
                         ,answer3TextFieldText,142,"你的父母是在哪里认识的？");
-                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(loginAndGetScnt(account), account.getPwd(), body);
+                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
                     setAndRefreshNote(account,"修改密保失败");
                 }else{

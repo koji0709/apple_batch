@@ -55,7 +55,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
 
 
         //step2 获取认证信息 -- 需要输入密保
-        HttpResponse step21Res = AppleIDUtil.auth(step1Res);
+        HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
             //非双重认证

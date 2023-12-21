@@ -1,15 +1,12 @@
 package com.sgswit.fx.model;
 
 
-import com.sgswit.fx.StageManager;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class Account {
+public class Account extends LoginInfo {
 
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty account;
@@ -34,9 +31,6 @@ public class Account {
     private  final SimpleStringProperty familyDetails;
 
     private  String country;
-    private  List<String> cookies;
-
-    private  Map<String,String> cookieMap;
 
     // 页面临时参数
     private SimpleStringProperty email;
@@ -92,16 +86,6 @@ public class Account {
         this.memberPwd = new SimpleStringProperty();
         this.cvv = new SimpleStringProperty();
     }
-
-    public  Map<String, String> getCookieMap() {
-        if(cookieMap == null){
-            cookieMap = new HashMap<>();
-        }
-        return cookieMap;
-    }
-
-
-
 
     public Integer getSeq() {
         return seq.get();
@@ -442,9 +426,6 @@ public class Account {
         this.country = country;
     }
 
-    public void setCookieMap(Map<String, String> cookieMap) {
-        this.cookieMap = cookieMap;
-    }
 
     @Override
     public String toString() {

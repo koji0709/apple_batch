@@ -90,6 +90,5 @@ public class CommonView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // todo
     }
 }
