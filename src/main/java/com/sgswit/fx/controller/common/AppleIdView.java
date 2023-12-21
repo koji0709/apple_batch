@@ -51,11 +51,11 @@ public class AppleIdView extends CustomTableView<Account> {
         if ("hsa2".equals(authType)) {
             // todo 后续调整为双重认证右键输入验证码登陆
             // 方便测试
-            Console.log("请输入双重验证码：");
+            setAndRefreshNote(account,"此账号已开启双重认证，请输入双重验证码。");
+            Console.log("请输入双重验证码(device-xxx,sms-xxx)：");
             String typeCode = Console.input();
             account.setSecurityCode(typeCode);
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
-            //setAndRefreshNote(account,"此账号已开启双重认证。");
             //return null;
         } else { // sa 密保认证
             if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){

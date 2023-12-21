@@ -482,7 +482,7 @@ public class CustomTableView<T> extends CommonView {
         if (hasNote) {
             ReflectUtil.invoke(account, "setNote", note);
         }
-        //accountTableView.refresh();
+        accountTableView.refresh();
         if (saveLog) {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));

@@ -109,8 +109,8 @@ public class AppleIDUtil {
 
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(account.getXAppleIDSessionId()));
-        headers.put("scnt",ListUtil.toList(account.getScnt()));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(authRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(authRsp.header("scnt")));
 
         String scDeviceBody = "{\"securityCode\":{\"code\":\"%s\"}}";
         String scPhoneBody = "{\"phoneNumber\":{\"id\":1},\"securityCode\":{\"code\":\"%s\"},\"mode\":\"sms\"}";

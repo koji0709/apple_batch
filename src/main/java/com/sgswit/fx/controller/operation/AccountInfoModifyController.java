@@ -120,7 +120,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
         String countryName = accountJSON.getByPath("account.person.primaryAddress.countryName",String.class);
         String birthday = accountJSON.getByPath("account.person.birthday",String.class);
-        // todo 状态
+        // todo 姓名/状态
         account.setArea(countryName);
         account.setBirthday(birthday);
 
