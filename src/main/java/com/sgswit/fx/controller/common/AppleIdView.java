@@ -63,7 +63,10 @@ public class AppleIdView extends CustomTableView<Account> {
             setAndRefreshNote(account,"请检查用户名密码是否正确");
             return null;
         }
+        return login(account,signInRsp);
+    }
 
+    public HttpResponse login(Account account,HttpResponse signInRsp){
         // Auth
         HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
         String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
@@ -73,11 +76,12 @@ public class AppleIdView extends CustomTableView<Account> {
         if ("hsa2".equals(authType)) {
             // todo 后续调整为双重认证右键输入验证码登陆
             // 方便测试
-            setAndRefreshNote(account,"此账号已开启双重认证，请输入双重验证码。");
-            Console.log("请输入双重验证码(device-xxx,sms-xxx)：");
-            String typeCode = Console.input();
-            account.setSecurityCode(typeCode);
-            securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
+            setAndRefreshNote(account,"此账号已开启双重认证。");
+            //Console.log("请输入双重验证码(device-xxx,sms-xxx)：");
+            //String typeCode = Console.input();
+            //account.setSecurityCode(typeCode);
+            //securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
+            return null;
         } else { // sa 密保认证
             if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
                 setAndRefreshNote(account,"密保认证必须输入密保问题");

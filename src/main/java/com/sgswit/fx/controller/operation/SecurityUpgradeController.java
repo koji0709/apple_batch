@@ -63,7 +63,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         }
 
         // 登陆
-        HttpResponse loginRsp = login(account);
+        HttpResponse loginRsp = login(account,signInRsp);
         if (loginRsp == null){
             return;
         }

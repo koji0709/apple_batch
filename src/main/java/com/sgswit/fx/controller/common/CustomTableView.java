@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
@@ -159,25 +160,25 @@ public class CustomTableView<T> extends CommonView {
         }
 
         // 处理账号
-        Runnable task = () -> {
-            for (int i = 0; i < accountList.size(); i++) {
-                T account = accountList.get(i);
-                if (reentrantLock.isLocked()) {
-                    return;
-                }
-                boolean processed = isProcessed(account);
-                if (processed) {
-                    continue;
-                }
+        for (int i = 0; i < accountList.size(); i++) {
+            T account = accountList.get(i);
+            if (reentrantLock.isLocked()) {
+                return;
+            }
+            boolean processed = isProcessed(account);
+            if (processed) {
+                continue;
+            }
 
-                // 有些方法执行太快会显示过于频繁,每处理十个账号休息1s
-                if (i != 0 && i % 10 == 0) {
-                    ThreadUtil.sleep(500);
-                }
+            // 有些方法执行太快会显示过于频繁,每处理十个账号休息1s
+            if (i != 0 && i % 10 == 0) {
                 ThreadUtil.sleep(500);
+            }
+            ThreadUtil.sleep(500);
 
-//                Platform.runLater(() -> {
-                ThreadUtil.execute(() -> {
+            Runnable task = () -> {
+                Platform.runLater(() -> {
+//                ThreadUtil.execute(() -> {
                     try {
                         setAndRefreshNote(account, "执行中", false);
                         accountHandler(account);
@@ -186,15 +187,18 @@ public class CustomTableView<T> extends CommonView {
                         e.printStackTrace();
                     }
                 });
-                if (i == accountList.size() - 1) {
-                    // 任务执行结束, 恢复执行按钮状态
-                    Platform.runLater(() -> setExecuteButtonStatus(false));
-                }
+            };
+
+            executor.execute(task);
+
+            if (i == accountList.size() - 1) {
+                // 任务执行结束, 恢复执行按钮状态
+                Platform.runLater(() -> setExecuteButtonStatus(false));
             }
+        }
 
-        };
 
-        executor.execute(task);
+
     }
 
     /**

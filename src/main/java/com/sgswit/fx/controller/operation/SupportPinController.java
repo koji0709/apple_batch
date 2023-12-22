@@ -28,12 +28,11 @@ public class SupportPinController extends AppleIdView {
     @Override
     public void accountHandler(Account account) {
         // 登陆
-        String scnt = loginAndGetScnt(account);
-        if (StrUtil.isEmpty(scnt)){
+        HttpResponse loginRsp = login(account);
+        if (loginRsp == null){
             return;
         }
-
-        HttpResponse supportPinRsp = AppleIDUtil.supportPin(scnt);
+        HttpResponse supportPinRsp = AppleIDUtil.supportPin(account);
 
         if (supportPinRsp.getStatus() == 503){
             setAndRefreshNote(account,"操作频繁");
