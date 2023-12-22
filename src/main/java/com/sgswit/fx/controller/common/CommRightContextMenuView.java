@@ -281,7 +281,6 @@ public class CommRightContextMenuView<T> extends CommonView{
     protected void secondStepHandler(T account, String code){
     }
 
-
     /**
     　* 重新执行
       * @param

@@ -146,77 +146,82 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
             if (!StrUtil.isEmptyIfStr(account.getNote())) {
                 continue;
             }else{
-                new Thread(new Runnable() {
-                    @Override
-                    public void run(){
-                        try {
-                            try {
-                                accountQueryBtn.setText("正在查询");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                                accountQueryBtn.setDisable(true);
-                                account.setNote("正在登录...");
-                                String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
-                                Map<String,Object> res=new HashMap<>();
-                                if(step.equals("02")){
-                                    res=account.getAuthData();
-                                    res.put("smsCode",account.getSmsCode());
-                                }else{
-                                    res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                }
-
-                                res.put("creditCardNumber",account.getCreditCardNumber());
-                                res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
-                                res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
-                                res.put("creditVerificationNumber",account.getCreditVerificationNumber());
-                                if(!res.get("code").equals("200")){
-                                    account.setNote(String.valueOf(res.get("msg")));
-                                }else{
-                                    boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-                                    if(!hasInspectionFlag){
-                                        account.setNote("此 Apple ID 尚未用于 App Store。");
-                                        accountTableView.refresh();
-                                        return;
-                                    }
-                                    account.setNote("登录成功，正在验证银行卡信息...");
-                                    accountTableView.refresh();
-
-                                    Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
-                                    if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
-                                        Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
-                                        account.setAuthData(mapConvertToObservableMap(data));
-                                    }else{
-
-                                    }
-                                    account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
-                                }
-                                accountTableView.refresh();
-                            } catch (Exception e) {
-                                account.setNote("操作失败，接口异常");
-                                accountTableView.refresh();
-                                accountQueryBtn.setDisable(false);
-                                accountQueryBtn.setText("开始执行");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                e.printStackTrace();
-                            }
-                        }finally {
-                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-                            Platform.runLater(new Task<Integer>() {
-                                @Override
-                                protected Integer call() {
-                                    accountQueryBtn.setDisable(false);
-                                    accountQueryBtn.setText("开始执行");
-                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    return 1;
-                                }
-                            });
-                        }
-                    }
-                }).start();
+                executeFun(account);
             }
         }
     }
 
+    private void executeFun(CreditCard account){
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    try {
+                        accountQueryBtn.setText("正在查询");
+                        accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                        accountQueryBtn.setDisable(true);
+                        account.setNote("正在登录...");
+                        String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+                        Map<String,Object> res=new HashMap<>();
+                        if(step.equals("02")){
+                            res=account.getAuthData();
+                            res.put("smsCode",account.getSmsCode());
+                        }else{
+                            res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                        }
 
+                        res.put("creditCardNumber",account.getCreditCardNumber());
+                        res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
+                        res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
+                        res.put("creditVerificationNumber",account.getCreditVerificationNumber());
+                        if(!res.get("code").equals("200")){
+                            account.setNote(String.valueOf(res.get("msg")));
+                        }else{
+                            boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                            if(!hasInspectionFlag){
+                                account.setNote("此 Apple?ID 尚未用于 App Store。");
+                                accountTableView.refresh();
+                                return;
+                            }
+                            account.setNote("登录成功，正在验证银行卡信息...");
+                            accountTableView.refresh();
+
+                            Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
+                            if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+                                Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
+                                account.setAuthData(mapConvertToObservableMap(data));
+                            }else{
+
+                            }
+                            account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
+                        }
+                        accountTableView.refresh();
+                    } catch (Exception e) {
+                        account.setNote("操作失败，接口异常");
+                        accountTableView.refresh();
+                        accountQueryBtn.setDisable(false);
+                        accountQueryBtn.setText("开始执行");
+                        accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                        e.printStackTrace();
+                    }
+                }finally {
+                    //JavaFX Application Thread会逐个阻塞的执行这些任务
+                    Platform.runLater(new Task<Integer>() {
+                        @Override
+                        protected Integer call() {
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            return 1;
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+
+   /**第二步操作**/
     @Override
     protected void secondStepHandler(CreditCard account, String code){
         account.setSmsCode(code);
@@ -260,18 +265,6 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
        return observableMap;
     }
 
-
-
-    private void queryFail(Account account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
-    }
-    private void messageFun(Account account,String message) {
-        account.setNote(message);
-        accountTableView.refresh();
-    }
-
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
@@ -299,11 +292,12 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
-//        try {
-//            super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-reexecute-copy-smsCode");
+    }
+
+    /**重新执行**/
+    @Override
+    protected void reExecute(CreditCard account){
+        executeFun(account);
     }
 }
