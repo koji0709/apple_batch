@@ -3,6 +3,8 @@ package com.sgswit.fx.controller.common;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
@@ -37,6 +39,26 @@ public class AppleIdView extends CustomTableView<Account> {
             return null;
         }
 
+        String status = "正常";
+        if (!StrUtil.isEmpty(signInRsp.body())){
+            String failMessage = "";
+            JSONArray errorArr = JSONUtil.parseObj(signInRsp.body())
+                    .getByPath("serviceErrors",JSONArray.class);
+            if (errorArr != null && errorArr.size()>0){
+                JSONObject err = (JSONObject)(errorArr.get(0));
+                if ("-20209".equals(err.getStr("code"))){
+                    status = "锁定";
+                }
+                for (Object o : errorArr) {
+                    JSONObject jsonObject = (JSONObject) o;
+                    failMessage += jsonObject.getByPath("message") + ";";
+                }
+                setAndRefreshNote(account,failMessage);
+                return null;
+            }
+            account.setStatus(status);
+        }
+
         if(signInRsp.getStatus()!=409){
             setAndRefreshNote(account,"请检查用户名密码是否正确");
             return null;
@@ -56,7 +78,6 @@ public class AppleIdView extends CustomTableView<Account> {
             String typeCode = Console.input();
             account.setSecurityCode(typeCode);
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
-            //return null;
         } else { // sa 密保认证
             if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
                 setAndRefreshNote(account,"密保认证必须输入密保问题");
