@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author DELL
  */
-public class CommDataInputPopupController<T> implements Initializable {
+public class CommDataInputPopupView<T> implements Initializable {
     @FXML
     public VBox notes;
     @FXML

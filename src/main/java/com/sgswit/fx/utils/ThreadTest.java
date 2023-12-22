@@ -26,12 +26,13 @@ public class ThreadTest {
 
     public  static void main(String[] args) {
         final CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
-        list.add("1");
-        list.add("2");
-        list.add("3");
-        list.add("4");
-        list.add("5");
+        list.add("10");
+        list.add("20");
+        list.add("30");
+        list.add("40");
+        list.add("50");
         Vector<Object> linkedList = new Vector<>();
+        long start = System.currentTimeMillis();
         for ( int i = 0; i < list.size(); i++) {
             int t = i;
             executor.execute(() ->
@@ -43,8 +44,17 @@ public class ThreadTest {
                     }
             );
         }
+        System.out.println(111);
         executor.shutdown();
-        System.out.println(JSONUtil.toJsonStr(linkedList));
+        System.out.println(2222);
+        while (true) {
+            if (executor.isTerminated()) {
+                long end = System.currentTimeMillis();
+                System.out.println("所有任务执行完毕,总耗时(毫秒)：" + (end - start));
+                return ;
+            }
+        }
+//        System.out.println(JSONUtil.toJsonStr(linkedList));
     }
 
     //===其他测试=================

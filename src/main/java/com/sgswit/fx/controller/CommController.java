@@ -2,6 +2,7 @@ package com.sgswit.fx.controller;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileAppender;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author DeZh
@@ -38,6 +40,7 @@ import java.util.List;
  * @date 2023/10/2615:27
  */
 public class CommController<T> extends CustomTableView {
+    private static ExecutorService executor = ThreadUtil.newExecutor(1);
     /**
      　* 操作方法
      * @param

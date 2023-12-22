@@ -2,7 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.controller.common.CommSecuritycodePopupController;
+import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
@@ -44,7 +44,7 @@ import java.util.ResourceBundle;
 　* @author DeZh
 　* @date 2023/10/27 10:10
  */
-public class BindVirtualCardController implements Initializable  {
+public class BindVirtualCardController extends CommRightContextMenuView<CreditCard> implements Initializable  {
     @FXML
     public TableColumn creditInfo;
     @FXML
@@ -250,11 +250,11 @@ public class BindVirtualCardController implements Initializable  {
     }
 
     private void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-        creditInfo.setCellValueFactory(new PropertyValueFactory<Account,String>("creditInfo"));
+        seq.setCellValueFactory(new PropertyValueFactory<CreditCard,Integer>("seq"));
+        account.setCellValueFactory(new PropertyValueFactory<CreditCard,String>("account"));
+        pwd.setCellValueFactory(new PropertyValueFactory<CreditCard,String>("pwd"));
+        note.setCellValueFactory(new PropertyValueFactory<CreditCard,String>("note"));
+        creditInfo.setCellValueFactory(new PropertyValueFactory<CreditCard,String>("creditInfo"));
 
     }
 
@@ -264,56 +264,7 @@ public class BindVirtualCardController implements Initializable  {
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         try {
-//
-            ObservableList<CreditCard>  selectedRows=accountTableView.getSelectionModel().getSelectedItems();
-            if(selectedRows.size()==0){
-                return;
-            }
-            CreditCard account=selectedRows.get(0);
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-securitycode-popup.fxml"));
-
-            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
-            scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-            CommSecuritycodePopupController s = fxmlLoader.getController();
-            s.setAccount(account.getAccount());
-
-            Stage popupStage = new Stage();
-            popupStage.setTitle("双重验证码输入页面");
-            popupStage.initModality(Modality.APPLICATION_MODAL);
-            popupStage.setScene(scene);
-            popupStage.setResizable(false);
-            popupStage.initStyle(StageStyle.UTILITY);
-            popupStage.showAndWait();
-
-            String code = s.getSecurityCode();
-            account.setSmsCode(code);
-            account.setStep("02");
-            if (StringUtils.isEmpty(code)){
-                return;
-            }
-            String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
-            Map<String,Object> res=new HashMap<>();
-            if(step.equals("02")){
-                res=account.getAuthData();
-                res.put("smsCode",account.getSmsCode());
-            }else{
-                res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-            }
-
-            res.put("creditCardNumber",account.getCreditCardNumber());
-            res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
-            res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
-            res.put("creditVerificationNumber",account.getCreditVerificationNumber());
-            Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
-            if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
-                addCreditPaymentRes.get("data");
-                account.setAuthData((ObservableMap<String, Object>) addCreditPaymentRes.get("data"));
-            }else{
-
-            }
-            account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
-            accountTableView.refresh();
+            super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
         }catch (Exception e){
             e.printStackTrace();
         }

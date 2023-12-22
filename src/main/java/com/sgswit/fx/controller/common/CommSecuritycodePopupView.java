@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author DELL
  */
-public class CommSecuritycodePopupController {
+public class CommSecuritycodePopupView {
     @FXML
     private TextField smsTextField;
     @FXML
@@ -22,7 +22,7 @@ public class CommSecuritycodePopupController {
     private String securityCode = "";
     private String account      = "";
 
-    public CommSecuritycodePopupController(){
+    public CommSecuritycodePopupView(){
 
     }
 

@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
@@ -35,6 +36,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author DeZh
@@ -86,7 +88,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
     public ChoiceBox<String> rangeSelect;
 
     private ObservableList<ConsumptionBill> accountList = FXCollections.observableArrayList();
-
+    private static ExecutorService executor = ThreadUtil.newExecutor(1);
     public ConsumptionBillController(){
 
     }

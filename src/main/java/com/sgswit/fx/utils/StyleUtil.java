@@ -33,7 +33,7 @@ public class StyleUtil {
 		Integer buttonIndex= (Integer) button.getUserData();
 		BorderStroke borderStroke;
 		if(buttonIndex==0){
-			borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null,
+			borderStroke = new BorderStroke(Color.BLACK, null, null, null, BorderStrokeStyle.SOLID, null, null,
 					null, null, null, null);
 		}else{
 			borderStroke = new BorderStroke(null, null, Color.BLACK, null, null, null, BorderStrokeStyle.SOLID,
