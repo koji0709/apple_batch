@@ -20,10 +20,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -550,14 +548,34 @@ public class AppleIDUtil {
     /**
      * 新增救援邮箱前置
      */
-    public static HttpResponse addRescueEmailSendVerifyCode(String scnt,String password,String rescueEmail) {
+    public static HttpResponse addRescueEmailSendVerifyCode(Account account) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.POST, url)
                 .header(headers)
-                .body("{\"address\":\""+rescueEmail+"\"}")
+                .body("{\"address\":\""+account.getEmail()+"\"}")
                 .execute();
 
         int status = rsp.getStatus();
@@ -565,8 +583,8 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,password);
-            return addRescueEmailSendVerifyCode(scnt,password,rescueEmail);
+            verifyPassword(rsp,account.getPwd());
+            return addRescueEmailSendVerifyCode(account);
         }
         return rsp;
     }
@@ -809,13 +827,33 @@ public class AppleIDUtil {
     /**
      * 修改appleId时发送邮件
      */
-    public static HttpResponse updateAppleIdSendVerifyCode(String scnt,String password,String appleId){
+    public static HttpResponse updateAppleIdSendVerifyCode(Account account){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
-        HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(scnt));
-        String body = "{\"name\":\""+appleId+"\"}";
+        String body = "{\"name\":\""+account.getEmail()+"\"}";
         HttpResponse verifyRsp = HttpUtil.createPost(url)
-                .header(header)
+                .header(headers)
                 .body(body).execute();
         rspLog(Method.POST,url,verifyRsp.getStatus());
 
@@ -823,8 +861,8 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(verifyRsp,password);
-            return updateAppleIdSendVerifyCode(scnt,password,appleId);
+            verifyPassword(verifyRsp,account.getPwd());
+            return updateAppleIdSendVerifyCode(account);
         }
         return verifyRsp;
     }
@@ -1021,10 +1059,32 @@ public class AppleIDUtil {
     /**
      * 生成支持pin
      */
-    public static HttpResponse supportPin(String scnt){
+    public static HttpResponse supportPin(Account account){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/supportpin";
         HttpResponse supportPinRsp = HttpUtil.createPost(url)
-                .header("scnt", scnt)
+                .header(headers)
                 .execute();
         rspLog(Method.POST,url,supportPinRsp.getStatus());
         return supportPinRsp;

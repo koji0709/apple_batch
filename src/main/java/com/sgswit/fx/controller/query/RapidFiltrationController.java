@@ -74,6 +74,12 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     }
 
     private void queryFail(Account account,Object body) {
+        if(body.toString().startsWith("<html>")){
+            account.setNote("操作频繁");
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
+            return;
+        }
         JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
         String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
         if(message.contains("锁定")){
