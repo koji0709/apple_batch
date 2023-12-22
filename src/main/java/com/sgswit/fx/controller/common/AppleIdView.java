@@ -17,7 +17,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class AppleIdView extends CustomTableView<Account> {
@@ -120,20 +119,6 @@ public class AppleIdView extends CustomTableView<Account> {
             return null;
         }
         return tokenRsp;
-    }
-
-    public String loginAndGetScnt(Account account){
-//        String authType = StrUtil.isEmpty(account.getAnswer1()) ? "hsa2" : "sa";
-        HttpResponse tokenRsp = login(account);
-        if (tokenRsp == null){
-            return "";
-        }
-        return getTokenScnt(tokenRsp);
-    }
-
-    public String getTokenScnt(HttpResponse rsp){
-        String tokenScnt = rsp.header("scnt");
-        return tokenScnt;
     }
 
     /**

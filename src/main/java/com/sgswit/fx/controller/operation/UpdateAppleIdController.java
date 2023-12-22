@@ -36,13 +36,17 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void accountHandler(Account account) {
+        HttpResponse loginRsp = login(account);
+        if (loginRsp == null){
+            return;
+        }
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 
         // 更改AppleId
         if ("更改AppleId".equals(opType)) {
             // 发送邮件
-            HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(loginAndGetScnt(account), account.getPwd(), account.getEmail());
+            HttpResponse verifyRsp = AppleIDUtil.updateAppleIdSendVerifyCode(account);
 
             // 更改AppleID
             String verifyCode = dialog("["+account.getEmail()+"] 邮箱验证码","请输入邮件验证码：");
@@ -52,7 +56,6 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             if (updateAppleIdRsp.getStatus() == 302){
 
             }
-
             System.err.println(updateAppleIdRsp);
             // todo 判断状态码
         }
@@ -60,7 +63,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         // 新增救援邮件
         if ("新增救援邮件".equals(opType)){
             // 发送邮件
-            HttpResponse verifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(loginAndGetScnt(account), account.getPwd(), account.getEmail());
+            HttpResponse verifyRsp = AppleIDUtil.addRescueEmailSendVerifyCode(account);
             if (verifyRsp.getStatus() == 201){
                 String verifyCode = dialog("["+account.getAccount()+"] 邮箱验证码","请输入邮件验证码：");
                 HttpResponse addRescueEmailRsp = AppleIDUtil.addRescueEmail(verifyRsp, account.getEmail(), verifyCode);
