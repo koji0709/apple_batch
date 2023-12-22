@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.model.Account;
@@ -217,7 +218,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
 
 
     @Override
-    protected void secondStepHandler(CreditCard account,String code){
+    protected void secondStepHandler(CreditCard account, String code){
         account.setSmsCode(code);
         account.setStep("02");
         if (StringUtils.isEmpty(code)){
@@ -227,6 +228,9 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
         Map<String,Object> res=new HashMap<>();
         if(step.equals("02")){
             res=account.getAuthData();
+            if(null==res){
+                return;
+            }
             res.put("smsCode",account.getSmsCode());
         }else{
             res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
@@ -291,13 +295,15 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
 
 
     public void onStopBtnClick(ActionEvent actionEvent) {
-    }
 
+    }
+    @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        try {
-            super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
+//        try {
+//            super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy-smsCode");
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
     }
 }

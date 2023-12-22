@@ -136,16 +136,10 @@ public class CommController<T> extends CustomTableView {
         //step1 sign 登录
         Object accountName=getFieldValueByObject(account,"account");
         Object pwd=getFieldValueByObject(account,"pwd");
-        Object answer1=getFieldValueByObject(account,"answer1");
-        Object answer2=getFieldValueByObject(account,"answer2");
-        Object answer3=getFieldValueByObject(account,"answer3");
-
+        setFieldValueByObject(account, "正在登录...","note");
         Account a=new Account();
         a.setPwd(pwd.toString());
         a.setAccount(accountName.toString());
-        a.setAnswer1(StrUtil.isEmptyIfStr(answer1)?"":answer1.toString());
-        a.setAnswer2(StrUtil.isEmptyIfStr(answer2)?"":answer2.toString());
-        a.setAnswer3(StrUtil.isEmptyIfStr(answer3)?"":answer3.toString());
         HttpResponse step1Res = AppleIDUtil.signin(a);
 
         if (step1Res.getStatus() != 409) {

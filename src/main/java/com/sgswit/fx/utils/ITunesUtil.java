@@ -257,7 +257,6 @@ public class ITunesUtil {
             }
         }
         String phoneOfficeNumber=paymentInfo.getByPath("phone.phoneOfficeNumber",String.class);
-//        phoneOfficeNumber="13910958216";
         source=JSONUtil.toBean(paymentInfo.getByPath("billingAddress",String.class),Map.class);
         source.put("phoneOfficeNumber",phoneOfficeNumber);
         source.put("iso3CountryCode",source.get("addressOfficialCountryCode"));
@@ -340,7 +339,7 @@ public class ITunesUtil {
     }
 
 
-    public  static Map<String,Object> appStoreOverCheck(Map<String,Object> paras){
+    public static Map<String,Object> appStoreOverCheck(Map<String,Object> paras){
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("*/*"));

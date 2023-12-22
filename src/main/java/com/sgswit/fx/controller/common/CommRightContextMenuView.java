@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.swing.clipboard.ClipboardMonitor;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -50,7 +51,7 @@ public class CommRightContextMenuView<T> extends CommonView{
     private static String COLOR_SELECTED  = "black";
     /**被选中的按钮背景颜色**/
     private static String COLOR_HOVER = "#169bd5";
-    private Stage stage = new Stage();
+    private Stage stage=null;
 
     private static TableView accountTableView;
 
@@ -95,18 +96,27 @@ public class CommRightContextMenuView<T> extends CommonView{
             if(selectedRows.size()==0){
                 return;
             }
-            CommRightContextMenuView commRightContextMenuView=new CommRightContextMenuView();
-            commRightContextMenuView.openMenu(contextMenuEvent,list);
+            openMenu(contextMenuEvent,list);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
 
-
+   /**
+   　* 打开右键菜单
+     * @param
+    * @param contextMenuEvent
+    * @param items
+   　* @return void
+   　* @throws
+   　* @author DeZh
+   　* @date 2023/12/22 20:52
+   */
     private void openMenu(ContextMenuEvent contextMenuEvent, List<KeyValuePair> items) {
         double x= contextMenuEvent.getScreenX();
         double y=contextMenuEvent.getScreenY();
+        stage = new Stage();
         stage.setX(x+1);
         stage.setY(y);
         Group root = new Group(getMenu(items));
@@ -243,11 +253,11 @@ public class CommRightContextMenuView<T> extends CommonView{
            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-securitycode-popup.fxml"));
            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
            scene.getRoot().setStyle("-fx-font-family: 'serif'");
-           CommSecuritycodePopupView fxmlLoaderController = fxmlLoader.getController();
+           CommCodePopupView fxmlLoaderController = fxmlLoader.getController();
            String account= ((SimpleStringProperty)ReflectUtil.getFieldValue(o,"account")).getValue();
            fxmlLoaderController.setAccount(account);
            Stage popupStage = new Stage();
-           popupStage.setTitle("双重验证码输入页面");
+           popupStage.setTitle("请输入验证码");
            popupStage.initModality(Modality.APPLICATION_MODAL);
            popupStage.setScene(scene);
            popupStage.setResizable(false);
@@ -256,7 +266,7 @@ public class CommRightContextMenuView<T> extends CommonView{
            String code = fxmlLoaderController.getSecurityCode();
            secondStepHandler(o,code);
        }catch (Exception e){
-
+            e.printStackTrace();
        }
     }
 
@@ -268,7 +278,10 @@ public class CommRightContextMenuView<T> extends CommonView{
     　* @author DeZh
     　* @date 2023/12/22 17:38
     */
-    protected void secondStepHandler(T o,String code){ }
+    protected void secondStepHandler(T account, String code){
+    }
+
+
     /**
     　* 重新执行
       * @param

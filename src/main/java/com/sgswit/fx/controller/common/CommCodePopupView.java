@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @author DELL
  */
-public class CommSecuritycodePopupView {
+public class CommCodePopupView {
     @FXML
     private TextField smsTextField;
     @FXML
@@ -22,7 +22,7 @@ public class CommSecuritycodePopupView {
     private String securityCode = "";
     private String account      = "";
 
-    public CommSecuritycodePopupView(){
+    public CommCodePopupView(){
 
     }
 
@@ -47,7 +47,7 @@ public class CommSecuritycodePopupView {
 
     public void setAccount(String account){
         this.account = account;
-        this.sCodeLabel.setText("请输入账户[ "+ account +" ]的双重验证码");
+        this.sCodeLabel.setText("请输入账户[ "+ account +" ]的验证码");
     }
 
     public void onCancelBtnClick(ActionEvent actionEvent) {
