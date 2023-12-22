@@ -216,6 +216,37 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
     }
 
 
+    @Override
+    protected void secondStepHandler(CreditCard account,String code){
+        account.setSmsCode(code);
+        account.setStep("02");
+        if (StringUtils.isEmpty(code)){
+            return;
+        }
+        String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+        Map<String,Object> res=new HashMap<>();
+        if(step.equals("02")){
+            res=account.getAuthData();
+            res.put("smsCode",account.getSmsCode());
+        }else{
+            res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+        }
+
+        res.put("creditCardNumber",account.getCreditCardNumber());
+        res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
+        res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
+        res.put("creditVerificationNumber",account.getCreditVerificationNumber());
+        Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
+        if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+            addCreditPaymentRes.get("data");
+            account.setAuthData((ObservableMap<String, Object>) addCreditPaymentRes.get("data"));
+        }else{
+
+        }
+        account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
+        accountTableView.refresh();
+    }
+
 
    public static ObservableMap<String,Object> mapConvertToObservableMap(Map<String,Object> data){
        ObservableMap<String, Object> observableMap =FXCollections.observableHashMap();

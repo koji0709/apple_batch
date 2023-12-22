@@ -1,13 +1,10 @@
 package com.sgswit.fx.model;
 
-import javafx.beans.property.MapProperty;
+import com.sgswit.fx.annotation.CustomAnnotation;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableMap;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author DeZh
@@ -18,13 +15,17 @@ import java.util.Map;
  */
 public class CreditCard {
     private final SimpleIntegerProperty seq;
+    @CustomAnnotation(copy = true,desc = "账号")
     private final SimpleStringProperty account;
+    @CustomAnnotation(copy = true,desc = "密码")
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty creditCardNumber;
     private final SimpleStringProperty creditCardExpirationMonth;
     private final SimpleStringProperty creditCardExpirationYear;
     private final SimpleStringProperty creditVerificationNumber;
+    @CustomAnnotation(copy = true,desc = "卡号信息")
     private final SimpleStringProperty creditInfo;
+    @CustomAnnotation(copy = true,desc = "执行信息")
     private final SimpleStringProperty note;
     private final SimpleMapProperty<String,Object> authData;
     private final SimpleStringProperty step;

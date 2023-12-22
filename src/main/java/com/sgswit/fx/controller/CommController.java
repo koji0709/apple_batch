@@ -319,7 +319,7 @@ public class CommController<T> extends CustomTableView {
     　* @author DeZh
     　* @date 2023/10/26 23:04
      */
-    private Object getFieldValueByObject(T object, String targetFieldName) throws Exception {
+    private static<T> Object getFieldValueByObject(T object, String targetFieldName) throws Exception {
         // 获取该对象的Class
         Class objClass = object.getClass();
         // 获取所有的属性数组
@@ -355,7 +355,7 @@ public class CommController<T> extends CustomTableView {
     　* @author DeZh
     　* @date 2023/10/26 23:04
      */
-    private T setFieldValueByObject(T object, Object value,String targetFieldName) throws Exception {
+    private static<T> T setFieldValueByObject(T object, Object value,String targetFieldName) throws Exception {
         // 获取该对象的Class
         Class objClass = object.getClass();
         // 获取所有的属性数组

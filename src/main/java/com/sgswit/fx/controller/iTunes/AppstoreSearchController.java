@@ -8,6 +8,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
 import com.sgswit.fx.enums.StageEnum;
@@ -52,7 +53,7 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     Label itemNumLabel;
 
     @FXML
-    public javafx.scene.control.TableView<AppstoreItemVo> tableView;
+    public TableView<AppstoreItemVo> tableView;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

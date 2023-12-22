@@ -29,7 +29,7 @@ import java.util.*;
  * @author yanggang
  * @createTime 2023/10/31
  */
-public class ToolController extends CommonView {
+public class ToolController extends CommonView{
 
 
     @FXML

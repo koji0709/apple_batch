@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author HeHongdong
  */
-public class CustomTableView<T> extends CommonView {
+public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     @FXML
     protected Button executeButton;

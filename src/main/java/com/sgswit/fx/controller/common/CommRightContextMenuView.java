@@ -1,17 +1,19 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.swing.clipboard.ClipboardMonitor;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.utils.ProjectValues;
-import com.sgswit.fx.utils.StyleUtil;
+import com.sgswit.fx.annotation.CustomAnnotation;
+import com.sgswit.fx.utils.ClipboardManager;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventType;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -19,6 +21,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -27,21 +30,17 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author DELL
  */
-public class CommRightContextMenuView<T> {
+public class CommRightContextMenuView<T> extends CommonView{
     private Integer currentMenuIndex;
     private static double leftMenuWidth = 120;
     private static double buttonHeight = 20;
@@ -55,26 +54,26 @@ public class CommRightContextMenuView<T> {
 
     private static TableView accountTableView;
 
-    private List<KeyValuePair> allList=new ArrayList<>(){{
-            add(new KeyValuePair("delete","删除",""));
-            add(new KeyValuePair("reexecute","重新执行",""));
-            add(new KeyValuePair("copy","复制账号信息",""));
-            add(new KeyValuePair("code","输入双重验证码","views/comm-securitycode-popup.fxml"));
-            add(new KeyValuePair("smsCode","输入验证码","views/comm-securitycode-popup.fxml"));
+    private static List<KeyValuePair> allList=new ArrayList<>(){{
+        add(new KeyValuePair("delete","删除",""));
+        add(new KeyValuePair("reexecute","重新执行",""));
+        add(new KeyValuePair("copy","复制账号信息",""));
+        add(new KeyValuePair("code","输入双重验证码","views/comm-securitycode-popup.fxml"));
+        add(new KeyValuePair("smsCode","输入验证码","views/comm-securitycode-popup.fxml"));
     }};
 
 
     /**
-    　* 右键点击事件
-      * @param
+     　* 右键点击事件
+     * @param
      * @param contextMenuEvent
      * @param tableView
     　* @return void
     　* @throws
     　* @author DeZh
     　* @date 2023/12/22 13:52
-    */
-    public void onContentMenuClick(ContextMenuEvent contextMenuEvent,TableView tableView,String op) {
+     */
+    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent,TableView tableView,String op) {
         accountTableView=tableView;
         try {
             if(StringUtils.isEmpty(op) || op.split("-").length==0){
@@ -96,7 +95,6 @@ public class CommRightContextMenuView<T> {
             if(selectedRows.size()==0){
                 return;
             }
-
             CommRightContextMenuView commRightContextMenuView=new CommRightContextMenuView();
             commRightContextMenuView.openMenu(contextMenuEvent,list);
         }catch (Exception e){
@@ -106,7 +104,7 @@ public class CommRightContextMenuView<T> {
 
 
 
-    public void openMenu(ContextMenuEvent contextMenuEvent, List<KeyValuePair> items) {
+    private void openMenu(ContextMenuEvent contextMenuEvent, List<KeyValuePair> items) {
         double x= contextMenuEvent.getScreenX();
         double y=contextMenuEvent.getScreenY();
         stage.setX(x+1);
@@ -142,7 +140,7 @@ public class CommRightContextMenuView<T> {
     /**
      * 生成左侧菜单按钮
      */
-    private List<Button> getMenuItemList(double width,List<KeyValuePair> itemNameList) {
+    private List<Button> getMenuItemList(double width, List<KeyValuePair> itemNameList) {
         List<Button> buttonList = new ArrayList<>(itemNameList.size());
         for (KeyValuePair keyValuePair : itemNameList) {
             Button button = new Button(keyValuePair.getValue());
@@ -169,26 +167,106 @@ public class CommRightContextMenuView<T> {
             });
             button.setOnMouseClicked(event->{
                 String buttonId= button.getId();
-                if(buttonId.equalsIgnoreCase("copy")){
-                    ObservableList<T> selectedRows=accountTableView.getSelectionModel().getSelectedItems();
-                    if(selectedRows.size()==0){
-                        return;
-                    }
-
+                ObservableList<T> selectedRows=accountTableView.getSelectionModel().getSelectedItems();
+                if(selectedRows.size()==0){
+                    return;
                 }
-//                try {
-//                    FXMLLoader fxmlLoader = new FXMLLoader();
-//                    Pane p = fxmlLoader.load(MainApplication.class.getResource(itemNameList.get(currentMenuIndex).getPath()).openStream());
-//                    rightMainPane.getChildren().add(p);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                if(buttonId.equalsIgnoreCase("copy")){
+                    copyInfo(selectedRows.get(0));
+                }else if(buttonId.equalsIgnoreCase("delete")){
+                    Integer seqNo= ((SimpleIntegerProperty) ReflectUtil.getFieldValue(selectedRows.get(0), "seq")).getValue();
+                    accountTableView.getItems().remove(seqNo-1);
+                    accountTableView.refresh();
+                }else if(buttonId.equalsIgnoreCase("smsCode")){
+                    openCodePopup(selectedRows.get(0));
+                }
                 stage.close();
             });
             buttonList.add(button);
         }
         return buttonList;
     }
+    /**
+    　* 复制当前行信息
+      * @param
+     * @param selectedRow
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/22 17:55
+    */
+    private void copyInfo(T selectedRow){
+        try {
+            List<String> out=new ArrayList<>();
+            JSON jsonObject=JSONUtil.parse(selectedRow);
+            Class clazz = selectedRow.getClass();
+            // 获取所有的属性
+            Field[] fields = clazz.getDeclaredFields();
+            // 遍历属性
+            for (Field field : fields) {
+                // 判断属性是否有注解
+                if (field.isAnnotationPresent(CustomAnnotation.class)) {
+                    CustomAnnotation annotation = field.getAnnotation(CustomAnnotation.class);
+                    boolean copy = annotation.copy();
+                    if(copy){
+                        Object value=jsonObject.getByPath(field.getName());
+                        if(null!=value && !StringUtils.isEmpty(value.toString())){
+                            out.add(value.toString());
+                        }else{
+                            out.add(annotation.desc());
+                        }
+                    }
+                }
+            }
+            String str = out.stream().collect(Collectors.joining("----"));
+            ClipboardManager.setClipboard(str);
+            super.alert("复制成功！");
+        }catch (Exception e){
+
+        }
+    }
+    /**
+    　* 弹出验证码弹出框
+      * @param
+     * @param o
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/22 17:56
+    */
+    private void openCodePopup(T o){
+       try {
+           FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-securitycode-popup.fxml"));
+           Scene scene = new Scene(fxmlLoader.load(), 385, 170);
+           scene.getRoot().setStyle("-fx-font-family: 'serif'");
+           CommSecuritycodePopupView fxmlLoaderController = fxmlLoader.getController();
+           String account= ((SimpleStringProperty)ReflectUtil.getFieldValue(o,"account")).getValue();
+           fxmlLoaderController.setAccount(account);
+           Stage popupStage = new Stage();
+           popupStage.setTitle("双重验证码输入页面");
+           popupStage.initModality(Modality.APPLICATION_MODAL);
+           popupStage.setScene(scene);
+           popupStage.setResizable(false);
+           popupStage.initStyle(StageStyle.UTILITY);
+           popupStage.showAndWait();
+           String code = fxmlLoaderController.getSecurityCode();
+           secondStepHandler(o,code);
+       }catch (Exception e){
+
+       }
+    }
+
+    /**
+    　* 第二步操作
+      * @param
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/22 17:38
+    */
+    protected void secondStepHandler(T o,String code){ }
+
+
     public static void setPaneBackground(Pane pane, Color color) {
         pane.setBackground(new Background(new BackgroundFill(color, null, null)));
     }
