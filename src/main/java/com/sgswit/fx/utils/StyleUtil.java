@@ -21,7 +21,7 @@ import javafx.scene.text.FontWeight;
  *
  */
 public class StyleUtil {
-
+	public static boolean first=true;
 	public static void setPaneBackground(Pane pane, Color color) {
 		pane.setBackground(new Background(new BackgroundFill(color, null, null)));
 	}
@@ -30,8 +30,15 @@ public class StyleUtil {
 		button.setBackground(new Background(new BackgroundFill(bg, null, null)));
 		button.setTextFill(text);
 		button.setCursor(Cursor.HAND);
-		BorderStroke borderStroke = new BorderStroke(null, null, Color.BLACK, null, null, null, BorderStrokeStyle.SOLID,
-				null, null, null, null);
+		Integer buttonIndex= (Integer) button.getUserData();
+		BorderStroke borderStroke;
+		if(buttonIndex==0){
+			borderStroke = new BorderStroke(null, null, Color.BLACK, null, BorderStrokeStyle.SOLID, null, null,
+					null, null, null, null);
+		}else{
+			borderStroke = new BorderStroke(null, null, Color.BLACK, null, null, null, BorderStrokeStyle.SOLID,
+					null, null, null, null);
+		}
 		button.setBorder(new Border(borderStroke));
 		button.setPadding(new Insets(10));
 	}

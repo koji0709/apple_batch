@@ -54,7 +54,6 @@ public class MainController implements Initializable {
     private Integer currentMenuIndex;
     private Integer tempIndex;
 
-
     private final List<Map> proxyModeList = DataUtil.getProxyModeList();
 
     /**
@@ -124,12 +123,14 @@ public class MainController implements Initializable {
             add(new KeyValuePair("toolbox","工具箱","views/tool/toolbox-items-list.fxml"));
         }};
         double buttonHeight = 30;
-        List<Button> buttonList = new ArrayList<>(3);
+        List<Button> buttonList = new ArrayList<>(itemNameList.size());
+        int buttonIndex=0;
         for (KeyValuePair keyValuePair : itemNameList) {
             Button button = new Button(keyValuePair.getValue());
             button.setMinWidth(width);
             button.setMinHeight(buttonHeight);
             button.setId(keyValuePair.getKey());
+            button.setUserData(buttonIndex);
             StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
             //增加鼠标移动到菜单上到hover效果
             button.setOnMouseMoved(event->{
@@ -192,8 +193,10 @@ public class MainController implements Initializable {
                 }
 
             });
+            buttonIndex++;
             buttonList.add(button);
         }
+        StyleUtil.first=true;
         return buttonList;
     }
 
