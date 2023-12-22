@@ -31,6 +31,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
@@ -457,5 +458,8 @@ public class CountryModifyController extends CommController<Account> implements 
         popupStage.showAndWait();
         customCountryDataFun();
     }
-
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy");
+    }
 }

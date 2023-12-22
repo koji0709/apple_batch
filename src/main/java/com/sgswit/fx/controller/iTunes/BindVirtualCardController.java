@@ -2,10 +2,8 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;

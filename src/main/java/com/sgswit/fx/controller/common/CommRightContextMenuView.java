@@ -59,8 +59,8 @@ public class CommRightContextMenuView<T> extends CommonView{
         add(new KeyValuePair("delete","删除",""));
         add(new KeyValuePair("reexecute","重新执行",""));
         add(new KeyValuePair("copy","复制账号信息",""));
-        add(new KeyValuePair("twoFactorCode","输入双重验证码","views/comm-securitycode-popup.fxml"));
-        add(new KeyValuePair("smsCode","输入验证码","views/comm-securitycode-popup.fxml"));
+        add(new KeyValuePair("twoFactorCode","输入双重验证码","views/comm-code-popup.fxml"));
+        add(new KeyValuePair("smsCode","输入验证码","views/comm-code-popup.fxml"));
     }};
 
 
@@ -250,7 +250,7 @@ public class CommRightContextMenuView<T> extends CommonView{
     */
     private void openCodePopup(T o){
        try {
-           FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-securitycode-popup.fxml"));
+           FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-code-popup.fxml"));
            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
            scene.getRoot().setStyle("-fx-font-family: 'serif'");
            CommCodePopupView fxmlLoaderController = fxmlLoader.getController();
