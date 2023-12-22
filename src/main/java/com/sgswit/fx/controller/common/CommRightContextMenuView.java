@@ -58,7 +58,7 @@ public class CommRightContextMenuView<T> extends CommonView{
         add(new KeyValuePair("delete","删除",""));
         add(new KeyValuePair("reexecute","重新执行",""));
         add(new KeyValuePair("copy","复制账号信息",""));
-        add(new KeyValuePair("code","输入双重验证码","views/comm-securitycode-popup.fxml"));
+        add(new KeyValuePair("twoFactorCode","输入双重验证码","views/comm-securitycode-popup.fxml"));
         add(new KeyValuePair("smsCode","输入验证码","views/comm-securitycode-popup.fxml"));
     }};
 
@@ -179,6 +179,10 @@ public class CommRightContextMenuView<T> extends CommonView{
                     accountTableView.refresh();
                 }else if(buttonId.equalsIgnoreCase("smsCode")){
                     openCodePopup(selectedRows.get(0));
+                }else if(buttonId.equalsIgnoreCase("reexecute")){
+                    reExecute(selectedRows.get(0));
+                }else if(buttonId.equalsIgnoreCase("twoFactorCode")){
+                    twoFactorCodeExecute(selectedRows.get(0));
                 }
                 stage.close();
             });
@@ -265,6 +269,26 @@ public class CommRightContextMenuView<T> extends CommonView{
     　* @date 2023/12/22 17:38
     */
     protected void secondStepHandler(T o,String code){ }
+    /**
+    　* 重新执行
+      * @param
+     * @param o
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/22 18:04
+    */
+    protected void reExecute(T o){ }
+    /**
+     　* 双重验证
+     * @param
+     * @param o
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/22 18:04
+     */
+    protected void twoFactorCodeExecute(T o){ }
 
 
     public static void setPaneBackground(Pane pane, Color color) {
