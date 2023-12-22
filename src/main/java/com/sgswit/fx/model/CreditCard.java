@@ -13,7 +13,7 @@ import javafx.collections.ObservableMap;
  * @description: TODO
  * @date 2023/10/3121:37
  */
-public class CreditCard {
+public class CreditCard extends AuthData{
     private final SimpleIntegerProperty seq;
     @CustomAnnotation(copy = true,desc = "账号")
     private final SimpleStringProperty account;
@@ -27,9 +27,7 @@ public class CreditCard {
     private final SimpleStringProperty creditInfo;
     @CustomAnnotation(copy = true,desc = "执行信息")
     private final SimpleStringProperty note;
-    private final SimpleMapProperty<String,Object> authData;
-    private final SimpleStringProperty step;
-    private final SimpleStringProperty smsCode;
+
 
     public CreditCard() {
         this.seq = new SimpleIntegerProperty();
@@ -40,9 +38,6 @@ public class CreditCard {
         this.creditCardExpirationYear = new SimpleStringProperty();
         this.creditVerificationNumber = new SimpleStringProperty();
         this.creditInfo = new SimpleStringProperty();
-        this.authData = new SimpleMapProperty<>();
-        this.step = new SimpleStringProperty();
-        this.smsCode = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
     }
 
@@ -136,27 +131,5 @@ public class CreditCard {
         this.note.set(note);
     }
 
-    public ObservableMap<String, Object> getAuthData() {
-        return authData.get();
-    }
 
-
-    public void setAuthData(ObservableMap<String, Object> authData) {
-        this.authData.set(authData);
-    }
-
-    public String getStep() {
-        return step.get();
-    }
-
-    public void setStep(String step) {
-        this.step.set(step);
-    }
-
-    public String getSmsCode() {
-        return smsCode.get();
-    }
-    public void setSmsCode(String smsCode) {
-        this.smsCode.set(smsCode);
-    }
 }
