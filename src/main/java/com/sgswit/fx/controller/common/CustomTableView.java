@@ -65,7 +65,6 @@ public class CustomTableView<T> extends CommonView {
 
     private Class clz = Account.class;
     private List<String> formats;
-    private static ExecutorService executor = ThreadUtil.newExecutor(3);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -159,9 +158,9 @@ public class CustomTableView<T> extends CommonView {
             ThreadUtil.sleep(500);
         }
 
-        // 处理账号
-        // 处理账号
-        Runnable task = () -> {
+        // 此处的线程是为了处理,按钮状态等文案显示
+        ThreadUtil.execute(() -> {
+            // 处理账号
             for (int i = 0; i < accountList.size(); i++) {
                 T account = accountList.get(i);
                 if (reentrantLock.isLocked()) {
@@ -176,28 +175,26 @@ public class CustomTableView<T> extends CommonView {
                 if (i != 0 && i % 10 == 0) {
                     ThreadUtil.sleep(500);
                 }
-                ThreadUtil.sleep(500);
-
-//                Platform.runLater(() -> {
+                ThreadUtil.sleep(100);
                 ThreadUtil.execute(() -> {
                     try {
                         setAndRefreshNote(account, "执行中", false);
                         accountHandler(account);
                     } catch (Exception e) {
-                        setAndRefreshNote(account, "接口数据处理异常", true);
+                        setAndRefreshNote(account, "接口数据处理异常或需要验证码(暂不支持)", true);
                         e.printStackTrace();
                     }
                 });
+
                 if (i == accountList.size() - 1) {
                     // 任务执行结束, 恢复执行按钮状态
                     Platform.runLater(() -> setExecuteButtonStatus(false));
                 }
             }
+        });
 
-        };
-
-        executor.execute(task);
     }
+
 
     /**
      * 每一个账号的处理器
@@ -490,6 +487,7 @@ public class CustomTableView<T> extends CommonView {
             ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
+
         if (saveLog) {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));

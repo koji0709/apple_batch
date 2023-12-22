@@ -81,9 +81,10 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             return;
         }
 
-        //String verifyCode = dialog("["+account.getAccount()+"] 手机验证码","请输入短信验证码：");
-        Console.log("请输入短信验证码：");
-        String verifyCode = Console.input();
+        String verifyCode = dialog("["+account.getAccount()+"] 手机验证码","请输入短信验证码：");
+//        Console.log("请输入短信验证码：");
+//        String verifyCode = Console.input();
+
         JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
         JSONObject phoneNumber = jsonBody.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
         String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
