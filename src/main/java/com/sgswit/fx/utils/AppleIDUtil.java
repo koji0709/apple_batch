@@ -848,25 +848,44 @@ public class AppleIDUtil {
      * 双重认证发送短信
      * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
-    public static HttpResponse securityUpgradeVerifyPhone(String scnt,String password,String body){
-        String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
-        HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(scnt));
+    public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
-        HttpResponse securityUpgradeVerifyPhoneRsp = HttpUtil.createRequest(Method.PUT, url)
-                .header(header)
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
                 .body(body)
                 .execute();
-        int status = securityUpgradeVerifyPhoneRsp.getStatus();
+        int status = rsp.getStatus();
         rspLog(Method.PUT,url, status);
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(securityUpgradeVerifyPhoneRsp,password);
-            return securityUpgradeVerifyPhone(scnt,password,body);
+            verifyPassword(rsp,account.getPwd());
+            return securityUpgradeVerifyPhone(account,body);
         }
-
-        return securityUpgradeVerifyPhoneRsp;
+        account.updateLoginInfo(rsp);
+        return rsp;
     }
 
     /**
@@ -890,8 +909,30 @@ public class AppleIDUtil {
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         HttpResponse verifyPhone1Rsp = HttpUtil.createGet(host + verifyPhone1Location)
-                .header(buildHeader())
+                .header(headers)
                 .execute();
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
@@ -910,7 +951,7 @@ public class AppleIDUtil {
 
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
-                .header(buildHeader())
+                .header(headers)
                 .execute();
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
@@ -922,8 +963,12 @@ public class AppleIDUtil {
                 .execute();
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        if (StrUtil.isEmpty(verifyQuestions1Location)){
+            account.setNote("生日校验不通过");
+            return null;
+        }
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
-                .header(buildHeader())
+                .header(headers)
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -946,8 +991,12 @@ public class AppleIDUtil {
                 .execute();
 
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
+        if (StrUtil.isEmpty(verifyQuestions1Location)){
+            account.setNote("密保校验不通过");
+            return null;
+        }
         HttpResponse unenrollment1Rsp = HttpUtil.createGet(host + unenrollment1Location)
-                .header(buildHeader())
+                .header(headers)
                 .execute();
 
         HttpResponse unenrollment2Rsp = HttpUtil.createPost(host + "/unenrollment")
@@ -956,7 +1005,7 @@ public class AppleIDUtil {
 
         String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
         HttpResponse unenrollmentReset1Rsp = HttpUtil.createGet(host + unenrollmentReset1Location)
-                .header(buildHeader())
+                .header(headers)
                 .execute();
 
         HttpResponse unenrollmentReset2Rsp = HttpUtil.createPost(host + "/unenrollment/reset")
@@ -1035,13 +1084,18 @@ public class AppleIDUtil {
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
 
         // 验证码错误才重新尝试
-        if (verifyAppleIdRsp.getStatus() == 200 && retry > 0){
+        if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
             Console.log("[验证码识别错误] Base64: " + captBase64);
             Console.log("[验证码识别错误] Answer: " + captAnswer);
             return captchaAndVerify(appleId,--retry);
         }
 
         return verifyAppleIdRsp;
+    }
+
+    public static void main(String[] args) {
+        HttpResponse httpResponse = captchaAndVerify("davidicweaver@outlook.com",2);
+        System.err.println(httpResponse);
     }
 
     /**
