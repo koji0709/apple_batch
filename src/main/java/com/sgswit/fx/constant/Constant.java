@@ -1,5 +1,8 @@
 package com.sgswit.fx.constant;
 
+import com.sgswit.fx.controller.query.Main;
+
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,4 +42,54 @@ public class Constant {
         put(CustomerMessageNotYetUsediTunesStore,"此 Apple ID 尚未用于 App Store。");
         put(AppleIdOrPasswordIncorrectly,"Apple ID或密码错误。");
     }};
+
+    /**
+    　* 右键菜单枚举类
+    　* @author DeZh
+    　* @date 2023/12/23 18:55
+    */
+    public enum RightContextMenu{
+        DELETE("delete","删除",""),
+        REEXECUTE("reexecute","重新执行",""),
+        COPY("copy","复制账号信息",""),
+        TWO_FACTOR_CODE("twoFactorCode","输入双重验证码","views/comm-code-popup.fxml"),
+        WEB_TWO_FACTOR_CODE("webTwoFactorCode","输入双重验证码","views/securitycode-popup.fxml"),
+        SMS_CODE("smsCode","输入验证码","views/comm-code-popup.fxml"),
+        ;
+
+        private String title;
+        private String code;
+        private String path;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        RightContextMenu(String title, String code,String path) {
+            this.title = title;
+            this.code = code;
+            this.path = path;
+        }
+    }
+
 }
