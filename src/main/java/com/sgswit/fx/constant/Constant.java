@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Constant {
 
+    public static final String 	TWO_FACTOR_AUTHENTICATION     = "401";
     public static final String 	FailureTypeInvalidCredentials     = "-5000";
     public static final String  FailureTypePasswordTokenExpired   = "2034";
     public static final String FailureTypeLicenseNotFound        = "9610";
