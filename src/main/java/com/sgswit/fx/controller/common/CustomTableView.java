@@ -52,7 +52,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected Button executeButton;
 
     @FXML
-    public javafx.scene.control.TableView<T> accountTableView;
+    public TableView<T> accountTableView;
 
     @FXML
     protected Label accountNumLable;

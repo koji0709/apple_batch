@@ -11,8 +11,10 @@ import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
+import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -97,5 +99,8 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         setAndRefreshNote(account,"绑定双重认证成功");
     }
 
-
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy");
+    }
 }

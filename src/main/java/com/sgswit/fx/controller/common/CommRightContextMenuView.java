@@ -184,8 +184,7 @@ public class CommRightContextMenuView<T> extends CommonView{
                 if(buttonId.equalsIgnoreCase("copy")){
                     copyInfo(selectedRows.get(0));
                 }else if(buttonId.equalsIgnoreCase("delete")){
-                    Integer seqNo= ((SimpleIntegerProperty) ReflectUtil.getFieldValue(selectedRows.get(0), "seq")).getValue();
-                    accountTableView.getItems().remove(seqNo-1);
+                    accountTableView.getItems().remove(selectedRows.get(0));
                     accountTableView.refresh();
                 }else if(buttonId.equalsIgnoreCase("smsCode")){
                     openCodePopup(selectedRows.get(0));
