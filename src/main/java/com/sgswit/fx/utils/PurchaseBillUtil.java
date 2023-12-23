@@ -1009,7 +1009,7 @@ public class PurchaseBillUtil {
                 paras.put("code","1");
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
-            }else if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("You cannot login because your account has been locked")){
+            }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"You cannot login because your account has been locked")){
                 paras.put("code","1");
                 paras.put("msg","帐户存在欺诈行为，已被【双禁】。");
                 return paras;

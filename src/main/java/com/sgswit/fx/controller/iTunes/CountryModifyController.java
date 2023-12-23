@@ -464,10 +464,13 @@ public class CountryModifyController extends CommController<Account> implements 
         List<String> items=new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());
 //            add(Constant.RightContextMenu.REEXECUTE.getCode());
-//            add(Constant.RightContextMenu.COPY.getCode());
-//            add(Constant.RightContextMenu.SMS_CODE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+//            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
         }};
-        List<String> fields=new ArrayList<>();
+        List<String> fields=new ArrayList<>(){{
+            add("account");add("pwd");add("answer1");add("answer2");add("answer3");
+            add("originalCountry");add("targetCountry");add("note");
+        }};
         super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
     }
 }

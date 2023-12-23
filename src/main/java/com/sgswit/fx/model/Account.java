@@ -1,6 +1,7 @@
 package com.sgswit.fx.model;
 
 
+import com.sgswit.fx.annotation.CustomAnnotation;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -9,7 +10,9 @@ import java.util.List;
 public class Account extends LoginInfo {
 
     private final SimpleIntegerProperty seq;
+    @CustomAnnotation(copy = true,desc = "账号")
     private final SimpleStringProperty account;
+    @CustomAnnotation(copy = true,desc = "密码")
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
@@ -18,13 +21,18 @@ public class Account extends LoginInfo {
     private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
+    @CustomAnnotation(copy = true,desc = "执行信息")
     private final SimpleStringProperty note;
     private final SimpleStringProperty logtime;
-
+    @CustomAnnotation(copy = true,desc = "问题1")
     private  final SimpleStringProperty answer1;
+    @CustomAnnotation(copy = true,desc = "问题2")
     private  final SimpleStringProperty answer2;
+    @CustomAnnotation(copy = true,desc = "问题3")
     private  final SimpleStringProperty answer3;
+    @CustomAnnotation(copy = true,desc = "原国家")
     private  final SimpleStringProperty originalCountry;
+    @CustomAnnotation(copy = true,desc = "目标国家")
     private  final SimpleStringProperty targetCountry;
     private  final SimpleStringProperty dsid;
     private  final SimpleStringProperty support;

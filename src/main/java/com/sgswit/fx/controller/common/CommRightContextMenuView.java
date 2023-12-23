@@ -237,9 +237,20 @@ public class CommRightContextMenuView<T> extends CommonView{
             for (Field field : fields) {
                 // 判断属性是否有注解
                 if (field.isAnnotationPresent(CustomAnnotation.class)) {
+                    boolean copyFlag=false;
                     CustomAnnotation annotation = field.getAnnotation(CustomAnnotation.class);
                     boolean copy = annotation.copy();
                     if(copy){
+                        if(null==copyFields ||copyFields.size()==0){
+                            copyFlag=true;
+                        }else if(copyFields.contains(field.getName())){
+                            copyFlag=true;
+                        }else{
+
+                        }
+
+                    }
+                    if(copyFlag){
                         Object value=jsonObject.getByPath(field.getName());
                         if(null!=value && !StringUtils.isEmpty(value.toString())){
                             out.add(value.toString());
