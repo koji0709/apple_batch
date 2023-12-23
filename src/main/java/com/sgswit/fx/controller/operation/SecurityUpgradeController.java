@@ -7,6 +7,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -101,6 +102,13 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy");
+        List<String> items=new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+//            add(Constant.RightContextMenu.REEXECUTE.getCode());
+//            add(Constant.RightContextMenu.COPY.getCode());
+//            add(Constant.RightContextMenu.SMS_CODE.getCode());
+        }};
+        List<String> fields=new ArrayList<>();
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
     }
 }

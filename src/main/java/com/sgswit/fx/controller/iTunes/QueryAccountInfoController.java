@@ -123,8 +123,8 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                         public void run(){
                             try {
                                 try {
-                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                    if(accountInfoMap.get("code").equals("200")){
+                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                                    if(accountInfoMap.get("code").equals(Constant.SUCCESS)){
                                         boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
                                         if(!hasInspectionFlag){
                                             account.setNote("此 Apple ID 尚未用于 App Store。");
@@ -156,7 +156,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                                                     if("0".equals(status)){
                                                         //获取家庭共享
                                                         Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
-                                                        if("200".equals(res.get("code"))){
+                                                        if(Constant.SUCCESS.equals(res.get("code"))){
                                                             account.setFamilyDetails(res.get("familyDetails").toString());
                                                         }
                                                     }else{

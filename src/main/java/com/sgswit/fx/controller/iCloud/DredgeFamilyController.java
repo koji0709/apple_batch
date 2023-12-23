@@ -70,7 +70,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
                     if("0".equals(status)){
                         tableRefresh(account,"登录成功，正在开通...");
                         Map<String,Object> res=ICloudUtil.createFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount(),account.getPwd(),account.getPaymentAccount(),account.getPaymentPwd());
-                        if("200".equals(res.get("code"))){
+                        if(Constant.SUCCESS.equals(res.get("code"))){
                             message = "开通成功";
                         }else {
                             message = res.get("msg").toString();

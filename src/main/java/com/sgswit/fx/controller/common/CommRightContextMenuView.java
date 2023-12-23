@@ -6,6 +6,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.annotation.CustomAnnotation;
@@ -52,37 +53,49 @@ public class CommRightContextMenuView<T> extends CommonView{
     /**被选中的按钮背景颜色**/
     private static String COLOR_HOVER = "#169bd5";
     private Stage stage=null;
+    private static List<String> copyFields=null;
 
     private static TableView accountTableView;
 
-    private static List<KeyValuePair> allList=new ArrayList<>(){{
-        add(new KeyValuePair("delete","删除",""));
-        add(new KeyValuePair("reexecute","重新执行",""));
-        add(new KeyValuePair("copy","复制账号信息",""));
-        add(new KeyValuePair("twoFactorCode","输入双重验证码","views/comm-code-popup.fxml"));
-        add(new KeyValuePair("smsCode","输入验证码","views/comm-code-popup.fxml"));
-    }};
 
+
+
+
+    private static List<KeyValuePair> allList=getAllList();
+
+    private static List<KeyValuePair> getAllList(){
+        List<KeyValuePair> allList=new ArrayList<>();
+        Class<Constant.RightContextMenu> emClass = Constant.RightContextMenu.class;
+        Constant.RightContextMenu[] arr = emClass.getEnumConstants();
+        for (int i=0; i<arr.length;i++){
+            KeyValuePair keyValuePair=new KeyValuePair(arr[i].getCode(),arr[i].getTitle(),arr[i].getPath());
+            allList.add(keyValuePair);
+        }
+        return allList;
+    }
 
     /**
      　* 右键点击事件
      * @param
      * @param contextMenuEvent
      * @param tableView
+     * @param items 菜单
+     * @param fields 需要复制的字段
     　* @return void
     　* @throws
     　* @author DeZh
     　* @date 2023/12/22 13:52
      */
-    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent,TableView tableView,String op) {
+    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent,TableView tableView,List<String> items,List<String> fields) {
+        copyFields=fields;
         accountTableView=tableView;
         try {
-            if(StringUtils.isEmpty(op) || op.split("-").length==0){
+            if(items.size()==0){
                 return;
             }
 
             List<KeyValuePair> list=new ArrayList<>();
-            for(String k:op.split("-")){
+            for(String k:items){
                 Optional<KeyValuePair> cartOptional = allList.stream().filter(item -> item.getKey().equals(k)).findFirst();
                 if (cartOptional.isPresent()) {
                     // 存在
@@ -153,6 +166,9 @@ public class CommRightContextMenuView<T> extends CommonView{
     private List<Button> getMenuItemList(double width, List<KeyValuePair> itemNameList) {
         List<Button> buttonList = new ArrayList<>(itemNameList.size());
         for (KeyValuePair keyValuePair : itemNameList) {
+            String title=keyValuePair.getValue();
+            Map<String,Object> userData=new HashMap<>();
+            userData.put("title",keyValuePair.getValue());
             Button button = new Button(keyValuePair.getValue());
             button.setMinWidth(width);
             button.setPrefHeight(buttonHeight);
@@ -187,11 +203,13 @@ public class CommRightContextMenuView<T> extends CommonView{
                     accountTableView.getItems().remove(selectedRows.get(0));
                     accountTableView.refresh();
                 }else if(buttonId.equalsIgnoreCase("smsCode")){
-                    openCodePopup(selectedRows.get(0));
+                    openCodePopup(selectedRows.get(0),title,"smsCode");
                 }else if(buttonId.equalsIgnoreCase("reexecute")){
                     reExecute(selectedRows.get(0));
                 }else if(buttonId.equalsIgnoreCase("twoFactorCode")){
-                    twoFactorCodeExecute(selectedRows.get(0));
+                    openCodePopup(selectedRows.get(0),title,"twoFactorCode");
+                }else if(buttonId.equalsIgnoreCase("webTwoFactorCode")){
+
                 }
                 stage.close();
             });
@@ -247,7 +265,7 @@ public class CommRightContextMenuView<T> extends CommonView{
     　* @author DeZh
     　* @date 2023/12/22 17:56
     */
-    private void openCodePopup(T o){
+    private void openCodePopup(T o,String title,String type){
        try {
            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-code-popup.fxml"));
            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
@@ -256,14 +274,18 @@ public class CommRightContextMenuView<T> extends CommonView{
            String account= ((SimpleStringProperty)ReflectUtil.getFieldValue(o,"account")).getValue();
            fxmlLoaderController.setAccount(account);
            Stage popupStage = new Stage();
-           popupStage.setTitle("请输入验证码");
+           popupStage.setTitle(title);
            popupStage.initModality(Modality.APPLICATION_MODAL);
            popupStage.setScene(scene);
            popupStage.setResizable(false);
            popupStage.initStyle(StageStyle.UTILITY);
            popupStage.showAndWait();
            String code = fxmlLoaderController.getSecurityCode();
-           secondStepHandler(o,code);
+           if("smsCode".equals(type)){
+               secondStepHandler(o,code);
+           }else if("twoFactorCode".equals(type)){
+               twoFactorCodeExecute(o,code);
+           }
        }catch (Exception e){
             e.printStackTrace();
        }
@@ -299,7 +321,7 @@ public class CommRightContextMenuView<T> extends CommonView{
     　* @author DeZh
     　* @date 2023/12/22 18:04
      */
-    protected void twoFactorCodeExecute(T o){ }
+    protected void twoFactorCodeExecute(T o, String code){ }
 
 
     public static void setPaneBackground(Pane pane, Color color) {

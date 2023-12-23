@@ -132,7 +132,7 @@ public class ShoppingUtil {
         prodMap.put("url","https://www.apple.com" + action);
         prodMap.put("body",inputMap);
         prodMap.put("referer",productUrl);
-        prodMap.put("code","200");
+        prodMap.put("code",Constant.SUCCESS);
         return prodMap;
     }
 
@@ -169,7 +169,7 @@ public class ShoppingUtil {
 
         System.out.println("------------------pdpAddToBag----------------------------------------------");
 
-        map.put("code","200");
+        map.put("code",Constant.SUCCESS);
         return map;
     }
 
@@ -237,7 +237,7 @@ public class ShoppingUtil {
         dataMap.put("body",bodys);
 
 
-        map.put("code","200");
+        map.put("code",Constant.SUCCESS);
         dataMap.put("code",map);
         System.out.println("---------datamap----------" + dataMap);
         System.out.println("------------------shopbag----------------------------------------------");
@@ -276,7 +276,7 @@ public class ShoppingUtil {
 
         JSONObject jo = JSONUtil.parseObj(res.body());
         map.put("url",jo.getByPath("head.data.url").toString());
-        map.put("code","200");
+        map.put("code",Constant.SUCCESS);
         return map;
     }
 
@@ -331,7 +331,7 @@ public class ShoppingUtil {
         dataMap.put("serviceKey",serviceKey);
         dataMap.put("serviceURL",serviceURL);
         dataMap.put("callbackSignInUrl",callbackSignInUrl);
-        dataMap.put("code","200");
+        dataMap.put("code",Constant.SUCCESS);
         return dataMap;
     }
 
@@ -390,7 +390,7 @@ public class ShoppingUtil {
 
         ret.put("url",url);
         ret.put("pltn",pltn);
-        ret.put("code","200");
+        ret.put("code",Constant.SUCCESS);
         return ret;
     }
 
@@ -482,7 +482,7 @@ public class ShoppingUtil {
         dataMap.put("syntax",syntax);
 
         dataMap.put("url",checkoutUrl);
-        dataMap.put("code","200");
+        dataMap.put("code",Constant.SUCCESS);
         return dataMap;
     }
 
@@ -528,7 +528,7 @@ public class ShoppingUtil {
         System.out.println(resp.headers());
 
         System.out.println("------------------fillmentToShipping-----------------------------------------------");
-        return "200";
+        return Constant.SUCCESS;
     }
 
     //填写shipping - 地址
@@ -669,7 +669,7 @@ public class ShoppingUtil {
         System.out.println(resp.headers());
 
         System.out.println("------------------checkoutStart-----------------------------------------------");
-        map.put("code","200");
+        map.put("code",Constant.SUCCESS);
         map.put("address",nameByCountryCode);
         return map;
     }

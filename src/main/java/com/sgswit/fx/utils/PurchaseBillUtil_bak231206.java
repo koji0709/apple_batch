@@ -54,8 +54,8 @@ public class PurchaseBillUtil_bak231206 {
 
 
 
-//        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
-//        if(res.get("code").equals("200")){
+//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//        if(res.get("code").equals(Constant.SUCCESS)){
 //            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
 //            String token=loginResult.get("token").toString();
 //            String dsid=loginResult.get("dsid").toString();
@@ -83,9 +83,9 @@ public class PurchaseBillUtil_bak231206 {
 
     }
     ///网页版版
-    public static Map<String,Object> loginAndAuth(String account,String pwd){
+    public static Map<String,Object> webLoginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
-        result.put("code","200");
+        result.put("code",Constant.SUCCESS);
         String error="";
         HttpResponse pre1Response = shopPre1();
         if(pre1Response.getStatus() != 302){
@@ -953,7 +953,7 @@ public class PurchaseBillUtil_bak231206 {
         paras.put("account",account);
         paras.put("pwd",pwd);
         paras.put("authUrl",authUrl);
-        paras.put("code","200");
+        paras.put("code",Constant.SUCCESS);
         String authCode = "";
         return login(authCode,guid,0,paras);
     }

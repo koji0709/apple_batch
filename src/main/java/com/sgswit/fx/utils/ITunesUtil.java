@@ -197,7 +197,7 @@ public class ITunesUtil {
                 }
             }
             if(hasPayment){
-                result.put("code","200");
+                result.put("code",Constant.SUCCESS);
                 result.put("message","操作成功");
             }else{
                 result.put("code","1");
@@ -295,18 +295,18 @@ public class ITunesUtil {
             JSON bodyJson= JSONUtil.parse(response.body());
             int status=bodyJson.getByPath("status",int.class);
             result.put("data",paras);
-            result.put("code","200");
+            result.put("code",Constant.SUCCESS);
             if(status==0){
                 if("01".equals(step)){
                     String liteSessionId= bodyJson.getByPath("result.liteSessionId",String.class);
                     String transactionId= bodyJson.getByPath("result.transactionId",String.class);
                     paras.put("liteSessionId",liteSessionId);
                     paras.put("transactionId",transactionId);
-                    result.put("code","200");
+                    result.put("code",Constant.SUCCESS);
                     result.put("message","请输入发送至手机【"+phoneOfficeNumber+"】的银联验证码");
                     result.put("data",paras);
                 }else{
-                    result.put("code","200");
+                    result.put("code",Constant.SUCCESS);
                     result.put("message","添加成功");
                 }
             }else{

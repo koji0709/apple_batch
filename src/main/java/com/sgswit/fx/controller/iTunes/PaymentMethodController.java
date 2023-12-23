@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ITunesUtil;
@@ -23,7 +24,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -109,8 +109,8 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                 accountQueryBtn.setDisable(true);
                                 account.setNote("正在登录...");
                                 accountTableView.refresh();
-                                Map<String,Object> res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                if(!res.get("code").equals("200")){
+                                Map<String,Object> res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                                if(!res.get("code").equals(Constant.SUCCESS)){
                                     account.setNote(res.get("msg").toString());
                                 }else{
                                     boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
@@ -122,7 +122,7 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                     account.setNote("登录成功，数据删除中...");
                                     accountTableView.refresh();
                                     res=ITunesUtil.delPaymentInfos(res);
-                                    if(res.get("code").equals("200")){
+                                    if(res.get("code").equals(Constant.SUCCESS)){
                                         account.setNote("删除成功");
                                     }else{
                                         account.setNote(res.get("msg").toString());

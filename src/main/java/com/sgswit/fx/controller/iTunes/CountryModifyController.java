@@ -13,6 +13,7 @@ import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import com.mifmif.common.regex.Generex;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
@@ -460,6 +461,13 @@ public class CountryModifyController extends CommController<Account> implements 
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-copy");
+        List<String> items=new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+//            add(Constant.RightContextMenu.REEXECUTE.getCode());
+//            add(Constant.RightContextMenu.COPY.getCode());
+//            add(Constant.RightContextMenu.SMS_CODE.getCode());
+        }};
+        List<String> fields=new ArrayList<>();
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
     }
 }

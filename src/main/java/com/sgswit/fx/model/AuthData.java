@@ -15,11 +15,11 @@ import javafx.collections.ObservableMap;
 public class AuthData {
     private final SimpleMapProperty<String,Object> authData;
     private final SimpleStringProperty step;
-    private final SimpleStringProperty smsCode;
+    private final SimpleStringProperty authCode;
     public AuthData() {
         this.authData = new SimpleMapProperty<>();
         this.step = new SimpleStringProperty();
-        this.smsCode = new SimpleStringProperty();
+        this.authCode = new SimpleStringProperty();
     }
     public ObservableMap<String, Object> getAuthData() {
         return authData.get();
@@ -38,10 +38,11 @@ public class AuthData {
         this.step.set(step);
     }
 
-    public String getSmsCode() {
-        return smsCode.get();
+    public String getAuthCode() {
+        return authCode.get();
     }
-    public void setSmsCode(String smsCode) {
-        this.smsCode.set(smsCode);
+
+    public void setAuthCode(String authCode) {
+        this.authCode.set(authCode);
     }
 }

@@ -1,8 +1,10 @@
 package com.sgswit.fx.controller.query;
 
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +24,8 @@ public class WhetherInspectionController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
-        Map<String, Object> res = PurchaseBillUtil.authenticate(account.getAccount(), account.getPwd());
-        if(res.get("code").equals("200")){
+        Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
+        if(res.get("code").equals(Constant.SUCCESS)){
             int purchasesLast90Count=0;
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(hasInspectionFlag){

@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class Constant {
 
+    public static final String 	SUCCESS     = Constant.SUCCESS;
     public static final String 	TWO_FACTOR_AUTHENTICATION     = "401";
     public static final String 	FailureTypeInvalidCredentials     = "-5000";
     public static final String  FailureTypePasswordTokenExpired   = "2034";
@@ -56,9 +57,8 @@ public class Constant {
         WEB_TWO_FACTOR_CODE("webTwoFactorCode","输入双重验证码","views/securitycode-popup.fxml"),
         SMS_CODE("smsCode","输入验证码","views/comm-code-popup.fxml"),
         ;
-
-        private String title;
         private String code;
+        private String title;
         private String path;
 
         public String getTitle() {
@@ -85,9 +85,9 @@ public class Constant {
             this.path = path;
         }
 
-        RightContextMenu(String title, String code,String path) {
-            this.title = title;
+        RightContextMenu(String code,String title, String path) {
             this.code = code;
+            this.title = title;
             this.path = path;
         }
     }

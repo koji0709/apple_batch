@@ -83,7 +83,7 @@ public class ICloudUtil {
     }
     public static Map<String,Object> getFamilyDetails(String auth,String appleId){
         Map<String,Object> res=new HashMap<>();
-        res.put("code","200");
+        res.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -148,7 +148,7 @@ public class ICloudUtil {
     */
     public static Map<String,Object> createFamily(String auth,String appleId,String pwd,String payAppleId,String payAppleIdPwd){
         Map<String,Object> res=new HashMap<>();
-        res.put("code","200");
+        res.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -198,7 +198,7 @@ public class ICloudUtil {
     */
     public static Map<String,Object> leaveFamily(String auth,String appleId){
         Map<String,Object> res=new HashMap<>();
-        res.put("code","200");
+        res.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -241,7 +241,7 @@ public class ICloudUtil {
     */
     public static Map<String,Object> getiTunesAccountPaymentInfo(String auth,String appleId,String organizerDsid){
         Map<String,Object> res=new HashMap<>();
-        res.put("code","200");
+        res.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -273,7 +273,7 @@ public class ICloudUtil {
     }
     public static Map<String,Object> verifyCVV(String auth,String appleId,String creditCardId,String creditCardLastFourDigits,String securityCode,String verificationType,String billingType){
         Map<String,Object> res=new HashMap<>();
-        res.put("code","200");
+        res.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));

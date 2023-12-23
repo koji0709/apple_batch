@@ -49,7 +49,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
                         tableRefresh(account,"登录成功，正在关闭...");
                         //关闭家庭共享
                         Map<String,Object> res=ICloudUtil.leaveFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
-                        if("200".equals(res.get("code"))){
+                        if(Constant.SUCCESS.equals(res.get("code"))){
                             message = "关闭成功";
                         }else {
                             message = res.get("msg").toString();

@@ -9,6 +9,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
@@ -150,8 +151,8 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                     account.setNote("登录中...");
                                     accountTableView.refresh();
                                     int accountPurchasesLast90Count=0;
-                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
-                                    if(!accountInfoMap.get("code").equals("200")){
+                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                                    if(!accountInfoMap.get("code").equals(Constant.SUCCESS)){
                                         account.setNote(String.valueOf(accountInfoMap.get("msg")));
                                         accountTableView.refresh();
                                         return;
@@ -173,8 +174,8 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                         accountTableView.refresh();
                                     }
 
-                                    Map<String,Object> res= PurchaseBillUtil.loginAndAuth(account.getAccount(),account.getPwd());
-                                    if(res.get("code").equals("200")){
+                                    Map<String,Object> res= PurchaseBillUtil.webLoginAndAuth(account.getAccount(),account.getPwd());
+                                    if(res.get("code").equals(Constant.SUCCESS)){
                                         accountTableView.refresh();
                                         Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
                                         String token=loginResult.get("token").toString();

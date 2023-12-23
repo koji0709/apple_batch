@@ -2,10 +2,12 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -29,11 +31,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
 /**
@@ -160,19 +162,26 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                         accountQueryBtn.setDisable(true);
                         account.setNote("正在登录...");
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
-                        Map<String,Object> res=new HashMap<>();
-                        if(step.equals("02")){
-                            res=account.getAuthData();
-                            res.put("smsCode",account.getSmsCode());
+                        Map<String,Object> res=account.getAuthData();
+                        if("00".equals(step)){
+                            String authCode=account.getAuthCode();
+                            res= PurchaseBillUtil.iTunesAuth(authCode,res);
+                        }else if("01".equals(step)){
+                            res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                        }else if("02".equals(step)){
+                            res.put("smsCode",account.getAuthCode());
                         }else{
-                            res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+                            res=new HashMap<>();
                         }
 
                         res.put("creditCardNumber",account.getCreditCardNumber());
                         res.put("creditCardExpirationMonth",account.getCreditCardExpirationMonth());
                         res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
                         res.put("creditVerificationNumber",account.getCreditVerificationNumber());
-                        if(!res.get("code").equals("200")){
+                        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
+                            account.setNote(String.valueOf(res.get("msg")));
+                            account.setAuthData(MapUtils.mapConvertToObservableMap(res));
+                        }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
                         }else{
                             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
@@ -185,9 +194,9 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                             accountTableView.refresh();
 
                             Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
-                            if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+                            if(Constant.SUCCESS.equals(addCreditPaymentRes.get("code")) && "01".equals(step)){
                                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
-                                account.setAuthData(mapConvertToObservableMap(data));
+                                account.setAuthData(MapUtils.mapConvertToObservableMap(data));
                             }else{
 
                             }
@@ -222,7 +231,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
    /**第二步操作**/
     @Override
     protected void secondStepHandler(CreditCard account, String code){
-        account.setSmsCode(code);
+        account.setAuthCode(code);
         account.setStep("02");
         if (StringUtils.isEmpty(code)){
             return;
@@ -234,9 +243,9 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
             if(null==res){
                 return;
             }
-            res.put("smsCode",account.getSmsCode());
+            res.put("smsCode",account.getAuthCode());
         }else{
-            res= PurchaseBillUtil.authenticate(account.getAccount(),account.getPwd());
+            res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
         }
 
         res.put("creditCardNumber",account.getCreditCardNumber());
@@ -244,7 +253,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
         res.put("creditCardExpirationYear",account.getCreditCardExpirationYear());
         res.put("creditVerificationNumber",account.getCreditVerificationNumber());
         Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
-        if(addCreditPaymentRes.get("code").equals("200") && "01".equals(step)){
+        if(addCreditPaymentRes.get("code").equals(Constant.SUCCESS) && "01".equals(step)){
             addCreditPaymentRes.get("data");
             account.setAuthData((ObservableMap<String, Object>) addCreditPaymentRes.get("data"));
         }else{
@@ -254,14 +263,37 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
         accountTableView.refresh();
     }
 
-
-   public static ObservableMap<String,Object> mapConvertToObservableMap(Map<String,Object> data){
-       ObservableMap<String, Object> observableMap =FXCollections.observableHashMap();
-       for (String key:data.keySet()){
-           observableMap.put(key,data.get(key));
-       }
-       return observableMap;
+    /**
+    　* 双重验证
+      * @param
+     * @param account
+     * @param authCode
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/23 18:10
+    */
+    @Override
+    protected void twoFactorCodeExecute(CreditCard account, String authCode){
+        try{
+            Map<String,Object> res=account.getAuthData();
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+                account.setAuthCode(authCode);
+                account.setStep("00");
+                executeFun(account);
+            }else{
+                alert("未下发双重验证码");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
+
+
+
+
+
+
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
@@ -290,7 +322,14 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,"delete-reexecute-copy-smsCode");
+        List<String> items=new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+            add(Constant.RightContextMenu.SMS_CODE.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
     }
 
     /**重新执行**/

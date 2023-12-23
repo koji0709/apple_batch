@@ -8,6 +8,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.GiftCard;
@@ -306,7 +307,7 @@ public class GiftCardBalanceCheckController implements Initializable {
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             String status=bodyJson.getByPath("head.status").toString();
-            if(!"200".equals(status)){
+            if(!Constant.SUCCESS.equals(status)){
                 giftCard.setNote("网络错误");
                 accountTableView.refresh();
                 return;

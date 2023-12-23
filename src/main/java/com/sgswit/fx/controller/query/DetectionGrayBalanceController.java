@@ -4,6 +4,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ShoppingUtil;
@@ -34,7 +35,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             account.setNote("获取商品中");
             accountTableView.refresh();
             Map<String,Object> prodMap = ShoppingUtil.getProd(account);
-            if(!"200".equals(prodMap.get("code"))){
+            if(!Constant.SUCCESS.equals(prodMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(prodMap,"msg"));
                 return;
             }
@@ -42,19 +43,19 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             account.setNote("添加到购物车中");
             accountTableView.refresh();
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap,account);
-            if(!"200".equals(addMap.get("code"))){
+            if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(addMap,"msg"));
                 return;
             }
             // 查看购物车
             Map<String,Map<String,Object>> bag = ShoppingUtil.shopbag(account);
-            if(!"200".equals(bag.get("code").get("code"))){
+            if(!Constant.SUCCESS.equals(bag.get("code").get("code"))){
                 tableRefresh(account, MapUtil.getStr(bag.get("code"),"msg"));
                 return;
             }
             // 提交购物车
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag,account);
-            if(!"200".equals(cheMap.get("code"))){
+            if(!Constant.SUCCESS.equals(cheMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(cheMap,"msg"));
                 return;
             }
@@ -62,7 +63,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             account.setNote("登录页面加载中");
             accountTableView.refresh();
             Map<String,String> signInMap = ShoppingUtil.shopSignIn(cheMap.get("url").toString(),account);
-            if(!"200".equals(signInMap.get("code"))){
+            if(!Constant.SUCCESS.equals(signInMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(signInMap,"msg"));
                 return;
             }
@@ -81,7 +82,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             //回调applestore
             Map<String,String> checkoutStartMap = ShoppingUtil.callBack(signInMap,account);
-            if(!"200".equals(checkoutStartMap.get("code"))){
+            if(!Constant.SUCCESS.equals(checkoutStartMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(checkoutStartMap,"msg"));
                 return;
             }
@@ -90,7 +91,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
 
             //提交
             Map<String,String> checkoutMap = ShoppingUtil.checkout(checkoutUrl,account);
-            if(!"200".equals(checkoutMap.get("code"))){
+            if(!Constant.SUCCESS.equals(checkoutMap.get("code"))){
                 tableRefresh(account, MapUtil.getStr(checkoutMap,"msg"));
                 return;
             }
@@ -98,13 +99,13 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             account.setNote("正在查询余额");
             accountTableView.refresh();
             String fillment = ShoppingUtil.fillmentToShipping(checkoutMap,account);
-            if(!"200".equals(fillment)){
+            if(!Constant.SUCCESS.equals(fillment)){
                 tableRefresh(account,"查询失败");
                 return;
             }
             //填写shipping - 地址
             Map<String, String> map = ShoppingUtil.shippingToBilling(checkoutMap, account);
-            if(!"200".equals(map.get("code"))){
+            if(!Constant.SUCCESS.equals(map.get("code"))){
                 tableRefresh(account, MapUtil.getStr(map,"msg"));
                 return;
             }

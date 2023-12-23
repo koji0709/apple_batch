@@ -19,6 +19,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.model.Account;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -28,6 +29,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -37,10 +41,10 @@ import java.util.*;
 
 public class PurchaseBillUtil {
     public static void main( String[] args ) throws Exception {
-//        Map<String,Object> res=loginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        Map<String,Object> res=loginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
+//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //
-//        if(res.get("code").equals("200")){
+//        if(res.get("code").equals(Constant.SUCCESS)){
 //            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
 //            String token=loginResult.get("token").toString();
 //            String dsid=loginResult.get("dsid").toString();
@@ -50,39 +54,54 @@ public class PurchaseBillUtil {
 //            search(jsonStrList,dsid,"",token,searchCookies);
 //            System.out.println(jsonStrList);
 //        }
-//        Map<String,Object> res= authenticate("josepharnoldc4@outlook.com","Zxc112211");
+//        Map<String,Object> res= iTunesAuth("josepharnoldc4@outlook.com","Zxc112211");
+        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
+        if(Constant.TWO_FACTOR_AUTHENTICATION.equalsIgnoreCase(MapUtil.getStr(res,"code"))){
+            System.out.println("------enter 2FA code---------");
+
+            InputStreamReader is = new InputStreamReader(System.in);  //new构造InputStreamReader对象
+            BufferedReader br = new BufferedReader(is);  //拿构造的方法传到BufferedReader中
+            try{  //该方法中有个IOExcepiton需要捕获
+                String authCode = br.readLine();
+                System.out.println(iTunesAuth(authCode,res));
+
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
 //for (int i=0;i<10;i++){
-//    Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
+//    Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
 //
 //}
 
 
 //        ITunesUtil.appStoreOverCheck(res);
-        Map<String,Object> res= authenticate("djli0506@163.com","!!B0527s0207!!");
-        res.put("creditCardNumber","6222530919802624");
-        res.put("creditCardExpirationMonth","7");
-        res.put("creditCardExpirationYear","2026");
-        res.put("creditVerificationNumber","016");
-        res=ITunesUtil.addCreditPayment(res,"01");
-        System.err.println("请输入验证码：");
-        String smsCode = cn.hutool.core.lang.Console.input().trim();
-        System.out.println(smsCode);
-        res.put("smsCode",smsCode);
-        res=ITunesUtil.addCreditPayment(res,"02");
+//        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
+//        res.put("creditCardNumber","6222530919802624");
+//        res.put("creditCardExpirationMonth","7");
+//        res.put("creditCardExpirationYear","2026");
+//        res.put("creditVerificationNumber","016");
+//        res=ITunesUtil.addCreditPayment(res,"01");
+//        System.err.println("请输入验证码：");
+//        String smsCode = cn.hutool.core.lang.Console.input().trim();
+//        System.out.println(smsCode);
+//        res.put("smsCode",smsCode);
+//        res=ITunesUtil.addCreditPayment(res,"02");
 
 
-//        authenticate("1948401156@qq.com","B0527s0207!");
+//        iTunesAuth("1948401156@qq.com","B0527s0207!");
 
-//        authenticate("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        authenticate("epine@163.com","Jtsfh1982");
+//        iTunesAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
+//        iTunesAuth("epine@163.com","Jtsfh1982");
 
 
 
     }
     ///网页版版
-    public static Map<String,Object> loginAndAuth(String account,String pwd){
+    public static Map<String,Object> webLoginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
-        result.put("code","200");
+        result.put("code",Constant.SUCCESS);
         String error="";
         HttpResponse pre1Response = shopPre1();
         if(pre1Response.getStatus() != 302){
@@ -142,8 +161,8 @@ public class PurchaseBillUtil {
         HttpResponse step215Res = securityUpgradeSetuplater(step214Res, XAppleIDSessionId, scnt);
         HttpResponse step216Res = repareOptionsSecond(step215Res, XAppleIDSessionId, scnt);
         HttpResponse step22Res = repareComplete(step216Res, step2Res,frameId);
-        Map<String,Object> loginResult= login(pre1Response,step22Res);
-        if(!loginResult.get("code").equals("200")){
+        Map<String,Object> loginResult= webLogin(pre1Response,step22Res);
+        if(!loginResult.get("code").equals(Constant.SUCCESS)){
             result.put("code",loginResult.get("code"));
             result.put("msg",loginResult.get("msg"));
             return result;
@@ -554,9 +573,9 @@ public class PurchaseBillUtil {
     　* @author DeZh
     　* @date 2023/11/27 22:19
     */
-    public static Map<String,Object> login(HttpResponse pre1Response,HttpResponse step22Res) {
+    public static Map<String,Object> webLogin(HttpResponse pre1Response,HttpResponse step22Res) {
         Map<String,Object> result=new HashMap<>();
-        result.put("code","200");
+        result.put("code",Constant.SUCCESS);
         HashMap<String, List<String>> headers =  new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -937,19 +956,25 @@ public class PurchaseBillUtil {
         return sb.toString();
     }
     ///iTunes版
-    public static Map<String,Object> authenticate(String account,String pwd){
+    public static Map<String,Object> iTunesAuth(String account,String pwd){
         String guid=DataUtil.getGuidByAppleId(account);
         String authUrl = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
         Map<String,Object> paras=new HashMap<>();
         paras.put("account",account);
         paras.put("pwd",pwd);
         paras.put("authUrl",authUrl);
-        paras.put("code","200");
+        paras.put("code",Constant.SUCCESS);
         String authCode = "";
-        return login(authCode,guid,0,paras);
+        return iTunesLogin(authCode,guid,0,paras);
+    }
+    public static Map<String,Object> iTunesAuth(String authCode,Map<String,Object> paras){
+        String guid=MapUtil.getStr(paras,"guid");
+        String authUrl = "https://p"+MapUtil.getStr(paras,"itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
+        paras.put("authUrl",authUrl);
+        return iTunesLogin(authCode,guid,0,paras);
     }
 
-    private static Map<String,Object> login(String authCode,String guid, Integer attempt,Map<String,Object> paras){
+    private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
@@ -957,7 +982,8 @@ public class PurchaseBillUtil {
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
                 "<plist version=\"1.0\"><dict><key>appleId</key><string>"+paras.get("account")+"</string><key>attempt</key><string>4</string><key>createSession</key><string>true</string><key>guid</key><string>"+guid+"</string><key>password</key><string>"+paras.get("pwd")+authCode+"</string><key>rmp</key><string>0</string><key>why</key><string>signIn</string></dict></plist>";
         try {
-            HttpResponse res = HttpUtil.createPost(paras.get("authUrl").toString())
+            String authUrl=MapUtil.getStr(paras,"authUrl");
+            HttpResponse res = HttpUtil.createPost(authUrl)
                     .header(headers)
                     .body(authBody, ContentType.FORM_URLENCODED.toString())
                     .execute();
@@ -967,8 +993,9 @@ public class PurchaseBillUtil {
             paras.put("authUrl",res.header("location"));
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
+            paras.put("guid",guid);
             if(res.getStatus()==302 && attempt ==0){
-                return login(authCode,guid,1,paras);
+                return iTunesLogin(authCode,guid,1,paras);
             }else if(res.getStatus()==503){
                 paras.put("code","1");
                 paras.put("msg","操作过于频繁请稍后。");
@@ -979,7 +1006,6 @@ public class PurchaseBillUtil {
             String failureType = rspJSON.getStr("failureType");
             String customerMessage = rspJSON.getStr("customerMessage");
             if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"account is disabled")){
-//            if(!StringUtils.isEmpty(customerMessage) && customerMessage.contains("account is disabled")){
                 paras.put("code","1");
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
@@ -989,13 +1015,14 @@ public class PurchaseBillUtil {
                 return paras;
             }
             if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
-                return login(authCode,guid,1,paras);
+                return iTunesLogin(authCode,guid,1,paras);
             }
             paras.put("hasInspectionFlag",true);
             if(!StringUtils.isEmpty(customerMessage) &&customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
                 paras.put("hasInspectionFlag",false);
                 String appStoreOverCheckUrl=rspJSON.getByPath("dialog.okButtonAction.url",String.class);
                 paras.put("appStoreOverCheckUrl",appStoreOverCheckUrl);
+                paras.put("code",Constant.SUCCESS);
                 return paras;
             }
 
@@ -1005,7 +1032,7 @@ public class PurchaseBillUtil {
                 return paras;
             }
             if(StringUtils.isEmpty(failureType) && StringUtils.isEmpty(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
-                paras.put("code","1");
+                paras.put("code",Constant.TWO_FACTOR_AUTHENTICATION);
                 paras.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
                 return paras;
             }
@@ -1022,7 +1049,6 @@ public class PurchaseBillUtil {
             paras.put("creditDisplay",StringUtils.isEmpty(rspJSON.getStr("creditDisplay"))?"0":rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
-            paras.put("guid",guid);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -162,7 +162,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                     if("0".equals(status)){
                         //获取家庭共享
                         Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
-                        if("200".equals(res.get("code"))){
+                        if(Constant.SUCCESS.equals(res.get("code"))){
                             account.setFamilyDetails(res.get("familyDetails").toString());
                         }
                     }else{
