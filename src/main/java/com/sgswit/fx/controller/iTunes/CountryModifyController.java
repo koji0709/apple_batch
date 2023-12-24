@@ -2,6 +2,8 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
@@ -15,17 +17,21 @@ import com.mifmif.common.regex.Generex;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.CommController;
+import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
+import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.*;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -35,6 +41,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -56,7 +63,7 @@ import java.util.stream.Collectors;
 　* @author DeZh
 　* @date 2023/10/27 10:10
  */
-public class CountryModifyController extends CommController<Account> implements Initializable  {
+public class CountryModifyController extends CustomTableView<Account> implements Initializable  {
     @FXML
     public TableColumn originalCountry;
     @FXML
@@ -71,12 +78,6 @@ public class CountryModifyController extends CommController<Account> implements 
     private TableColumn pwd;
     @FXML
     private TableColumn note;
-    @FXML
-    private TableColumn answer1;
-    @FXML
-    private TableColumn answer2;
-    @FXML
-    private TableColumn answer3;
 
     @FXML
     private Button accountQueryBtn;
@@ -108,6 +109,7 @@ public class CountryModifyController extends CommController<Account> implements 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         countryDataFun();
         customCountryDataFun();
+        super.initialize(url,resourceBundle);
     }
     /**快捷国家资料下拉**/
     protected void countryDataFun(){
@@ -188,44 +190,7 @@ public class CountryModifyController extends CommController<Account> implements 
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/account-input-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
-        Stage popupStage = new Stage();
-
-        popupStage.setTitle("账户导入");
-
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.showAndWait();
-        AccountInputPopupController c = fxmlLoader.getController();
-        if(null == c.getAccounts() || "".equals(c.getAccounts())){
-            return;
-        }
-        String[] lineArray = c.getAccounts().split("\n");
-        for(String item : lineArray){
-            String[] its = item.split("----");
-            Account account = new Account();
-            account.setSeq(list.size()+1);
-            account.setAccount(its[0]);
-
-            String[] pas = its[1].split("-");
-            if(pas.length == 4){
-                account.setPwd(pas[0]);
-                account.setAnswer1(pas[1]);
-                account.setAnswer2(pas[2]);
-                account.setAnswer3(pas[3]);
-            }else{
-                account.setPwd(its[1]);
-            }
-            list.add(account);
-        }
-        initAccountTableView();
-        accountTableView.setEditable(true);
-        accountTableView.setItems(list);
+        super.openImportAccountView(List.of("account----pwd"));
     }
 
     @FXML
@@ -244,7 +209,7 @@ public class CountryModifyController extends CommController<Account> implements 
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-
+        list=accountTableView.getItems();
         if(list.size() < 1){
             return;
         }
@@ -255,95 +220,137 @@ public class CountryModifyController extends CommController<Account> implements 
             alert.show();
             return;
         }
-        super.onAccountQueryBtnClick(accountQueryBtn,accountTableView,list);
+        for(Account account:list){
+            if (!StrUtil.isEmptyIfStr(account.getNote())) {
+                continue;
+            }else{
+                executeFun(account);
+            }
+        }
     }
+    private void executeFun(Account account){
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    try {
+                        accountQueryBtn.setText("正在查询");
+                        accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                        accountQueryBtn.setDisable(true);
+                        account.setNote("正在登录...");
+                        String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+                        Map<String,Object> res=account.getAuthData();
+                        if("00".equals(step)){
+                            String authCode=account.getAuthCode();
+                            res= PurchaseBillUtil.iTunesAuth(authCode,res);
+                        }else if("01".equals(step)){
+                            res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                        }else{
+                            res=new HashMap<>();
+                        }
+                        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
+                            account.setNote(String.valueOf(res.get("msg")));
+                            account.setAuthData(MapUtils.mapConvertToObservableMap(res));
+                        }else if(!Constant.SUCCESS.equals(res.get("code"))){
+                            account.setNote(String.valueOf(res.get("msg")));
+                        }else{
+                            account.setNote("登录成功，正在修改...");
+                            accountTableView.refresh();
+                            String body="",targetCountry="";
+                            //自定义国家信息
+                            if(fromType.equals("2")){
+                                // 创建json文件对象
+                                File jsonFile = new File("userNationalData.json");
+                                String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
+                                List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
+                                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
+                                targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
+                                Map<String,Object> bodyMap=new HashMap<>();
+                                bodyMap.put("iso3CountryCode",u.getPayment().getBillingAddress().getCountryCode());
+                                bodyMap.put("addressOfficialCountryCode",u.getPayment().getBillingAddress().getCountryCode());
+                                bodyMap.put("agreedToTerms","1");
+                                bodyMap.put("paymentMethodVersion","2.0");
+                                bodyMap.put("needsTopUp",false);
+                                bodyMap.put("paymentMethodType","None");
+                                bodyMap.put("billingFirstName",u.getPayment().getOwnerName().getFirstName());
+                                bodyMap.put("billingLastName",u.getPayment().getOwnerName().getLastName());
+                                bodyMap.put("addressOfficialLineFirst",u.getPayment().getBillingAddress().getLine1());
+                                bodyMap.put("addressOfficialLineSecond",u.getPayment().getBillingAddress().getLine2());
+                                bodyMap.put("addressOfficialLineThird",u.getPayment().getBillingAddress().getLine3());
+                                bodyMap.put("addressOfficialCity",u.getPayment().getBillingAddress().getCity());
+                                bodyMap.put("addressOfficialPostalCode",u.getPayment().getBillingAddress().getPostalCode());
+                                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getStateProvinceName());
+                                bodyMap.put("phoneOfficeNumber",u.getPayment().getPhoneNumber().getNumber());
+                                bodyMap.put("phoneOfficeAreaCode",u.getPayment().getPhoneNumber().getCountryCode());
+                                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getStateProvinceName());
+//                                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getSuburb());
+                                body=MapUtil.join(bodyMap,"&","=",true);
+                            }else{
+                                //快捷国家信息
+                                targetCountry=countryBox.getSelectionModel().getSelectedItem().getValue();
+                                String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
+                                //生成填充数据
+                                body=generateFillData(countryCode);
+                            }
+                            account.setTargetCountry(targetCountry);
+                            accountTableView.refresh();
 
-
-
-
+                            res.put("addressInfo",body);
+                            Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
+                            account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
+                        }
+                        accountTableView.refresh();
+                    } catch (Exception e) {
+                        account.setNote("操作失败，接口异常");
+                        accountTableView.refresh();
+                        accountQueryBtn.setDisable(false);
+                        accountQueryBtn.setText("开始执行");
+                        accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                        e.printStackTrace();
+                    }
+                }finally {
+                    //JavaFX Application Thread会逐个阻塞的执行这些任务
+                    Platform.runLater(new Task<Integer>() {
+                        @Override
+                        protected Integer call() {
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            return 1;
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+    /**重新执行**/
     @Override
-    protected void queryOrUpdate(Account account, HttpResponse step1Res) {
-        try {
-            account.setNote("正在修改");
-            accountTableView.refresh();
-            //step3 token
-            HttpResponse step3Res = AppleIDUtil.token(account,step1Res);
-
-            //step4 manager
-            if(step3Res.getStatus() != 200){
-                queryFail(account);
-            }
-            HashMap<String, List<String>> headers = new HashMap<>();
-
-            headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-            headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-            headers.put("Content-Type", ListUtil.toList("application/json"));
-
-            headers.put("Host", ListUtil.toList("appleid.apple.com"));
-            headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-
-            headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-
-            headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step3Res.header("X-Apple-ID-Session-Id")));
-            headers.put("scnt",ListUtil.toList(step3Res.header("scnt")));
-
-            StringBuilder cookieBuilder = new StringBuilder();
-            List<String> resCookies = step3Res.headerList("Set-Cookie");
-            for(String item : resCookies){
-                cookieBuilder.append(";").append(item);
-            }
-            String body="",targetCountry="";
-            //自定义国家信息
-            if(fromType.equals("2")){
-                // 创建json文件对象
-                File jsonFile = new File("userNationalData.json");
-                String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
-                List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
-                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
-                body=JSONUtil.toJsonStr(u.getPayment());
-                targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
+    protected void reExecute(Account account){
+        executeFun(account);
+    }
+    /**
+     　* 双重验证
+     * @param
+     * @param account
+     * @param authCode
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/23 18:10
+     */
+    @Override
+    protected void twoFactorCodeExecute(Account account, String authCode){
+        try{
+            Map<String,Object> res=account.getAuthData();
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+                account.setAuthCode(authCode);
+                account.setStep("00");
+                executeFun(account);
             }else{
-                //快捷国家信息
-                targetCountry=countryBox.getSelectionModel().getSelectedItem().getValue();
-                String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
-                //生成填充数据
-                body=generateFillData(countryCode);
+                alert("未下发双重验证码");
             }
-            HttpResponse step4Res = AppleIDUtil.account(account);
-            String managerBody = step4Res.body();
-            JSON manager = JSONUtil.parse(managerBody);
-            String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
-            account.setOriginalCountry(area);
-            accountTableView.refresh();
-
-            step4Res = HttpUtil.createRequest(Method.PUT,"https://appleid.apple.com/account/manage/payment/method/none/1")
-                    .header(headers)
-                    .body(body)
-                    .cookie(cookieBuilder.toString())
-                    .execute();
-            if(step4Res.getStatus() == 400){
-                String message="";
-                JSONObject response= JSONUtil.parseObj(step4Res.body());
-                String messageJsonStr="";
-                if(!StringUtils.isEmpty(response.getStr("service_errors"))){
-                    messageJsonStr=response.getStr("service_errors");
-                }else{
-                    messageJsonStr=response.getStr("validationErrors");
-                }
-                JSONArray service_errors= JSONUtil.parseArray(messageJsonStr);
-                for(Object jsonObject:service_errors){
-                    message+= JSONUtil.parseObj(jsonObject).getStr("message");
-                }
-                messageFun(account,"修改失败,"+message);
-            }else if(step4Res.getStatus() != 200){
-                messageFun(account,"修改失败");
-            }else{
-                messageFun(account,"修改成功");
-            }
-            account.setTargetCountry(targetCountry);
-            accountTableView.refresh();
-        }catch (Exception e){
-            messageFun(account,"修改失败");
+        } catch(Exception e){
+            e.printStackTrace();
         }
     }
     /**
@@ -357,69 +364,25 @@ public class CountryModifyController extends CommController<Account> implements 
     private static String generateFillData(String countryCode){
         String body="";
         try {
-            JSON json=JSONUtil.createObj();
-            json.putByPath("billingAddress.countryCode",countryCode);
-            json.putByPath("phoneNumber.countryCode",DataUtil.getInfoByCountryCode(countryCode).getDialCode());
-            String addressFormatListStr=DataUtil.getAddressFormat(countryCode);
-            List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
-            Faker faker = new Faker(new Locale("en-"+countryCode));
-            Address address  =faker.address();
-            for(FieldModel fieldModel:addressFormatList){
-                String fieldId=fieldModel.getId();
-                if(fieldId.equals("firstName")){
-                    json.putByPath("ownerName.firstName",faker.name().firstName());
-                }else if(fieldId.equals("lastName")){
-                    json.putByPath("ownerName.lastName",faker.name().lastName());
-                }else if(fieldId.equals("line1")){
-                    json.putByPath("billingAddress.line1",address.streetAddress());
-                }else if(fieldId.equals("line2")){
-                    json.putByPath("billingAddress.line2",address.buildingNumber());
-                }else if(fieldId.equals("line3")){
-                    json.putByPath("billingAddress.line3",address.streetName());
-                }else if(fieldId.equals("city")){
-                    json.putByPath("billingAddress.city",address.cityName());
-                }else if(fieldId.equals("suburb")){
-                    json.putByPath("billingAddress.suburb",address.streetAddress());
-                }else if(fieldId.equals("county")){
-                    json.putByPath("billingAddress.county",address.citySuffix());
-                }else if(fieldId.equals("stateProvince")){
-                    int size=fieldModel.getValues().size();
-                    if(fieldModel.getValues().size()>0){
-                        int r= (int) (Math.random()*(size-1));
-                        json.putByPath("billingAddress.stateProvinceName",fieldModel.getValues().get(r).get("name"));
-                    }else{
-                        json.putByPath("billingAddress.stateProvinceName","");
-                    }
-                }else if(fieldId.equals("postalCode")){
-//                    json.putByPath("billingAddress.postalCode",address.zipCode());
-                    String regExp="[012345789]{6}";
-                    Generex generex = new Generex(regExp);
-                    json.putByPath("billingAddress.postalCode",generex.random());
-                }else if(fieldId.equals("phoneNumber")){
-//                    json.putByPath("phoneNumber.number",faker.phoneNumber().cellPhone());
-                    String regExp="1[345789]\\d{9}";
-                    Generex generex = new Generex(regExp);
-                    json.putByPath("phoneNumber.number",generex.random());
-                }else if(fieldId.equals("phoneAreaCode")){
-//                    json.putByPath("phoneNumber.areaCode",faker.phoneNumber().subscriberNumber());
-                    json.putByPath("phoneNumber.areaCode","");
-                }
+            if("USA".equals(countryCode)){
+                body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
+            }else if("CHN".equals(countryCode)){
+                body="iso3CountryCode=CHN&addressOfficialCountryCode=CHN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=%e8%ae%ba%e8%bf%b0&billingLastName=%e7%89%b9&addressOfficialLineFirst=asfaga124&addressOfficialLineSecond=fasfa125&addressOfficialCity=%e5%b9%bf%e5%b7%9e&addressOfficialPostalCode=510000&phoneOfficeNumber=18377114211&addressOfficialStateProvince=%e5%b9%bf%e4%b8%9c";
+            }else if("CAN".equals(countryCode)){
+                body="iso3CountryCode=CAN&addressOfficialCountryCode=CAN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=NnpMW6d&billingLastName=Z1sIxex&addressOfficialLineFirst=hfghfg1&addressOfficialLineSecond=terter2&addressOfficialCity=terter2&addressOfficialPostalCode=T9X+1Z4&phoneOfficeNumber=4488258&phoneOfficeAreaCode=403&addressOfficialStateProvince=AB";
+            }else if("AUS".equals(countryCode)){
+                body="iso3CountryCode=AUS&addressOfficialCountryCode=AUS&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=r0QjeVm&billingLastName=SgUWhG4&addressOfficialLineFirst=dsad1&addressOfficialLineSecond=fdsfds1&addressOfficialCity=fdsfds1&addressOfficialPostalCode=7009&phoneOfficeNumber=40517322&phoneOfficeAreaCode=61&addressOfficialStateProvince=Tasmania";
+            }else if("JPN".equals(countryCode)){
+                body="iso3CountryCode=JPN&addressOfficialCountryCode=JPN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=cikej&billingLastName=kxzfh&addressOfficialLineFirst=JiuJiQiFuFen&addressOfficialLineSecond=&addressOfficialCity=KeChuHuiJiaFei&addressOfficialPostalCode=786-7875&phoneOfficeNumber=78757862&phoneOfficeAreaCode=3951&addressOfficialStateProvince=%e7%be%a4%e9%a6%ac%e7%9c%8c&phoneticBillingLastName=xingpingying&phoneticBillingFirstName=mingpingyin";
+            }else if("GBR".equals(countryCode)){
+                body="iso3CountryCode=GBR&addressOfficialCountryCode=GBR&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ShiMei&billingLastName=Shao&addressOfficialLineFirst=YinZuZhen239Hao&addressOfficialLineSecond=42Chuang4DanYuan502Shi&addressOfficialCity=YunChengShi&addressOfficialPostalCode=YI3+3PR&phoneOfficeNumber=72333032&phoneOfficeAreaCode=44";
+            }else if("DEU".equals(countryCode)){
+                body="iso3CountryCode=DEU&addressOfficialCountryCode=DEU&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=YaoTao&billingLastName=Li&addressOfficialLineFirst=PanKouXiang294Hao&addressOfficialLineSecond=27Chuang4DanYuan903Shi&addressOfficialCity=luobin&addressOfficialPostalCode=83141&phoneOfficeNumber=83141954&phoneOfficeAreaCode=2427";
             }
-            body= JSONUtil.toJsonStr(json);
         }catch (Exception e){
             e.printStackTrace();
         }
         return body;
-    }
-
-    private void queryFail(Account account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
-    }
-    private void messageFun(Account account,String message) {
-        account.setNote(message);
-        accountTableView.refresh();
     }
 
     @FXML
@@ -441,9 +404,6 @@ public class CountryModifyController extends CommController<Account> implements 
         originalCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("originalCountry"));
         targetCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("targetCountry"));
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-        answer1.setCellValueFactory(new PropertyValueFactory<Account,String>("answer1"));
-        answer2.setCellValueFactory(new PropertyValueFactory<Account,String>("answer2"));
-        answer3.setCellValueFactory(new PropertyValueFactory<Account,String>("answer3"));
     }
     public void onAddCountryBtnClick(MouseEvent mouseEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/custom-country-popup.fxml"));
@@ -463,14 +423,20 @@ public class CountryModifyController extends CommController<Account> implements 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());
-//            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
             add(Constant.RightContextMenu.COPY.getCode());
-//            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
         }};
         List<String> fields=new ArrayList<>(){{
-            add("account");add("pwd");add("answer1");add("answer2");add("answer3");
-            add("originalCountry");add("targetCountry");add("note");
+            add("account");
+            add("pwd");
+            add("originalCountry");
+            add("targetCountry");
+            add("note");
         }};
         super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
+    }
+    @FXML
+    public void onStopBtnClick(ActionEvent actionEvent) {
     }
 }

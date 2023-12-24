@@ -24,6 +24,9 @@ import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -358,6 +361,112 @@ public class ITunesUtil {
                 .execute();
         System.out.println(response.getStatus());
         System.out.println(response.body());
+        return result;
+    }
+
+
+    public static Map<String,Object> editAccountFieldsSrv(Map<String, Object> paras) {
+        String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/?context=changeCountry";
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Origin",ListUtil.toList("https://finance-app.itunes.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://finance-app.itunes.apple.com/"));
+//        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+//        headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
+//        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip"));
+
+        String cookies = MapUtil.getStr(paras,"cookies","");
+        try {
+            HttpResponse res = HttpUtil.createGet(accountUrl)
+                    .header(headers)
+                    .cookie(cookies)
+                    .execute();
+            System.out.println(res.body());
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return paras;
+    }
+
+
+
+    /**
+    　* 修改账号国家
+      * @param
+     * @param paras
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/24 21:03
+    */
+    public  static Map<String,Object> editBillingInfo(Map<String,Object> paras){
+        boolean hasInspectionFlag=MapUtils.getBool(paras,"hasInspectionFlag");
+        Map<String,Object> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("X-Apple-Store-Front", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
+        if(hasInspectionFlag){
+            headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+            headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        }
+
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
+        headers.put("Accept-Language", ListUtil.toList("h-CN,zh;q=0.9,en;q=0"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/account/storefront/edit/billing-info"));
+        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
+        String guid=MapUtil.getStr(paras,"guid","");
+        String body=MapUtils.getStr(paras,"addressInfo");
+        String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/editBillingInfoSrv?guid="+guid;
+        HttpResponse response = HttpUtil.createRequest(Method.POST,url)
+                .header(headers)
+                .cookie(MapUtil.getStr(paras,"cookies",""))
+                .body(body)
+                .execute();
+        if(response.getStatus()==200){
+            JSON bodyJson= JSONUtil.parse(response.body());
+            int status=bodyJson.getByPath("status",int.class);
+            if(status==0){
+                result.put("code",Constant.SUCCESS);
+                result.put("message","修改成功");
+            }else{
+                StringBuffer stringBuffer=new StringBuffer();
+                String validationResults= bodyJson.getByPath("result.validationResults",String.class);
+                if(!StringUtils.isEmpty(validationResults)){
+                    JSONArray jsonArray=JSONUtil.parseArray(validationResults);
+                    for(Object jsonObject:jsonArray){
+                        String validationRuleName=JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                        switch (validationRuleName){
+                            case "INVALID_PHONE_NUMBER":
+                                stringBuffer.append("手机号码不正确，请更新并重试。");
+                                stringBuffer.append("\n");
+                                break;
+                            default:
+                                String errorString= JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
+                                stringBuffer.append(errorString);
+                                stringBuffer.append("\n");
+                        }
+                    }
+                }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){
+                    String userPresentableErrorMessage= bodyJson.getByPath("userPresentableErrorMessage",String.class);
+                    stringBuffer.append(userPresentableErrorMessage);
+                }
+                result.put("code","-1");
+                result.put("message",stringBuffer.toString());
+            }
+        }else{
+            result.put("code","-1");
+            result.put("message","修改失败");
+        }
         return result;
     }
 

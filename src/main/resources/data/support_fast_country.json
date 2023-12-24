@@ -4,4 +4,40 @@
   "name_zh": "中国大陆",
   "code2": "CN",
   "code": "CHN"
+},{
+  "dial_code": "1",
+  "name_en": "Canada",
+  "name_zh": "加拿大",
+  "code2": "CA",
+  "code": "CAN"
+},{
+  "dial_code": "1",
+  "name_en": "United States",
+  "name_zh": "美国",
+  "code2": "US",
+  "code": "USA"
+},{
+  "dial_code": "61",
+  "name_en": "Australia",
+  "name_zh": "澳大利亚",
+  "code2": "AU",
+  "code": "AUS"
+}, {
+  "dial_code": "81",
+  "name_en": "Japan",
+  "name_zh": "日本",
+  "code2": "JP",
+  "code": "JPN"
+},{
+  "dial_code": "49",
+  "name_en": "Germany",
+  "name_zh": "德国",
+  "code2": "DE",
+  "code": "DEU"
+},{
+  "dial_code": "44",
+  "name_en": "United Kingdom",
+  "name_zh": "英国",
+  "code2": "GB",
+  "code": "GBR"
 }]

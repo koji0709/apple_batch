@@ -4,7 +4,6 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
@@ -19,7 +18,6 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.model.Account;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -55,7 +53,12 @@ public class PurchaseBillUtil {
 //            System.out.println(jsonStrList);
 //        }
 //        Map<String,Object> res= iTunesAuth("josepharnoldc4@outlook.com","Zxc112211");
-        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
+//        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
+//        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
+        Map<String,Object> res= iTunesAuth("495575670@qq.com","B0527s0207");
+//        String body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
+
+//        res.put("addressInfo",body);
         if(Constant.TWO_FACTOR_AUTHENTICATION.equalsIgnoreCase(MapUtil.getStr(res,"code"))){
             System.out.println("------enter 2FA code---------");
 
@@ -65,9 +68,12 @@ public class PurchaseBillUtil {
                 String authCode = br.readLine();
                 System.out.println(iTunesAuth(authCode,res));
 
+                ITunesUtil.editAccountFieldsSrv(res);
             } catch(IOException e){
                 e.printStackTrace();
             }
+        }else{
+            ITunesUtil.editAccountFieldsSrv(res);
         }
 
 //for (int i=0;i<10;i++){
@@ -1038,9 +1044,11 @@ public class PurchaseBillUtil {
             }
             if(!StringUtils.isEmpty(failureType)){
                 paras.put("code","1");
+                paras.put("msg","登录失败");
                 return paras;
             }
-
+            paras.put("msg","登录成功");
+            paras.put("code",Constant.SUCCESS);
             String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
             String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
             Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
@@ -1075,12 +1083,17 @@ public class PurchaseBillUtil {
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
             Element addressElement=element.getElementsByClass("address").get(0);
+            String address=addressElement.html().replace("<br>",",");
+            paras.put("address",address);
+
+
+
+
             String countryName=addressElement.parent().parent().nextElementSibling().getElementsByClass("info").get(0).child(0).text();
             //账号国家
             paras.put("countryName",countryName);
             //寄送地址
-            String address=addressElement.html().replace("<br>",",");
-            paras.put("address",address);
+
             String paymentMethod=addressElement.parent().parent().previousElementSibling().getElementsByClass("info").text();
             paras.put("paymentMethod",paymentMethod);
         } catch (Exception e) {

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class Constant {
 
-    public static final String 	SUCCESS     = Constant.SUCCESS;
+    public static final String 	SUCCESS     = "200";
     public static final String 	TWO_FACTOR_AUTHENTICATION     = "401";
     public static final String 	FailureTypeInvalidCredentials     = "-5000";
     public static final String  FailureTypePasswordTokenExpired   = "2034";

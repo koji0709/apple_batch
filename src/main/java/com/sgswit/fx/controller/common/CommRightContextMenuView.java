@@ -197,18 +197,18 @@ public class CommRightContextMenuView<T> extends CommonView{
                 if(selectedRows.size()==0){
                     return;
                 }
-                if(buttonId.equalsIgnoreCase("copy")){
+                if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())){
                     copyInfo(selectedRows.get(0));
-                }else if(buttonId.equalsIgnoreCase("delete")){
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())){
                     accountTableView.getItems().remove(selectedRows.get(0));
                     accountTableView.refresh();
-                }else if(buttonId.equalsIgnoreCase("smsCode")){
-                    openCodePopup(selectedRows.get(0),title,"smsCode");
-                }else if(buttonId.equalsIgnoreCase("reexecute")){
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.SMS_CODE.getCode())){
+                    openCodePopup(selectedRows.get(0),title,Constant.RightContextMenu.SMS_CODE.getCode());
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())){
                     reExecute(selectedRows.get(0));
-                }else if(buttonId.equalsIgnoreCase("twoFactorCode")){
-                    openCodePopup(selectedRows.get(0),title,"twoFactorCode");
-                }else if(buttonId.equalsIgnoreCase("webTwoFactorCode")){
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())){
+                    openCodePopup(selectedRows.get(0),title,Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())){
 
                 }
                 stage.close();
@@ -292,9 +292,9 @@ public class CommRightContextMenuView<T> extends CommonView{
            popupStage.initStyle(StageStyle.UTILITY);
            popupStage.showAndWait();
            String code = fxmlLoaderController.getSecurityCode();
-           if("smsCode".equals(type)){
+           if(Constant.RightContextMenu.SMS_CODE.getCode().equals(type)){
                secondStepHandler(o,code);
-           }else if("twoFactorCode".equals(type)){
+           }else if(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode().equals(type)){
                twoFactorCodeExecute(o,code);
            }
        }catch (Exception e){

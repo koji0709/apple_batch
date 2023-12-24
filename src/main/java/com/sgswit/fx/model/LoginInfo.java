@@ -11,7 +11,7 @@ import com.sgswit.fx.utils.CookieUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginInfo {
+public class LoginInfo extends AuthData{
     private String domainId = "1";
     private String clientId = "af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3";
     private String frameId = createFrameId();
