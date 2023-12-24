@@ -12,10 +12,8 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.ConsumptionBill;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.PListUtil;
-import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.model.CreditCard;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,7 +23,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -107,104 +107,10 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                 return;
             }
             for(ConsumptionBill account:accountList){
-                //判断是否已执行或执行中,避免重复执行
                 if(!StrUtil.isEmptyIfStr(account.getNote())){
                     continue;
                 }else{
-                    accountQueryBtn.setText("正在查询");
-                    accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                    accountQueryBtn.setDisable(true);
-
-                    account.setNote("正在登录...");
-                    accountTableView.refresh();
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run(){
-                            try {
-                                try {
-                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
-                                    if(accountInfoMap.get("code").equals(Constant.SUCCESS)){
-                                        boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
-                                        if(!hasInspectionFlag){
-                                            account.setNote("此 Apple ID 尚未用于 App Store。");
-                                            accountTableView.refresh();
-                                            return;
-                                        }
-
-                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
-                                        account.setNote("查询成功");
-                                        accountTableView.refresh();
-                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
-
-                                        account.setArea(accountInfoMap.get("countryName").toString());
-                                        account.setShippingAddress(accountInfoMap.get("address").toString());
-                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
-                                        account.setName(accountInfoMap.get("name").toString());
-                                        int purchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
-                                        account.setPurchaseRecord(String.valueOf(purchasesLast90Count));
-                                        //家庭共享信息
-                                        HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
-                                        if(response.getStatus()==200){
-                                            try {
-                                                String rb = response.charset("UTF-8").body();
-                                                JSONObject rspJSON = PListUtil.parse(rb);
-                                                if("0".equals(rspJSON.getStr("status"))){
-                                                    JSONObject delegates= rspJSON.getJSONObject("delegates");
-                                                    JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
-                                                    String status= comAppleMobileme.getByPath("status",String.class);
-                                                    if("0".equals(status)){
-                                                        //获取家庭共享
-                                                        Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
-                                                        if(Constant.SUCCESS.equals(res.get("code"))){
-                                                            account.setFamilyDetails(res.get("familyDetails").toString());
-                                                        }
-                                                    }else{
-                                                        if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
-                                                            account.setFamilyDetails("-");
-                                                        }else{
-                                                            account.setFamilyDetails("-");
-                                                        }
-                                                    }
-                                                }else{
-                                                }
-                                            }catch (Exception e){
-                                                account.setFamilyDetails("-");
-                                            }
-                                        }else {
-                                            account.setFamilyDetails("-");
-                                        }
-
-
-
-                                        account.setNote("查询完成");
-                                        accountTableView.refresh();
-                                    }else{
-                                        account.setNote(accountInfoMap.get("msg").toString());
-                                        accountTableView.refresh();
-                                    }
-                                } catch (Exception e) {
-                                    account.setNote("操作失败，接口异常");
-                                    accountTableView.refresh();
-                                    accountQueryBtn.setDisable(false);
-                                    accountQueryBtn.setText("开始执行");
-                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    e.printStackTrace();
-                                }
-                            }finally {
-                                //JavaFX Application Thread会逐个阻塞的执行这些任务
-                                Platform.runLater(new Task<Integer>() {
-                                    @Override
-                                    protected Integer call() {
-                                        accountQueryBtn.setDisable(false);
-                                        accountQueryBtn.setText("开始执行");
-                                        accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                        return 1;
-                                    }
-                                });
-                            }
-                        }
-                    }).start();
+                    executeFun(account);
                 }
             }
         }catch (Exception e){
@@ -285,13 +191,150 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
             Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date desc LIMIT 1;");
             nowDate.setTime(entityEarliest.getLong("purchase_date"));
             consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
-
-
-
-
-
         }catch (Exception e){
 
         }
+    }
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> items=new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
+    }
+
+    /**重新执行**/
+    @Override
+    protected void reExecute(ConsumptionBill account){
+        executeFun(account);
+    }
+    /**
+     　* 双重验证
+     * @param
+     * @param account
+     * @param authCode
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2023/12/23 18:10
+     */
+    @Override
+    protected void twoFactorCodeExecute(ConsumptionBill account, String authCode){
+        try{
+            Map<String,Object> res=account.getAuthData();
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+                account.setAuthCode(authCode);
+                account.setStep("00");
+                executeFun(account);
+            }else{
+                alert("未下发双重验证码");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void executeFun(ConsumptionBill account){
+        accountQueryBtn.setText("正在查询");
+        accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+        accountQueryBtn.setDisable(true);
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    try {
+                        account.setNote("正在登录...");
+                        accountTableView.refresh();
+                        String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+                        Map<String,Object> accountInfoMap=account.getAuthData();
+                        if("00".equals(step)){
+                            String authCode=account.getAuthCode();
+                            accountInfoMap= PurchaseBillUtil.iTunesAuth(authCode,accountInfoMap);
+                        }else if("01".equals(step)){
+                            accountInfoMap= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+                        }else{
+                            accountInfoMap=new HashMap<>();
+                        }
+                        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(accountInfoMap.get("code"))) {
+                            account.setNote(String.valueOf(accountInfoMap.get("msg")));
+                            account.setAuthData(MapUtils.mapConvertToObservableMap(accountInfoMap));
+                        }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
+                            account.setNote(String.valueOf(accountInfoMap.get("msg")));
+                        }else {
+                            boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
+                            if(!hasInspectionFlag){
+                                account.setNote("此 Apple ID 尚未用于 App Store。");
+                                accountTableView.refresh();
+                                return;
+                            }
+                            accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
+                            account.setNote("查询成功");
+                            accountTableView.refresh();
+                            account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
+
+                            account.setArea(accountInfoMap.get("countryName").toString());
+                            account.setShippingAddress(accountInfoMap.get("address").toString());
+                            account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
+                            account.setName(accountInfoMap.get("name").toString());
+                            int purchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
+                            account.setPurchaseRecord(String.valueOf(purchasesLast90Count));
+                            //家庭共享信息
+                            HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
+                            if(response.getStatus()==200){
+                                try {
+                                    String rb = response.charset("UTF-8").body();
+                                    JSONObject rspJSON = PListUtil.parse(rb);
+                                    if("0".equals(rspJSON.getStr("status"))){
+                                        JSONObject delegates= rspJSON.getJSONObject("delegates");
+                                        JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
+                                        String status= comAppleMobileme.getByPath("status",String.class);
+                                        if("0".equals(status)){
+                                            //获取家庭共享
+                                            Map<String,Object> res=ICloudUtil.getFamilyDetails(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
+                                            if(Constant.SUCCESS.equals(res.get("code"))){
+                                                account.setFamilyDetails(res.get("familyDetails").toString());
+                                            }
+                                        }else{
+                                            if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
+                                                account.setFamilyDetails("-");
+                                            }else{
+                                                account.setFamilyDetails("-");
+                                            }
+                                        }
+                                    }else{
+                                    }
+                                }catch (Exception e){
+                                    account.setFamilyDetails("-");
+                                }
+                            }else {
+                                account.setFamilyDetails("-");
+                            }
+                            account.setNote("查询完成");
+                            accountTableView.refresh();
+                        }
+                    } catch (Exception e) {
+                        account.setNote("操作失败，接口异常");
+                        accountTableView.refresh();
+                        accountQueryBtn.setDisable(false);
+                        accountQueryBtn.setText("开始执行");
+                        accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                        e.printStackTrace();
+                    }
+                }finally {
+                    //JavaFX Application Thread会逐个阻塞的执行这些任务
+                    Platform.runLater(new Task<Integer>() {
+                        @Override
+                        protected Integer call() {
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            return 1;
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }

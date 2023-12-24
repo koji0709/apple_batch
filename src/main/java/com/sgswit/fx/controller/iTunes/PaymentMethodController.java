@@ -99,14 +99,14 @@ public class PaymentMethodController extends CustomTableView<Account> implements
             if (!StrUtil.isEmptyIfStr(account.getNote())) {
                 continue;
             }else{
+                accountQueryBtn.setText("正在查询");
+                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accountQueryBtn.setDisable(true);
                 new Thread(new Runnable() {
                     @Override
                     public void run(){
                         try {
                             try {
-                                accountQueryBtn.setText("正在查询");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                                accountQueryBtn.setDisable(true);
                                 account.setNote("正在登录...");
                                 accountTableView.refresh();
                                 Map<String,Object> res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());

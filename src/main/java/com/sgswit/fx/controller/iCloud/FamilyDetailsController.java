@@ -112,15 +112,13 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                 accountQueryBtn.setText("正在查询");
                 accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
                 accountQueryBtn.setDisable(true);
-
-                account.setNote("正在登录...");
-                accountTableView.refresh();
-
                 new Thread(new Runnable() {
                     @Override
                     public void run(){
                         try {
                             try {
+                                account.setNote("正在登录...");
+                                accountTableView.refresh();
                                 checkCloudAcc(account);
                             } catch (Exception e) {
                                 account.setNote("操作失败，接口异常");

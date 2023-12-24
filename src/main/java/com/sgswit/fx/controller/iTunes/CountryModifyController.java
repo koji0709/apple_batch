@@ -229,15 +229,16 @@ public class CountryModifyController extends CustomTableView<Account> implements
         }
     }
     private void executeFun(Account account){
+        accountQueryBtn.setText("正在查询");
+        accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+        accountQueryBtn.setDisable(true);
         new Thread(new Runnable() {
             @Override
             public void run(){
                 try {
                     try {
-                        accountQueryBtn.setText("正在查询");
-                        accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                        accountQueryBtn.setDisable(true);
                         account.setNote("正在登录...");
+                        accountTableView.refresh();
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
                         Map<String,Object> res=account.getAuthData();
                         if("00".equals(step)){

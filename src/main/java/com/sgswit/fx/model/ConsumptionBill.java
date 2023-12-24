@@ -1,5 +1,6 @@
 package com.sgswit.fx.model;
 
+import com.sgswit.fx.annotation.CustomAnnotation;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -13,14 +14,14 @@ import javafx.scene.control.TableView;
  * @description: TODO
  * @date 2023/12/111:04
  */
-public final class ConsumptionBill {
+public final class ConsumptionBill extends AuthData{
 
     private final SimpleIntegerProperty seq;
-
+    @CustomAnnotation(desc = "账号")
     private final SimpleStringProperty account;
-
+    @CustomAnnotation(desc = "执行信息")
     private final SimpleStringProperty note;
-
+    @CustomAnnotation(desc = "账号地区")
     private final SimpleStringProperty area;
 
     private final SimpleStringProperty status;
@@ -34,16 +35,18 @@ public final class ConsumptionBill {
     private final SimpleStringProperty totalRefundAmount;
 
     private final SimpleStringProperty purchaseRecord;
-
+    @CustomAnnotation(desc = "付款方式")
     private final SimpleStringProperty paymentInformation;
-
+    @CustomAnnotation(desc = "邮寄地址")
     private final SimpleStringProperty shippingAddress;
-
+    @CustomAnnotation(desc = "密码")
     private final SimpleStringProperty pwd;
-
+    @CustomAnnotation(desc = "账号余额")
     private final SimpleStringProperty accountBalance;
     private final SimpleStringProperty whetherArrearage;
+    @CustomAnnotation(desc = "账号姓名")
     private final SimpleStringProperty name;
+    @CustomAnnotation(desc = "家庭共享")
     private final SimpleStringProperty familyDetails;
     public ConsumptionBill() {
         this.seq = new SimpleIntegerProperty();

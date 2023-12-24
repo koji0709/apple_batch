@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CustomAnnotation {
     /**是否可复制**/
-    public boolean copy() default false;
+    public boolean copy() default true;
     /**属性描述**/
     public String desc() default "";
 }

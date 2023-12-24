@@ -115,7 +115,7 @@
                         </TitledPane>
                         <TitledPane layoutX="6.0" layoutY="197.0" prefHeight="427.0" prefWidth="1150.0" text="账号列表">
                             <content>
-                                <TableView fx:id="accountTableView">
+                                <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick">
                                     <columns>
                                         <TableColumn fx:id="seq" prefWidth="70.0" text="序号" />
                                         <TableColumn fx:id="account" prefWidth="110.0" text="账号" />
@@ -127,7 +127,7 @@
                                         <TableColumn fx:id="purchaseRecord" prefWidth="120.0" text="90天内购买" />
                                         <TableColumn fx:id="familyDetails" prefWidth="135.0" text="家庭共享" />
                                         <TableColumn fx:id="paymentInformation" prefWidth="100.0" text="付款方式" />
-                                        <TableColumn fx:id="whetherArrearage" prefWidth="65.0" text="是否欠费" />
+                                        <TableColumn fx:id="whetherArrearage" prefWidth="65.0" text="是否欠费" visible="false" />
                                         <TableColumn fx:id="shippingAddress" prefWidth="160.0" text="寄送地址" />
                                     </columns>
                                 </TableView>
