@@ -5,6 +5,9 @@ import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableMap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author DeZh
  * @title: AuthData
@@ -13,36 +16,31 @@ import javafx.collections.ObservableMap;
  * @date 2023/12/2218:21
  */
 public class AuthData {
-    private final SimpleMapProperty<String,Object> authData;
-    private final SimpleStringProperty step;
-    private final SimpleStringProperty authCode;
-    public AuthData() {
-        this.authData = new SimpleMapProperty<>();
-        this.step = new SimpleStringProperty();
-        this.authCode = new SimpleStringProperty();
-    }
-    public ObservableMap<String, Object> getAuthData() {
-        return authData.get();
+    private Map<String,Object> authData = new HashMap<>();
+    private String step;
+    private String authCode;
+
+    public Map<String, Object> getAuthData() {
+        return authData;
     }
 
-
-    public void setAuthData(ObservableMap<String, Object> authData) {
-        this.authData.set(authData);
+    public void setAuthData(Map<String, Object> authData) {
+        this.authData = authData;
     }
 
     public String getStep() {
-        return step.get();
+        return step;
     }
 
     public void setStep(String step) {
-        this.step.set(step);
+        this.step = step;
     }
 
     public String getAuthCode() {
-        return authCode.get();
+        return authCode;
     }
 
     public void setAuthCode(String authCode) {
-        this.authCode.set(authCode);
+        this.authCode = authCode;
     }
 }

@@ -36,10 +36,8 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void accountHandler(Account account) {
-        HttpResponse loginRsp = login(account);
-        if (loginRsp == null){
-            return;
-        }
+        login(account);
+
         boolean updateAccountInfoCheckBoxSelected = updateAccountInfoCheckBox.isSelected();
         String opType = opTypeChoiceBox.getValue().toString();
 

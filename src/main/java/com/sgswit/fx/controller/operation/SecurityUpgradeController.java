@@ -11,16 +11,11 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.input.ContextMenuEvent;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * 双重认证controller
@@ -36,39 +31,14 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     public void accountHandler(Account account) {
-        HttpResponse signInRsp = AppleIDUtil.signin(account);
-        if(signInRsp.getStatus()==503){
-            setAndRefreshNote(account,"操作频繁");
-            return;
-        }
-        if (!StrUtil.isEmpty(signInRsp.body())){
-            String failMessage = "";
-            JSONArray errorArr = JSONUtil.parseObj(signInRsp.body())
-                    .getByPath("serviceErrors",JSONArray.class);
-            if (errorArr != null && errorArr.size()>0){
-                for (Object o : errorArr) {
-                    JSONObject jsonObject = (JSONObject) o;
-                    failMessage += jsonObject.getByPath("message") + ";";
-                }
-                setAndRefreshNote(account,failMessage);
-                return;
+        if (!account.isLogin()){
+            HttpResponse signInRsp = signIn(account);
+            String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
+            if ("hsa2".equals(authType)){
+                throwAndRefreshNote(account,"该账号已开通双重认证!");
             }
-        }
-        if(signInRsp.getStatus()!=409){
-            setAndRefreshNote(account,"请检查用户名密码是否正确");
-            return;
-        }
-        // Auth
-        String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
-        if ("hsa2".equals(authType)){
-            setAndRefreshNote(account,"该账号已开通双重认证!");
-            return;
-        }
-
-        // 登陆
-        HttpResponse loginRsp = login(account,signInRsp);
-        if (loginRsp == null){
-            return;
+            // 登陆
+            login(account);
         }
 
         String phone = account.getPhone();
@@ -100,13 +70,12 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         setAndRefreshNote(account,"绑定双重认证成功");
     }
 
-    @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());
-//            add(Constant.RightContextMenu.REEXECUTE.getCode());
-//            add(Constant.RightContextMenu.COPY.getCode());
-//            add(Constant.RightContextMenu.SMS_CODE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+            add(Constant.RightContextMenu.CODE.getCode());
         }};
         List<String> fields=new ArrayList<>();
         super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
