@@ -217,8 +217,10 @@ public class CommRightContextMenuView<T> extends CommonView{
                     if (account instanceof Account){
                         Account account1 = (Account) account;
                         String securityCode = openSecurityCodePopupView(account1.getAccount());
-                        account1.setSecurityCode(securityCode);
-                        accountHandler(account);
+                        if (!StrUtil.isEmpty(securityCode)){
+                            account1.setSecurityCode(securityCode);
+                            accountHandler(account);
+                        }
                     }
                 }
                 stage.close();

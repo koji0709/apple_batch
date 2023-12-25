@@ -2,14 +2,15 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import javafx.scene.control.TableView;
+import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
 /**
@@ -66,4 +67,21 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             setAndRefreshNote(account,"关闭双重验证失败");
         }
     }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> menuItem =new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setNote("");
+        accountHandler(account);
+    }
+
+
 }

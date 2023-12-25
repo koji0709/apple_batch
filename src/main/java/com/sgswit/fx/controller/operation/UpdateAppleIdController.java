@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -11,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -125,4 +127,21 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         }
 
     }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> menuItem =new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+            add(Constant.RightContextMenu.CODE.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setNote("");
+        accountHandler(account);
+    }
+
 }

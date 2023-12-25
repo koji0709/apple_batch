@@ -29,7 +29,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         super.initialize(url,resourceBundle);
         initViewData();
         menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
-        menuItem.add(Constant.RightContextMenu.CODE.getCode());
     }
 
     /**
@@ -60,6 +59,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updateBirthdayCheckBoxSelected = updateBirthdayCheckBox.isSelected();
         boolean updateNameCheckBoxSelected = updateNameCheckBox.isSelected();
         boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
+        boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
         // 修改密码
         if (updatePwdCheckBoxSelected){
@@ -101,6 +101,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 return false;
             }
         }
+        // 修改显示语言
+        if (updateShowLangCheckBoxSelected){
+            Object value = updateShowLangChoiceBox.getValue();
+            if (value == null){
+                alert("请选择显示语言");
+                return false;
+            }
+        }
         return true;
     }
 
@@ -112,17 +120,16 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
         boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
+        boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
         // 登陆账号
         login(account);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
-        String countryName = accountJSON.getByPath("account.person.primaryAddress.countryName",String.class);
-        String birthday = accountJSON.getByPath("account.person.birthday",String.class);
-        // todo 姓名/状态
-        account.setArea(countryName);
-        account.setBirthday(birthday);
+        account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
+        account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
+        account.setName(accountJSON.getByPath("name.fullName",String.class));
 
         // 修改密码
         if (updatePwdCheckBoxSelected){
@@ -226,7 +233,27 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 appendAndRefreshNote(account,"移除救援邮箱成功");
             }
         }
+
+        // 修改显示语言
+        if (updateShowLangCheckBoxSelected){
+            Object showLang = updateShowLangChoiceBox.getValue();
+            LinkedHashMap<String, String> languageMap = NbUtil.getLanguageMap();
+            String langCode = languageMap.get(showLang);
+            HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
+            if (changeShowLanguageRsp.getStatus() != 200){
+                appendAndRefreshNote(account,getValidationErrors(changeShowLanguageRsp.body()),"修改显示语言失败");
+            }else{
+                appendAndRefreshNote(account,"修改显示语言成功");
+            }
+        }
+
         setAndRefreshNote(account, account.getNote() + "所有操作执行完毕。");
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setNote("");
+        accountHandler(account);
     }
 
     public String getValidationErrors(String body){

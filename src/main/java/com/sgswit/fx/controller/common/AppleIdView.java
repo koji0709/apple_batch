@@ -77,13 +77,13 @@ public class AppleIdView extends CustomTableView<Account> {
             Map<String, Object> authData = account.getAuthData();
             HttpResponse authRsp = (HttpResponse) authData.get("authRsp");
             if (authRsp == null){
-                throwAndRefreshNote(account,"请先执行程序");
+                throwAndRefreshNote(account,"请先执行程序;");
             }
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
         }else{
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
-                throwAndRefreshNote(account,"请检查用户名密码是否正确");
+                throwAndRefreshNote(account,"请检查用户名密码是否正确;");
             }
             // Auth
             HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
@@ -92,15 +92,15 @@ public class AppleIdView extends CustomTableView<Account> {
             // 双重认证
             if ("hsa2".equals(authType)) {
                 account.getAuthData().put("authRsp",authRsp);
-                throwAndRefreshNote(account,"此账号已开启双重认证。");
+                throwAndRefreshNote(account,"此账号已开启双重认证;");
             } else { // sa 密保认证
                 if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
-                    throwAndRefreshNote(account,"密保认证必须输入密保问题");
+                    throwAndRefreshNote(account,"密保认证必须输入密保问题;");
                 }
                 // 密保认证
                 HttpResponse questionRsp = AppleIDUtil.questions(account,authRsp);
                 if (questionRsp.getStatus() != 412) {
-                    throwAndRefreshNote(account,"密保问题验证失败");
+                    throwAndRefreshNote(account,"密保问题验证失败;");
                 }
 
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
@@ -125,9 +125,9 @@ public class AppleIdView extends CustomTableView<Account> {
         account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
 
         if (tokenRsp.getStatus() != 200){
-            throwAndRefreshNote(account,"登录异常");
+            throwAndRefreshNote(account,"登录异常;");
         }
-        setAndRefreshNote(account,"登陆成功");
+        setAndRefreshNote(account,"登陆成功;");
         account.setLogin(true);
     }
 
@@ -137,12 +137,6 @@ public class AppleIdView extends CustomTableView<Account> {
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent,List<String> menuItemList) {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItemList,new ArrayList<>());
-    }
-
-    @Override
-    protected void reExecute(Account account) {
-        account.setNote("");
-        accountHandler(account);
     }
 
 }

@@ -4,9 +4,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import javafx.scene.input.ContextMenuEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,21 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
             String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
             setAndRefreshNote(account,failMessage);
         }
+    }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> menuItem =new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setNote("");
+        accountHandler(account);
     }
 
 }

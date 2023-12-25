@@ -489,6 +489,7 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .body(body)
                 .header(headers)
+                .cookie(account.getCookie())
                 .execute();
 
         account.updateLoginInfo(rsp);
@@ -526,6 +527,7 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
         HttpResponse rsp = HttpUtil.createRequest(Method.DELETE, url)
                 .header(headers)
+                .cookie(account.getCookie())
                 .execute();
 
         int status = rsp.getStatus();
@@ -576,6 +578,7 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.POST, url)
                 .header(headers)
                 .body("{\"address\":\""+account.getEmail()+"\"}")
+                .cookie(account.getCookie())
                 .execute();
 
         int status = rsp.getStatus();
@@ -656,6 +659,7 @@ public class AppleIDUtil {
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
+                .cookie(account.getCookie())
                 .body(body)
                 .execute();
 
@@ -701,6 +705,7 @@ public class AppleIDUtil {
         String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
+                .cookie(account.getCookie())
                 .body(body)
                 .execute();
 
@@ -740,6 +745,7 @@ public class AppleIDUtil {
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
+                .cookie(account.getCookie())
                 .body(body)
                 .execute();
 
@@ -763,6 +769,7 @@ public class AppleIDUtil {
         HttpResponse rsp1 = HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
                 .body("{\"password\":\""+password+"\"}")
                 .header(rsp.headers())
+                .cookie(rsp.getCookies())
                 .execute();
         rspLog(Method.POST,verifyPasswordUrl,rsp1.getStatus());
         return rsp1;
@@ -798,6 +805,7 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/devices";
         HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
+                .cookie(account.getCookie())
                 .execute();
         rspLog(Method.GET,url,rsp.getStatus());
         return rsp;
@@ -816,13 +824,54 @@ public class AppleIDUtil {
                 String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
                 HttpResponse rsp = HttpUtil.createRequest(Method.DELETE,url)
                         .header(deviceListRsp.headers())
+                        .cookie(deviceListRsp.getCookies())
                         .execute();
                 rspLog(Method.DELETE,url,rsp.getStatus());
             }
         }
     }
 
+    /**
+     * 修改显示语言
+     */
+    public static HttpResponse changeShowLanguage(Account account,String lang){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        String url = "https://appleid.apple.com/account/manage/preferences";
+        String format = "{\"preferredLanguage\":\"%s\",\"marketingPreferences\":{\"appleUpdates\":true,\"iTunesUpdates\":true,\"appleNews\":false,\"appleMusic\":false},\"privacyPreferences\":{\"allowDeviceDiagnosticsAndUsage\":false,\"allowShareThirdPartyDevelopers\":false,\"allowICloudDataAnalytics\":false}}";
+        String body = String.format(format, lang);
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .body(body)
+                .header(headers)
+                .cookie(account.getCookie())
+                .execute();
+
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
+    }
 
     /**
      * 修改appleId时发送邮件
@@ -854,7 +903,9 @@ public class AppleIDUtil {
         String body = "{\"name\":\""+account.getEmail()+"\"}";
         HttpResponse verifyRsp = HttpUtil.createPost(url)
                 .header(headers)
-                .body(body).execute();
+                .cookie(account.getCookie())
+                .body(body)
+                .execute();
         rspLog(Method.POST,url,verifyRsp.getStatus());
 
         int status = verifyRsp.getStatus();
@@ -876,6 +927,7 @@ public class AppleIDUtil {
         String body = "{\"name\":\""+appleId+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
         HttpResponse updateAppleIdRsp = HttpUtil.createRequest(Method.PUT,url)
                 .header(verifyRsp.headers())
+                .cookie(verifyRsp.getCookies())
                 .body(body)
                 .execute();
         rspLog(Method.PUT,url,updateAppleIdRsp.getStatus());
@@ -913,6 +965,7 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .body(body)
+                .cookie(account.getCookie())
                 .execute();
         int status = rsp.getStatus();
         rspLog(Method.PUT,url, status);
@@ -935,6 +988,7 @@ public class AppleIDUtil {
         HttpResponse securityUpgradeRsp = HttpUtil.createRequest(Method.POST,url)
                 .header(securityUpgradeVerifyPhoneRsp.headers())
                 .body(body)
+                .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
                 .execute();
         rspLog(Method.POST,url,securityUpgradeRsp.getStatus());
         return securityUpgradeRsp;
@@ -1420,16 +1474,16 @@ public class AppleIDUtil {
         Console.log("Req: {}  Response status: {}",url,rsp.getStatus());
         //Console.log(rsp.headers());
         //Console.log(rsp.headerList("Set-Cookie"));
-        Console.log("X-Apple-ID-Session-Id:" + headers.get("X-Apple-ID-Session-Id"));
-        Console.log("X-Apple-Repair-Session-Token:" + headers.get("X-Apple-Repair-Session-Token"));
-        Console.log("X-Apple-Session-Token:" + headers.get("X-Apple-Session-Token"));
-        Console.log("SCNT: " + headers.get("scnt"));
-
-        Console.log("X-Apple-ID-Session-Id:" + rsp.header("X-Apple-ID-Session-Id"));
-        Console.log("X-Apple-Repair-Session-Token:" + rsp.header("X-Apple-Repair-Session-Token"));
-        Console.log("X-Apple-Session-Token:" + rsp.header("X-Apple-Session-Token"));
-        Console.log("SCNT: " + rsp.header("scnt"));
-        Console.log("------------------------------------------------------------------------------");
+//        Console.log("X-Apple-ID-Session-Id:" + headers.get("X-Apple-ID-Session-Id"));
+//        Console.log("X-Apple-Repair-Session-Token:" + headers.get("X-Apple-Repair-Session-Token"));
+//        Console.log("X-Apple-Session-Token:" + headers.get("X-Apple-Session-Token"));
+//        Console.log("SCNT: " + headers.get("scnt"));
+//
+//        Console.log("X-Apple-ID-Session-Id:" + rsp.header("X-Apple-ID-Session-Id"));
+//        Console.log("X-Apple-Repair-Session-Token:" + rsp.header("X-Apple-Repair-Session-Token"));
+//        Console.log("X-Apple-Session-Token:" + rsp.header("X-Apple-Session-Token"));
+//        Console.log("SCNT: " + rsp.header("scnt"));
+//        Console.log("------------------------------------------------------------------------------");
     }
 
     public boolean hasFailMessage(HttpResponse rsp) {

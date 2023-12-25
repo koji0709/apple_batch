@@ -1,10 +1,5 @@
 package com.sgswit.fx.model;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleMapProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableMap;
-
 import java.util.HashMap;
 import java.util.Map;
 

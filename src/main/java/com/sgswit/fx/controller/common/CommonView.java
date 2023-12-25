@@ -68,13 +68,13 @@ public class CommonView implements Initializable {
         return result.isPresent() ? result.get() : "";
     }
 
-    public boolean hasFailMessage(HttpResponse rsp) {
+    public Boolean hasFailMessage(HttpResponse rsp) {
         String body = rsp.body();
         if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
             return false;
         }
         Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
-        return null != hasError && (boolean) hasError;
+        return null != hasError && (Boolean) hasError;
     }
 
     public String failMessage(HttpResponse rsp) {

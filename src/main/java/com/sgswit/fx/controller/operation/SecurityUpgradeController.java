@@ -71,13 +71,19 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> items=new ArrayList<>(){{
+        List<String> menuItem =new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());
             add(Constant.RightContextMenu.REEXECUTE.getCode());
             add(Constant.RightContextMenu.COPY.getCode());
             add(Constant.RightContextMenu.CODE.getCode());
         }};
-        List<String> fields=new ArrayList<>();
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setNote("");
+        accountHandler(account);
+    }
+
 }
