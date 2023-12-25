@@ -18,6 +18,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.constant.StoreFontsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -1000,6 +1001,14 @@ public class PurchaseBillUtil {
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
+            String countryCode=StoreFontsUtil.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryName="-";
+            if(StringUtils.isEmpty(countryCode)){
+
+            }else{
+                countryName =DataUtil.getNameByCountryCode(countryCode);
+            }
+            paras.put("countryName",countryName);
             if(res.getStatus()==302 && attempt ==0){
                 return iTunesLogin(authCode,guid,1,paras);
             }else if(res.getStatus()==503){
@@ -1085,15 +1094,11 @@ public class PurchaseBillUtil {
             Element addressElement=element.getElementsByClass("address").get(0);
             String address=addressElement.html().replace("<br>",",");
             paras.put("address",address);
-
-
-
-
-            String countryName=addressElement.parent().parent().nextElementSibling().getElementsByClass("info").get(0).child(0).text();
+            String countryCode=StoreFontsUtil.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryName =DataUtil.getNameByCountryCode(countryCode);
             //账号国家
             paras.put("countryName",countryName);
             //寄送地址
-
             String paymentMethod=addressElement.parent().parent().previousElementSibling().getElementsByClass("info").text();
             paras.put("paymentMethod",paymentMethod);
         } catch (Exception e) {

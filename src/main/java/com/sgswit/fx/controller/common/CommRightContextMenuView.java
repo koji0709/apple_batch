@@ -292,6 +292,9 @@ public class CommRightContextMenuView<T> extends CommonView{
            popupStage.initStyle(StageStyle.UTILITY);
            popupStage.showAndWait();
            String code = fxmlLoaderController.getSecurityCode();
+           if(StringUtils.isEmpty(code)){
+               return;
+           }
            if(Constant.RightContextMenu.SMS_CODE.getCode().equals(type)){
                secondStepHandler(o,code);
            }else if(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode().equals(type)){

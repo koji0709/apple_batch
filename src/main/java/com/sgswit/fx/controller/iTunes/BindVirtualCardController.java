@@ -164,10 +164,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                         accountTableView.refresh();
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
                         Map<String,Object> res=account.getAuthData();
-                        if("00".equals(step)){
-                            String authCode=account.getAuthCode();
-                            res= PurchaseBillUtil.iTunesAuth(authCode,res);
-                        }else if("01".equals(step)){
+                        if("01".equals(step)){
                             res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
                         }else if("02".equals(step)){
                             res.put("smsCode",account.getAuthCode());
@@ -187,7 +184,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                         }else{
                             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
-                                account.setNote("此 Apple?ID 尚未用于 App Store。");
+                                account.setNote("此 Apple ID 尚未用于 App Store。");
                                 accountTableView.refresh();
                                 return;
                             }
