@@ -7,13 +7,10 @@ import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.AccountImportUtil;
-import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
@@ -36,9 +33,9 @@ import javafx.util.Callback;
 
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.security.Provider;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -180,8 +177,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     try {
                         setAndRefreshNote(account, "执行中", false);
                         accountHandler(account);
+                    } catch (ServiceException e) {
+                        // 异常不做处理只是做一个停止程序作用
                     } catch (Exception e) {
-                        setAndRefreshNote(account, "接口数据处理异常或需要验证码(暂不支持)", true);
+                        setAndRefreshNote(account, "接口数据处理异常", true);
                         e.printStackTrace();
                     }
                 });
@@ -193,13 +192,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         });
 
-    }
-
-
-    /**
-     * 每一个账号的处理器
-     */
-    public void accountHandler(T account) {
     }
 
     /**
@@ -493,6 +485,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 insertLocalHistory(List.of(account));
             });
         }
+    }
+
+    /**
+     * 抛出异常，异常不做处理只是做一个停止程序作用
+     */
+    public void throwAndRefreshNote(T account, String message){
+        setAndRefreshNote(account,message);
+        throw new ServiceException(message);
     }
 
     public void appendAndRefreshNote(T account, String note) {

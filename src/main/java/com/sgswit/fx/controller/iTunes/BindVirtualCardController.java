@@ -325,7 +325,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
             add(Constant.RightContextMenu.REEXECUTE.getCode());
             add(Constant.RightContextMenu.COPY.getCode());
             add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
-            add(Constant.RightContextMenu.SMS_CODE.getCode());
+            add(Constant.RightContextMenu.CODE.getCode());
         }};
         super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
     }

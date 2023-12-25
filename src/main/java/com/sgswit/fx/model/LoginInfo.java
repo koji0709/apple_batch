@@ -25,6 +25,8 @@ public class LoginInfo extends AuthData{
     // 双重认证 device-code or sms-code
     private String securityCode;
 
+    private boolean isLogin;
+
     public void updateLoginInfo(HttpResponse rsp){
         CookieUtils.setCookiesToMap(rsp,getCookieMap());
 
@@ -121,5 +123,13 @@ public class LoginInfo extends AuthData{
 
     public void setSecurityCode(String securityCode) {
         this.securityCode = securityCode;
+    }
+
+    public boolean isLogin() {
+        return isLogin;
+    }
+
+    public void setLogin(boolean login) {
+        isLogin = login;
     }
 }

@@ -27,10 +27,8 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
     @Override
     public void accountHandler(Account account) {
-        HttpResponse tokenRsp = login(account);
-        if(tokenRsp.getStatus() != 200){
-            queryFail(account);
-        }
+        // 登陆
+        login(account);
         HttpResponse step4Res = AppleIDUtil.account(account);
         String managerBody = step4Res.body();
         JSON manager = JSONUtil.parse(managerBody);

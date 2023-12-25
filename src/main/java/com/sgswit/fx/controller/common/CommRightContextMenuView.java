@@ -2,11 +2,14 @@ package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.swing.clipboard.ClipboardMonitor;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.annotation.CustomAnnotation;
@@ -197,19 +200,25 @@ public class CommRightContextMenuView<T> extends CommonView{
                 if(selectedRows.size()==0){
                     return;
                 }
+                T account = selectedRows.get(0);
                 if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())){
-                    copyInfo(selectedRows.get(0));
+                    copyInfo(account);
                 }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())){
-                    accountTableView.getItems().remove(selectedRows.get(0));
+                    accountTableView.getItems().remove(account);
                     accountTableView.refresh();
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.SMS_CODE.getCode())){
-                    openCodePopup(selectedRows.get(0),title,Constant.RightContextMenu.SMS_CODE.getCode());
+                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())){
+                    openCodePopup(account,title,Constant.RightContextMenu.CODE.getCode());
                 }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())){
-                    reExecute(selectedRows.get(0));
+                    reExecute(account);
                 }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())){
-                    openCodePopup(selectedRows.get(0),title,Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+                    openCodePopup(account,title,Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())){
-
+                    if (account instanceof Account){
+                        Account account1 = (Account) account;
+                        String securityCode = openSecurityCodePopupView(account1.getAccount());
+                        account1.setSecurityCode(securityCode);
+                        accountHandler(account);
+                    }
                 }
                 stage.close();
             });
@@ -337,6 +346,41 @@ public class CommRightContextMenuView<T> extends CommonView{
      */
     protected void twoFactorCodeExecute(T o, String code){ }
 
+    /**
+     * 打开双重认证视图
+     */
+    public String openSecurityCodePopupView(String account){
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/securitycode-popup.fxml"));
+        Scene scene = null;
+        try {
+            scene = new Scene(fxmlLoader.load(), 600, 350);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+
+        SecuritycodePopupController s = fxmlLoader.getController();
+        s.setAccount(account);
+
+        Stage popupStage = new Stage();
+        popupStage.setTitle("双重验证码输入页面");
+        popupStage.initModality(Modality.WINDOW_MODAL);
+        popupStage.setScene(scene);
+        popupStage.showAndWait();
+
+        String type = s.getSecurityType();
+        String code = s.getSecurityCode();
+        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(code)){
+            return "";
+        }
+        return type + "-" + code;
+    }
+
+    /**
+     * 每一个账号的处理器
+     */
+    public void accountHandler(T account) {
+    }
 
     public static void setPaneBackground(Pane pane, Color color) {
         pane.setBackground(new Background(new BackgroundFill(color, null, null)));

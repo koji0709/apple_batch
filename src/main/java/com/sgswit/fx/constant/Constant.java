@@ -55,7 +55,7 @@ public class Constant {
         COPY("copy","复制账号信息",""),
         TWO_FACTOR_CODE("twoFactorCode","输入双重验证码","views/comm-code-popup.fxml"),
         WEB_TWO_FACTOR_CODE("webTwoFactorCode","输入双重验证码","views/securitycode-popup.fxml"),
-        SMS_CODE("smsCode","输入验证码","views/comm-code-popup.fxml"),
+        CODE("code","输入验证码","views/comm-code-popup.fxml"),
         ;
         private String code;
         private String title;

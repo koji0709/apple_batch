@@ -1,13 +1,13 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
@@ -28,6 +28,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url,resourceBundle);
         initViewData();
+        menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+        menuItem.add(Constant.RightContextMenu.CODE.getCode());
     }
 
     /**
@@ -111,10 +113,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
 
-        HttpResponse tokenRsp = login(account);
-        if (tokenRsp == null){
-            return;
-        }
+        // 登陆账号
+        login(account);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
