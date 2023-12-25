@@ -37,6 +37,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collector;
@@ -304,7 +305,7 @@ public class CommRightContextMenuView<T> extends CommonView{
            if(StringUtils.isEmpty(code)){
                return;
            }
-           if(Constant.RightContextMenu.SMS_CODE.getCode().equals(type)){
+           if(Constant.RightContextMenu.CODE.getCode().equals(type)){
                secondStepHandler(o,code);
            }else if(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode().equals(type)){
                twoFactorCodeExecute(o,code);
