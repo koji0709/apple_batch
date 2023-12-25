@@ -61,6 +61,14 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 String code2=DataUtil.getInfoByCountryCode(countryCode).getCode2();
                 paras.put("code2",code2.toLowerCase());
             }
+            account.setArea(DataUtil.getNameByCountryCode(countryCode));
+            accountTableView.refresh();
+            if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
+                tableRefreshAndInsertLocal(account,"该账户为双重认证用户,请输入双重验证码");
+                return;
+            }
+
+
             paras.clear();
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
@@ -70,7 +78,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             Map<String,Object> prodMap = ShoppingUtil.getProd(paras);
             if(!Constant.SUCCESS.equals(prodMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(prodMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(prodMap,"msg"));
                 return;
             }
             account.setNote("商品信息加载成功...");
@@ -81,7 +89,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(addMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(addMap,"msg"));
                 return;
             }else{
                 account.setNote("添加到购物车成功");
@@ -92,7 +100,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             Map<String,Object> bag = ShoppingUtil.shopbag(addMap);
             if(!Constant.SUCCESS.equals(bag.get("code"))){
-                tableRefresh(account, MapUtil.getStr(bag,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(bag,"msg"));
                 return;
             }
             // 提交购物车
@@ -103,7 +111,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag);
             if(!Constant.SUCCESS.equals(cheMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(cheMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(cheMap,"msg"));
                 return;
             }
             //调登录页面
@@ -111,7 +119,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             Map<String,Object> signInMap = ShoppingUtil.shopSignIn(cheMap);
             if(!Constant.SUCCESS.equals(signInMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(signInMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(signInMap,"msg"));
                 return;
             }
             //登录
@@ -119,21 +127,21 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
             if(signInResp.getStatus() != 409){
-                tableRefresh(account,"账号或密码错误");
+                tableRefreshAndInsertLocal(account,"账号或密码错误");
                 return;
             }
             if("hsa2".equals(JSONUtil.parseObj(signInResp.body()).getStr("authType"))){
-                tableRefresh(account,"该账户为双重认证用户,请输入双重验证码");
+                tableRefreshAndInsertLocal(account,"该账户为双重认证用户,请输入双重验证码");
                 return;
             }
             account.setNote("登录成功");
             accountTableView.refresh();
             ThreadUtil.sleep(500);
-            account.setNote("正在查询余额");
+            account.setNote("正在查询余额...");
             //回调applestore
             Map<String,Object> checkoutStartMap = ShoppingUtil.callBack(signInMap);
             if(!Constant.SUCCESS.equals(checkoutStartMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(checkoutStartMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(checkoutStartMap,"msg"));
                 return;
             }
             //chechout start
@@ -141,21 +149,21 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //提交
             Map<String,Object> checkoutMap = ShoppingUtil.checkout(checkoutStartMap);
             if(!Constant.SUCCESS.equals(checkoutMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(checkoutMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(checkoutMap,"msg"));
                 return;
             }
             ThreadUtil.sleep(500);
             //选择shipping - 邮寄
             Map<String,Object> shippingMap= ShoppingUtil.fillmentToShipping(checkoutMap);
             if(!Constant.SUCCESS.equals(shippingMap.get("code"))){
-                tableRefresh(account, MapUtil.getStr(shippingMap,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(shippingMap,"msg"));
                 return;
             }
             ThreadUtil.sleep(500);
             //填写shipping - 地址
             Map<String, Object> map = ShoppingUtil.shippingToBilling(shippingMap);
             if(!Constant.SUCCESS.equals(map.get("code"))){
-                tableRefresh(account, MapUtil.getStr(map,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(map,"msg"));
                 return;
             }
             account.setState(map.get("address").toString());
@@ -164,7 +172,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             ThreadUtil.sleep(500);
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);
             if(httpResponse.getStatus() != 200){
-                tableRefresh(account,"查询失败");
+                tableRefreshAndInsertLocal(account,"余额查询失败");
                 return;
             }else {
                 JSONObject meta = JSONUtil.parseObj(httpResponse.body());
@@ -188,10 +196,10 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                     account.setStatus("禁用");
                 }
                 account.setBalance(balance);
-                tableRefresh(account,"查询成功");
+                tableRefreshAndInsertLocal(account,"查询成功");
             }
         }catch (Exception e){
-            tableRefresh(account,"查询失败");
+            tableRefreshAndInsertLocal(account,"余额查询失败");
         }
 
     }
