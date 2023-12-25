@@ -259,7 +259,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                         }
                         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(accountInfoMap.get("code"))) {
                             account.setNote(String.valueOf(accountInfoMap.get("msg")));
-                            account.setAuthData(MapUtils.mapConvertToObservableMap(accountInfoMap));
+                            account.setAuthData(accountInfoMap);
                         }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
                             account.setNote(String.valueOf(accountInfoMap.get("msg")));
                         }else {

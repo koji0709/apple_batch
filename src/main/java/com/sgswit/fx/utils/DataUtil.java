@@ -168,7 +168,7 @@ public class DataUtil {
         return guid;
     }
     public static String getClientIdByAppleId(String appleId){
-        String clientId=null;
+        String clientId;
         try {
             clientId= Db.use().queryString("SELECT client_id FROM apple_id_base_info WHERE apple_id=?",appleId);
             if(StringUtils.isEmpty(clientId)){
@@ -181,6 +181,24 @@ public class DataUtil {
             }
         }catch (Exception e){
             clientId = IdUtil.fastUUID().toUpperCase();
+        }finally {
+        }
+        return clientId;
+    }
+    public static String getWebClientIdByAppleId(String appleId){
+        String clientId;
+        try {
+            clientId= Db.use().queryString("SELECT web_client_id FROM apple_id_base_info WHERE apple_id=?",appleId);
+            if(StringUtils.isEmpty(clientId)){
+                clientId = WebLoginUtil.createClientId();
+                Entity entity=new Entity();
+                entity.setTableName("apple_id_base_info");
+                entity.set("apple_id",appleId);
+                entity.set("web_client_id",clientId);
+                Db.use().insertOrUpdate(entity,"apple_id");
+            }
+        }catch (Exception e){
+            clientId = WebLoginUtil.createClientId();
         }finally {
         }
         return clientId;

@@ -7,6 +7,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpResponse;
@@ -15,6 +16,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -27,17 +29,23 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class WebloginUtil {
+/**
+ * @author DELL
+ */
+public class WebLoginUtil {
+    public static String createClientId(){
+        Digester md5 = new Digester(DigestAlgorithm.MD5);
+        StringBuilder sb = new StringBuilder();
+        sb.append("a");
+        sb.append(md5.digestHex(RandomUtil.randomBytes(32)).substring(1));
+        sb.append(md5.digestHex(RandomUtil.randomBytes(32)).substring(1));
+        sb.append("b");
+        return sb.toString();
+    }
+    public static HttpResponse signin(Map<String,Object> signInMap){
 
-    private static String frameId = "";
-    private static String clientId = "";
-
-
-    public static HttpResponse signin(Map<String,String> signInMap,Account account){
-
-
-        frameId  = createFrameId();
-        clientId = signInMap.get("serviceKey");
+        String frameId  = createFrameId();
+        String clientId = MapUtils.getStr(signInMap,"serviceKey");
 
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -46,20 +54,22 @@ public class WebloginUtil {
 
         byte[] rb = RandomUtil.randomBytes(32);
         BigInteger ra = new BigInteger(1,rb);
-//        System.out.println("生成的随机数为：" + ra);
-
         String a = calA(ra,n);
 
-        HttpResponse step0Res = auth(signInMap,account);
+        signInMap.put("frameId",frameId);
+        signInMap.put("clientId",clientId);
 
-        HttpResponse step1Res = signinInit(a,step0Res,account);
-
-        HttpResponse step2Res = signinCompete(a,g,n,ra,step1Res,step0Res,account);
-
+        HttpResponse step0Res = auth(signInMap);
+        signInMap.put("a",a);
+        HttpResponse step1Res = signinInit(step0Res,signInMap);
+        signInMap.put("g",g);
+        signInMap.put("n",n);
+        signInMap.put("ra",ra);
+        HttpResponse step2Res = signinCompete(step1Res,step0Res,signInMap);
         return  step2Res;
     }
 
-    private static HttpResponse auth(Map<String,String> signInMap,Account account){
+    private static HttpResponse auth(Map<String,Object> signInMap){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
@@ -71,10 +81,13 @@ public class WebloginUtil {
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
-
-        String redirectUri = signInMap.get("callbackSignInUrl").substring(0,signInMap.get("callbackSignInUrl").indexOf("shop"));
-
+        String redirectUri ="";
+        if(!StringUtils.isEmpty(MapUtils.getStr(signInMap,"callbackSignInUrl"))){
+            redirectUri=MapUtils.getStr(signInMap,"callbackSignInUrl");
+            redirectUri = redirectUri.substring(0,redirectUri.indexOf("shop"));
+        }
+        String frameId=MapUtils.getStr(signInMap,"frameId");
+        String clientId=MapUtils.getStr(signInMap,"clientId");
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&skVersion=7" +
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
@@ -82,16 +95,10 @@ public class WebloginUtil {
         HttpResponse res = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
-
-//        System.out.println("------------------auth---------init--------------------------------------");
-//        System.out.println(res.getStatus());
-//        System.out.println(res.headers());
-//        System.out.println("------------------auth----------init-------------------------------------");
-
         return res;
     }
 
-    private static HttpResponse signinInit(String a ,HttpResponse res1,Account account){
+    private static HttpResponse signinInit(HttpResponse res1,Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
@@ -104,8 +111,8 @@ public class WebloginUtil {
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
         headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtils.getStr(paras,"iframeId")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtils.getStr(paras,"clientId")));
 
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
@@ -116,24 +123,20 @@ public class WebloginUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
-        String body = "{\"a\":\""+a+"\",\"accountName\":\""+ account.getAccount() +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
+        String body = "{\"a\":\""+MapUtils.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtils.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
 
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
                 .body(body)
                 .execute();
-
-//        System.out.println("------------------sigin---------init--------------------------------------");
-//        System.out.println(res.getStatus());
-//        System.out.println(res.headers());
-//        System.out.println(res.body());
-//        System.out.println("------------------sigin----------init-------------------------------------");
-
         return res;
     }
 
-    private static HttpResponse signinCompete(String a,BigInteger g,BigInteger n,BigInteger ra,HttpResponse res1,HttpResponse res0,Account account){
-
+    private static HttpResponse signinCompete(HttpResponse res1,HttpResponse res0,Map<String,Object> paras){
+        String a=MapUtils.getStr(paras,"a");
+        BigInteger g=new BigInteger(MapUtils.getStr(paras,"g"));
+        BigInteger n=new BigInteger(MapUtils.getStr(paras,"n"));
+        BigInteger ra=new BigInteger(MapUtils.getStr(paras,"ra"));
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
@@ -146,9 +149,8 @@ public class WebloginUtil {
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
         headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
-
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtils.getStr(paras,"iframeId")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtils.getStr(paras,"clientId")));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -172,26 +174,22 @@ public class WebloginUtil {
         String b = (String) json.getByPath("b");
         String c = (String)json.getByPath("c");
 
-        Map map = calM(account.getAccount(), account.getPwd(), a, iter, salt, b, g, n, ra);
+        Map map = calM(MapUtils.getStr(paras,"account"), MapUtils.getStr(paras,"pwd"), a, iter, salt, b, g, n, ra);
 
-        String body = "{\"accountName\":\""+account.getAccount()+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
+        String body = "{\"accountName\":\""+MapUtils.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
 
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();
-
-//        System.out.println("------------------sigin---------compelte--------------------------------------");
-//        System.out.println(res.getStatus());
-//        System.out.println(res.headers());
-//        System.out.println("------------------sigin---------cookies--------------------------------------");
-//        System.out.println(res.headers().get("Set-Cookie"));
-
-        CookieUtils.setCookiesToMap(res,account.getCookieMap());
-        account.setCountry(res.header("X-Apple-ID-Account-Country"));
-//        System.out.println("------------------sigin---------cookies--------------------------------------");
-//        System.out.println(res.body());
-//        System.out.println("------------------sigin----------compelte-------------------------------------");
+        Map<String,String> cookiesMap;
+        if(null==paras.get("cookiesMap")){
+            cookiesMap=new HashMap<>();
+        }else{
+            cookiesMap= (Map<String, String>) paras.get("cookiesMap");
+        }
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
+        paras.put("countryCode",res.header("X-Apple-ID-Account-Country"));
 
         return res;
     }
@@ -269,18 +267,10 @@ public class WebloginUtil {
         BigInteger ai = g.modPow(a,n);
 
         byte[] aib = ai.toByteArray();
-
-//        System.out.println("---------------a-----------");
-//        System.out.println(ai);
-//        System.out.println(aib.length );
         if(aib.length > 256){
             aib = ArrayUtil.remove(aib,0);
         }
-        System.out.println(Arrays.toString(aib));
         String a2k = Base64.encode(aib);
-
-        System.out.println(a2k);
-
         return  a2k;
     }
 
@@ -295,16 +285,8 @@ public class WebloginUtil {
 
         //SRPPassword 计算srp P 字段，
         byte[] p = SRPPassword(password, salt, iter);
-//        System.out.println(p.length);
-//        System.out.println("p--------" + Base64.encode(p));
-
-        //String baseP = "4qe4gqcoIIA9sXACDeG3bYu5EOsoTsC5I6CyQUz6HXU=";
-//        String baseP = "bkBf9xk1bpzvfKQhikGYs7UfgIURH0oz8DWpXlWynRw=";
-//        byte[] p =Base64.decode(baseP);
-
         // calculateX // x = SHA(s | SHA(U | ":" | p))
         BigInteger X = calculateX(salt, p);
-        System.out.println("X-----------"+ X);
 
         BigInteger bigB = new BigInteger(1,Base64.decode(b));
         BigInteger bigA = new BigInteger(HexUtil.encodeHexStr(Base64.decode(a)),16);
@@ -322,8 +304,6 @@ public class WebloginUtil {
         BigInteger u= calculateU(ab,bb);
 
         BigInteger k = calculatek(nb, gb);
-//        System.out.println("k-----------"+ k);
-
         //calculateS
         BigInteger S = calculateS(k,X, ra,bigB,u, n, g);
 
@@ -332,15 +312,8 @@ public class WebloginUtil {
 
         //calculateM1
         byte[] m1 = calculateM1(accountName, salt,ab,bb,K, nb, gb);
-//        System.out.println(m1.length);
-//        System.out.println("m1----------" + Base64.encode(m1));
-
         //calculateM2
         byte[] m2 = calculateM2(bigA,m1,K);
-
-        System.out.println(m2.length);
-//        System.out.println("m2----------" + Base64.encode(m2));
-
         Map<String,String> map = new HashMap<>();
         map.put("m1",Base64.encode(m1));
         map.put("m2",Base64.encode(m2));
@@ -362,10 +335,7 @@ public class WebloginUtil {
             generator.init(p, sb, iter);
             KeyParameter params = (KeyParameter)generator.generateDerivedParameters(keyLength);
             byte[] key = params.getKey();
-            System.out.println(Base64.encode(key));
-
             return key;
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -482,5 +452,15 @@ public class WebloginUtil {
         BigInteger x = new BigInteger(1,d2);
 
         return  x;
+    }
+    public static String serviceErrorMessages(String body){
+        if (StrUtil.isEmpty(body)){
+            return null;
+        }
+        List messageList = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
+        if (messageList == null){
+            return null;
+        }
+        return String.join(";", messageList);
     }
 }

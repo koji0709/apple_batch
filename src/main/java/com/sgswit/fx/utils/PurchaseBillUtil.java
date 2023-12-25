@@ -41,7 +41,7 @@ import java.util.*;
 public class PurchaseBillUtil {
     public static void main( String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
+        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //
 //        if(res.get("code").equals(Constant.SUCCESS)){
 //            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
@@ -56,7 +56,7 @@ public class PurchaseBillUtil {
 //        Map<String,Object> res= iTunesAuth("josepharnoldc4@outlook.com","Zxc112211");
 //        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
 //        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
-        Map<String,Object> res= iTunesAuth("495575670@qq.com","B0527s0207");
+//        Map<String,Object> res= iTunesAuth("495575670@qq.com","B0527s0207");
 //        String body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
 
 //        res.put("addressInfo",body);

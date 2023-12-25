@@ -252,7 +252,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                         account.setOriginalCountry(MapUtils.getStr(res,"countryName"));
                         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
                             account.setNote(String.valueOf(res.get("msg")));
-                            account.setAuthData(MapUtils.mapConvertToObservableMap(res));
+                            account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
                         }else{

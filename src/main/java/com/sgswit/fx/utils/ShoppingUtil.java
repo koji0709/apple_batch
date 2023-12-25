@@ -8,7 +8,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +18,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author DELL
+ */
 public class ShoppingUtil {
+    static String goodsCode="MHJA3AM/A";
     // 获取产品
-    public static Map<String,Object> getProd(Account account) throws Exception {
-        Map<String,Object> prodMap = new HashMap<>();
+    public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
+        String code2=MapUtils.getStr(paras,"code2","");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
@@ -30,48 +34,52 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-
-        HttpResponse accRes = cn.hutool.http.HttpUtil.createGet("https://www.apple.com/shop/iphone/accessories")
+        String accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
+        HttpResponse accRes = HttpUtil.createGet(accessoriesUrl)
                 .header(headers).execute();
         if(accRes.getStatus() != 200){
-            prodMap.put("msg","获取产品失败！");
-            prodMap.put("code","1");
-            return prodMap;
+            paras.put("msg","商品信息加载失败！");
+            paras.put("code","1");
+            return paras;
         }
-        System.out.println("------------------accessories-----------------------------------------------");
-        System.out.println(accRes.getStatus());
-        System.out.println(accRes.headers());
-
-        CookieUtils.setCookiesToMap(accRes,account.getCookieMap());
-
-        System.out.println("------------------accessories----------------------------------------------");
-
+        Map<String,String> cookiesMap;
+        if(null==paras.get("cookiesMap")){
+            cookiesMap=new HashMap<>();
+        }else{
+            cookiesMap= (Map<String, String>) paras.get("cookiesMap");
+        }
+        cookiesMap=CookieUtils.setCookiesToMap(accRes,cookiesMap);
+        paras.put("cookiesMap" , cookiesMap);
         Document doc = Jsoup.parse(accRes.body());
-        Elements elements = doc.select("a[href^=/shop/product/MHJA3AM/A/20w-usb-c-power-adapter]");
+        Elements elements;
+        if(StringUtils.isEmpty(code2)){
+            elements = doc.select("a[href^=/shop/product/"+goodsCode+"/20w-usb-c-power-adapter]");
+        }else{
+            elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"/20w-usb-c-power-adapter]");
+        }
 
         String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
-        System.out.println(productUrl);
 
-        HttpResponse prodRes = cn.hutool.http.HttpUtil.createGet(productUrl)
+        HttpResponse prodRes = HttpUtil.createGet(productUrl)
                 .header(headers).execute();
 
         if(prodRes.getStatus() != 200){
-            prodMap.put("msg","获取产品失败！");
-            prodMap.put("code","1");
-            return prodMap;
+            paras.put("msg","商品信息加载失败！");
+            paras.put("code","1");
+            return paras;
         }
-        System.out.println("------------------product-----------------------------------------------");
-        System.out.println(prodRes.getStatus());
-        System.out.println(prodRes.headers());
-
-        CookieUtils.setCookiesToMap(prodRes,account.getCookieMap());
-
-        System.out.println("------------------product----------------------------------------------");
-
+        cookiesMap=CookieUtils.setCookiesToMap(prodRes,cookiesMap);
+        paras.put("cookiesMap" , cookiesMap);
 
         Document prodDoc = Jsoup.parse(prodRes.body());
+        Elements pordElements;
 
-        Elements pordElements = prodDoc.select("form[action^=/shop/pdpAddToBag]");
+        if(StringUtils.isEmpty(code2)){
+            pordElements = prodDoc.select("form[action^=/shop/pdpAddToBag]");
+        }else{
+            pordElements = prodDoc.select("form[action^=/"+code2+"/shop/pdpAddToBag]");
+        }
+
         Element item = pordElements.get(0);
         String action = item.attr("action");
 
@@ -84,8 +92,8 @@ public class ShoppingUtil {
                 if(as_sfa.length < 2 ){
                     continue;
                 }
-                account.getCookieMap().put(as_sfa[0],as_sfa[1]);
-
+                cookiesMap.put(as_sfa[0],as_sfa[1]);
+                paras.put("cookiesMap" , cookiesMap);
             }
 
         }
@@ -95,19 +103,19 @@ public class ShoppingUtil {
         for(Element input : inputs){
             inputMap.put(input.attr("name"),input.attr("value"));
         }
-
-
-        HttpResponse atbRes = cn.hutool.http.HttpUtil.createGet("https://www.apple.com/shop/beacon/atb")
+        String atbUrl;
+        if(StringUtils.isEmpty(code2)){
+            atbUrl = "https://www.apple.com/shop/beacon/atb";
+        }else{
+            atbUrl = "https://www.apple.com/"+code2+"/shop/beacon/atb";
+        }
+        HttpResponse atbRes = cn.hutool.http.HttpUtil.createGet(atbUrl)
                 .header(headers).execute();
         if(atbRes.getStatus() != 200){
-            prodMap.put("msg","获取产品失败！");
-            prodMap.put("code","1");
-            return prodMap;
+            paras.put("msg","商品信息加载失败！");
+            paras.put("code","1");
+            return paras;
         }
-        System.out.println("------------------beacon/atb-----------------------------------------------");
-        System.out.println(atbRes.getStatus());
-        System.out.println(atbRes.headers());
-
         if(null != atbRes.headers().get("Set-Cookie")) {
             for (String c : atbRes.headers().get("Set-Cookie")) {
                 int split = c.indexOf(";");
@@ -115,68 +123,65 @@ public class ShoppingUtil {
                 if (atbCookie.length < 2) {
                     continue;
                 }
-                System.out.println("-------cookies--------" + atbCookie);
                 if("as_atb".equals(atbCookie[0])) {
-
-                    account.getCookieMap().put(atbCookie[0],atbCookie[1]);
-
+                    cookiesMap.put(atbCookie[0],atbCookie[1]);
+                    paras.put("cookiesMap" , cookiesMap);
                     String atbtoke = atbCookie[1].substring(atbCookie[1].lastIndexOf("|")+1);
                     inputMap.put("atbtoken",atbtoke);
                 }
             }
         }
-        System.out.println("------------------beacon/atb----------------------------------------------");
+        paras.put("prod",goodsCode);
+        if(StringUtils.isEmpty(code2)){
+            paras.put("url","https://www.apple.com" + action);
+        }else{
+            paras.put("url","https://www.apple.com/"+code2 + action);
+        }
 
-
-        prodMap.put("prod","MHJA3AM/A");
-        prodMap.put("url","https://www.apple.com" + action);
-        prodMap.put("body",inputMap);
-        prodMap.put("referer",productUrl);
-        prodMap.put("code",Constant.SUCCESS);
-        return prodMap;
+        paras.put("body",inputMap);
+        paras.put("referer",productUrl);
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     // 添加到购物车
-    public static Map<String,Object> add2bag(Map<String,Object> pordMap,Account account) throws Exception {
-        HashMap<String, Object> map = new HashMap<>();
+    public static Map<String,Object> add2bag(Map<String,Object> paras) throws Exception {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("referer",ListUtil.toList(pordMap.get("referer").toString()));
+        headers.put("referer",ListUtil.toList(paras.get("referer").toString()));
         headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
-        HttpResponse res =  cn.hutool.http.HttpUtil.createPost(pordMap.get("url").toString())
+        HttpResponse res = HttpUtil.createPost(paras.get("url").toString())
                 .header(headers)
-                .form((Map<String,Object>)pordMap.get("body"))
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .form((Map<String,Object>)paras.get("body"))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
 
         if(res.getStatus() != 303){
-            map.put("msg","添加到购物车失败！");
-            map.put("code","1");
-            return map;
+            paras.put("msg","添加到购物车失败！");
+            paras.put("code","1");
+            return paras;
         }
-        System.out.println("------------------pdpAddToBag-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
-        CookieUtils.setCookiesToMap(res,account.getCookieMap());
-
-        System.out.println("------------------pdpAddToBag----------------------------------------------");
-
-        map.put("code",Constant.SUCCESS);
-        return map;
+        Map<String,String> cookiesMap;
+        if(null==paras.get("cookiesMap")){
+            cookiesMap=new HashMap<>();
+        }else{
+            cookiesMap= (Map<String, String>) paras.get("cookiesMap");
+        }
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     // 查看购物车
-    public static Map<String,Map<String,Object>>  shopbag(Account account) throws Exception{
+    public static Map<String,Object>  shopbag(Map<String,Object> paras) throws Exception{
         Map<String,Object> map = new HashMap<>();
-        Map<String,Map<String,Object>> dataMap = new HashMap<>();
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -186,21 +191,23 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+        String bagUrl;
+        String code2=MapUtils.getStr(paras,"code2");
+        if(StringUtils.isEmpty(code2)){
+            bagUrl="https://www.apple.com/shop/bag";
+        }else{
+            bagUrl="https://www.apple.com/"+code2+"/shop/bag";
+        }
 
-        HttpResponse res = HttpUtil.createGet("https://www.apple.com/shop/bag")
+        HttpResponse res = HttpUtil.createGet(bagUrl)
                 .header(headers)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
-            map.put("msg","查看购物车失败！");
-            map.put("code","1");
-            dataMap.put("code",map);
-            return dataMap;
+            paras.put("msg","获取购物车中商品信息失败！");
+            paras.put("code","1");
+            return paras;
         }
-        //System.out.println("------------------shopbag-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
         Document prodDoc = Jsoup.parse(res.body());
 
         Elements initDataElement = prodDoc.select("script[id=init_data]");
@@ -212,7 +219,7 @@ public class ShoppingUtil {
         xheaders.put("x-aos-model-page",jo.getByPath("meta.h.x-aos-model-page").toString());
         xheaders.put("modelVersion",jo.getByPath("meta.h.modelVersion").toString());
         xheaders.put("syntax",jo.getByPath("meta.h.syntax").toString());
-        dataMap.put("header",xheaders);
+        paras.put("header",xheaders);
 
         Map<String,Object> bodys = new HashMap<>();
         bodys.put("shoppingCart.recommendations.recommendedItem.part",jo.getByPath("shoppingCart.recommendations.recommendedItem.d.part").toString());
@@ -233,19 +240,13 @@ public class ShoppingUtil {
         bodys.put("shoppingCart.summary.promoCode.promoCode",jo.getByPath("shoppingCart.summary.promoCode.d.promoCode").toString());
         bodys.put("shoppingCart.actions.fcscounter",jo.getByPath("shoppingCart.actions.d.fcscounter").toString());
         bodys.put("shoppingCart.actions.fcsdata",jo.getByPath("shoppingCart.actions.d.fcsdata").toString());
-
-        dataMap.put("body",bodys);
-
-
-        map.put("code",Constant.SUCCESS);
-        dataMap.put("code",map);
-        System.out.println("---------datamap----------" + dataMap);
-        System.out.println("------------------shopbag----------------------------------------------");
-        return dataMap;
+        paras.put("body",bodys);
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     // 提交购物车
-    public static Map<String,Object> checkoutCart(Map<String,Map<String,Object>> bag,Account account) throws Exception{
+    public static Map<String,Object> checkoutCart(Map<String,Object> paras) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -253,37 +254,31 @@ public class ShoppingUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("X-Requested-With",ListUtil.toList("Fetch"));
 
-        headers.put("x-aos-stk",ListUtil.toList(bag.get("header").get("x-aos-stk").toString()));
-        headers.put("s-aos-model-page",ListUtil.toList(bag.get("header").get("x-aos-model-page").toString()));
-        headers.put("modelVersion",ListUtil.toList(bag.get("header").get("modelVersion").toString()));
-        headers.put("syntax",ListUtil.toList(bag.get("header").get("syntax").toString()));
+        Map<String,Object> header= (Map<String, Object>) paras.get("header");
+
+        headers.put("x-aos-stk",ListUtil.toList(header.get("x-aos-stk").toString()));
+        headers.put("s-aos-model-page",ListUtil.toList(header.get("x-aos-model-page").toString()));
+        headers.put("modelVersion",ListUtil.toList(header.get("modelVersion").toString()));
+        headers.put("syntax",ListUtil.toList(header.get("syntax").toString()));
 
         HttpResponse res = cn.hutool.http.HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
-                .form(bag.get("body"))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
+                .form(MapUtils.getStr(paras,"body"))
                 .execute();
-        HashMap<String, Object> map = new HashMap<>();
         if(res.getStatus() != 200){
-            map.put("code","1");
-            map.put("msg","提交购物车失败");
-            return map;
+            paras.put("code","1");
+            paras.put("msg","购物信息提交失败");
+            return paras;
         }
-        System.out.println("------------------checkout-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println("------------------checkout----------------------------------------------");
-
         JSONObject jo = JSONUtil.parseObj(res.body());
-        map.put("url",jo.getByPath("head.data.url").toString());
-        map.put("code",Constant.SUCCESS);
-        return map;
+        paras.put("url",jo.getByPath("head.data.url").toString());
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     //调登录页面
-    public static Map<String,String> shopSignIn(String url,Account account) throws Exception{
-
-        Map<String,String> dataMap = new HashMap<>();
+    public static Map<String,Object> shopSignIn(Map<String,Object> paras) throws Exception{
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
@@ -294,20 +289,15 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
-        HttpResponse res = cn.hutool.http.HttpUtil.createGet(url)
+        HttpResponse res = cn.hutool.http.HttpUtil.createGet(MapUtils.getStr(paras,"url"))
                 .header(headers)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
         if(res.getStatus() != 200){
-            dataMap.put("code","1");
-            dataMap.put("msg","登录页面获取失败");
-            return dataMap;
+            paras.put("code","1");
+            paras.put("msg","登录页面加载失败");
+            return paras;
         }
-        System.out.println("------------------shopSignIn-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println("------------------shopSignIn----------------------------------------------");
-
         Document prodDoc = Jsoup.parse(res.body());
 
         Elements initDataElement = prodDoc.select("script[id=init_data]");
@@ -324,22 +314,19 @@ public class ShoppingUtil {
         String  serviceURL = (String) meta.getByPath("signIn.customerLoginIDMS.d.serviceURL");
         String  callbackSignInUrl = (String) meta.getByPath("signIn.customerLoginIDMS.d.callbackSignInUrl");
 
-        dataMap.put("x-aos-model-page",x_aos_model_page);
-        dataMap.put("x-aos-stk",x_aos_stk);
-        dataMap.put("modelVersion",modelVersion);
-        dataMap.put("syntax",syntax);
-        dataMap.put("serviceKey",serviceKey);
-        dataMap.put("serviceURL",serviceURL);
-        dataMap.put("callbackSignInUrl",callbackSignInUrl);
-        dataMap.put("code",Constant.SUCCESS);
-        return dataMap;
+        paras.put("x-aos-model-page",x_aos_model_page);
+        paras.put("x-aos-stk",x_aos_stk);
+        paras.put("modelVersion",modelVersion);
+        paras.put("syntax",syntax);
+        paras.put("serviceKey",serviceKey);
+        paras.put("serviceURL",serviceURL);
+        paras.put("callbackSignInUrl",callbackSignInUrl);
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     //回调applestore
-    public static Map<String,String> callBack(Map<String,String> signInMap,Account account) throws Exception{
-
-        Map<String,String> ret = new HashMap<>();
-
+    public static Map<String,Object> callBack(Map<String,Object> signInMap) throws Exception{
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("*/*"));
@@ -347,10 +334,10 @@ public class ShoppingUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(signInMap.get("x-aos-model-page")));
-        headers.put("x-aos-stk",ListUtil.toList(signInMap.get("x-aos-stk")));
-        headers.put("modelVersion",ListUtil.toList(signInMap.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList(signInMap.get("syntax")));
+        headers.put("x-aos-model-page", ListUtil.toList(MapUtils.getStr(signInMap,"x-aos-model-page")));
+        headers.put("x-aos-stk",ListUtil.toList(MapUtils.getStr(signInMap,"x-aos-stk")));
+        headers.put("modelVersion",ListUtil.toList(MapUtils.getStr(signInMap,"modelVersion")));
+        headers.put("syntax",ListUtil.toList(MapUtils.getStr(signInMap,"syntax")));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -363,39 +350,30 @@ public class ShoppingUtil {
         paramMap.put("deviceID","");
         paramMap.put("grantCode","");
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(signInMap.get("callbackSignInUrl"))
+        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(MapUtils.getStr(signInMap,"callbackSignInUrl"))
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) signInMap.get("cookiesMap"),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
-            ret.put("code","1");
-            ret.put("msg","页面跳转失败");
-            return ret;
+            signInMap.put("code","1");
+            signInMap.put("msg","页面跳转失败");
+            return signInMap;
         }
-        System.out.println("------------------callBack-----------------------------------------------");
+        CookieUtils.setCookiesToMap(resp,(Map<String,String>) signInMap.get("cookiesMap"));
 
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-
-        CookieUtils.setCookiesToMap(resp,account.getCookieMap());
-
-        System.out.println(resp.body());
         JSONObject jo = JSONUtil.parseObj(resp.body());
         String url = jo.getByPath("head.data.url").toString();
         String pltn = jo.getByPath("head.data.args.pltn").toString();
-        System.out.println("------------------callBack-----------------------------------------------");
-
-
-        ret.put("url",url);
-        ret.put("pltn",pltn);
-        ret.put("code",Constant.SUCCESS);
-        return ret;
+        signInMap.put("url",url);
+        signInMap.put("pltn",pltn);
+        signInMap.put("code",Constant.SUCCESS);
+        return signInMap;
     }
 
     //chechout start
-    public static String checkoutStart(Map<String,String> checkoutStartMap,Account account) throws Exception{
+    public static Map<String,Object> checkoutStart(Map<String,Object> checkoutStartMap) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -413,28 +391,19 @@ public class ShoppingUtil {
 
         paramMap.put("pltn",checkoutStartMap.get("pltn"));
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(checkoutStartMap.get("url"))
+        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(checkoutStartMap.get("url").toString())
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) checkoutStartMap.get("cookiesMap"),";","=",true))
                 .execute();
-
-        System.out.println("------------------checkoutStart-----------------------------------------------");
-
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-        System.out.println(resp.header("location"));
-
-        System.out.println("------------------checkoutStart-----------------------------------------------");
-
-        return resp.header("location").toString();
+        checkoutStartMap.put("location",resp.header("location"));
+        return checkoutStartMap;
 
     }
 
     //提交
-    public static Map<String,String> checkout(String checkoutUrl,Account account) throws Exception{
-
-        Map<String,String> dataMap = new HashMap<>();
+    public static Map<String,Object> checkout(Map<String,Object> paras) throws Exception{
+        String checkoutUrl=paras.get("location").toString();
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -449,45 +418,35 @@ public class ShoppingUtil {
 
         HttpResponse resp = cn.hutool.http.HttpUtil.createGet(checkoutUrl)
                 .header(headers)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
-            dataMap.put("code","1");
-            dataMap.put("msg","提交操作失败");
-            return dataMap;
+            paras.put("code","1");
+            paras.put("msg","提交操作失败");
+            return paras;
         }
-        System.out.println("------------------checkout-----------------------------------------------");
-
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-
-        System.out.println("------------------checkout-----------------------------------------------");
-
         Document prodDoc = Jsoup.parse(resp.body());
 
         Elements initDataElement = prodDoc.select("script[id=init_data]");
         JSONObject meta = JSONUtil.parseObj(initDataElement.html());
-
-
-
         String x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
         String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
         String modelVersion = (String) meta.getByPath("meta.h.modelVersion");
         String  syntax = (String) meta.getByPath("meta.h.syntax");
 
-        dataMap.put("x-aos-model-page",x_aos_model_page);
-        dataMap.put("x-aos-stk",x_aos_stk);
-        dataMap.put("modelVersion",modelVersion);
-        dataMap.put("syntax",syntax);
+        paras.put("x-aos-model-page",x_aos_model_page);
+        paras.put("x-aos-stk",x_aos_stk);
+        paras.put("modelVersion",modelVersion);
+        paras.put("syntax",syntax);
 
-        dataMap.put("url",checkoutUrl);
-        dataMap.put("code",Constant.SUCCESS);
-        return dataMap;
+        paras.put("url",checkoutUrl);
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     //选择shipping - 邮寄
-    public static String fillmentToShipping(Map<String,String> checkoutMap,Account account) throws Exception{
+    public static Map<String,Object> fillmentToShipping(Map<String,Object> paras) throws Exception{
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -500,10 +459,10 @@ public class ShoppingUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(checkoutMap.get("x-aos-model-page")));
-        headers.put("x-aos-stk",ListUtil.toList(checkoutMap.get("x-aos-stk")));
-        headers.put("modelVersion",ListUtil.toList(checkoutMap.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList(checkoutMap.get("syntax")));
+        headers.put("x-aos-model-page", ListUtil.toList(paras.get("x-aos-model-page").toString()));
+        headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
+        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
+        headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -511,28 +470,25 @@ public class ShoppingUtil {
         paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
-        String url =  checkoutMap.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
 
         HttpResponse resp = cn.hutool.http.HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
 
         if(resp.getStatus() != 200){
-            return "500";
+            paras.put("code","1");
+            paras.put("msg","余额查询失败");
+            return paras;
         }
-        System.out.println("------------------fillmentToShipping-----------------------------------------------");
-
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-
-        System.out.println("------------------fillmentToShipping-----------------------------------------------");
-        return Constant.SUCCESS;
+        paras.put("code",Constant.SUCCESS);
+        return paras;
     }
 
     //填写shipping - 地址
-    public static Map<String,String> shippingToBilling(Map<String,String> checkoutMap,Account account) throws Exception{
+    public static Map<String,Object> shippingToBilling(Map<String,Object> paras) throws Exception{
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -545,17 +501,18 @@ public class ShoppingUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(checkoutMap.get("x-aos-model-page")));
-        headers.put("x-aos-stk",ListUtil.toList(checkoutMap.get("x-aos-stk")));
-        headers.put("modelVersion",ListUtil.toList(checkoutMap.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList(checkoutMap.get("syntax")));
+        headers.put("x-aos-model-page", ListUtil.toList(paras.get("x-aos-model-page").toString()));
+        headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
+        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
+        headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
         Map<String,Object> paramMap = new HashMap<>();
 
+        String countryCode=MapUtils.getStr(paras,"countryCode");
         //TODO: 需要根据appleid 所属国家， 调整如下相关地址
-        if("USA".equals(account.getCountry())){
+        if("USA".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -568,9 +525,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode","97216-1701");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.zipLookupCityState","Portland, OR");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","US");
-        }
-
-        if("JPN".equals(account.getCountry())){
+        }else if("JPN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -584,9 +539,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","新宿区");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","山形県");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","JP");
-        }
-
-        if("DEU".equals(account.getCountry())){
+        }else if("DEU".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -599,9 +552,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","68089");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Erfurt");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","DE");
-        }
-
-        if("AUS".equals(account.getCountry())){
+        }else if("AUS".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -615,9 +566,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Victoria");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","VIC");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","AU");
-        }
-
-        if("CAN".equals(account.getCountry())){
+        }else if("CAN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -631,9 +580,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.cityTypeAhead.city","Edmonton");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","AB");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","CA");
-        }
-
-        if("GBR".equals(account.getCountry())){
+        }else if("GBR".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
             paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
             paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
@@ -648,34 +595,27 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode","GB");
         }
 
-        String nameByCountryCode = DataUtil.getNameByCountryCode(account.getCountry());
+        String nameByCountryCode = DataUtil.getNameByCountryCode(countryCode);
 
-        String url = checkoutMap.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
+        String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(url)
+        HttpResponse resp = HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
-        Map<String, String> map = new HashMap<>();
         if(resp.getStatus() != 200){
-            map.put("code","1");
-            map.put("msg","填写shipping地址失败");
-            return map;
+            paras.put("code","1");
+            paras.put("msg","填写shipping地址失败");
+            return paras;
         }
-        System.out.println("------------------checkoutStart-----------------------------------------------");
-
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-
-        System.out.println("------------------checkoutStart-----------------------------------------------");
-        map.put("code",Constant.SUCCESS);
-        map.put("address",nameByCountryCode);
-        return map;
+        paras.put("code",Constant.SUCCESS);
+        paras.put("address",nameByCountryCode);
+        return paras;
     }
 
     //确认地址 - 显示账户余额
-    public static HttpResponse selectedAddress(Map<String,String> checkoutMap,Account account) {
+    public static HttpResponse selectedAddress(Map<String,Object> paras) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
@@ -687,27 +627,19 @@ public class ShoppingUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(checkoutMap.get("x-aos-model-page")));
-        headers.put("x-aos-stk",ListUtil.toList(checkoutMap.get("x-aos-stk")));
-        headers.put("modelVersion",ListUtil.toList(checkoutMap.get("modelVersion")));
-        headers.put("syntax",ListUtil.toList(checkoutMap.get("syntax")));
+        headers.put("x-aos-model-page", ListUtil.toList(paras.get("x-aos-model-page").toString()));
+        headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
+        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
+        headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-        String url =  checkoutMap.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
+        String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
 
         HttpResponse resp = HttpUtil.createPost(url)
                 .header(headers)
-                .cookie(MapUtil.join(account.getCookieMap(),";","=",true))
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
-
-        System.out.println("------------------selectedAddress-----------------------------------------------");
-
-        System.out.println(resp.getStatus());
-        System.out.println(resp.headers());
-
-        System.out.println("------------------selectedAddress-----------------------------------------------");
-
         JSONObject meta = JSONUtil.parseObj(resp.body());
 
         List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
@@ -715,16 +647,10 @@ public class ShoppingUtil {
             if(o.containsKey("disabled")){
                 String disabled = o.get("disabled").toString();
                 if("true".equals(disabled)){
-                    System.out.println(o.get("disabledMessage"));
                     break;
                 }
             }
         }
-
-        String balance = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.availableAppleBalance").toString();
-        String currency = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.currency").toString();
-        System.out.println("----------balance---------" + balance);
-        System.out.println("----------currentcy-------" + currency);
         return resp;
     }
 }

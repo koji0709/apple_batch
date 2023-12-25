@@ -56,7 +56,6 @@ public class AppleIDUtil {
                 .body(scBogy)
                 .execute();
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
         return rsp;
     }
 
@@ -86,7 +85,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
         return rsp;
     }
 
@@ -136,8 +134,6 @@ public class AppleIDUtil {
                     .execute();
 
             account.updateLoginInfo(rsp);
-            requestLog(url,headers,rsp);
-
         }
         return rsp;
     }
@@ -163,7 +159,7 @@ public class AppleIDUtil {
 
         String content = authRsp.body();
         String questions = content.substring(content.indexOf("{\"direct\":{\"scriptSk7Url\""),content.indexOf("\"additional\":{\"canRoute2sv\":true}}")+35);
-               questions = JSONUtil.parse(questions).getByPath("direct.twoSV.securityQuestions.questions").toString();
+        questions = JSONUtil.parse(questions).getByPath("direct.twoSV.securityQuestions.questions").toString();
 
         List<Question> qs = JSONUtil.toList(questions, Question.class);
         for (int i = 0; i < qs.size(); i++) {
@@ -186,8 +182,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
         return rsp;
     }
 
@@ -215,8 +209,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(location,headers,rsp);
-
         return rsp;
     }
 
@@ -250,8 +242,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
         return rsp;
     }
 
@@ -284,8 +274,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
         return rsp;
     }
 
@@ -318,8 +306,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
         return rsp;
     }
 
@@ -351,8 +337,6 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
         return rsp;
     }
 
@@ -384,7 +368,7 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
+
 
         return rsp;
     }
@@ -420,7 +404,7 @@ public class AppleIDUtil {
 
         account.updateLoginInfo(rsp);
         account.setScnt(securityCodeOrReparCompleteRsp.header("scnt"));
-        requestLog(url,headers,rsp);
+
         return rsp;
     }
 
@@ -449,7 +433,7 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
+
 
         return rsp;
     }
@@ -493,7 +477,7 @@ public class AppleIDUtil {
                 .execute();
 
         account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
+
 
         return rsp;
     }
@@ -531,7 +515,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        rspLog(Method.DELETE,url,status);
+
 
         if(status == 302){
             Console.log("未设置救援电子邮件");
@@ -582,7 +566,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        rspLog(Method.POST,url,status);
+
 
         // 需要验证密码
         if (status == 451){
@@ -624,7 +608,7 @@ public class AppleIDUtil {
                 .body(body)
                 .execute();
         int status = rsp.getStatus();
-        rspLog(Method.PUT,url,status);
+
         return rsp;
     }
 
@@ -664,7 +648,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        rspLog(Method.PUT,url,status);
+
 
         // 需要验证密码
         if (status == 451){
@@ -711,7 +695,7 @@ public class AppleIDUtil {
 
         int status = rsp.getStatus();
         account.updateLoginInfo(rsp);
-        rspLog(Method.PUT,url,status);
+
         return rsp;
     }
 
@@ -750,7 +734,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        rspLog(Method.PUT,url,status);
+
 
         // 需要验证密码
         if (status == 451){
@@ -771,7 +755,7 @@ public class AppleIDUtil {
                 .header(rsp.headers())
                 .cookie(rsp.getCookies())
                 .execute();
-        rspLog(Method.POST,verifyPasswordUrl,rsp1.getStatus());
+
         return rsp1;
     }
 
@@ -807,7 +791,7 @@ public class AppleIDUtil {
                 .header(headers)
                 .cookie(account.getCookie())
                 .execute();
-        rspLog(Method.GET,url,rsp.getStatus());
+
         return rsp;
     }
 
@@ -826,52 +810,12 @@ public class AppleIDUtil {
                         .header(deviceListRsp.headers())
                         .cookie(deviceListRsp.getCookies())
                         .execute();
-                rspLog(Method.DELETE,url,rsp.getStatus());
+
             }
         }
     }
 
-    /**
-     * 修改显示语言
-     */
-    public static HttpResponse changeShowLanguage(Account account,String lang){
-        HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
-        headers.put("scnt", ListUtil.toList(account.getScnt()));
-
-        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
-        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
-
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
-        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
-        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
-        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
-        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-
-        String url = "https://appleid.apple.com/account/manage/preferences";
-        String format = "{\"preferredLanguage\":\"%s\",\"marketingPreferences\":{\"appleUpdates\":true,\"iTunesUpdates\":true,\"appleNews\":false,\"appleMusic\":false},\"privacyPreferences\":{\"allowDeviceDiagnosticsAndUsage\":false,\"allowShareThirdPartyDevelopers\":false,\"allowICloudDataAnalytics\":false}}";
-        String body = String.format(format, lang);
-
-        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
-                .body(body)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
-
-        account.updateLoginInfo(rsp);
-        requestLog(url,headers,rsp);
-
-        return rsp;
-    }
 
     /**
      * 修改appleId时发送邮件
@@ -906,7 +850,6 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body(body)
                 .execute();
-        rspLog(Method.POST,url,verifyRsp.getStatus());
 
         int status = verifyRsp.getStatus();
 
@@ -930,7 +873,7 @@ public class AppleIDUtil {
                 .cookie(verifyRsp.getCookies())
                 .body(body)
                 .execute();
-        rspLog(Method.PUT,url,updateAppleIdRsp.getStatus());
+
         return updateAppleIdRsp;
     }
 
@@ -968,7 +911,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .execute();
         int status = rsp.getStatus();
-        rspLog(Method.PUT,url, status);
+
 
         // 需要验证密码
         if (status == 451){
@@ -990,7 +933,7 @@ public class AppleIDUtil {
                 .body(body)
                 .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
                 .execute();
-        rspLog(Method.POST,url,securityUpgradeRsp.getStatus());
+
         return securityUpgradeRsp;
     }
 
@@ -1140,7 +1083,6 @@ public class AppleIDUtil {
         HttpResponse supportPinRsp = HttpUtil.createPost(url)
                 .header(headers)
                 .execute();
-        rspLog(Method.POST,url,supportPinRsp.getStatus());
         return supportPinRsp;
     }
 
@@ -1155,7 +1097,6 @@ public class AppleIDUtil {
         HttpResponse paymentRsp = HttpUtil.createGet(url)
                 .header(header)
                 .execute();
-        rspLog(Method.GET,url,paymentRsp.getStatus());
         return paymentRsp;
     }
 
@@ -1466,25 +1407,6 @@ public class AppleIDUtil {
         return cookies;
     }
 
-    private static void rspLog(Method method,String url,Integer status){
-        Console.log("[{}] {}  Response status: {}",method.name(),url,status);
-    }
-
-    private static void requestLog(String url,HashMap<String, List<String>> headers,HttpResponse rsp){
-        Console.log("Req: {}  Response status: {}",url,rsp.getStatus());
-        //Console.log(rsp.headers());
-        //Console.log(rsp.headerList("Set-Cookie"));
-//        Console.log("X-Apple-ID-Session-Id:" + headers.get("X-Apple-ID-Session-Id"));
-//        Console.log("X-Apple-Repair-Session-Token:" + headers.get("X-Apple-Repair-Session-Token"));
-//        Console.log("X-Apple-Session-Token:" + headers.get("X-Apple-Session-Token"));
-//        Console.log("SCNT: " + headers.get("scnt"));
-//
-//        Console.log("X-Apple-ID-Session-Id:" + rsp.header("X-Apple-ID-Session-Id"));
-//        Console.log("X-Apple-Repair-Session-Token:" + rsp.header("X-Apple-Repair-Session-Token"));
-//        Console.log("X-Apple-Session-Token:" + rsp.header("X-Apple-Session-Token"));
-//        Console.log("SCNT: " + rsp.header("scnt"));
-//        Console.log("------------------------------------------------------------------------------");
-    }
 
     public boolean hasFailMessage(HttpResponse rsp) {
         String body = rsp.body();

@@ -178,7 +178,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                         res.put("creditVerificationNumber",account.getCreditVerificationNumber());
                         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
                             account.setNote(String.valueOf(res.get("msg")));
-                            account.setAuthData(MapUtils.mapConvertToObservableMap(res));
+                            account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
                         }else{
@@ -194,7 +194,7 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                             Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
                             if(Constant.SUCCESS.equals(addCreditPaymentRes.get("code")) && "01".equals(step)){
                                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
-                                account.setAuthData(MapUtils.mapConvertToObservableMap(data));
+                                account.setAuthData(res);
                             }else{
 
                             }
