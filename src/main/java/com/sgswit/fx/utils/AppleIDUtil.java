@@ -1,17 +1,11 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.cache.CacheUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.digest.DigestAlgorithm;
-import cn.hutool.crypto.digest.Digester;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
@@ -573,15 +567,17 @@ public class AppleIDUtil {
             verifyPassword(rsp,account.getPwd());
             return addRescueEmailSendVerifyCode(account);
         }
+
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
     /**
      * 新增救援邮箱
      */
-    public static HttpResponse addRescueEmail(HttpResponse verifyRsp,String rescueEmail,String answer) {
+    public static HttpResponse addRescueEmail(HttpResponse verifyRsp,Account account,String answer) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
-        String body = "{\"address\":\""+rescueEmail+"\",\"verificationInfo\":{\"id\":\""+JSONUtil.parse(verifyRsp.body()).getByPath("verificationId")+"\",\"answer\":\""+answer+"\"}}";
+        String body = "{\"address\":\""+account.getEmail()+"\",\"verificationInfo\":{\"id\":\""+JSONUtil.parse(verifyRsp.body()).getByPath("verificationId")+"\",\"answer\":\""+answer+"\"}}";
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header("Accept","application/json, text/plain, */*")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -607,8 +603,7 @@ public class AppleIDUtil {
                 .header("sec-ch-ua-platform","macOS")
                 .body(body)
                 .execute();
-        int status = rsp.getStatus();
-
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -896,30 +891,14 @@ public class AppleIDUtil {
             verifyPassword(verifyRsp,account.getPwd());
             return updateAppleIdSendVerifyCode(account);
         }
+        account.updateLoginInfo(verifyRsp);
         return verifyRsp;
     }
 
     /**
      * 修改appleId
      */
-    public static HttpResponse updateAppleId(HttpResponse verifyRsp,String appleId,String verifyCode){
-        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
-        String url = "https://appleid.apple.com/account/manage/appleid/verification";
-        String body = "{\"name\":\""+appleId+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
-        HttpResponse updateAppleIdRsp = HttpUtil.createRequest(Method.PUT,url)
-                .header(verifyRsp.headers())
-                .cookie(verifyRsp.getCookies())
-                .body(body)
-                .execute();
-
-        return updateAppleIdRsp;
-    }
-
-    /**
-     * 双重认证发送短信
-     * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
-     */
-    public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
+    public static HttpResponse updateAppleId(HttpResponse verifyRsp,Account account,String verifyCode){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -942,6 +921,26 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
+        String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
+        String url = "https://appleid.apple.com/account/manage/appleid/verification";
+        String body = "{\"name\":\""+account.getEmail()+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
+        HttpResponse updateAppleIdRsp = HttpUtil.createRequest(Method.PUT,url)
+                .header(headers)
+                .cookie(account.getCookie())
+                .body(body)
+                .execute();
+        account.updateLoginInfo(verifyRsp);
+        return updateAppleIdRsp;
+    }
+
+    /**
+     * 双重认证发送短信
+     * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
+     */
+    public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
+        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("scnt",List.of(account.getScnt()));
+
         String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -956,7 +955,6 @@ public class AppleIDUtil {
             verifyPassword(rsp,account.getPwd());
             return securityUpgradeVerifyPhone(account,body);
         }
-        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -971,7 +969,6 @@ public class AppleIDUtil {
                 .body(body)
                 .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
                 .execute();
-
         return securityUpgradeRsp;
     }
 
@@ -1394,74 +1391,31 @@ public class AppleIDUtil {
     }
 
     private static HashMap<String, List<String>> buildHeader() {
-        return buildHeader(true);
-    }
-
-    private static HashMap<String, List<String>> buildHeader(boolean hasX) {
-        return buildHeader(hasX, null);
-    }
-
-    private static HashMap<String, List<String>> buildHeader(HttpResponse step211Res) {
-        return buildHeader(true, step211Res);
-    }
-
-    private static HashMap<String, List<String>> buildHeader(boolean hasX, HttpResponse step211Res) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        if (hasX) {
-            headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
-            headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
-            headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
-        }
-        if (step211Res != null) {
-            headers.put("X-Apple-ID-Session-Id", ListUtil.toList(step211Res.header("X-Apple-ID-Session-Id")));
-            headers.put("scnt", ListUtil.toList(step211Res.header("scnt")));
-        }
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        //headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        //headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
+
+//        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+//        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+//        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+//        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+//        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+//        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+//        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+//        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+//        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         return headers;
     }
 
-    private static String getCookie(HttpResponse rsp) {
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> res1Cookies = rsp.headers().get("Set-Cookie");
-        List<String> res2Cookies = rsp.headers().get("set-cookie");
-
-        if (res1Cookies != null) {
-            for (String item : res1Cookies) {
-                cookieBuilder.append(";").append(item);
-            }
-        }
-        if (res2Cookies != null) {
-            for (String item : res2Cookies) {
-                cookieBuilder.append(";").append(item);
-            }
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
-        return cookies;
-    }
-
-
-    public boolean hasFailMessage(HttpResponse rsp) {
-        String body = rsp.body();
-        if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
-            return false;
-        }
-        Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
-        return null != hasError && (boolean) hasError;
-    }
-
-    public String failMessage(HttpResponse rsp) {
-        String message = "";
-        Object service_errors = JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
-        for (Object o : JSONUtil.parseArray(service_errors)) {
-            JSONObject jsonObject = (JSONObject) o;
-            message += jsonObject.getByPath("message") + ";";
-        }
-        return message;
-    }
 }

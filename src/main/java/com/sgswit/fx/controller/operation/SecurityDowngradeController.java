@@ -79,7 +79,6 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
     @Override
     protected void reExecute(Account account) {
-        account.setNote("");
         accountHandler(account);
     }
 

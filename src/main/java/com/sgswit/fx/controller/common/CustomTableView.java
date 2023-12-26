@@ -495,6 +495,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         throw new ServiceException(message);
     }
 
+    /**
+     * 抛出异常，异常不做处理只是做一个停止程序作用
+     */
+    public void throwAndRefreshNote(T account, String message,String defaultMessage){
+        setAndRefreshNote(account,message,defaultMessage);
+        throw new ServiceException(!StrUtil.isEmpty(message) ? message : defaultMessage);
+    }
+
     public void appendAndRefreshNote(T account, String note) {
         appendAndRefreshNote(account, "", note);
     }

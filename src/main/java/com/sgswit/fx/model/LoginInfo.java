@@ -129,7 +129,7 @@ public class LoginInfo extends AuthData{
         return isLogin;
     }
 
-    public void setLogin(boolean login) {
+    public void setIsLogin(boolean login) {
         isLogin = login;
     }
 }
