@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class RapidFiltrationController extends CustomTableView<Account> {
 
+    private Integer num = 0;
+
     @FXML
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
@@ -50,8 +52,15 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
             if(step1Res.body().startsWith("<html>")){
+                num++;
+                if(num >= 5){
+                    account.setNote("操作频繁");
+                    accountTableView.refresh();
+                    insertLocalHistory(List.of(account));
+                    return;
+                }
                 accountHandler(account);
-                return;
+
             }
             queryFail(account,step1Res.body());
             return ;

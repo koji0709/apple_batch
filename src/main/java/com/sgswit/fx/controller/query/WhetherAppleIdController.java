@@ -104,6 +104,11 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     account.setNote("查询成功");
                     accountTableView.refresh();
                     insertLocalHistory(List.of(account));
+                }else if(JSONUtil.parseObj(location.body()).get("trustedPhones") != null){
+                    account.setStatus("此AppleID已开启双重认证");
+                    account.setNote("查询成功");
+                    accountTableView.refresh();
+                    insertLocalHistory(List.of(account));
                 } else {
                     account.setStatus("此AppleID正常");
                     account.setNote("查询成功");

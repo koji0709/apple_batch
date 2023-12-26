@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.query;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
@@ -15,6 +16,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Paint;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,8 @@ import java.util.List;
  */
 public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
+    private Integer num = 0;
+
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
     }
@@ -42,9 +48,13 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         account.setPwd(problem.getPwd());
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
-        if (step1Res.getStatus() != 503) {
-            queryFail(problem,"操作过于频繁。");
-            return;
+        if (step1Res.getStatus() == 503) {
+            num++;
+            if(num >= 5){
+                queryFail(problem,"操作过于频繁。");
+                return;
+            }
+            accountHandler(problem);
         }
         if (step1Res.getStatus() != 409) {
             queryFail(problem);
@@ -62,7 +72,10 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         if ("sa".equals(authType)) {
             //非双重认证
             String body = step21Res.body();
-            String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
+            Document prodDoc = Jsoup.parse(body);
+            Elements initDataElement = prodDoc.select("script[class=boot_args]");
+            JSONObject object = JSONUtil.parseObj(initDataElement.html());
+            String questions = object.getJSONObject("direct").getJSONObject("twoSV").getJSONObject("securityQuestions").get("questions").toString();
             List<Question> qs = JSONUtil.toList(questions, Question.class);
             problem.setProblem1(qs.get(0).getQuestion());
             problem.setProblem2(qs.get(1).getQuestion());
@@ -75,6 +88,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             insertLocalHistory(List.of(problem));
         }
     }
+
 
     private void queryFail(Problem problem) {
         String note = "查询失败，请确认用户名密码是否正确";

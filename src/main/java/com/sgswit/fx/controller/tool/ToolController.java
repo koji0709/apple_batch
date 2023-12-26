@@ -110,7 +110,6 @@ public class ToolController extends CommonView{
             for (int j = 0; j < arrayList1.size(); j++) {
                 if (arrayList.get(i).equals(arrayList1.get(j))) {
                     arrayList.remove(i);
-                    arrayList1.remove(j);
                     num++;
                 }
             }

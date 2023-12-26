@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -128,7 +129,7 @@ public class AppleIdView extends CustomTableView<Account> {
             throwAndRefreshNote(account,"登录异常;");
         }
         setAndRefreshNote(account,"登陆成功;");
-        account.setLogin(true);
+        account.setIsLogin(true);
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
@@ -137,6 +138,14 @@ public class AppleIdView extends CustomTableView<Account> {
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent,List<String> menuItemList) {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItemList,new ArrayList<>());
+    }
+
+    public String getValidationErrors(String body){
+        List errorMessageList = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
+        if (CollUtil.isEmpty(errorMessageList)){
+            return "";
+        }
+        return String.join(";",errorMessageList);
     }
 
 }

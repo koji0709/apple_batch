@@ -256,12 +256,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         accountHandler(account);
     }
 
-    public String getValidationErrors(String body){
-        List errorMessageList = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
-        if (CollUtil.isEmpty(errorMessageList)){
-            return "";
-        }
-        return String.join(";",errorMessageList);
-    }
+
 
 }

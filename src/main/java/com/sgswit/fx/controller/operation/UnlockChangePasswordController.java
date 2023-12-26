@@ -73,7 +73,6 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
 
     @Override
     protected void reExecute(Account account) {
-        account.setNote("");
         accountHandler(account);
     }
 

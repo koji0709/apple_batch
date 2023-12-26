@@ -58,10 +58,13 @@ public class SQLiteUtil {
                 for (String colName : rowObj.keySet()) {
                     Object colValue = rowObj.get(colName);
                     if (colValue != null){
-                        ReflectUtil.invoke(
-                                clzInstance
-                                , "set" + colName.substring(0, 1).toUpperCase() + colName.substring(1)
-                                , colValue);
+                        boolean hasField = ReflectUtil.hasField(clz, colName);
+                        if (hasField){
+                            ReflectUtil.invoke(
+                                    clzInstance
+                                    , "set" + colName.substring(0, 1).toUpperCase() + colName.substring(1)
+                                    , colValue);
+                        }
                     }
                 }
                 boolean hasCreateTime = ReflectUtil.hasField(clz, "createTime");
