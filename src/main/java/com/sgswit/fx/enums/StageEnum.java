@@ -43,7 +43,7 @@ public enum StageEnum {
     BALANCE_QUERY("密保查询余额","views/query/balance-query.fxml",1100,700),
     CHECK_GRAY_BALANCE("检测灰余额","views/query/detection-gray-balance.fxml",1100,650),
     WHETHER_APPLEID("检测是否AppleID","views/query/whether-appleid.fxml",1100,650),
-    RAPID_FILTRATION("急速过滤密正","views/query/rapid-filtration.fxml",1100,650),
+    RAPID_FILTRATION("极速过滤密正","views/query/rapid-filtration.fxml",1100,650),
     DETECTION_WHETHER("检测是否过检","views/query/detection-whether-inspection.fxml",1100,650),
     SECURITY_QUESTION("查询密保问题","views/query/security-question-query.fxml",1100,650),
 

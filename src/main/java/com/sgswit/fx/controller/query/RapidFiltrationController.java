@@ -49,6 +49,10 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
+            if(step1Res.body().startsWith("<html>")){
+                accountHandler(account);
+                return;
+            }
             queryFail(account,step1Res.body());
             return ;
         }
@@ -63,7 +67,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
 //            List<Question> qs = JSONUtil.toList(questions, Question.class);
 
-            account.setNote("密码正确");
+            account.setNote("正常账号");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
         } else if ("hsa2".equals(authType)) {
@@ -74,12 +78,6 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     }
 
     private void queryFail(Account account,Object body) {
-        if(body.toString().startsWith("<html>")){
-            account.setNote("操作频繁");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
-            return;
-        }
         JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
         String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
         if(message.contains("锁定")){
