@@ -748,7 +748,7 @@ public class AppleIDUtil {
         HttpResponse rsp1 = HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
                 .body("{\"password\":\""+password+"\"}")
                 .header(rsp.headers())
-                .cookie(rsp.getCookies())
+//                .cookie(rsp.getCookies())
                 .execute();
 
         return rsp1;
@@ -945,10 +945,8 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .body(body)
-//                .cookie(account.getCookie())
                 .execute();
         int status = rsp.getStatus();
-
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,account.getPwd());
@@ -967,7 +965,6 @@ public class AppleIDUtil {
         HttpResponse securityUpgradeRsp = HttpUtil.createRequest(Method.POST,url)
                 .header(securityUpgradeVerifyPhoneRsp.headers())
                 .body(body)
-//                .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
                 .execute();
         return securityUpgradeRsp;
     }
@@ -1183,11 +1180,6 @@ public class AppleIDUtil {
         return verifyAppleIdRsp;
     }
 
-    public static void main(String[] args) {
-        HttpResponse httpResponse = captchaAndVerify("davidicweaver@outlook.com",2);
-        System.err.println(httpResponse);
-    }
-
     /**
      * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
      */
@@ -1396,25 +1388,9 @@ public class AppleIDUtil {
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-
-        //headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
-        //headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
-
         headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
         headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
-
-//        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
-//        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
-//        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
-
-//        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-//        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-//        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-//        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
-//        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
-//        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-
         return headers;
     }
 
