@@ -142,7 +142,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
 
                     account.setNote("正在登录...");
                     accountTableView.refresh();
-
                     new Thread(new Runnable() {
                         @Override
                         public void run(){

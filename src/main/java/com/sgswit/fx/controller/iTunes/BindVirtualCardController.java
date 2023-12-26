@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.MapUtils;
@@ -45,7 +47,7 @@ import java.util.*;
 　* @author DeZh
 　* @date 2023/10/27 10:10
  */
-public class BindVirtualCardController extends CommRightContextMenuView<CreditCard> implements Initializable  {
+public class BindVirtualCardController extends CustomTableView<CreditCard> implements Initializable  {
     @FXML
     public TableColumn creditInfo;
     @FXML
@@ -180,12 +182,11 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                             account.setNote(String.valueOf(res.get("msg")));
                             account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
-                            account.setNote(String.valueOf(res.get("msg")));
+                            tableRefreshAndInsertLocal(account, String.valueOf(res.get("msg")));
                         }else{
                             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
-                                account.setNote("此 Apple ID 尚未用于 App Store。");
-                                accountTableView.refresh();
+                                tableRefreshAndInsertLocal(account, "此 Apple ID 尚未用于 App Store。");
                                 return;
                             }
                             account.setNote("登录成功，正在验证银行卡信息...");
@@ -196,14 +197,13 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
                                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
                                 account.setAuthData(res);
                             }else{
-
+                                tableRefreshAndInsertLocal(account, MapUtil.getStr(addCreditPaymentRes,"message"));
                             }
                             account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
                         }
                         accountTableView.refresh();
                     } catch (Exception e) {
-                        account.setNote("操作失败，接口异常");
-                        accountTableView.refresh();
+                        tableRefreshAndInsertLocal(account, "操作失败，接口异常。");
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");
                         accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -286,12 +286,11 @@ public class BindVirtualCardController extends CommRightContextMenuView<CreditCa
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
+    private void tableRefreshAndInsertLocal(CreditCard account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        super.insertLocalHistory(List.of(account));
+    }
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{

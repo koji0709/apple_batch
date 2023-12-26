@@ -1,8 +1,5 @@
 package com.sgswit.fx.constant;
 
-import com.sgswit.fx.controller.query.Main;
-
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 

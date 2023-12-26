@@ -182,7 +182,7 @@ public class ITunesUtil {
         HttpResponse httpResponse=getPaymentInfos(paras);
         if(httpResponse.getStatus()==401){
             result.put("code","1");
-            result.put("message","未登录或登录超时");
+            result.put("msg","未登录或登录超时");
         }else if(httpResponse.getStatus()==200){
             String paymentInfosJsonString= JSONUtil.parseObj(httpResponse.body()).getByPath("data.attributes.paymentInfos").toString();
             JSONArray jsonArray=JSONUtil.parseArray(paymentInfosJsonString);
@@ -201,10 +201,10 @@ public class ITunesUtil {
             }
             if(hasPayment){
                 result.put("code",Constant.SUCCESS);
-                result.put("message","操作成功");
+                result.put("msg","操作成功");
             }else{
                 result.put("code","1");
-                result.put("message","无付款方式");
+                result.put("msg","无付款方式");
             }
         }
         return result;
