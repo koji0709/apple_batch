@@ -25,36 +25,7 @@ public class ThreadTest {
     private static ExecutorService executor = ThreadUtil.newExecutor(1);
 
     public  static void main(String[] args) {
-        final CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
-        list.add("10");
-        list.add("20");
-        list.add("30");
-        list.add("40");
-        list.add("50");
-        Vector<Object> linkedList = new Vector<>();
-        long start = System.currentTimeMillis();
-        for ( int i = 0; i < list.size(); i++) {
-            int t = i;
-            executor.execute(() ->
-                    {
-                        //业务处理
-                        String s = list.get(t);
-                        linkedList.add(s+"---=");
-                        System.out.println(s);
-                    }
-            );
-        }
-        System.out.println(111);
-        executor.shutdown();
-        System.out.println(2222);
-        while (true) {
-            if (executor.isTerminated()) {
-                long end = System.currentTimeMillis();
-                System.out.println("所有任务执行完毕,总耗时(毫秒)：" + (end - start));
-                return ;
-            }
-        }
-//        System.out.println(JSONUtil.toJsonStr(linkedList));
+//        mainPoolExecutor();
     }
 
     //===其他测试=================

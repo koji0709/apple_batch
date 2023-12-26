@@ -172,7 +172,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 if (i != 0 && i % 10 == 0) {
                     ThreadUtil.sleep(500);
                 }
-                ThreadUtil.sleep(100);
+                ThreadUtil.sleep(1000);
                 ThreadUtil.execute(() -> {
                     try {
                         setAndRefreshNote(account, "执行中", false);

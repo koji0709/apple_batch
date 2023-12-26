@@ -113,11 +113,11 @@
                         <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
                           <columns>
                               <TableColumn fx:id="seq" prefWidth="75.0" text="序号" />
-                              <TableColumn fx:id="giftCardCode" prefWidth="150.0" text="礼品卡" />
-                              <TableColumn fx:id="giftCardNumber" prefWidth="80.0" text="PIN码尾号" />
-                              <TableColumn fx:id="balance" prefWidth="80.0" text="卡内余额" />
-                              <TableColumn fx:id="logTime" prefWidth="80.0" text="查询时间" />
-                              <TableColumn fx:id="note" prefWidth="266.0" text="执行信息" />
+                              <TableColumn fx:id="giftCardCode" prefWidth="204.99998474121094" text="礼品卡" />
+                              <TableColumn fx:id="giftCardNumber" prefWidth="132.0" text="PIN码尾号" />
+                              <TableColumn fx:id="balance" prefWidth="144.0" text="卡内余额" />
+                              <TableColumn fx:id="logTime" prefWidth="167.0" text="查询时间" />
+                              <TableColumn fx:id="note" prefWidth="341.0" text="执行信息" />
                           </columns>
                         </TableView>
                      </content>
