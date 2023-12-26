@@ -43,14 +43,14 @@
                                 </HBox>
                             </VBox>
                         </Tab>
-                        <Tab text="文本比较去重">
+                        <Tab text="文本比较去重复">
                             <VBox alignment="CENTER" spacing="30" style="-fx-padding: 15;-fx-border-color: blue">
                                 <children>
                                     <HBox spacing="15">
                                         <children>
                                             <VBox>
                                                 <children>
-                                                    <Label alignment="CENTER" prefHeight="20" prefWidth="450" style="-fx-background-color: #BBFFBB" text="再次下方输入源文本(一行一条)" />
+                                                    <Label alignment="CENTER" prefHeight="20" prefWidth="450" style="-fx-background-color: #BBFFBB" text="在此下方输入源文本(一行一条)" />
                                                     <TextArea fx:id="sourceText" prefHeight="500" prefWidth="450" />
                                                 </children>
                                             </VBox>
