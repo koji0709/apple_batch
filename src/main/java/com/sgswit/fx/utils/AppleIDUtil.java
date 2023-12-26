@@ -810,12 +810,50 @@ public class AppleIDUtil {
                         .header(deviceListRsp.headers())
                         .cookie(deviceListRsp.getCookies())
                         .execute();
-
             }
         }
     }
 
+    /**
+     * 修改显示语言
+     */
+    public static HttpResponse changeShowLanguage(Account account,String lang){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        String url = "https://appleid.apple.com/account/manage/preferences";
+        String format = "{\"preferredLanguage\":\"%s\",\"marketingPreferences\":{\"appleUpdates\":true,\"iTunesUpdates\":true,\"appleNews\":false,\"appleMusic\":false},\"privacyPreferences\":{\"allowDeviceDiagnosticsAndUsage\":false,\"allowShareThirdPartyDevelopers\":false,\"allowICloudDataAnalytics\":false}}";
+        String body = String.format(format, lang);
+
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
+                .body(body)
+                .header(headers)
+                .cookie(account.getCookie())
+                .execute();
+
+        account.updateLoginInfo(rsp);
+
+        return rsp;
+    }
 
     /**
      * 修改appleId时发送邮件
