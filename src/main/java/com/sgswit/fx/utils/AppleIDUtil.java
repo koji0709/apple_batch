@@ -945,16 +945,16 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .body(body)
-                .cookie(account.getCookie())
+//                .cookie(account.getCookie())
                 .execute();
         int status = rsp.getStatus();
-
 
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,account.getPwd());
             return securityUpgradeVerifyPhone(account,body);
         }
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -967,7 +967,7 @@ public class AppleIDUtil {
         HttpResponse securityUpgradeRsp = HttpUtil.createRequest(Method.POST,url)
                 .header(securityUpgradeVerifyPhoneRsp.headers())
                 .body(body)
-                .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
+//                .cookie(securityUpgradeVerifyPhoneRsp.getCookies())
                 .execute();
         return securityUpgradeRsp;
     }
@@ -1395,7 +1395,7 @@ public class AppleIDUtil {
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         //headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
         //headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
