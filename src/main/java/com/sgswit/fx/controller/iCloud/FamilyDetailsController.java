@@ -168,7 +168,8 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                             tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
                             message=comAppleMobileme.getByPath("status-message",String.class);
                         }else{
-                            message="未激活iCloud账户";
+                            message="查询成功";
+                            account.setFamilyDetails("无");
                         }
                     }
                     JSONObject ids= delegates.getJSONObject("com.apple.private.ids");

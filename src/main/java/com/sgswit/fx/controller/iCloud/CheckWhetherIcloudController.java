@@ -168,6 +168,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
                         account.setSupport("支持");
+                        account.setDsid(rspJSON.getStr("dsid"));
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
                             message=comAppleMobileme.getByPath("status-message",String.class);
@@ -180,8 +181,8 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                         String regionId=JSONUtil.parse(ids.get("service-data")).getByPath("invitation-context.region-id",String.class);
                         regionId= DataUtil.getNameByCountryCode(regionId.split(":")[1]);
                         account.setArea(regionId);
+                        account.setDsid(rspJSON.getStr("dsid"));
                     }
-                    account.setDsid(rspJSON.getStr("dsid"));
                     tableRefresh(account,message);
                 }else{
                     String message="";
