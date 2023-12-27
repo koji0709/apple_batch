@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -82,6 +83,7 @@ public class AppleIdView extends CustomTableView<Account> {
             }
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
         }else{
+            setAndRefreshNote(account,"正在验证账号密码...",false);
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
                 throwAndRefreshNote(account,"请检查用户名密码是否正确;");
@@ -99,20 +101,24 @@ public class AppleIdView extends CustomTableView<Account> {
                     throwAndRefreshNote(account,"密保认证必须输入密保问题;");
                 }
                 // 密保认证
+                setAndRefreshNote(account,"正在验证密保问题...",false);
                 HttpResponse questionRsp = AppleIDUtil.questions(account,authRsp);
                 if (questionRsp.getStatus() != 412) {
                     throwAndRefreshNote(account,"密保问题验证失败;");
                 }
-
+                setAndRefreshNote(account,"密保问题验证通过");
+                ThreadUtil.sleep(500);
+                setAndRefreshNote(account,"正在阅读协议...",false);
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
                 String XAppleIDSessionId = "";
-                String scnt              = accountRepairRsp.header("scnt");
+                String scnt = accountRepairRsp.header("scnt");
 
                 for (String item : accountRepairRsp.headerList("Set-Cookie")) {
                     if (item.startsWith("aidsp")) {
                         XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
                     }
                 }
+                setAndRefreshNote(account,"正在同意协议...",false);
                 HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(account, questionRsp, accountRepairRsp);
                 HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,repareOptionsRsp,XAppleIDSessionId,scnt);
                 HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(account,securityUpgradeRsp,XAppleIDSessionId,scnt);
