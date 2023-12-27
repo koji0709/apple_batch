@@ -15,6 +15,7 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.GiftCard;
+import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.GiftCardUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StageUtil;
@@ -45,6 +46,7 @@ import org.seimicrawler.xpath.JXNode;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.CookieStore;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -90,7 +92,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static Map<String,Object> hashMap=new HashMap<>();
+    private Map<String,Object> hashMap;
     private boolean hasInit=false;
 
     @Override
@@ -107,7 +109,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 public void run() {
                     try {
                         loginAndInit();
-//                        loginAndInit(hashMap);
                     }catch (Exception e){
 
                     }
@@ -226,57 +227,53 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-        if(StringUtils.isEmpty(account_pwd.getText()) || !hasInit){
+        if(StringUtils.isEmpty(account_pwd.getText()) ){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
             alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
             alert.show();
             return;
         }
-//        Map<String,Object> res=new HashMap<>();
         if(list.size() < 1){
             return;
         }
-//        if(null==hashMap || hashMap.size()==0){
-//            loginAndInit(res);
-//            hashMap=res;
-//        }else{
-//            res=hashMap;
-//        }
         for(GiftCard giftCard:list){
-//            checkBalance(giftCard, res);
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
                 continue;
             }else{
-                checkBalance(giftCard, hashMap);
-//                Map<String, Object> finalRes = res;
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run(){
-//                        try {
-//                            try {
-//                                checkBalance(giftCard, finalRes);
-//                            } catch (Exception e) {
-//                                accountQueryBtn.setDisable(false);
-//                                accountQueryBtn.setText("开始执行");
-//                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-//                                e.printStackTrace();
-//                            }
-//                        }finally {
-//                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-//                            Platform.runLater(new Task<Integer>() {
-//                                @Override
-//                                protected Integer call() {
-//                                    accountQueryBtn.setDisable(false);
-//                                    accountQueryBtn.setText("开始执行");
-//                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-//                                    return 1;
-//                                }
-//                            });
-//                        }
-//                    }
-//                }).start();
+                if(null==hashMap || hashMap.size()==0){
+                    loginAndInit();
+                }
+                accountQueryBtn.setText("正在查询");
+                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+                accountQueryBtn.setDisable(true);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run(){
+                        try {
+                            try {
+                                checkBalance(giftCard, hashMap);
+                            } catch (Exception e) {
+                                accountQueryBtn.setDisable(false);
+                                accountQueryBtn.setText("开始执行");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                e.printStackTrace();
+                            }
+                        }finally {
+                            //JavaFX Application Thread会逐个阻塞的执行这些任务
+                            Platform.runLater(new Task<Integer>() {
+                                @Override
+                                protected Integer call() {
+                                    accountQueryBtn.setDisable(false);
+                                    accountQueryBtn.setText("开始执行");
+                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    return 1;
+                                }
+                            });
+                        }
+                    }
+                }).start();
             }
         }
     }
@@ -293,10 +290,16 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         String color = "#238142";
         try {
             if(StringUtils.isEmpty(account_pwd.getText())){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("信息");
-                alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
-                alert.show();
+                Platform.runLater(new Task<Integer>() {
+                    @Override
+                    protected Integer call() {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("信息");
+                    alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+                    alert.show();
+                    return 1;
+                    }
+                });
                 return;
             }
             String[] its =account_pwd.getText().split("----");
@@ -317,6 +320,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 msg="网络错误";
                 color="red";
                 hasInit=false;
+                updateUI(msg,color);
                 return ;
             }
 
@@ -326,12 +330,15 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 msg="网络错误";
                 color="red";
                 hasInit=false;
+                updateUI(msg,color);
                 return ;
             }
 
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
             HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
-
+            if(null==hashMap){
+                hashMap=new HashMap<>();
+            }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
 
             HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
@@ -344,6 +351,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                     msg="您的Apple ID已受双重认证保护";
                     color="red";
                     hasInit=false;
+                    updateUI(msg,color);
                     return ;
                 }
             }else if(200==step2Res.getStatus()){
@@ -354,33 +362,45 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                     msg=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message",String.class);
                     color="red";
                     hasInit=false;
+                    updateUI(msg,color);
                     return ;
                 }
             }
             //step3 shop signin
             HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,hashMap);
+
+
+            StringBuilder cookieBuilder = new StringBuilder();
+            List<String> resCookies = step3Res.headerList("Set-Cookie");
+            for(String item : resCookies){
+                cookieBuilder.append(";").append(item);
+            }
+            cookieBuilder.append(";").append(hashMap.get("as_sfa_cookie"));
+            Map<String,String> cookieMap=new HashMap<>();
+            cookieMap=CookieUtils.setCookiesToMap(step3Res,cookieMap);
+            hashMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
+
             PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
             hasInit=true;
+            updateUI(msg,color);
         }catch (Exception e){
             msg="登录失败";
             color="red";
-            e.printStackTrace();
-        }finally {
-            //更新UI
-            String finalMsg = msg;
-            String finalColor = color;
-            Platform.runLater(new Task<Integer>() {
-                @Override
-                protected Integer call() {
-                    alertMessage.setText(finalMsg);
-                    alertMessage.setTextFill(Paint.valueOf(finalColor));
-                    return 1;
-                }
-            });
+            updateUI(msg,color);
         }
     }
+
+    void updateUI(String finalMsg,String finalColor){
+        Platform.runLater(new Task<Integer>() {
+            @Override
+            protected Integer call() {
+            alertMessage.setText(finalMsg);
+            alertMessage.setTextFill(Paint.valueOf(finalColor));
+            return 1;
+            }
+        });
+    }
     protected void checkBalance(GiftCard giftCard,Map<String,Object> paras) {
-        System.out.println(JSONUtil.toJsonStr(paras));
         Date nowDate=new Date();
         //判断礼品卡的格式是否正确
         String regex = "X[a-zA-Z0-9]{15}";
@@ -395,13 +415,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
-            giftCard.setNote("网络错误");
+            giftCard.setNote("余额查询失败");
             accountTableView.refresh();
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             String status=bodyJson.getByPath("head.status").toString();
             if(!Constant.SUCCESS.equals(status)){
-                giftCard.setNote("网络错误");
+                giftCard.setNote("余额查询失败");
                 accountTableView.refresh();
                 return;
             }
