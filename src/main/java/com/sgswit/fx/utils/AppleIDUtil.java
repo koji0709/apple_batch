@@ -936,8 +936,31 @@ public class AppleIDUtil {
      * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
     public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt",List.of(account.getScnt()));
+//        HashMap<String, List<String>> headers = buildHeader(account);
+//        headers.put("scnt",List.of(account.getScnt()));
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
 
         String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
@@ -952,6 +975,7 @@ public class AppleIDUtil {
             return securityUpgradeVerifyPhone(account,body);
         }
 
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -976,7 +1000,7 @@ public class AppleIDUtil {
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
         HttpResponse verifyPhone1Rsp = HttpUtil.createGet(host + verifyPhone1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
@@ -995,7 +1019,7 @@ public class AppleIDUtil {
 
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
@@ -1012,7 +1036,7 @@ public class AppleIDUtil {
             return null;
         }
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -1040,7 +1064,7 @@ public class AppleIDUtil {
             return null;
         }
         HttpResponse unenrollment1Rsp = HttpUtil.createGet(host + unenrollment1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         HttpResponse unenrollment2Rsp = HttpUtil.createPost(host + "/unenrollment")
@@ -1049,7 +1073,7 @@ public class AppleIDUtil {
 
         String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
         HttpResponse unenrollmentReset1Rsp = HttpUtil.createGet(host + unenrollmentReset1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         HttpResponse unenrollmentReset2Rsp = HttpUtil.createPost(host + "/unenrollment/reset")
@@ -1098,10 +1122,9 @@ public class AppleIDUtil {
     /**
      * 收款方式列表
      */
-    public static HttpResponse paymentList(String scnt){
+    public static HttpResponse paymentList(Account account){
         String url = "https://appleid.apple.com/account/manage/payment";
-        HashMap<String, List<String>> header = buildHeader();
-        header.put("scnt",List.of(scnt));
+        HashMap<String, List<String>> header = buildHeader(account);
 
         HttpResponse paymentRsp = HttpUtil.createGet(url)
                 .header(header)
@@ -1112,31 +1135,31 @@ public class AppleIDUtil {
     /**
      * 获取图形验证码
      */
-    public static HttpResponse captcha(){
+    public static HttpResponse captcha(Account account){
         String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
         return HttpUtil.createGet(url)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
     }
 
     /**
      * 验证码并且验证通过(如果验证码不通过则重试三次)
      */
-    public static HttpResponse captchaAndVerify(String appleId) {
-        return captchaAndVerify(appleId,3);
+    public static HttpResponse captchaAndVerify(Account account) {
+        return captchaAndVerify(account,3);
     }
-    public static HttpResponse captchaAndVerify(String appleId,Integer retry){
-        HttpResponse captchaRsp = captcha();
+    public static HttpResponse captchaAndVerify(Account account,Integer retry){
+        HttpResponse captchaRsp = captcha(account);
         String body = captchaRsp.body();
         if (StrUtil.isEmpty(body)){
-            return captchaAndVerify(appleId,--retry);
+            return captchaAndVerify(account,--retry);
         }
 
         JSON captchaRspJSON = JSONUtil.parse(body);
 
         String  captBase64 = captchaRspJSON.getByPath("payload.content", String.class);
         if (StrUtil.isEmpty(captBase64)){
-            return captchaAndVerify(appleId,--retry);
+            return captchaAndVerify(account,--retry);
         }
 
         Integer captId     = captchaRspJSON.getByPath("id", Integer.class);
@@ -1144,14 +1167,14 @@ public class AppleIDUtil {
         String  captAnswer = OcrUtil.recognize(captBase64);
 
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
-        verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
-        HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(verifyAppleIdBody);
+        verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(account,verifyAppleIdBody);
 
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
             Console.log("[验证码识别错误] Base64: " + captBase64);
             Console.log("[验证码识别错误] Answer: " + captAnswer);
-            return captchaAndVerify(appleId,--retry);
+            return captchaAndVerify(account,--retry);
         }
 
         return verifyAppleIdRsp;
@@ -1160,10 +1183,10 @@ public class AppleIDUtil {
     /**
      * 检查appleid是通过怎样的方式去校验(密保/邮件/短信)
      */
-    public static HttpResponse verifyAppleId(String body) {
+    public static HttpResponse verifyAppleId(Account account,String body) {
         String url = "https://iforgot.apple.com/password/verify/appleid";
         HttpResponse verifyAppleIdRsp = HttpUtil.createPost(url)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .body(body)
                 .execute();
         return verifyAppleIdRsp;
@@ -1193,7 +1216,7 @@ public class AppleIDUtil {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
         Console.log("recoveryOptions:", recoveryOptions);
@@ -1210,7 +1233,7 @@ public class AppleIDUtil {
 
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = HttpUtil.createGet(host + authMethod1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
         Console.log("authMethodOptions:", authMethodOptions);
@@ -1223,7 +1246,7 @@ public class AppleIDUtil {
 
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
@@ -1235,7 +1258,7 @@ public class AppleIDUtil {
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -1259,12 +1282,12 @@ public class AppleIDUtil {
 
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         HttpResponse resrtPasswordOptionRsp = HttpUtil.createGet(host + resrtPasswordOptionLocation)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
         HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
@@ -1284,7 +1307,7 @@ public class AppleIDUtil {
 
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = HttpUtil.createGet(host + authMethod1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
         Console.log("authMethodOptions:", authMethodOptions);
@@ -1297,7 +1320,7 @@ public class AppleIDUtil {
 
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
@@ -1309,7 +1332,7 @@ public class AppleIDUtil {
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -1334,7 +1357,7 @@ public class AppleIDUtil {
         String options1Location = verifyQuestions2Rsp.header("Location");
 
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("types", List.class);
         Console.log("types:", recoveryOptions);
@@ -1347,7 +1370,7 @@ public class AppleIDUtil {
 
         String passwordReset1Location = options2Rsp.header("Location");
         HttpResponse passwordReset1Rsp = HttpUtil.createGet(host + passwordReset1Location)
-                .header(buildHeader())
+                .header(buildHeader(account))
                 .execute();
 
         HttpResponse passwordReset2Rsp = HttpUtil.createPost(host + "/password/reset")
@@ -1359,30 +1382,21 @@ public class AppleIDUtil {
         return passwordReset2Rsp;
     }
 
-    private static HashMap<String, List<String>> buildHeader() {
-        return buildHeader(true);
-    }
-
-    private static HashMap<String, List<String>> buildHeader(boolean hasX) {
-        return buildHeader(hasX, null);
-    }
-
-    private static HashMap<String, List<String>> buildHeader(boolean hasX, HttpResponse step211Res) {
+    private static HashMap<String, List<String>> buildHeader(Account account) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        if (hasX) {
-            headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
-            headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
-            headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
-        }
-        if (step211Res != null) {
-            headers.put("X-Apple-ID-Session-Id", ListUtil.toList(step211Res.header("X-Apple-ID-Session-Id")));
-            headers.put("scnt", ListUtil.toList(step211Res.header("scnt")));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+            
+        if (!StrUtil.isEmpty(account.getScnt())){
+            headers.put("scnt",List.of(account.getScnt()));
         }
         return headers;
     }
-
 }
