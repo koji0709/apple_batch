@@ -22,13 +22,16 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
 
     public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"));
+        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"));
     }
 
     @Override
     public void accountHandler(Account account) {
+        account.setNote("正在登录...");
+        accountTableView.refresh();
         // 登陆
         login(account);
+        setAndRefreshNote(account,"正在读取用户信息...",false);
         HttpResponse step4Res = AppleIDUtil.account(account);
         String managerBody = step4Res.body();
         JSON manager = JSONUtil.parse(managerBody);
