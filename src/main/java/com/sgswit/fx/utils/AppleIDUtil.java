@@ -936,9 +936,6 @@ public class AppleIDUtil {
      * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
     public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
-//        HashMap<String, List<String>> headers = buildHeader(account);
-//        headers.put("scnt",List.of(account.getScnt()));
-
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -966,6 +963,7 @@ public class AppleIDUtil {
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .body(body)
+                .cookie(account.getCookie())
                 .execute();
         int status = rsp.getStatus();
 
@@ -983,11 +981,12 @@ public class AppleIDUtil {
      * 双重认证
      * @param body {"phoneNumberVerification":{"phoneNumber":{"id":20101,"number":"17608177103","countryCode":"CN","nonFTEU":true},"securityCode":{"code":"563973"},"mode":"sms"}}
      */
-    public static HttpResponse securityUpgrade(HttpResponse securityUpgradeVerifyPhoneRsp,String body){
+    public static HttpResponse securityUpgrade(HttpResponse securityUpgradeVerifyPhoneRsp,Account account,String body){
         String url = "https://appleid.apple.com/account/security/upgrade";
         HttpResponse securityUpgradeRsp = HttpUtil.createRequest(Method.POST,url)
                 .header(securityUpgradeVerifyPhoneRsp.headers())
                 .body(body)
+                .cookie(account.getCookie())
                 .execute();
         return securityUpgradeRsp;
     }

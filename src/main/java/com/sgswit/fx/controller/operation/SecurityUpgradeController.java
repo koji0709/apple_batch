@@ -36,82 +36,46 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     @Override
     public void accountHandler(Account account) {
         // 登陆
-//        login(account);
-//
-//        String phone = account.getPhone();
-//        Object verifyCode = account.getAuthData().get("verifyCode");
-//        if (verifyCode == null){
-//            String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-//            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
-//
-//            if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-//                throwAndRefreshNote(account,"操作频繁");
-//            }
-//            JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-//            String areaCode = jsonBody.getByPath("phoneNumberVerification.phoneNumber.countryCode", String.class);
-//            account.setArea(DataUtil.getNameByCountryCode(areaCode));
-//
-//            if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
-//                List meesageList = jsonBody.getByPath("phoneNumberVerification.serviceErrors.message", List.class);
-//                String message = String.join(",", meesageList);
-//                throwAndRefreshNote(account,message,"发送验证码失败");
-//            }
-//
-//            account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
-//            setAndRefreshNote(account,"成功发送验证码，请输入验证码。");
-//        } else {
-//            Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
-//            if (securityUpgradeVerifyPhoneObject == null){
-//                throwAndRefreshNote(account,"请先发送验证码");
-//            }
-//            HttpResponse securityUpgradeVerifyPhoneRsp = (HttpResponse) securityUpgradeVerifyPhoneObject;
-//            JSON jsonBody2 = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-//            JSONObject phoneNumber = jsonBody2.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
-//
-//            String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
-//            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
-//            if (securityUpgradeRsp.getStatus() != 302){
-//                throwAndRefreshNote(account,"绑定双重认证失败");
-//            }
-//            setAndRefreshNote(account,"绑定双重认证成功");
-//        }
-
-        xx(account);
-    }
-
-    public void xx(Account account){
-        // 登陆
         login(account);
 
         String phone = account.getPhone();
-        // todo 目前固定中国手机号码
-        String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-        HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
-        System.err.println(securityUpgradeVerifyPhoneRsp);
-        if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-            setAndRefreshNote(account,"操作频繁");
-            return;
-        }
-        if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
-            setAndRefreshNote(account,"发送验证码失败");
-            return;
+        Object verifyCode = account.getAuthData().get("verifyCode");
+        if (verifyCode == null){
+            String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
+            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
+
+            if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
+                throwAndRefreshNote(account,"操作频繁");
+            }
+            JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+            String areaCode = jsonBody.getByPath("phoneNumberVerification.phoneNumber.countryCode", String.class);
+            account.setArea(DataUtil.getNameByCountryCode(areaCode));
+
+            if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
+                List meesageList = jsonBody.getByPath("phoneNumberVerification.serviceErrors.message", List.class);
+                String message = String.join(",", meesageList);
+                throwAndRefreshNote(account,message,"发送验证码失败");
+            }
+
+            account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
+            setAndRefreshNote(account,"成功发送验证码，请输入验证码。");
+        } else {
+            Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
+            if (securityUpgradeVerifyPhoneObject == null){
+                throwAndRefreshNote(account,"请先发送验证码");
+            }
+            HttpResponse securityUpgradeVerifyPhoneRsp = (HttpResponse) securityUpgradeVerifyPhoneObject;
+            JSON jsonBody2 = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+            JSONObject phoneNumber = jsonBody2.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
+
+            String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
+            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp,account,body2);
+            if (securityUpgradeRsp.getStatus() != 302){
+                throwAndRefreshNote(account,"绑定双重认证失败");
+            }
+            setAndRefreshNote(account,"绑定双重认证成功");
         }
 
-        System.err.println("---输入短信验证码");
-        String verifyCode = Console.input();
-
-
-        JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-        JSONObject phoneNumber = jsonBody.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
-        String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+verifyCode+"\"},\"mode\":\"sms\"}}";
-        HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp, body2);
-        System.err.println(securityUpgradeRsp);
-        if (securityUpgradeRsp.getStatus() != 302){
-            setAndRefreshNote(account,"绑定双重认证失败");
-            return;
-        }
-        account.setArea(phoneNumber.getStr("countryCode"));
-        setAndRefreshNote(account,"绑定双重认证成功");
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
