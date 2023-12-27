@@ -61,6 +61,7 @@ public class SupportPinController extends AppleIdView {
         setAndRefreshNote(account,"生成支持PIN成功!");
     }
 
+    @Override
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> menuItem =new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());

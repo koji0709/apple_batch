@@ -106,7 +106,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 @Override
                 public void run() {
                     try {
-                        loginAndInit(new HashMap<>());
+                        loginAndInit();
 //                        loginAndInit(hashMap);
                     }catch (Exception e){
 
@@ -144,7 +144,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                     @Override
                     public void run() {
                         try {
-                            loginAndInit(hashMap);
+                            loginAndInit();
                         }catch (Exception e){
 
                         }
@@ -216,7 +216,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             @Override
             public void run() {
                 try {
-                    loginAndInit(hashMap);
+                    loginAndInit();
                 }catch (Exception e){
 
                 }
@@ -233,23 +233,23 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             alert.show();
             return;
         }
-        Map<String,Object> res=new HashMap<>();
+//        Map<String,Object> res=new HashMap<>();
         if(list.size() < 1){
             return;
         }
-        if(null==hashMap || hashMap.size()==0){
-            loginAndInit(res);
-            hashMap=res;
-        }else{
-            res=hashMap;
-        }
+//        if(null==hashMap || hashMap.size()==0){
+//            loginAndInit(res);
+//            hashMap=res;
+//        }else{
+//            res=hashMap;
+//        }
         for(GiftCard giftCard:list){
 //            checkBalance(giftCard, res);
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
                 continue;
             }else{
-                checkBalance(giftCard, res);
+                checkBalance(giftCard, hashMap);
 //                Map<String, Object> finalRes = res;
 //                new Thread(new Runnable() {
 //                    @Override
@@ -288,7 +288,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     　* @author DeZh
     　* @date 2023/11/1 11:15
      */
-    protected void loginAndInit(Map<String,Object> paras){
+    protected void loginAndInit(){
         String msg="初始化成功，下次启动将自动执行初始化";
         String color = "#238142";
         try {
@@ -334,10 +334,10 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
 
-            HttpResponse step0Res = GiftCardUtil.federate(account,paras);
-            String a= MapUtil.getStr(paras,"a");
-            HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,paras);
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,paras,step1Res,pre1,pre3);
+            HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
+            String a= MapUtil.getStr(hashMap,"a");
+            HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
                 if(authType.equals("hsa2")){
@@ -358,11 +358,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 }
             }
             //step3 shop signin
-            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,paras);
+            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,hashMap);
             PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
-
+            hasInit=true;
         }catch (Exception e){
-
+            msg="登录失败";
+            color="red";
+            e.printStackTrace();
         }finally {
             //更新UI
             String finalMsg = msg;
