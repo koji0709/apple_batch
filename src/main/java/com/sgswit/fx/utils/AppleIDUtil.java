@@ -748,9 +748,7 @@ public class AppleIDUtil {
         HttpResponse rsp1 = HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
                 .body("{\"password\":\""+password+"\"}")
                 .header(rsp.headers())
-//                .cookie(rsp.getCookies())
                 .execute();
-
         return rsp1;
     }
 
@@ -947,12 +945,13 @@ public class AppleIDUtil {
                 .body(body)
                 .execute();
         int status = rsp.getStatus();
+
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,account.getPwd());
             return securityUpgradeVerifyPhone(account,body);
         }
-        account.updateLoginInfo(rsp);
+
         return rsp;
     }
 
@@ -976,30 +975,8 @@ public class AppleIDUtil {
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
-        HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-
-        headers.put("scnt", ListUtil.toList(account.getScnt()));
-
-        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
-        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
-
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
-        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
-        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
-        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
-        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-
         HttpResponse verifyPhone1Rsp = HttpUtil.createGet(host + verifyPhone1Location)
-                .header(headers)
+                .header(buildHeader())
                 .execute();
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
@@ -1018,7 +995,7 @@ public class AppleIDUtil {
 
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
-                .header(headers)
+                .header(buildHeader())
                 .execute();
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
@@ -1035,7 +1012,7 @@ public class AppleIDUtil {
             return null;
         }
         HttpResponse verifyQuestions1Rsp = HttpUtil.createGet(host + verifyQuestions1Location)
-                .header(headers)
+                .header(buildHeader())
                 .execute();
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
@@ -1063,7 +1040,7 @@ public class AppleIDUtil {
             return null;
         }
         HttpResponse unenrollment1Rsp = HttpUtil.createGet(host + unenrollment1Location)
-                .header(headers)
+                .header(buildHeader())
                 .execute();
 
         HttpResponse unenrollment2Rsp = HttpUtil.createPost(host + "/unenrollment")
@@ -1072,7 +1049,7 @@ public class AppleIDUtil {
 
         String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
         HttpResponse unenrollmentReset1Rsp = HttpUtil.createGet(host + unenrollmentReset1Location)
-                .header(headers)
+                .header(buildHeader())
                 .execute();
 
         HttpResponse unenrollmentReset2Rsp = HttpUtil.createPost(host + "/unenrollment/reset")
@@ -1383,14 +1360,28 @@ public class AppleIDUtil {
     }
 
     private static HashMap<String, List<String>> buildHeader() {
+        return buildHeader(true);
+    }
+
+    private static HashMap<String, List<String>> buildHeader(boolean hasX) {
+        return buildHeader(hasX, null);
+    }
+
+    private static HashMap<String, List<String>> buildHeader(boolean hasX, HttpResponse step211Res) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
+        if (hasX) {
+            headers.put("X-Apple-Domain-Id", ListUtil.toList("1"));
+            headers.put("X-Apple-Frame-Id", ListUtil.toList("auth-ac2s4hiu-l2as-1iqj-r1co-mplxcacq"));
+            headers.put("X-Apple-Widget-Key", ListUtil.toList("af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3"));
+        }
+        if (step211Res != null) {
+            headers.put("X-Apple-ID-Session-Id", ListUtil.toList(step211Res.header("X-Apple-ID-Session-Id")));
+            headers.put("scnt", ListUtil.toList(step211Res.header("scnt")));
+        }
         return headers;
     }
 

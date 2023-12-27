@@ -1,5 +1,6 @@
 package com.sgswit.fx.utils;
 
+
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
@@ -12,6 +13,7 @@ import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Question;
 
@@ -22,86 +24,142 @@ import java.util.Map;
 /**
  * Hello world!
  */
-public class AppleIDUtilBackup {
+public class AppleIDUtilBack {
 
     public static HttpResponse signin(Account account) {
-        HashMap<String, List<String>> headers = buildHeader();
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         String body = "{\"accountName\":\"%s\",\"password\":\"%s\",\"rememberMe\":false,\"trustTokens\":[]}";
         String scBogy = String.format(body, account.getAccount(), account.getPwd());
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin?isRememberMeEnabled=false&isRememberMeEnabled=false")
+        String url = "https://idmsa.apple.com/appleauth/auth/signin?isRememberMeEnabled=false&isRememberMeEnabled=false";
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header(headers)
                 .body(scBogy)
                 .execute();
-        return res;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+        return rsp;
     }
 
-    public static HttpResponse auth(HttpResponse res1) {
-        HashMap<String, List<String>> headers = buildHeader(res1);
+    public static HttpResponse auth(Account account,HttpResponse signInRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/html, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
-        HttpResponse res2 = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth")
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(signInRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(signInRsp.header("scnt")));
+
+        String url = "https://idmsa.apple.com/appleauth/auth";
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header(headers)
-                //.cookie(getCookie(res1))
+                .cookie(account.getCookie())
                 .execute();
 
-        return res2;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+        return rsp;
     }
 
-    public static HttpResponse securityCode(HttpResponse res1, String type, String code) {
-        HashMap<String, List<String>> headers = buildHeader(res1);
+    public static HttpResponse securityCode(Account account,HttpResponse authRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(authRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(authRsp.header("scnt")));
 
         String scDeviceBody = "{\"securityCode\":{\"code\":\"%s\"}}";
         String scPhoneBody = "{\"phoneNumber\":{\"id\":1},\"securityCode\":{\"code\":\"%s\"},\"mode\":\"sms\"}";
 
-        String scBody = "";
-        String scUrl = "";
+        String url = "";
+        String body = "";
+
+        String type = account.getSecurityCode().split("-")[0];
+        String code = account.getSecurityCode().split("-")[1];
 
         if ("device".equals(type)) {
-            scBody = String.format(scDeviceBody, code);
-            scUrl = "https://idmsa.apple.com/appleauth/auth/verify/trusteddevice/securitycode";
+            url = "https://idmsa.apple.com/appleauth/auth/verify/trusteddevice/securitycode";
+            body = String.format(scDeviceBody, code);
         } else if ("sms".equals(type)) {
-            scBody = String.format(scPhoneBody, code);
-            scUrl = "https://idmsa.apple.com/appleauth/auth/verify/phone/securitycode";
+            url = "https://idmsa.apple.com/appleauth/auth/verify/phone/securitycode";
+            body = String.format(scPhoneBody, code);
         }
 
-        HttpResponse res2 = null;
-        if (!"".equals(scBody)) {
-            res2 = HttpUtil.createPost(scUrl)
+        HttpResponse rsp = null;
+        if (!"".equals(body)) {
+            rsp = HttpUtil.createPost(url)
                     .header(headers)
-                    .body(scBody)
-                    .cookie(getCookie(res1))
+                    .body(body)
+                    .cookie(account.getCookie())
                     .execute();
+
+            account.updateLoginInfo(rsp);
+            requestLog(url,headers,rsp);
+
         }
-        return res2;
+        return rsp;
     }
 
-    public static HttpResponse token(HttpResponse res2) {
-        HashMap<String, List<String>> headers = buildHeader(res2);
-        headers.put("Host", ListUtil.toList("appleid.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+    public static HttpResponse questions(Account account,HttpResponse authRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
 
-        HttpResponse res3 = HttpUtil.createGet("https://appleid.apple.com/account/manage/gs/ws/token")
-                .header(headers)
-                .cookie(getCookie(res2))
-                .execute();
-        return res3;
-    }
+        headers.put("Accept", ListUtil.toList("application/json, text/html, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
 
-    public static HttpResponse questions(HttpResponse res1, Account account) {
-        HashMap<String, List<String>> headers = buildHeader(res1);
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        String content = res1.body();
-        String questions = JSONUtil.parseObj(content).getJSONObject("securityQuestions").get("questions").toString();
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(authRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(authRsp.header("scnt")));
+
+        String content = authRsp.body();
+        String questions = content.substring(content.indexOf("{\"direct\":{\"scriptSk7Url\""),content.indexOf("\"additional\":{\"canRoute2sv\":true}}")+35);
+        questions = JSONUtil.parse(questions).getByPath("direct.twoSV.securityQuestions.questions").toString();
+
         List<Question> qs = JSONUtil.toList(questions, Question.class);
         for (int i = 0; i < qs.size(); i++) {
             Question q = qs.get(i);
@@ -114,223 +172,353 @@ public class AppleIDUtilBackup {
             }
         }
 
-        String scBody = "{\"questions\":" + JSONUtil.parse(qs) + "}";
-        HttpResponse res2 = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/verify/questions")
+        String url = "https://idmsa.apple.com/appleauth/auth/verify/questions";
+        String body = "{\"questions\":" + JSONUtil.parse(qs) + "}";
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header(headers)
-                .body(scBody)
-                .cookie(getCookie(res1))
+                .body(body)
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------questions-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------questions-----------------------------------------------");
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
 
-        return res2;
+        return rsp;
     }
 
-    public static HttpResponse accountRepair(HttpResponse res1) {
-        HashMap<String, List<String>> headers = buildHeader(false);
+    public static HttpResponse accountRepair(Account account,HttpResponse questionRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("Sec-Fetch-Dest", ListUtil.toList("iframe"));
-        headers.put("Sec-Fetch-Mode", ListUtil.toList("navigate"));
-        headers.put("navigate", ListUtil.toList("same-site"));
+        headers.put("Sec-Fetch-Dest",ListUtil.toList("iframe"));
+        headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
+        headers.put("navigate",ListUtil.toList("same-site"));
 
-        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.remove("Content-Type");
-        String location = res1.header("Location");
-        HttpResponse res2 = HttpUtil.createGet(location)
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        // https://appleid.apple.com/widget/account/repair?widgetKey=xx&rv=1&language=zh_CN_CHN#!repair
+        String location = questionRsp.header("Location");
+        HttpResponse rsp = HttpUtil.createGet(location)
                 .header(headers)
-                //.cookie(getCookie(res1))
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------accountRepair-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------accountRepair-----------------------------------------------");
+        account.updateLoginInfo(rsp);
+        requestLog(location,headers,rsp);
 
-        return res2;
+        return rsp;
     }
 
-    public static HttpResponse repareOptions(HttpResponse step211Res, HttpResponse step212Res) {
-        HashMap<String, List<String>> headers = buildHeader(step211Res);
+    public static HttpResponse repareOptions(Account account,HttpResponse questionRsp,HttpResponse accountRepairRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
 
-        //headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[\"hsa2_enrollment\"]"));
-        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
-        headers.put("X-Apple-Session-Token", ListUtil.toList(step211Res.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> res211Cookies = step211Res.headerList("Set-Cookie");
-        for (String item : res211Cookies) {
-            cookieBuilder.append(";").append(item);
-        }
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
-        List<String> res212Cookies = step212Res.headerList("Set-Cookie");
-        for (String item : res212Cookies) {
-            cookieBuilder.append(";").append(item);
-        }
 
-        //System.out.println(cookieBuilder.toString());
-        String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(questionRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(accountRepairRsp.header("scnt")));
+
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(questionRsp.header("X-Apple-Repair-Session-Token")));
+
+        String url = "https://appleid.apple.com/account/manage/repair/options";
+        HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
-                //.cookie(cookieBuilder.toString())
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------repareOptions-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------repareOptions-----------------------------------------------");
-        return res2;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
     }
 
-    public static HttpResponse securityUpgrade(HttpResponse res1, String XAppleIDSessionId, String scnt) {
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("Host", ListUtil.toList("appleid.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+    public static HttpResponse securityUpgrade(Account account,HttpResponse repareOptionsRsp,String XAppleIDSessionId,String scnt) {
+        HashMap<String, List<String>> headers = new HashMap<>();
 
-        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
-        headers.put("scnt", ListUtil.toList(scnt));
-        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
-        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
-
-        String scUrl = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
-                .header(headers)
-                //.cookie(getCookie(res1))
-                .execute();
-
-//        System.out.println("------------------securityUpgrade-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------securityUpgrade-----------------------------------------------");
-        return res2;
-    }
-
-    public static HttpResponse securityUpgradeSetuplater(HttpResponse res1, String XAppleIDSessionId, String scnt) {
-        HashMap<String, List<String>> headers = buildHeader();
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
 
-        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
-        headers.put("scnt", ListUtil.toList(scnt));
-        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
-        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[]"));
+        headers.put("X-Apple-Domain-Id", List.of(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+        headers.put("scnt",ListUtil.toList(scnt));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(repareOptionsRsp.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+
+        String url = "https://appleid.apple.com/account/security/upgrade";
+        HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
-                //.cookie(getCookie(res1))
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------securityUpgradeSetuplater-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------securityUpgradeSetuplater-----------------------------------------------");
-        return res2;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
     }
 
-    public static HttpResponse repareOptionsSecond(HttpResponse res1, String XAppleIDSessionId, String scnt) {
-        HashMap<String, List<String>> headers = buildHeader();
+    public static HttpResponse securityUpgradeSetuplater(Account account,HttpResponse securityUpgradeRsp,String XAppleIDSessionId,String scnt) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
-        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
 
-        headers.put("X-Apple-ID-Session-Id", ListUtil.toList(XAppleIDSessionId));
-        headers.put("scnt", ListUtil.toList(scnt));
-        headers.put("X-Apple-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
-        headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+        headers.put("scnt",ListUtil.toList(scnt));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(securityUpgradeRsp.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+
+        String url = "https://appleid.apple.com/account/security/upgrade/setuplater";
+        HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
-                //.cookie(getCookie(res1))
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------repair/options -----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------repair/options -----------------------------------------------");
-        return res2;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
     }
 
-    public static HttpResponse repareComplete(HttpResponse res1, HttpResponse step211Res) {
-        HashMap<String, List<String>> headers = buildHeader(step211Res);
+    public static HttpResponse repareOptionsSecond(Account account,HttpResponse securityUpgradeSetuplaterRsp,String XAppleIDSessionId,String scnt) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+        headers.put("scnt",ListUtil.toList(scnt));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(securityUpgradeSetuplaterRsp.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[\"hsa2_enrollment\"]"));
+
+        String url = "https://appleid.apple.com/account/manage/repair/options";
+        HttpResponse rsp = HttpUtil.createGet(url)
+                .header(headers)
+                .cookie(account.getCookie())
+                .execute();
+
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
+    }
+
+    public static HttpResponse repareComplete(Account account,HttpResponse repareOptionsSecondRsp,HttpResponse questionRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Repair-Session-Token", ListUtil.toList(res1.header("X-Apple-Session-Token")));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        String scUrl = "https://idmsa.apple.com/appleauth/auth/repair/complete";
-        HttpResponse res2 = HttpUtil.createPost(scUrl)
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(questionRsp.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(questionRsp.header("scnt")));
+        headers.put("X-Apple-Repair-Session-Token",ListUtil.toList(repareOptionsSecondRsp.header("X-Apple-Session-Token")));
+
+        String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header(headers)
-                //.cookie(getCookie(res1))
+                .cookie(account.getCookie())
                 .execute();
 
-//        System.out.println("------------------repareComplete-----------------------------------------------");
-//        System.out.println(res2.getStatus());
-//        System.out.println(res2.headers());
-//        System.out.println(res2.headerList("Set-Cookie"));
-//        System.out.println("------------------repareComplete-----------------------------------------------");
-        return res2;
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
+    }
+
+    public static HttpResponse token(Account account,HttpResponse securityCodeOrReparCompleteRsp) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("appleid.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("scnt",ListUtil.toList(securityCodeOrReparCompleteRsp.header("scnt")));
+
+        String url = "https://appleid.apple.com/account/manage/gs/ws/token";
+        HttpResponse rsp = HttpUtil.createGet(url)
+                .header(headers)
+                .cookie(account.getCookie())
+                .execute();
+
+        account.updateLoginInfo(rsp);
+        account.setScnt(securityCodeOrReparCompleteRsp.header("scnt"));
+        requestLog(url,headers,rsp);
+        return rsp;
     }
 
     /**
      * 获取账户信息
      */
-    public static HttpResponse account(HttpResponse res3) {
-        HashMap<String, List<String>> headers = buildHeader(false, res3);
+    public static HttpResponse account(Account account) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
         headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
 
-        HttpResponse res4 = HttpUtil.createGet("https://appleid.apple.com/account/manage")
+        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(account.getXAppleIDSessionId()));
+        headers.put("scnt",ListUtil.toList(account.getScnt()));
+
+        String url = "https://appleid.apple.com/account/manage";
+        HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
-                .cookie(getCookie(res3))
+                .cookie(account.getCookie())
                 .execute();
-        return res4;
+
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
     }
 
     /**
      * 修改用户生日信息
      * @param birthday 生日 yyyy-MM-dd
      */
-    public static HttpResponse updateBirthday(String scnt, String birthday) {
-        String url = "https://appleid.apple.com/account/manage/security/birthday";
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
+    public static HttpResponse updateBirthday(Account account,String birthday) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        String url = "https://appleid.apple.com/account/manage/security/birthday";
         String[] birthdayArr = birthday.split("-");
         String format = "{\"dayOfMonth\":\"%s\",\"monthOfYear\":\"%s\",\"year\":\"%s\"}";
         String body = String.format(format, birthdayArr[2], birthdayArr[1], birthdayArr[0]);
 
-        return HttpUtil.createRequest(Method.PUT, url)
+        HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .body(body)
                 .header(headers)
                 .execute();
+
+        account.updateLoginInfo(rsp);
+        requestLog(url,headers,rsp);
+
+        return rsp;
     }
 
     /**
      * 移除救援邮箱
      */
-    public static HttpResponse deleteRescueEmail(String scnt,String password) {
+    public static HttpResponse deleteRescueEmail(Account account) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
         HttpResponse rsp = HttpUtil.createRequest(Method.DELETE, url)
                 .header(headers)
                 .execute();
@@ -345,8 +533,8 @@ public class AppleIDUtilBackup {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,password);
-            return deleteRescueEmail(scnt,password);
+            verifyPassword(rsp,account.getPwd());
+            return deleteRescueEmail(account);
         }
 
         return rsp;
@@ -415,12 +603,31 @@ public class AppleIDUtilBackup {
     /**
      * 修改名称
      */
-    public static HttpResponse updateName(String scnt,String password,String firstName,String lastName) {
+    public static HttpResponse updateName(Account account,String password,String firstName,String lastName) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/name";
         String body = String.format("{\"firstName\":\"%s\",\"middleName\":\"\",\"lastName\":\"%s\"}",firstName,lastName);
-
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -433,40 +640,78 @@ public class AppleIDUtilBackup {
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,password);
-            return updateName(scnt,password,firstName,lastName);
+            return updateName(account,password,firstName,lastName);
         }
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
     /**
      * 修改密码
      */
-    public static HttpResponse updatePassword(String scnt,String password,String newPassword){
+    public static HttpResponse updatePassword(Account account,String password,String newPassword){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/security/password";
         String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
-
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
-
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .body(body)
                 .execute();
 
         int status = rsp.getStatus();
+        account.updateLoginInfo(rsp);
         rspLog(Method.PUT,url,status);
-
         return rsp;
     }
 
     /**
      * 修改密保
      */
-    public static HttpResponse updateQuestions(String scnt,String password,String body){
+    public static HttpResponse updateQuestions(Account account,String body){
         String url = "https://appleid.apple.com/account/manage/security/questions";
 
-        HashMap<String, List<String>> headers = buildHeader();
-        headers.put("scnt", ListUtil.toList(scnt));
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
         HttpResponse rsp = HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
@@ -478,9 +723,10 @@ public class AppleIDUtilBackup {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,password);
-            return updateQuestions(scnt,password,body);
+            verifyPassword(rsp,account.getPwd());
+            return updateQuestions(account,body);
         }
+        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -501,9 +747,30 @@ public class AppleIDUtilBackup {
      * 获取设备列表
      * todo ? 为什么啥参数都不传可以确定是哪一个Appleid账号啊！
      */
-    public static HttpResponse getDeviceList(){
+    public static HttpResponse getDeviceList(Account account){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("scnt", ListUtil.toList(account.getScnt()));
+
+        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
+        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
         String url = "https://appleid.apple.com/account/manage/security/devices";
-        HashMap<String, List<String>> headers = buildHeader();
         HttpResponse rsp = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
@@ -758,7 +1025,7 @@ public class AppleIDUtilBackup {
 
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,appleId,captId,captAnswer,captToken);
-        HttpResponse verifyAppleIdRsp = AppleIDUtilBackup.verifyAppleId(verifyAppleIdBody);
+        HttpResponse verifyAppleIdRsp = AppleIDUtilBack.verifyAppleId(verifyAppleIdBody);
 
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() == 200 && retry > 0){
@@ -792,9 +1059,9 @@ public class AppleIDUtilBackup {
         boolean unlock = location.startsWith("/password/authenticationmethod");
         // 解锁并且改密
         if (unlock){
-            rsp = AppleIDUtilBackup.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPwd);
+            rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPwd);
         }else{//忘记密码
-            rsp = AppleIDUtilBackup.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPwd);
+            rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPwd);
         }
         return rsp;
     }
@@ -1026,6 +1293,22 @@ public class AppleIDUtilBackup {
 
     private static void rspLog(Method method,String url,Integer status){
         Console.log("[{}] {}  Response status: {}",method.name(),url,status);
+    }
+
+    private static void requestLog(String url,HashMap<String, List<String>> headers,HttpResponse rsp){
+        Console.log("Req: {}  Response status: {}",url,rsp.getStatus());
+        //Console.log(rsp.headers());
+        //Console.log(rsp.headerList("Set-Cookie"));
+        Console.log("X-Apple-ID-Session-Id:" + headers.get("X-Apple-ID-Session-Id"));
+        Console.log("X-Apple-Repair-Session-Token:" + headers.get("X-Apple-Repair-Session-Token"));
+        Console.log("X-Apple-Session-Token:" + headers.get("X-Apple-Session-Token"));
+        Console.log("SCNT: " + headers.get("scnt"));
+
+        Console.log("X-Apple-ID-Session-Id:" + rsp.header("X-Apple-ID-Session-Id"));
+        Console.log("X-Apple-Repair-Session-Token:" + rsp.header("X-Apple-Repair-Session-Token"));
+        Console.log("X-Apple-Session-Token:" + rsp.header("X-Apple-Session-Token"));
+        Console.log("SCNT: " + rsp.header("scnt"));
+        Console.log("------------------------------------------------------------------------------");
     }
 
     public boolean hasFailMessage(HttpResponse rsp) {
