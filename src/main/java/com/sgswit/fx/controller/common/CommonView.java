@@ -70,7 +70,7 @@ public class CommonView implements Initializable {
 
     public Boolean hasFailMessage(HttpResponse rsp) {
         String body = rsp.body();
-        if (StrUtil.isEmpty(body) || JSONUtil.isTypeJSON(body)){
+        if (StrUtil.isEmpty(body) || !JSONUtil.isTypeJSON(body)){
             return false;
         }
         Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
