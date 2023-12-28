@@ -12,13 +12,11 @@ import com.sgswit.fx.utils.ICloudWeblogin;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PListUtil;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ICloudView<T> extends CustomTableView<T> {
 
@@ -118,6 +116,14 @@ public class ICloudView<T> extends CustomTableView<T> {
             return null;
         }
         return String.join(";", messageList);
+    }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        onContentMenuClick(contextMenuEvent, new ArrayList<>(menuItem));
+    }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent, List<String> menuItemList) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItemList,new ArrayList<>());
     }
 
 }

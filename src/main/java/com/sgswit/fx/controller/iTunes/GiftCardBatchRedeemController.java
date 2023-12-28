@@ -32,10 +32,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 

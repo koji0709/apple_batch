@@ -8,6 +8,7 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
@@ -44,6 +45,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
+
+    public Set<String> menuItem =new LinkedHashSet<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
 
     @FXML
     protected Button executeButton;

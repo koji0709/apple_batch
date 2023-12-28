@@ -19,11 +19,6 @@ import java.util.*;
 
 public class AppleIdView extends CustomTableView<Account> {
 
-    public Set<String> menuItem =new LinkedHashSet<>(){{
-        add(Constant.RightContextMenu.DELETE.getCode());
-        add(Constant.RightContextMenu.REEXECUTE.getCode());
-        add(Constant.RightContextMenu.COPY.getCode());
-    }};
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
