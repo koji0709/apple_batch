@@ -139,7 +139,7 @@
                 <!--账号列表-->
                 <TitledPane text="账号列表" collapsible="false" animated="false">
                     <content>
-                        <TableView fx:id="accountTableView" prefWidth="1160" prefHeight="500">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefWidth="1160" prefHeight="500">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号"/>
                                 <TableColumn fx:id="account" prefWidth="150" text="账号"/>

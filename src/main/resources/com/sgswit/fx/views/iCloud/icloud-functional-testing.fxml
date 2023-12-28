@@ -96,7 +96,7 @@
                 <!--账号列表-->
                 <TitledPane animated="false" collapsible="false" text="账号列表">
                     <content>
-                        <TableView fx:id="accountTableView" prefHeight="400.0" prefWidth="1030.0">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0" prefWidth="1030.0">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="150" text="账号" />
