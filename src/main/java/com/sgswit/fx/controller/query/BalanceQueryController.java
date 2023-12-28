@@ -25,6 +25,8 @@ public class BalanceQueryController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        account.setNote("查询余额中");
+        accountTableView.refresh();
         Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
         if(res.get("code").equals(Constant.SUCCESS)){
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");

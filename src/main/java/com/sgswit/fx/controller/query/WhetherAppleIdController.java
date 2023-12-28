@@ -30,6 +30,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        account.setNote("查询中");
+        accountTableView.refresh();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
