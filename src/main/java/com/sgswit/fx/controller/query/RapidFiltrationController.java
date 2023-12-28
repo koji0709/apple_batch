@@ -42,6 +42,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     @Override
     public void accountHandler(Account account) {
         //step1 sign 登录
+        account.setNote("登录中");
+        accountTableView.refresh();
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
         if (step1Res.getStatus() != 409) {

@@ -43,11 +43,14 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
     @Override
     public void accountHandler(Problem problem) {
         //step1 sign 登录
+        problem.setNote("登录中");
+        accountTableView.refresh();
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
         HttpResponse step1Res = AppleIDUtil.signin(account);
-
+        problem.setNote("查询密保问题中");
+        accountTableView.refresh();
         if (step1Res.getStatus() == 503) {
             num++;
             if(num >= 5){

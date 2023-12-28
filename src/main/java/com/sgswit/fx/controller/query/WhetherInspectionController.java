@@ -24,7 +24,11 @@ public class WhetherInspectionController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        account.setNote("登录中");
+        accountTableView.refresh();
         Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
+        account.setNote("查询是否过检中");
+        accountTableView.refresh();
         if(res.get("code").equals(Constant.SUCCESS)){
             int purchasesLast90Count=0;
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
