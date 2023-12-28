@@ -51,4 +51,18 @@ public class NbUtil {
         }
         return resultMap;
     }
+
+    public static List<String> getGlobalMobilePhoneRegular(){
+        String mobilePhoneJson = ResourceUtil.readUtf8Str("data/global-mobile-phone-regular.json");
+        JSONObject jsonObj = JSONUtil.parseObj(mobilePhoneJson);
+        JSONArray mobilephoneArray = jsonObj.getJSONArray("data");
+        List<String> resultList = new ArrayList<>();
+        for (Object o : mobilephoneArray) {
+            JSONObject json = (JSONObject) o;
+            String format = "+%s（%s）";
+            resultList.add(String.format(format,json.getStr("code"),json.getStr("zh")));
+        }
+        return resultList;
+    }
+
 }

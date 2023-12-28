@@ -1,6 +1,6 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.lang.Console;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -12,16 +12,40 @@ import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
-import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 
 /**
  * 双重认证controller
  */
 public class SecurityUpgradeController extends SecurityUpgradeView {
+
+    Map<String,JSONObject> globalMobilePhoneMap = new HashMap<>();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
+        initViewData();
+    }
+
+    public void initViewData(){
+        // 默认中国
+        dialCodeChoiceBox.setValue("+86(中国大陆)");
+        String mobilePhoneJson = ResourceUtil.readUtf8Str("data/global-mobile-phone-regular.json");
+        JSONObject jsonObj = JSONUtil.parseObj(mobilePhoneJson);
+        JSONArray mobilephoneArray = jsonObj.getJSONArray("data");
+        for (Object o : mobilephoneArray) {
+            JSONObject json = (JSONObject) o;
+            // +86（中国大陆）
+            String format = "+%s(%s)";
+            String code = json.getStr("code");
+            String zh = json.getStr("zh");
+            dialCodeChoiceBox.getItems().add(String.format(format, code, zh));
+            globalMobilePhoneMap.put(code,json);
+        }
+    }
 
     /**
      * 导入账号按钮点击
@@ -41,12 +65,22 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         String phone = account.getPhone();
         Object verifyCode = account.getAuthData().get("verifyCode");
         if (verifyCode == null){
-            String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\"CN\",\"number\":\""+phone+"\",\"countryDialCode\":\"86\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
+            String format = dialCodeChoiceBox.getValue().toString();
+            String countryDialCode   = format.substring(1,format.indexOf("("));
+            JSONObject json = globalMobilePhoneMap.get(countryDialCode);
+            String countryCode = json.getStr("locale");
 
+            String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\""+countryCode+"\",\"number\":\""+phone+"\",\"countryDialCode\":\""+countryDialCode+"\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
+
+            HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
                 throwAndRefreshNote(account,"操作频繁");
             }
+            String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
+            if (!StrUtil.isEmpty(failMessage)){
+                throwAndRefreshNote(account,failMessage);
+            }
+
             JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
             String areaCode = jsonBody.getByPath("phoneNumberVerification.phoneNumber.countryCode", String.class);
             account.setArea(DataUtil.getNameByCountryCode(areaCode));
