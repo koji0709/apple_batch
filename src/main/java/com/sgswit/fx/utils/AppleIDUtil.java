@@ -1217,6 +1217,7 @@ public class AppleIDUtil {
         HttpResponse options1Rsp = HttpUtil.createGet(host + options1Location)
                 .header(buildHeader(account))
                 .execute();
+
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
         Console.log("recoveryOptions:", recoveryOptions);
 
@@ -1293,6 +1294,7 @@ public class AppleIDUtil {
                 .header(passwordReset1Rsp.headers())
                 .header("Content-Type","application/json")
                 .body("{\"password\":\""+newPwd+"\"}")
+                .cookie(CookieUtils.getCookiesFromHeader(passwordReset1Rsp))
                 .execute();
 
         return passwordReset2Rsp;
@@ -1393,9 +1395,9 @@ public class AppleIDUtil {
 
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
             
-        if (!StrUtil.isEmpty(account.getScnt())){
-            headers.put("scnt",List.of(account.getScnt()));
-        }
+//        if (!StrUtil.isEmpty(account.getScnt())){
+//            headers.put("scnt",List.of(account.getScnt()));
+//        }
         return headers;
     }
 }
