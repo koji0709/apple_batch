@@ -23,6 +23,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,10 +31,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
@@ -223,68 +221,94 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * 检测账号按钮点击
      */
     public void checkAccountBtnAction(){
-        String accountComboBoxValue = accountComboBox.getValue();
-        if (StrUtil.isEmpty(accountComboBoxValue)){
-            checkAccountDescLabel.setText("请先输入账号信息");
-            return;
-        }
-        String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
-        if (accountComboBoxValueArr.length != 2){
-            checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
-            return;
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    String accountComboBoxValue = accountComboBox.getValue();
+                    if (StrUtil.isEmpty(accountComboBoxValue)){
+                        checkAccountDescLabel.setText("请先输入账号信息");
+                        return;
+                    }
+                    String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
+                    if (accountComboBoxValueArr.length != 2){
+                        checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
+                        return;
+                    }
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkAccountDescLabel.setText("");
+                            statusLabel.setText( "状态：" + "正在检测...");
+                            checkAccountBtn.setDisable(true);
+                            open2FAViewBtn.setDisable(true);
+                            editOrImportAccountListBtn.setDisable(true);
+                        }
+                    });
+                    String account = accountComboBoxValueArr[0];
+                    String pwd     = accountComboBoxValueArr[1];
+                    String guid = DataUtil.getGuidByAppleId(account);
+                    if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
+                            || !account.equals(singleGiftCardRedeem.getAccount())
+                            || !pwd.equals(singleGiftCardRedeem.getAccount())
+                            || !singleGiftCardRedeem.isLogin()){
+                        singleGiftCardRedeem.setAccount(account);
+                        singleGiftCardRedeem.setPwd(pwd);
+                        singleGiftCardRedeem.setGuid(guid);
+                        singleGiftCardRedeem.setNote("");
+                        singleGiftCardRedeem.setIsLogin(false);
+                        itunesLogin(singleGiftCardRedeem);
+                    }
 
-        checkAccountDescLabel.setText("");
-        statusLabel.setText( "状态：" + "正在检测...");
-        checkAccountBtn.setDisable(true);
-        open2FAViewBtn.setDisable(true);
-        editOrImportAccountListBtn.setDisable(true);
-
-        String account = accountComboBoxValueArr[0];
-        String pwd     = accountComboBoxValueArr[1];
-        String guid = DataUtil.getGuidByAppleId(account);
-
-        try{
-            if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
-                    || !account.equals(singleGiftCardRedeem.getAccount())
-                    || !pwd.equals(singleGiftCardRedeem.getAccount())
-                    || !singleGiftCardRedeem.isLogin()){
-                singleGiftCardRedeem.setAccount(account);
-                singleGiftCardRedeem.setPwd(pwd);
-                singleGiftCardRedeem.setGuid(guid);
-                singleGiftCardRedeem.setNote("");
-                singleGiftCardRedeem.setIsLogin(false);
-                itunesLogin(singleGiftCardRedeem);
+                    HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
+                    String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+                    String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
+                    country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
+                    JSONObject rspJSON = PListUtil.parse(authRsp.body());
+                    String  balance           = rspJSON.getStr("creditDisplay","0");
+                    Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
+                    String  status            = !isDisabledAccount ? "正常" : "禁用";
+                    String finalCountry = country;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            countryLabel.setText("国家：" + finalCountry);
+                            blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
+                            statusLabel.setText( "状态：" + status);
+                        }
+                    });
+                }catch (ServiceException e){
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkAccountDescLabel.setText(singleGiftCardRedeem.getNote());
+                            countryLabel.setText("国家：" + "");
+                            blanceLabel.setText( "余额：" + "");
+                            statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
+                        }
+                    });
+                }catch (Exception e){
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkAccountDescLabel.setText("接口数据处理异常");
+                            countryLabel.setText("国家：" + "");
+                            blanceLabel.setText( "余额：" + "");
+                            statusLabel.setText( "状态：" + "接口数据处理异常");
+                        }
+                    });
+                } finally {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkAccountBtn.setDisable(false);
+                            open2FAViewBtn.setDisable(false);
+                            editOrImportAccountListBtn.setDisable(false);
+                        }
+                    });
+                }
             }
-
-            HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
-            String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-            String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
-            country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
-            JSONObject rspJSON = PListUtil.parse(authRsp.body());
-            String  balance           = rspJSON.getStr("creditDisplay","0");
-            Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
-            String  status            = !isDisabledAccount ? "正常" : "禁用";
-
-            countryLabel.setText("国家：" + country);
-            blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
-            statusLabel.setText( "状态：" + status);
-        }catch (ServiceException e){
-            checkAccountDescLabel.setText(singleGiftCardRedeem.getNote());
-            countryLabel.setText("国家：" + "");
-            blanceLabel.setText( "余额：" + "");
-            statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
-        }catch (Exception e){
-            checkAccountDescLabel.setText("接口数据处理异常");
-            countryLabel.setText("国家：" + "");
-            blanceLabel.setText( "余额：" + "");
-            statusLabel.setText( "状态：" + "接口数据处理异常");
-        } finally {
-            checkAccountBtn.setDisable(false);
-            open2FAViewBtn.setDisable(false);
-            editOrImportAccountListBtn.setDisable(false);
-        }
-
+        }).start();
     }
 
     /**
