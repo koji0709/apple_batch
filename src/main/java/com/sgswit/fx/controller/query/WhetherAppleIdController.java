@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -32,6 +33,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
     public void accountHandler(Account account) {
         account.setNote("查询中");
         accountTableView.refresh();
+        ThreadUtil.sleep(1000);
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -52,6 +54,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         String capToken = object.getStr("token");
 
         //解析图片
+        ThreadUtil.sleep(1000);
         JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
         String content = payloadJson.getStr("content");
         String predict = OcrUtil.recognize(content);

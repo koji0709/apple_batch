@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.query;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -48,6 +49,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
+        ThreadUtil.sleep(1000);
         HttpResponse step1Res = AppleIDUtil.signin(account);
         problem.setNote("查询密保问题中");
         accountTableView.refresh();
@@ -70,6 +72,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             return;
         }
         //step2 获取认证信息 -- 需要输入密保
+        ThreadUtil.sleep(1000);
         HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
