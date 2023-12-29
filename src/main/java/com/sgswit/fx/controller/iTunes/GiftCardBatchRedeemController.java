@@ -227,12 +227,23 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 try{
                     String accountComboBoxValue = accountComboBox.getValue();
                     if (StrUtil.isEmpty(accountComboBoxValue)){
-                        checkAccountDescLabel.setText("请先输入账号信息");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkAccountDescLabel.setText("请先输入账号信息");
+                            }
+                        });
+
                         return;
                     }
                     String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
                     if (accountComboBoxValueArr.length != 2){
-                        checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
+                            }
+                        });
                         return;
                     }
                     Platform.runLater(new Runnable() {
