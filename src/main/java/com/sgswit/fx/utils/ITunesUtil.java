@@ -22,6 +22,8 @@ import com.dd.plist.NSObject;
 import com.dd.plist.PropertyListFormatException;
 import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
+import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.Account;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -522,12 +524,11 @@ public class ITunesUtil {
     /**
      * 购买
      */
-    public static HttpResponse purchase(HttpResponse authRsp,String guid,String trackId,String url) {
-        JSONObject json = PListUtil.parse(authRsp.body());
-        String itspod = authRsp.header(Constant.ITSPOD);
-        String dsPersonId = json.getStr("dsPersonId","");
-        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-        String passwordToken = json.getStr("passwordToken","");
+    public static HttpResponse purchase(AppstoreDownloadVo appstoreDownloadVo, String trackId, String url) {
+        String itspod = appstoreDownloadVo.getItspod();
+        String dsPersonId = appstoreDownloadVo.getDsPersonId();
+        String storeFront = appstoreDownloadVo.getStoreFront();
+        String passwordToken = appstoreDownloadVo.getPasswordToken();
 
         url = StrUtil.isEmpty(url) ? "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZBuy.woa/wa/buyProduct" : url;
 
@@ -570,7 +571,7 @@ public class ITunesUtil {
                 "        <integer>%s</integer>\n" +
                 "    </dict>\n" +
                 "</plist>";
-        body = String.format(body,guid,trackId,trackId);
+        body = String.format(body,appstoreDownloadVo.getGuid(),trackId,trackId);
         HttpResponse purchaseRsp = HttpUtil.createPost(url)
                 .header(headers)
                 .body(body)
@@ -579,7 +580,7 @@ public class ITunesUtil {
         // 重定向
         if(purchaseRsp.getStatus() == 307 || purchaseRsp.getStatus() ==302){
             String location = purchaseRsp.header("Location");
-            purchaseRsp = purchase(authRsp,guid,trackId,location);
+            purchaseRsp = purchase(appstoreDownloadVo,trackId,location);
         }
 
         return purchaseRsp;
@@ -588,16 +589,13 @@ public class ITunesUtil {
     /**
      * 获取appstore下载地址
      */
-    public static HttpResponse appstoreDownloadUrl(HttpResponse authRsp,String guid,String trackId,String downloadUrl) {
+    public static HttpResponse appstoreDownloadUrl(AppstoreDownloadVo appstoreDownloadVo,String trackId,String downloadUrl) {
         if (StrUtil.isEmpty(downloadUrl)){
-            downloadUrl = "https://p34-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid="+guid;
+            downloadUrl = "https://p34-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct?guid="+appstoreDownloadVo.getGuid();
         }
-
-        JSONObject json = PListUtil.parse(authRsp.body());
-
-        String dsPersonId = json.getStr("dsPersonId","");
-        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-        String passwordToken = json.getStr("passwordToken","");
+        String dsPersonId = appstoreDownloadVo.getDsPersonId();
+        String storeFront = appstoreDownloadVo.getStoreFront();
+        String passwordToken = appstoreDownloadVo.getPasswordToken();
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
@@ -620,15 +618,15 @@ public class ITunesUtil {
                 "        <integer>%s</integer>\n" +
                 "    </dict>\n" +
                 "</plist>";
-        body = String.format(body,guid,trackId);
+        body = String.format(body,appstoreDownloadVo.getGuid(),trackId);
         HttpResponse downloadRsp = HttpUtil.createPost(downloadUrl)
                 .header(headers)
-                .cookie(authRsp.getCookies())
+                .cookie(appstoreDownloadVo.getCookie())
                 .body(body)
                 .execute();
 
         if(downloadRsp.getStatus() == 307 || downloadRsp.getStatus() ==302){
-            return appstoreDownloadUrl(authRsp,guid,trackId,downloadRsp.header("Location"));
+            return appstoreDownloadUrl(appstoreDownloadVo,trackId,downloadRsp.header("Location"));
         }
         return downloadRsp;
     }
@@ -636,13 +634,13 @@ public class ITunesUtil {
     /**
      * 礼品卡兑换
      */
-    public static HttpResponse redeem(HttpResponse authRsp,String guid,String cardCode){
-        JSONObject authBody = PListUtil.parse(authRsp.body());
-        String itspod = authRsp.header(Constant.ITSPOD);
-        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-        String dsPersonId = authBody.getStr("dsPersonId","");
-//        String dsPersonId = "1234";
-        String passwordToken = authBody.getStr("passwordToken","");
+    public static HttpResponse redeem(GiftCardRedeem giftCardRedeem){
+        String itspod        = giftCardRedeem.getItspod();
+        String storeFront    = giftCardRedeem.getStoreFront();
+        String dsPersonId    = giftCardRedeem.getDsPersonId();
+        String passwordToken = giftCardRedeem.getPasswordToken();
+        String guid          = giftCardRedeem.getGuid();
+        String cardCode      = giftCardRedeem.getGiftCardCode();
 
         String redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -683,7 +681,7 @@ public class ITunesUtil {
                 "</plist>";
             HttpResponse redeemRsp = HttpUtil.createPost(redeemUrl)
                     .header(headers)
-                    .cookie(getCookie(authRsp))
+                    .cookie(giftCardRedeem.getCookie())
                     .body(redeemBody)
                     .execute();
             return redeemRsp;
@@ -722,142 +720,6 @@ public class ITunesUtil {
 
         //downloadDemo();
 //        subscriptionDemo();
-        redeemDemo();
-    }
-
-
-    private static void downloadDemo(){
-        Account account = new Account();
-//        account.setAccount("djli0506@163.com");
-//        account.setPwd("!!B0527s0207!!");
-        account.setAccount("qewqeq@2980.com");
-        account.setPwd("dPFb6cSD41");
-
-        String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
-        HttpResponse authRsp = null;
-        String storeFront = "";
-
-        // 鉴权
-        if (authRsp != null && authRsp.getStatus() == 200){
-            JSONObject rspJSON = PListUtil.parse(authRsp.body());
-            String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);
-            String lastName  = rspJSON.getByPath("accountInfo.address.lastName",String.class);
-            String creditDisplay  = rspJSON.getByPath("creditDisplay",String.class);
-            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
-
-            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
-            storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-        }
-
-        // 搜索应用
-        if (!StrUtil.isEmpty(storeFront)){
-            String countryCode = StoreFontsUtils.getCountryCodeFromStoreFront(storeFront);
-            Console.log("请输入关键字: ");
-            String term = Console.input();
-            HttpResponse appstoreSearchRsp = ITunesUtil.appstoreSearch(countryCode, term, 2);
-            if (appstoreSearchRsp.getStatus() == 200){
-                String appstoreSearchBody = appstoreSearchRsp.body();
-                JSONObject entries = JSONUtil.parseObj(appstoreSearchBody);
-                JSONArray results = entries.getJSONArray("results");
-                if (!CollUtil.isEmpty(results)){
-                    for (Object result : results) {
-                        JSONObject track = (JSONObject) result;
-//                        Long trackId = track.getLong("trackId");
-                        Long trackId = 1232780281L;
-                        String trackName = track.getStr("trackName");
-                        String artworkUrl100 = track.getStr("artworkUrl100");
-                        Double price = track.getDouble("price");
-                        Console.log("APP [{}] trackId:{}, price:{}, icon:{}",trackName,trackId,price,artworkUrl100);
-
-                        // 购买
-                        if (price > 0){
-                            Console.log("暂只支持免费应用！[{}] 价格:{}",trackName,price);
-                            continue;
-                        }
-
-                        HttpResponse purchaseRsp = ITunesUtil.purchase(authRsp, guid, trackId.toString(),"");
-                        String purchaseBody = purchaseRsp.body();
-
-                        if (!StrUtil.isEmpty(purchaseBody) && JSONUtil.isTypeJSON(purchaseBody)){
-                            JSONObject purchaseJSON = JSONUtil.parseObj(purchaseBody);
-                            String purchaseJdt = purchaseJSON.getStr("jingleDocType","");
-                            String purchaseStatus   = purchaseJSON.getStr("status","");
-                            if(!"purchaseSuccess".equals(purchaseJdt) || !"0".equals(purchaseStatus)){
-                                String failureType = purchaseJSON.getStr("failureType");
-                                String customerMessage = purchaseJSON.getStr("customerMessage");
-                                Console.log("[{}]购买失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
-                                continue;
-                            }
-                        }
-
-                        Console.log("[{}] 购买成功",trackName);
-
-                        HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl(authRsp, guid, trackId.toString(), "");
-                        JSONObject appstoreDownloadUrlBody = PListUtil.parse(appstoreDownloadUrlRsp.body());
-
-                        String appstoreDownloadUrlJdt = appstoreDownloadUrlBody.getStr("jingleDocType","");
-                        String appstoreDownloadUrlStatus   = appstoreDownloadUrlBody.getStr("status","");
-                        if(!"purchaseSuccess".equals(appstoreDownloadUrlJdt) || !"0".equals(appstoreDownloadUrlStatus)){
-                            String failureType = appstoreDownloadUrlBody.getStr("failureType");
-                            String customerMessage = appstoreDownloadUrlBody.getStr("customerMessage");
-                            Console.log("[{}] 获取下载链接失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
-                            continue;
-                        }
-
-                        JSONArray songList = appstoreDownloadUrlBody.getJSONArray("songList");
-                        if (songList.isEmpty()){
-                            Console.log("songList is empty");
-                            continue;
-                        }
-
-                        JSONObject song = (JSONObject)songList.get(0);
-                        String url = song.getStr("URL");
-                        JSONObject metadata = song.getJSONObject("metadata");
-
-                        String filePath = "/Users/koji/workspace/tmp/";
-                        String fileName = String.format("%s-%s-%s.ipa"
-                                ,metadata.getStr("softwareVersionBundleId")
-                                ,metadata.getStr("artistId")
-                                ,metadata.getStr("bundleShortVersionString"));
-
-                        Console.log("[{}] 获取下载链接成功; fileName:{}, url:{}",trackName,fileName,url);
-
-                        // 下载
-                        HttpUtil.downloadFile(url, new File(filePath + fileName), new StreamProgress() {
-                            @Override
-                            public void start() {
-                                Console.log("[{}] 开始下载...",trackName);
-                            }
-                            @Override
-                            public void progress(long total, long progressSize) {
-//                                Console.log("[{}] 已下载: {}/{}",trackName,progressSize,total);
-                                Console.log("[{}] 总大小:{} 已下载：{}",trackName, FileUtil.readableFileSize(total),FileUtil.readableFileSize(progressSize));
-                            }
-
-                            @Override
-                            public void finish() {
-                                Console.log("[{}] 下载完成",trackName);
-                            }
-                        });
-
-                        // zip
-                        try {
-                            Path zipPath = Paths.get(filePath + fileName);
-                            File tmpFile = new File("tmp.plist");
-                            FileUtil.appendUtf8String(metadata.toString(),tmpFile);
-                            ZipUtil.append(zipPath,tmpFile.toPath());
-                            FileUtil.del(tmpFile);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }finally {
-                            FileUtil.del(new File("tmp.plist"));
-                        }
-
-                    }
-                }
-            }
-        }
     }
 
     private static void subscriptionDemo(){
@@ -910,38 +772,6 @@ public class ITunesUtil {
                     .execute();
             System.err.println(subscriptionsRsp);
         }
-    }
-
-    private static void redeemDemo(){
-        Account account = new Account();
-//        account.setAccount("djli0506@163.com");
-//        account.setPwd("!!B0527s0207!!");
-        account.setAccount("qewqeq@2980.com");
-        account.setPwd("dPFb6cSD41");
-
-        String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
-        HttpResponse authRsp = null;
-        // 鉴权
-        if (authRsp != null && authRsp.getStatus() == 200){
-            String cardCode = "XMPC3HRMNM6K5FXP";
-//            String cardCode = "erererrerewfrsf";
-            HttpResponse redeemRsp = ITunesUtil.redeem(authRsp, guid, cardCode);
-            if (redeemRsp.getStatus() == 200){
-                JSONObject redeemBody = JSONUtil.parseObj(redeemRsp.body());
-                System.err.println(redeemBody);
-                Integer status = redeemBody.getInt("status");
-                if (status != 0){
-                    String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage");
-                    String message = "礼品卡[%s]兑换失败! %s";
-                    Console.log(String.format(message,cardCode,userPresentableErrorMessage));
-                }else{
-                    String message = "礼品卡[%s]兑换成功!";
-                    Console.log(String.format(message,cardCode));
-                }
-            }
-        }
-
     }
 
     private static String getCookie(HttpResponse rsp) {

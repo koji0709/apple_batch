@@ -9,6 +9,7 @@ import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 
@@ -31,13 +32,11 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
     @Override
     public void accountHandler(Account account) {
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = itunesLogin(account, guid, false);
-        boolean verify = itunesLoginVerify(authRsp, account);
-        if (!verify){
-            return;
-        }
-        JSONObject rspJSON = PListUtil.parse(authRsp.body());
+        account.setGuid(guid);
+        itunesLogin(account);
 
+        HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
+        JSONObject rspJSON = PListUtil.parse(authRsp.body());
         String balance  = rspJSON.getStr("creditDisplay","0");
         Boolean isDisabledAccount  = rspJSON.getBool("accountFlags.isDisabledAccount",false);
         account.setBalance((StrUtil.isEmpty(balance) ? "0" : balance));
@@ -52,4 +51,16 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         }
         setAndRefreshNote(account,"查询成功");
     }
+
+    @Override
+    protected void secondStepHandler(Account account, String code) {
+        account.setAuthCode(code);
+        accountHandler(account);
+    }
+
+    @Override
+    protected void reExecute(Account o) {
+        accountHandler(o);
+    }
+
 }

@@ -1,9 +1,10 @@
 package com.sgswit.fx.controller.iTunes.vo;
 
+import com.sgswit.fx.model.LoginInfo;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class AppstoreDownloadVo {
+public class AppstoreDownloadVo extends LoginInfo {
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty account;
     private final SimpleStringProperty pwd;

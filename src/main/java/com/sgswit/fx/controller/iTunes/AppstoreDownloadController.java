@@ -131,13 +131,10 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
     public void accountHandler(AppstoreDownloadVo appstoreDownloadVo) {
         // 鉴权
         String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
-        HttpResponse authRsp = itunesLogin(appstoreDownloadVo, guid, false);
-        boolean verify = itunesLoginVerify(authRsp, appstoreDownloadVo);
-        if (!verify){
-            return;
-        }
+        appstoreDownloadVo.setGuid(guid);
+        itunesLogin(appstoreDownloadVo);
 
-        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+        String storeFront = appstoreDownloadVo.getStoreFront();
         String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
         appstoreDownloadVo.setArea(country);
 
@@ -161,7 +158,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                     continue;
                 }
                 String trackId = previewUrl.substring(previewUrl.indexOf("/id")+3);
-                boolean success = purchaseAnddownloadApp(authRsp,appstoreDownloadVo, guid, trackId, trackId);
+                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, guid, trackId, trackId);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");
@@ -177,7 +174,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
 //                    Console.log("暂只支持免费应用！[{}] 价格:{}", trackName,appstoreItemVo.getPrice());
 //                    continue;
 //                }
-                boolean success = purchaseAnddownloadApp(authRsp,appstoreDownloadVo, guid, trackId, trackName);
+                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, guid, trackId, trackName);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");
@@ -187,12 +184,23 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         setAndRefreshNote(appstoreDownloadVo,"执行完毕");
     }
 
-    public boolean purchaseAnddownloadApp(HttpResponse authRsp,AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){
+    @Override
+    protected void secondStepHandler(AppstoreDownloadVo account, String code) {
+        account.setAuthCode(code);
+        accountHandler(account);
+    }
+
+    @Override
+    protected void reExecute(AppstoreDownloadVo o) {
+        accountHandler(o);
+    }
+
+    public boolean purchaseAnddownloadApp(AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){
         trackName = StrUtil.isEmpty(trackName) ? trackId : trackName;
         if (trackName.length() > 6){
             trackName = trackName.substring(0,6) + "..";
         }
-        HttpResponse purchaseRsp = ITunesUtil.purchase(authRsp, guid, trackId,"");
+        HttpResponse purchaseRsp = ITunesUtil.purchase(appstoreDownloadVo, trackId,"");
         String purchaseBody = purchaseRsp.body();
         if (!StrUtil.isEmpty(purchaseBody) && JSONUtil.isTypeJSON(purchaseBody)){
             JSONObject purchaseJSON = JSONUtil.parseObj(purchaseBody);
@@ -210,7 +218,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         Console.log("[{}] 购买成功", trackName);
         appstoreDownloadVo.setNote(String.format("[%s] 购买成功",trackName));
 
-        HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl(authRsp, guid, trackId.toString(), "");
+        HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl( appstoreDownloadVo, trackId.toString(), "");
         JSONObject appstoreDownloadUrlBody = PListUtil.parse(appstoreDownloadUrlRsp.body());
         String appstoreDownloadUrlJdt = appstoreDownloadUrlBody.getStr("jingleDocType","");
         String appstoreDownloadUrlStatus   = appstoreDownloadUrlBody.getStr("status","");

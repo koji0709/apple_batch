@@ -175,9 +175,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     continue;
                 }
 
-                // 有些方法执行太快会显示过于频繁,每处理十个账号休息1s
-                if (i != 0 && i % 10 == 0) {
-                    ThreadUtil.sleep(500);
+                // 有些方法执行太快会显示过于频繁,每处理三个账号休息1s
+                if (i != 0 && i % 3 == 0) {
+                    ThreadUtil.sleep(1000);
                 }
                 ThreadUtil.sleep(1000);
                 ThreadUtil.execute(() -> {
