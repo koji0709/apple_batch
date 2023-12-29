@@ -92,14 +92,14 @@
                                                             <children>
                                                                 <HBox spacing="5" alignment="CENTER_LEFT">
                                                                     <children>
-                                                                        <Button onAction="#checkAccountBtnAction">检测账号</Button>
-                                                                        <Button>输入双重验证码</Button>
-                                                                        <Button>编辑或导入列表中的账号</Button>
+                                                                        <Button fx:id="checkAccountBtn" onAction="#checkAccountBtnAction">检测账号</Button>
+                                                                        <Button fx:id="open2FAViewBtn"  onAction="#open2FAViewBtnAction">输入双重验证码</Button>
+                                                                        <Button fx:id="editOrImportAccountListBtn" onAction="#editOrImportAccountListBtnAction">编辑或导入列表中的账号</Button>
                                                                         <Label prefWidth="90"/>
                                                                         <Label text="0/0"/>
                                                                     </children>
                                                                 </HBox>
-                                                                <Label fx:id="checkAccountDescLabel" textFill="red"/>
+                                                                <Label fx:id="checkAccountDescLabel"  wrapText="true" textFill="red"/>
                                                             </children>
                                                         </VBox>
                                                     </children>
@@ -108,9 +108,9 @@
                                                 <VBox spacing="5">
                                                     <children>
                                                         <Label>检测需要消耗点数：5</Label>
-                                                        <Label fx:id="countryLabel">国家：</Label>
-                                                        <Label fx:id="blanceLabel">余额：</Label>
-                                                        <Label fx:id="statusLabel">状态：</Label>
+                                                        <Label fx:id="countryLabel" wrapText="true" prefWidth="100">国家：</Label>
+                                                        <Label fx:id="blanceLabel" wrapText="true" prefWidth="100">余额：</Label>
+                                                        <Label fx:id="statusLabel" wrapText="true" prefWidth="120">状态：</Label>
                                                     </children>
                                                 </VBox>
 

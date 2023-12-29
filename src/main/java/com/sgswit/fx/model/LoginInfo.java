@@ -16,6 +16,7 @@ public class LoginInfo extends AuthData{
     private String clientId = "af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3";
     private String frameId = createFrameId();
 
+    // ----------------- AppleID
     private String scnt;
 
     private String XAppleIDSessionId;
@@ -25,6 +26,19 @@ public class LoginInfo extends AuthData{
     // 双重认证 device-code or sms-code
     private String securityCode;
 
+
+    // ----------------- iTunes
+    private String itspod;
+
+    private String storeFront;
+
+    private String dsPersonId;
+
+    private String passwordToken;
+
+    private String guid;
+
+    // -----------------
     private boolean isLogin;
 
     public void updateLoginInfo(HttpResponse rsp){
@@ -131,5 +145,45 @@ public class LoginInfo extends AuthData{
 
     public void setIsLogin(boolean login) {
         isLogin = login;
+    }
+
+    public String getItspod() {
+        return itspod;
+    }
+
+    public void setItspod(String itspod) {
+        this.itspod = itspod;
+    }
+
+    public String getStoreFront() {
+        return storeFront;
+    }
+
+    public void setStoreFront(String storeFront) {
+        this.storeFront = storeFront;
+    }
+
+    public String getDsPersonId() {
+        return dsPersonId;
+    }
+
+    public void setDsPersonId(String dsPersonId) {
+        this.dsPersonId = dsPersonId;
+    }
+
+    public String getPasswordToken() {
+        return passwordToken;
+    }
+
+    public void setPasswordToken(String passwordToken) {
+        this.passwordToken = passwordToken;
+    }
+
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 }

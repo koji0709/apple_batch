@@ -13,7 +13,7 @@ import java.util.Map;
 public class AuthData {
     private Map<String,Object> authData = new HashMap<>();
     private String step;
-    private String authCode;
+    private String authCode = "";
 
     public Map<String, Object> getAuthData() {
         return authData;
