@@ -444,18 +444,26 @@ public class ITunesUtil {
                 StringBuffer stringBuffer=new StringBuffer();
                 String validationResults= bodyJson.getByPath("result.validationResults",String.class);
                 if(!StringUtils.isEmpty(validationResults)){
+                    System.out.println(validationResults);
                     JSONArray jsonArray=JSONUtil.parseArray(validationResults);
                     for(Object jsonObject:jsonArray){
-                        String validationRuleName=JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
-                        switch (validationRuleName){
-                            case "INVALID_PHONE_NUMBER":
-                                stringBuffer.append("手机号码不正确，请更新并重试。");
-                                stringBuffer.append("\n");
-                                break;
-                            default:
-                                String errorString= JSONUtil.parse(jsonObject).getByPath("errorString",String.class);
-                                stringBuffer.append(errorString);
-                                stringBuffer.append("\n");
+                        JSON json=JSONUtil.parse(jsonObject);
+                        String validationRuleName=json.getByPath("errorString",String.class);
+                        if(!StringUtils.isEmpty(validationRuleName)){
+                            switch (validationRuleName){
+                                case "INVALID_PHONE_NUMBER":
+                                    stringBuffer.append("手机号码不正确，请更新并重试。");
+                                    stringBuffer.append("\n");
+                                    break;
+                                default:
+                                    String errorString= json.getByPath("errorString",String.class);
+                                    stringBuffer.append(errorString);
+                                    stringBuffer.append("\n");
+                            }
+                        }else if(!StringUtils.isEmpty(json.getByPath("validationRuleName",String.class))){
+                            String errorString= json.getByPath("localizedMessage",String.class);
+                            stringBuffer.append(errorString);
+                            stringBuffer.append("\n");
                         }
                     }
                 }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){

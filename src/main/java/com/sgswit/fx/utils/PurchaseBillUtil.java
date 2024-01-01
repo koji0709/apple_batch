@@ -58,7 +58,7 @@ public class PurchaseBillUtil {
 //        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
 //        Map<String,Object> res= iTunesAuth("495575670@qq.com","B0527s0207");
         Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
-        accountSummary(res);
+        accountPurchasesLast90Count(res);
 //        String body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
 
 //        res.put("addressInfo",body);
@@ -994,6 +994,7 @@ public class PurchaseBillUtil {
             String authUrl=MapUtil.getStr(paras,"authUrl");
             HttpResponse res = HttpUtil.createPost(authUrl)
                     .header(headers)
+//                    .cookie(MapUtils.getStr(paras,"cookies"))
                     .body(authBody, ContentType.FORM_URLENCODED.toString())
                     .execute();
 
@@ -1133,11 +1134,11 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
 
-        HttpResponse response = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod") +"-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1")
+        HttpResponse response = HttpUtil.createRequest(Method.GET,url)
                 .header(headers)
                 .cookie(cookies)
                 .execute();
-        String purchasesJsonStr =JSONUtil.parse(response.body()).getByPath("data.attributes.purchases").toString();
+        String purchasesJsonStr =JSONUtil.parse(response.body()).getByPath("data.attributes.purchases",String.class);
         return JSONUtil.parseArray(purchasesJsonStr).size();
     }
 }

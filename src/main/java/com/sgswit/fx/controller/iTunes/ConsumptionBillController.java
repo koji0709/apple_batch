@@ -26,6 +26,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -321,5 +322,20 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
             consumptionBill.setPurchaseRecord(accountPurchasesLast90CountStr+"|"+String.join("|",sList));
         }catch (Exception e){
         }
+    }
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> menuItem =new ArrayList<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+            add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+        }};
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,null);
+
+    }
+
+    @Override
+    protected void twoFactorCodeExecute(ConsumptionBill a, String authCode){
+
     }
 }

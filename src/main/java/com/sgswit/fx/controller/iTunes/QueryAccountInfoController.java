@@ -118,17 +118,6 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
         }
 
     }
-
-    private void queryFail(ConsumptionBill account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
-    }
-    private void messageFun(ConsumptionBill account,String message) {
-        account.setNote(message);
-        accountTableView.refresh();
-    }
-
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
         super.localHistoryButtonAction();
@@ -245,8 +234,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
             public void run(){
                 try {
                     try {
-                        account.setNote("正在登录...");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"正在登录...",false);
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
                         Map<String,Object> accountInfoMap=account.getAuthData();
                         if("00".equals(step)){
@@ -265,21 +253,20 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                         }else {
                             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
-                                account.setNote("此 Apple ID 尚未用于 App Store。");
-                                accountTableView.refresh();
+                                setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
                                 return;
                             }
-                            accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
-                            account.setNote("查询成功");
-                            accountTableView.refresh();
-                            account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
 
+                            setAndRefreshNote(account,"登录成功，读取用户信息...",false);
+                            Map<String,Object> accountSummaryMap=PurchaseBillUtil.accountSummary(accountInfoMap);
                             account.setArea(accountInfoMap.get("countryName").toString());
-                            account.setShippingAddress(accountInfoMap.get("address").toString());
-                            account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
+                            account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
+                            account.setShippingAddress(accountSummaryMap.get("address").toString());
+                            account.setPaymentInformation(accountSummaryMap.get("paymentMethod").toString());
                             account.setName(accountInfoMap.get("name").toString());
                             int purchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
                             account.setPurchaseRecord(String.valueOf(purchasesLast90Count));
+                            setAndRefreshNote(account,"查询成功，获取家庭共享信息...",false);
                             //家庭共享信息
                             HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
                             if(response.getStatus()==200){
@@ -311,12 +298,11 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             }else {
                                 account.setFamilyDetails("-");
                             }
-                            account.setNote("查询完成");
+                            setAndRefreshNote(account,"查询完成");
                             accountTableView.refresh();
                         }
                     } catch (Exception e) {
-                        account.setNote("操作失败，接口异常");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"操作失败，接口异常。");
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");
                         accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

@@ -10,6 +10,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.annotation.CustomAnnotation;
@@ -220,6 +221,11 @@ public class CommRightContextMenuView<T> extends CommonView{
                         if (!StrUtil.isEmpty(securityCode)){
                             account1.setSecurityCode(securityCode);
                             accountHandler(account);
+                        }
+                    }else if(account instanceof ConsumptionBill){
+                        String securityCode = openSecurityCodePopupView(ReflectUtil.getFieldValue(account,"account").toString());
+                        if (!StrUtil.isEmpty(securityCode)){
+                            twoFactorCodeExecute(account,securityCode);
                         }
                     }
                 }

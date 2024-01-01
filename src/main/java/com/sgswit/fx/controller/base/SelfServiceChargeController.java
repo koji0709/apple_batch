@@ -32,17 +32,13 @@ import java.util.ResourceBundle;
  * @author DELL
  */
 public class SelfServiceChargeController implements Initializable {
-
     @FXML
     public Button cancelBtn;
     @FXML
     public Button confirmBtn;
     @FXML
     public TextField cardNoField;
-
-    @FXML
-    public MainController mainController;
-
+    public Label remainingPoints;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -115,7 +111,7 @@ public class SelfServiceChargeController implements Initializable {
         Label label = (Label) root.lookup("#remainingPoints");
         String s = PropertiesUtil.getOtherConfig("login.info");
         JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
-        Object remainingPointsObj= object.getByPath("remainingPoints");
-        label.setText(remainingPointsObj.toString());
+        String remainingPointsObj= object.getByPath("remainingPoints",String.class);
+        label.setText(remainingPointsObj);
     }
 }
