@@ -642,7 +642,7 @@ public class ITunesUtil {
     /**
      * 礼品卡兑换
      */
-    public static HttpResponse redeem(GiftCardRedeem giftCardRedeem){
+    public static HttpResponse redeem(GiftCardRedeem giftCardRedeem,String redeemUrl){
         String itspod        = giftCardRedeem.getItspod();
         String storeFront    = giftCardRedeem.getStoreFront();
         String dsPersonId    = giftCardRedeem.getDsPersonId();
@@ -650,7 +650,9 @@ public class ITunesUtil {
         String guid          = giftCardRedeem.getGuid();
         String cardCode      = giftCardRedeem.getGiftCardCode();
 
-        String redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
+        if (StrUtil.isEmpty(redeemUrl)){
+            redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
+        }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
         headers.put("Content-Type",ListUtil.toList("application/x-apple-plist"));
@@ -687,6 +689,7 @@ public class ITunesUtil {
                 "\t\t<string>application/json</string>\n" +
                 "\t</dict>\n" +
                 "</plist>";
+
             HttpResponse redeemRsp = HttpUtil.createPost(redeemUrl)
                     .header(headers)
                     .cookie(giftCardRedeem.getCookie())

@@ -130,8 +130,6 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
     @Override
     public void accountHandler(AppstoreDownloadVo appstoreDownloadVo) {
         // 鉴权
-        String guid = DataUtil.getGuidByAppleId(appstoreDownloadVo.getAccount());
-        appstoreDownloadVo.setGuid(guid);
         itunesLogin(appstoreDownloadVo);
 
         String storeFront = appstoreDownloadVo.getStoreFront();
@@ -158,7 +156,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                     continue;
                 }
                 String trackId = previewUrl.substring(previewUrl.indexOf("/id")+3);
-                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, guid, trackId, trackId);
+                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackId);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");
@@ -174,7 +172,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
 //                    Console.log("暂只支持免费应用！[{}] 价格:{}", trackName,appstoreItemVo.getPrice());
 //                    continue;
 //                }
-                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, guid, trackId, trackName);
+                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackName);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");

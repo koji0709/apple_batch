@@ -31,8 +31,6 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
      */
     @Override
     public void accountHandler(Account account) {
-        String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        account.setGuid(guid);
         itunesLogin(account);
 
         HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");

@@ -63,9 +63,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
-    StageEnum stage;
+    protected StageEnum stage;
 
-    ReentrantLock reentrantLock = new ReentrantLock();
+    protected ReentrantLock reentrantLock = new ReentrantLock();
 
     private Class clz = Account.class;
     private List<String> formats;
@@ -175,11 +175,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     continue;
                 }
 
-                // 有些方法执行太快会显示过于频繁,每处理三个账号休息1s
+                // 有些方法执行太快会显示过于频繁,每处理三个账号停止一会儿
                 if (i != 0 && i % 3 == 0) {
                     ThreadUtil.sleep(1000);
                 }
-                ThreadUtil.sleep(1000);
+                ThreadUtil.sleep(1500);
                 ThreadUtil.execute(() -> {
                     try {
                         setAndRefreshNote(account, "执行中", false);
@@ -481,12 +481,13 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
     public void setAndRefreshNote(T account, String note, boolean saveLog) {
-        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-        if (hasNote) {
-            ReflectUtil.invoke(account, "setNote", note);
-        }
-        accountTableView.refresh();
-
+//        ThreadUtil.execute(() -> {
+            boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+            if (hasNote) {
+                ReflectUtil.invoke(account, "setNote", note);
+            }
+            accountTableView.refresh();
+//        });
         if (saveLog) {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));

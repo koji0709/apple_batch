@@ -1,12 +1,16 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PListUtil;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,13 +19,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.helper.StringUtil;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
+    // 登陆成功的账号缓存(缓存一个小时,能刷新)
+    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(3600000);
+
+    static {
+        loginSuccessMap.schedulePrune(3600000);
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -29,9 +36,27 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
     }
 
     public void itunesLogin(T accountModel){
+        String appleId = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
+
+        LoginInfo loginInfo = loginSuccessMap.get(appleId);
+        if (loginInfo != null) {
+            accountModel.setIsLogin(loginInfo.isLogin());
+            accountModel.setItspod(loginInfo.getItspod());
+            accountModel.setStoreFront(loginInfo.getStoreFront());
+            accountModel.setDsPersonId(loginInfo.getDsPersonId());
+            accountModel.setPasswordToken(loginInfo.getPasswordToken());
+            accountModel.setGuid(loginInfo.getGuid());
+            accountModel.setAuthData(loginInfo.getAuthData());
+            accountModel.setCookieMap(loginInfo.getCookieMap());
+            setAndRefreshNote(accountModel,"成功获取登陆信息。");
+        }
+
         if (accountModel.isLogin()){
             return;
         }
+
+        String guid = DataUtil.getGuidByAppleId(appleId);
+        accountModel.setGuid(guid);
 
         String url = "";
         HttpResponse loginRsp;
@@ -70,6 +95,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setPasswordToken(json.getStr("passwordToken",""));
             CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
             accountModel.setIsLogin(true);
+            loginSuccessMap.put(appleId,accountModel);
             return;
         }
 

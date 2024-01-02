@@ -1,5 +1,7 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
@@ -44,6 +46,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -72,6 +75,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     Button editOrImportAccountListBtn;
 
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
+
+    private static Integer processNum = 0;
 
     /**
      * 导入账号
@@ -149,8 +154,94 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     /**
-     * qewqeq@2980.com----dPFb6cSD41----XMPC3HRMNM6K5FXP
+     * 执行按钮点击
+     */
+    @Override
+    public void executeButtonAction() {
+        // 校验
+        if (accountList.isEmpty()) {
+            alert("请先导入账号！");
+            return;
+        }
+        boolean isProcessed = true;
+        for (GiftCardRedeem giftCardRedeem : accountList) {
+            if (!isProcessed(giftCardRedeem)){
+                isProcessed = false;
+                break;
+            }
+        }
+        if (isProcessed) {
+            alert("账号都已处理！");
+            return;
+        }
+
+        // 修改按钮为执行状态
+        setExecuteButtonStatus(true);
+
+        // 每一次执行前都释放锁
+        if (reentrantLock.isLocked()) {
+            reentrantLock.unlock();
+            ThreadUtil.sleep(500);
+        }
+
+        // 此处的线程是为了处理,按钮状态等文案显示
+        ThreadUtil.execute(() -> {
+            LinkedHashMap<String,List<GiftCardRedeem>> accountGroupMap = new LinkedHashMap<>();
+            for (GiftCardRedeem giftCardRedeem : accountList) {
+                if (isProcessed(giftCardRedeem)){
+                    continue;
+                }
+                ++processNum;
+                String account = giftCardRedeem.getAccount();
+                List<GiftCardRedeem> giftCardRedeemList = accountGroupMap.get(account);
+                if (giftCardRedeemList==null){
+                    giftCardRedeemList = new ArrayList<>();
+                }
+                giftCardRedeemList.add(giftCardRedeem);
+                accountGroupMap.put(account,giftCardRedeemList);
+            }
+
+            for (Map.Entry<String, List<GiftCardRedeem>> entry : accountGroupMap.entrySet()) {
+                ThreadUtil.execute(()->{
+                    List<GiftCardRedeem> accountList = entry.getValue();
+                    // 处理账号
+                    for (int i = 0; i < accountList.size(); i++) {
+                        GiftCardRedeem giftCardRedeem = accountList.get(i);
+                        if (reentrantLock.isLocked()) {
+                            return;
+                        }
+                        ThreadUtil.sleep(2000);
+                        try {
+                            setAndRefreshNote(giftCardRedeem, "执行中", false);
+                            accountHandler(giftCardRedeem);
+                        } catch (ServiceException e) {
+                            // 异常不做处理只是做一个停止程序作用
+                        } catch (Exception e) {
+                            setAndRefreshNote(giftCardRedeem, "接口数据处理异常", true);
+                            e.printStackTrace();
+                        }
+
+                        if ((i+1) % 5 == 0){
+                            ThreadUtil.sleep(1000 * 60);
+                        }
+
+                        if (--processNum <= 0) {
+                            // 任务执行结束, 恢复执行按钮状态
+                            Platform.runLater(() -> setExecuteButtonStatus(false));
+                        }
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    /**
+     * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
+     * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
      * cncots@gmail.com----Xx97595031.----XMPC3HRMNM6K5FXP
+     *
      */
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
@@ -161,25 +252,26 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             return;
         }
 
-        String guid = DataUtil.getGuidByAppleId(giftCardRedeem.getAccount());
-        giftCardRedeem.setGuid(guid);
+        // 登陆并缓存
         itunesLogin(giftCardRedeem);
 
         String giftCardCode = giftCardRedeem.getGiftCardCode();
-        HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem);
-        if (redeemRsp.getStatus() != 200){
-            String message = "礼品卡[%s]兑换失败! %s";
-            Console.log(String.format(message,giftCardCode));
-            setAndRefreshNote(giftCardRedeem,"兑换失败!");
+        HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
+        String body = redeemRsp.body();
+        if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
+            String message = "礼品卡兑换失败!";
+            setAndRefreshNote(giftCardRedeem,message);
             return;
         }
 
         // 兑换
-        String body = redeemRsp.body();
         JSONObject redeemBody = JSONUtil.parseObj(body);
+        if (redeemBody.keySet().contains("plist")){
+            redeemBody = PListUtil.parse(body);
+        }
         Integer status = redeemBody.getInt("status",-1);
         if (status != 0){
-            String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage");
+            String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
             String messageKey = redeemBody.getStr("errorMessageKey","");
 
             // 礼品卡无效
@@ -187,20 +279,22 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 giftCardRedeem.setGiftCardStatus("无效");
             } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){// 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("已兑换");
+            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登陆
+                userPresentableErrorMessage = "登陆信息失效!";
+                giftCardRedeem.setIsLogin(false);
+                loginSuccessMap.remove(giftCardRedeem.getAccount());
             }else{
                 giftCardRedeem.setGiftCardStatus("兑换失败");
             }
 
-            String message = "礼品卡[%s]兑换失败! %s";
-            message = String.format(message,giftCardCode,userPresentableErrorMessage);
-            Console.log(message);
+            String message = "兑换失败! %s";
+            message = String.format(message,userPresentableErrorMessage);
             setAndRefreshNote(giftCardRedeem,message);
             return;
         }
         // 礼品卡兑换成功
         String message = "礼品卡[%s]兑换成功!";
         giftCardRedeem.setGiftCardStatus("兑换成功");
-
         message = String.format(message,giftCardCode);
         setAndRefreshNote(giftCardRedeem,message);
     }
@@ -221,103 +315,74 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * 检测账号按钮点击
      */
     public void checkAccountBtnAction(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    String accountComboBoxValue = accountComboBox.getValue();
-                    if (StrUtil.isEmpty(accountComboBoxValue)){
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                checkAccountDescLabel.setText("请先输入账号信息");
-                            }
-                        });
-
-                        return;
-                    }
-                    String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
-                    if (accountComboBoxValueArr.length != 2){
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
-                            }
-                        });
-                        return;
-                    }
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkAccountDescLabel.setText("");
-                            statusLabel.setText( "状态：" + "正在检测...");
-                            checkAccountBtn.setDisable(true);
-                            open2FAViewBtn.setDisable(true);
-                            editOrImportAccountListBtn.setDisable(true);
-                        }
-                    });
-                    String account = accountComboBoxValueArr[0];
-                    String pwd     = accountComboBoxValueArr[1];
-                    String guid = DataUtil.getGuidByAppleId(account);
-                    if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
-                            || !account.equals(singleGiftCardRedeem.getAccount())
-                            || !pwd.equals(singleGiftCardRedeem.getAccount())
-                            || !singleGiftCardRedeem.isLogin()){
-                        singleGiftCardRedeem.setAccount(account);
-                        singleGiftCardRedeem.setPwd(pwd);
-                        singleGiftCardRedeem.setGuid(guid);
-                        singleGiftCardRedeem.setNote("");
-                        singleGiftCardRedeem.setIsLogin(false);
-                        itunesLogin(singleGiftCardRedeem);
-                    }
-
-                    HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
-                    String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-                    String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
-                    country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
-                    JSONObject rspJSON = PListUtil.parse(authRsp.body());
-                    String  balance           = rspJSON.getStr("creditDisplay","0");
-                    Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
-                    String  status            = !isDisabledAccount ? "正常" : "禁用";
-                    String finalCountry = country;
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            countryLabel.setText("国家：" + finalCountry);
-                            blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
-                            statusLabel.setText( "状态：" + status);
-                        }
-                    });
-                }catch (ServiceException e){
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkAccountDescLabel.setText(singleGiftCardRedeem.getNote());
-                            countryLabel.setText("国家：" + "");
-                            blanceLabel.setText( "余额：" + "");
-                            statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
-                        }
-                    });
-                }catch (Exception e){
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkAccountDescLabel.setText("接口数据处理异常");
-                            countryLabel.setText("国家：" + "");
-                            blanceLabel.setText( "余额：" + "");
-                            statusLabel.setText( "状态：" + "接口数据处理异常");
-                        }
-                    });
-                } finally {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            checkAccountBtn.setDisable(false);
-                            open2FAViewBtn.setDisable(false);
-                            editOrImportAccountListBtn.setDisable(false);
-                        }
-                    });
+        new Thread(() -> {
+            try{
+                String accountComboBoxValue = accountComboBox.getValue();
+                if (StrUtil.isEmpty(accountComboBoxValue)){
+                    checkAccountDescLabel.setText("请先输入账号信息");
+                    return;
                 }
+                String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
+                if (accountComboBoxValueArr.length != 2){
+                    checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
+                    return;
+                }
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setText("");
+                    statusLabel.setText( "状态：" + "正在检测...");
+                    checkAccountBtn.setDisable(true);
+                    open2FAViewBtn.setDisable(true);
+                    editOrImportAccountListBtn.setDisable(true);
+                });
+                String account = accountComboBoxValueArr[0];
+                String pwd     = accountComboBoxValueArr[1];
+                String guid = DataUtil.getGuidByAppleId(account);
+                if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
+                        || !account.equals(singleGiftCardRedeem.getAccount())
+                        || !pwd.equals(singleGiftCardRedeem.getAccount())
+                        || !singleGiftCardRedeem.isLogin()){
+                    singleGiftCardRedeem.setAccount(account);
+                    singleGiftCardRedeem.setPwd(pwd);
+                    singleGiftCardRedeem.setGuid(guid);
+                    singleGiftCardRedeem.setNote("");
+                    singleGiftCardRedeem.setIsLogin(false);
+                    itunesLogin(singleGiftCardRedeem);
+                }
+
+                HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
+                String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+                String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
+                country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
+                JSONObject rspJSON = PListUtil.parse(authRsp.body());
+                String  balance           = rspJSON.getStr("creditDisplay","0");
+                Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
+                String  status            = !isDisabledAccount ? "正常" : "禁用";
+                String finalCountry = country;
+                Platform.runLater(() -> {
+                    countryLabel.setText("国家：" + finalCountry);
+                    blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
+                    statusLabel.setText( "状态：" + status);
+                });
+            }catch (ServiceException e){
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setText(singleGiftCardRedeem.getNote());
+                    countryLabel.setText("国家：" + "");
+                    blanceLabel.setText( "余额：" + "");
+                    statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
+                });
+            }catch (Exception e){
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setText("接口数据处理异常");
+                    countryLabel.setText("国家：" + "");
+                    blanceLabel.setText( "余额：" + "");
+                    statusLabel.setText( "状态：" + "接口数据处理异常");
+                });
+            } finally {
+                Platform.runLater(() -> {
+                    checkAccountBtn.setDisable(false);
+                    open2FAViewBtn.setDisable(false);
+                    editOrImportAccountListBtn.setDisable(false);
+                });
             }
         }).start();
     }
