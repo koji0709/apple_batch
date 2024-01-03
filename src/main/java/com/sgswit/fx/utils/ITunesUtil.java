@@ -400,14 +400,14 @@ public class ITunesUtil {
 
 
     /**
-    　* 修改账号国家
-      * @param
+     　* 修改账号国家
+     * @param
      * @param paras
     　* @return java.util.Map<java.lang.String,java.lang.Object>
     　* @throws
     　* @author DeZh
     　* @date 2023/12/24 21:03
-    */
+     */
     public  static Map<String,Object> editBillingInfo(Map<String,Object> paras){
         boolean hasInspectionFlag=MapUtils.getBool(paras,"hasInspectionFlag");
         Map<String,Object> result=new HashMap<>();
@@ -422,7 +422,7 @@ public class ITunesUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
-        headers.put("Accept-Language", ListUtil.toList("h-CN,zh;q=0.9,en;q=0"));
+        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
         headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/account/storefront/edit/billing-info"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
@@ -461,9 +461,17 @@ public class ITunesUtil {
                                     stringBuffer.append("\n");
                             }
                         }else if(!StringUtils.isEmpty(json.getByPath("validationRuleName",String.class))){
-                            String errorString= json.getByPath("localizedMessage",String.class);
-                            stringBuffer.append(errorString);
-                            stringBuffer.append("\n");
+                            String field=json.getByPath("field",String.class);
+                            switch (field){
+                                case "Account.XCardBalance":
+                                    stringBuffer.append("你还有店面点数余额；必须先用完该点数，才能更改店面。");
+                                    stringBuffer.append("\n");
+                                    break;
+                                default:
+                                    String errorString= json.getByPath("localizedMessage",String.class);
+                                    stringBuffer.append(errorString);
+                                    stringBuffer.append("\n");
+                            }
                         }
                     }
                 }else if(!StringUtils.isEmpty(bodyJson.getByPath("errorMessageKey",String.class))){
