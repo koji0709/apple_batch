@@ -62,10 +62,6 @@ public class CommRightContextMenuView<T> extends CommonView{
 
     private static TableView accountTableView;
 
-
-
-
-
     private static List<KeyValuePair> allList=getAllList();
 
     private static List<KeyValuePair> getAllList(){
@@ -134,6 +130,9 @@ public class CommRightContextMenuView<T> extends CommonView{
     private void openMenu(ContextMenuEvent contextMenuEvent, List<KeyValuePair> items) {
         double x= contextMenuEvent.getScreenX();
         double y=contextMenuEvent.getScreenY();
+        if (stage != null){
+            stage.close();
+        }
         stage = new Stage();
         stage.setX(x+1);
         stage.setY(y);
