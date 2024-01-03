@@ -112,6 +112,24 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     }
                 });
             } else {
+                if ("note".equals(column.getId())){
+                    column.setCellFactory(new Callback() {
+                        @Override
+                        public Object call(Object param) {
+                            TableCell cell = new TableCell() {
+                                @Override
+                                protected void updateItem(Object item, boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null && StrUtil.isNotEmpty(item.toString())){
+                                        this.setText(item.toString());
+                                        this.setTooltip(new Tooltip(item.toString()));
+                                    }
+                                }
+                            };
+                            return cell;
+                        }
+                    });
+                }
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
         }
@@ -187,7 +205,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     } catch (ServiceException e) {
                         // 异常不做处理只是做一个停止程序作用
                     } catch (Exception e) {
-                        setAndRefreshNote(account, "接口数据处理异常", true);
+                        setAndRefreshNote(account, "数据处理异常", true);
                         e.printStackTrace();
                     }
                 });

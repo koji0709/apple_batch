@@ -32,7 +32,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     public void initViewData(){
         // 默认中国
-        dialCodeChoiceBox.setValue("+86(中国大陆)");
+        dialCodeComboBox.setValue("+86(中国大陆)");
         String mobilePhoneJson = ResourceUtil.readUtf8Str("data/global-mobile-phone-regular.json");
         JSONObject jsonObj = JSONUtil.parseObj(mobilePhoneJson);
         JSONArray mobilephoneArray = jsonObj.getJSONArray("data");
@@ -42,7 +42,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String format = "+%s(%s)";
             String code = json.getStr("code");
             String zh = json.getStr("zh");
-            dialCodeChoiceBox.getItems().add(String.format(format, code, zh));
+            dialCodeComboBox.getItems().add(String.format(format, code, zh));
             globalMobilePhoneMap.put(code,json);
         }
     }
@@ -65,7 +65,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         String phone = account.getPhone();
         Object verifyCode = account.getAuthData().get("verifyCode");
         if (verifyCode == null){
-            String format = dialCodeChoiceBox.getValue().toString();
+            String format = dialCodeComboBox.getValue().toString();
             String countryDialCode   = format.substring(1,format.indexOf("("));
             JSONObject json = globalMobilePhoneMap.get(countryDialCode);
             String countryCode = json.getStr("locale");
