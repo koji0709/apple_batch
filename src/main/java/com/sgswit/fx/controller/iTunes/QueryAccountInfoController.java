@@ -250,6 +250,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             account.setAuthData(accountInfoMap);
                         }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
                             account.setNote(String.valueOf(accountInfoMap.get("msg")));
+                            accountTableView.refresh();
                         }else {
                             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
