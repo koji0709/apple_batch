@@ -333,7 +333,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             //https://secure.store.apple.com/shop/giftcard/balance
             HttpResponse pre1 = GiftCardUtil.shopPre1(countryCode);
             if(pre1.getStatus() != 303){
-                msg="网络错误";
+                msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;
                 updateUI(msg,color);
@@ -343,7 +343,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             //https://secure4.store.apple.com/shop/giftcard/balance
             HttpResponse pre2 = GiftCardUtil.shopPre2(pre1);
             if(pre2.getStatus() != 302){
-                msg="网络错误";
+                msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;
                 updateUI(msg,color);
@@ -356,8 +356,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 hashMap=new HashMap<>();
             }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            if(null!=hashMap.get("code") && !MapUtils.getStr(hashMap,"code").equalsIgnoreCase("200")){
-                msg=MapUtils.getStr(hashMap,"msg");
+            if(null!=hashMap.get("code") && MapUtils.getStr(hashMap,"code").equalsIgnoreCase("503")){
+                msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;
                 updateUI(msg,color);
@@ -368,7 +368,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             String a= MapUtil.getStr(hashMap,"a");
             HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
             if(503==step1Res.getStatus()){
-                msg="您的操作过于频繁";
+                msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;
                 updateUI(msg,color);
@@ -445,7 +445,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(503==step4Res.getStatus()){
-            giftCard.setNote("您的操作过于频繁");
+            giftCard.setNote("当前服务不可用，请稍后重试");
             accountTableView.refresh();
         }else if(step4Res.getStatus()!=200){
             giftCard.setNote("余额查询失败");
