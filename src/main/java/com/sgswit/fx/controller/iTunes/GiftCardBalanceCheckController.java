@@ -227,7 +227,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     @FXML
     protected void onAccountQueryBtnClick() throws Exception{
-        if(StringUtils.isEmpty(account_pwd.getText()) ){
+        if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
             alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
@@ -289,15 +289,25 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         String msg="初始化成功，下次启动将自动执行初始化";
         String color = "#238142";
         try {
+            boolean f=false;
+            //校验账号格式是否正确
             if(StringUtils.isEmpty(account_pwd.getText())){
+
+            }else{
+                String regex = ".+----.+";
+                if(account_pwd.getText().matches(regex)){
+                    f=true;
+                }
+            }
+            if(!f){
                 Platform.runLater(new Task<Integer>() {
                     @Override
                     protected Integer call() {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("信息");
-                    alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
-                    alert.show();
-                    return 1;
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("信息");
+                        alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+                        alert.show();
+                        return 1;
                     }
                 });
                 return;
@@ -344,6 +354,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
             String a= MapUtil.getStr(hashMap,"a");
             HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
+            if(503==step1Res.getStatus()){
+                msg="您的操作过于频繁";
+                color="red";
+                hasInit=false;
+                updateUI(msg,color);
+                return ;
+            }
             HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);

@@ -27,7 +27,7 @@ public enum StageEnum {
     ICLOUD_ACTIVATE_MAIL("激活iCloud邮箱","views/iCloud/icloud-activate-mail.fxml",1000,650),
 
     /********** ITUNES区 ***********/
-    COUNTRY_MODIFY("账号国家修改","views/iTunes/country-modify.fxml",1100,650),
+    COUNTRY_MODIFY("账号修改国家","views/iTunes/country-modify.fxml",1100,650),
     DELETE_PAYMENT("删除付款方式","views/iTunes/payment-method.fxml",1100,650),
     BIND_VIRTUAL_CARD("绑定虚拟卡","views/iTunes/bind-virtual-card.fxml",1100,650),
     GIFTCARD_BLANCE("礼品卡查余额","views/iTunes/giftCard-balance-check.fxml",1100,650),

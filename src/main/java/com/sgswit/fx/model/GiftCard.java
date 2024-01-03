@@ -1,5 +1,6 @@
 package com.sgswit.fx.model;
 
+import com.sgswit.fx.annotation.CustomAnnotation;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -12,6 +13,7 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class GiftCard {
     private final SimpleIntegerProperty seq;
+    @CustomAnnotation(desc = "礼品卡号")
     private final SimpleStringProperty giftCardCode;
     private final SimpleStringProperty balance;
     private final SimpleStringProperty giftCardNumber;

@@ -18,7 +18,7 @@ public enum DataImportEnum {
 //    FAMILY_DETAILS("家庭共享详细","views/iCloud/family-details.fxml",1000,650),
 
     /********** ITUNES区 ***********/
-//    COUNTRY_MODIFY("账号国家修改","views/iTunes/country-modify.fxml",1100,650),
+//    COUNTRY_MODIFY("账号修改国家","views/iTunes/country-modify.fxml",1100,650),
     BIND_VIRTUAL_CARD("account----pwd----creditCardNumber/monthAndYear/creditVerificationNumber",new ArrayList<>(){{
         add("格式为:帐号---密码----卡号/月份年份/安全码。");
         add("一次可以输入多条账户信息，每条账户单独一行;如果数据中有-符号,则使用{-}替换。");

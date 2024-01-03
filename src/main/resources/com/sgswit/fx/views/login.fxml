@@ -23,7 +23,7 @@
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
                                     <Label text="登录密码"/>
-                                    <TextField fx:id="loginPwdTextField"/>
+                                    <PasswordField fx:id="loginPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">

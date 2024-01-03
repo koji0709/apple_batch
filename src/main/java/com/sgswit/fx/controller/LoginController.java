@@ -92,7 +92,11 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin = PropertiesUtil.getOtherBool("login.auto",false);
         if (autoLogin){
             autoLoginCheckBox.setSelected(true);
-
+            String userName=PropertiesUtil.getOtherConfig("login.userName");
+            String pwd=PropertiesUtil.getOtherConfig("login.pwd");
+            if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
+                return;
+            }
             new Thread(new Runnable() {
                 @Override
                 public void run(){
