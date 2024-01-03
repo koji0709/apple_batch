@@ -332,7 +332,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         // 把序号列删除掉
         localHistoryTableView.getColumns().remove(0);
         // 添加入库时间
-        TableColumn<Account, String> createTime = new TableColumn<>("入库时间");
+        TableColumn<T, String> createTime = new TableColumn<>("入库时间");
         createTime.setPrefWidth(120);
         createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         localHistoryTableView.getColumns().add(createTime);
@@ -479,7 +479,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
     }
-
+    
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
