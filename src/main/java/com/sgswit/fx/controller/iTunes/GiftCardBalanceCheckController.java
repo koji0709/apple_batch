@@ -15,10 +15,7 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.GiftCard;
-import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.GiftCardUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StageUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -50,6 +47,9 @@ import java.net.CookieStore;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -94,7 +94,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     private Map<String,Object> hashMap;
     private boolean hasInit=false;
-
+    private static ExecutorService executor = ThreadUtil.newExecutor(1);
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         getCountry();
@@ -237,6 +237,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         if(list.size() < 1){
             return;
         }
+        AtomicInteger n=new AtomicInteger();
         for(GiftCard giftCard:list){
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
@@ -253,6 +254,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                     public void run(){
                         try {
                             try {
+                                if(n.get()==4){
+                                    n.set(0);
+                                    loginAndInit();
+                                }
+                                n.addAndGet(1);
                                 checkBalance(giftCard, hashMap);
                             } catch (Exception e) {
                                 accountQueryBtn.setDisable(false);
@@ -350,6 +356,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 hashMap=new HashMap<>();
             }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
+            if(null!=hashMap.get("code") && !MapUtils.getStr(hashMap,"code").equalsIgnoreCase("200")){
+                msg=MapUtils.getStr(hashMap,"msg");
+                color="red";
+                hasInit=false;
+                updateUI(msg,color);
+                return ;
+            }
 
             HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
             String a= MapUtil.getStr(hashMap,"a");
@@ -431,7 +444,10 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         tableRefresh(giftCard,"正在查询...");
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
-        if(step4Res.getStatus()!=200){
+        if(503==step4Res.getStatus()){
+            giftCard.setNote("您的操作过于频繁");
+            accountTableView.refresh();
+        }else if(step4Res.getStatus()!=200){
             giftCard.setNote("余额查询失败");
             accountTableView.refresh();
         }else{

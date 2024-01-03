@@ -160,6 +160,11 @@ public class GiftCardUtil {
         paras.put("locationSSi",locationSSi);
         // get x-apple-hc
         HttpResponse pre4 = signFrame(paras);
+        if(503==pre4.getStatus()){
+            paras.put("code","1");
+            paras.put("msg","您的操作过于频繁");
+            return paras;
+        }
         paras.put("callbackSignInUrl",callbackSignInUrl);
         int xAppleHcBits = Integer.parseInt(pre4.header("X-Apple-HC-Bits"));
         paras.put("xAppleHcBits",xAppleHcBits);
