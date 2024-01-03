@@ -1047,7 +1047,7 @@ public class PurchaseBillUtil {
                 paras.put("msg",customerMessage);
                 return paras;
             }
-            if(StringUtils.isEmpty(failureType) && StringUtils.isEmpty(authCode) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+            if(StringUtils.isEmpty(failureType)  && Constant.CustomerMessageBadLogin.equals(customerMessage)){
                 paras.put("code",Constant.TWO_FACTOR_AUTHENTICATION);
                 paras.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
                 return paras;
