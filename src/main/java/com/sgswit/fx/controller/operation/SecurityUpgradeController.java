@@ -112,6 +112,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     }
 
+    @Override
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> menuItem =new ArrayList<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());

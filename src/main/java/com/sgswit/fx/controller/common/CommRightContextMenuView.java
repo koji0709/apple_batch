@@ -1,21 +1,14 @@
 package com.sgswit.fx.controller.common;
 
-import cn.hutool.core.swing.clipboard.ClipboardMonitor;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
-import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.annotation.CustomAnnotation;
 import com.sgswit.fx.utils.ClipboardManager;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,7 +20,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -38,11 +30,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -245,52 +234,11 @@ public class CommRightContextMenuView<T> extends CommonView {
      * 　* 复制当前行信息
      *
      * @param
-     * @param selectedRow 　* @return void
+     * @param selectModel 　* @return void
      *                    　* @throws
      *                    　* @author DeZh
      *                    　* @date 2023/12/22 17:55
      */
-//    private void copyInfo(T selectedRow){
-//        try {
-//            List<String> out=new ArrayList<>();
-//            JSON jsonObject=JSONUtil.parse(selectedRow);
-//            Class clazz = selectedRow.getClass();
-//            // 获取所有的属性
-//            Field[] fields = clazz.getDeclaredFields();
-//            // 遍历属性
-//            for (Field field : fields) {
-//                // 判断属性是否有注解
-//                if (field.isAnnotationPresent(CustomAnnotation.class)) {
-//                    boolean copyFlag=false;
-//                    CustomAnnotation annotation = field.getAnnotation(CustomAnnotation.class);
-//                    boolean copy = annotation.copy();
-//                    if(copy){
-//                        if(null==copyFields ||copyFields.size()==0){
-//                            copyFlag=true;
-//                        }else if(copyFields.contains(field.getName())){
-//                            copyFlag=true;
-//                        }else{
-//
-//                        }
-//
-//                    }
-//                    if(copyFlag){
-//                        Object value=jsonObject.getByPath(field.getName());
-//                        if(null!=value && !StringUtils.isEmpty(value.toString())){
-//                            out.add(value.toString());
-//                        }else{
-//                            out.add(annotation.desc());
-//                        }
-//                    }
-//                }
-//            }
-//            String str = out.stream().collect(Collectors.joining("----"));
-//            ClipboardManager.setClipboard(str);
-//            super.alert("复制成功！");
-//        }catch (Exception e){
-//
-//        }
-//    }
     private void copyInfo(T selectModel) {
         List<String> resutList = new ArrayList<>();
         for (Object column : accountTableView.getColumns()) {

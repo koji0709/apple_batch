@@ -429,14 +429,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
             add(Constant.RightContextMenu.COPY.getCode());
             add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
         }};
-        List<String> fields=new ArrayList<>(){{
-            add("account");
-            add("pwd");
-            add("originalCountry");
-            add("targetCountry");
-            add("note");
-        }};
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items,fields);
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
     }
     @FXML
     public void onStopBtnClick(ActionEvent actionEvent) {

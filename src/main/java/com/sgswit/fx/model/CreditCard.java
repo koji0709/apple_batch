@@ -1,10 +1,7 @@
 package com.sgswit.fx.model;
 
-import com.sgswit.fx.annotation.CustomAnnotation;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableMap;
 
 /**
  * @author DeZh
@@ -15,17 +12,13 @@ import javafx.collections.ObservableMap;
  */
 public class CreditCard extends AuthData{
     private final SimpleIntegerProperty seq;
-    @CustomAnnotation(desc = "账号")
     private final SimpleStringProperty account;
-    @CustomAnnotation(desc = "密码")
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty creditCardNumber;
     private final SimpleStringProperty creditCardExpirationMonth;
     private final SimpleStringProperty creditCardExpirationYear;
     private final SimpleStringProperty creditVerificationNumber;
-    @CustomAnnotation(desc = "卡号信息")
     private final SimpleStringProperty creditInfo;
-    @CustomAnnotation(desc = "执行信息")
     private final SimpleStringProperty note;
 
 
