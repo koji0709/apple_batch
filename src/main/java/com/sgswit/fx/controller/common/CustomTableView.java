@@ -331,15 +331,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         // 把序号列删除掉
         localHistoryTableView.getColumns().remove(0);
-        // 添加入库时间
-        TableColumn<T, String> createTime = new TableColumn<>("入库时间");
-        createTime.setPrefWidth(120);
-        createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
-        localHistoryTableView.getColumns().add(createTime);
 
-        // 按钮绑定事件
-        HashMap<Object, Object> params = new HashMap<>();
-        params.put("clz_name", ClassUtil.getClassName(this, false));
         // 获取当前controller上的泛型(数据对象)
         Map<Type, Type> typeMap = TypeUtil.getTypeMap(this.getClass());
         Class clz = Account.class;
@@ -348,6 +340,19 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
+
+        // 添加入库时间
+        if (ReflectUtil.hasField(clz,"createTime")){
+            TableColumn<T, String> createTime = new TableColumn<>("入库时间");
+            createTime.setPrefWidth(120);
+            createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+            localHistoryTableView.getColumns().add(createTime);
+        }
+
+        // 按钮绑定事件
+        HashMap<Object, Object> params = new HashMap<>();
+        params.put("clz_name", ClassUtil.getClassName(this, false));
+
         Class finalClz = clz;
         searchBtn.setOnAction(actionEvent -> {
             if (!StrUtil.isEmpty(keywordsTextField.getText())) {
@@ -479,7 +484,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
     }
-    
+
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
