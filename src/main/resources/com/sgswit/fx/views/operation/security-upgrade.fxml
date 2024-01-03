@@ -72,7 +72,7 @@
                                 <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="171.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
                                         <Label text="选择电话号码地区" />
-                                        <ChoiceBox fx:id="dialCodeChoiceBox" />
+                                        <ComboBox editable="false" visibleRowCount="8" fx:id="dialCodeComboBox"  maxHeight="80"/>
                                         <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>

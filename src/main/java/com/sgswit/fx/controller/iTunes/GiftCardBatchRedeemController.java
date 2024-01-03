@@ -117,6 +117,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String giftCardCode = valList.get(0);
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
+                pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
                 GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                 giftCardRedeem.setAccount(account);
                 giftCardRedeem.setPwd(pwd);
@@ -132,6 +133,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if (valList.size() >= 3){
                     String account = valList.get(0);
                     String pwd     = valList.get(1);
+                    pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
                     for (int j = 2; j < valList.size(); j++) {
                         String giftCardCode = valList.get(j);
                         GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
@@ -217,7 +219,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         } catch (ServiceException e) {
                             // 异常不做处理只是做一个停止程序作用
                         } catch (Exception e) {
-                            setAndRefreshNote(giftCardRedeem, "接口数据处理异常", true);
+                            setAndRefreshNote(giftCardRedeem, "数据处理异常", true);
                             e.printStackTrace();
                         }
 
@@ -259,7 +261,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
         if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
-            String message = "礼品卡兑换失败!";
+            String message = "礼品卡兑换失败!兑换过于频繁";
             setAndRefreshNote(giftCardRedeem,message);
             return;
         }
@@ -273,28 +275,28 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         if (status != 0){
             String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
             String messageKey = redeemBody.getStr("errorMessageKey","");
-
+            String message = "兑换失败! %s";
             // 礼品卡无效
             if ("MZFreeProductCode.NoSuch".equals(messageKey)){
-                giftCardRedeem.setGiftCardStatus("无效");
+                giftCardRedeem.setGiftCardStatus("无效卡");
+                message = String.format(message,"该礼品卡无效");
             } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){// 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("已兑换");
+                message = String.format(message,"该礼品卡已被他人兑换");
             } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登陆
-                userPresentableErrorMessage = "登陆信息失效!";
+                message = String.format(message,"登陆信息失效");
                 giftCardRedeem.setIsLogin(false);
                 loginSuccessMap.remove(giftCardRedeem.getAccount());
             }else{
+                message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("兑换失败");
             }
-
-            String message = "兑换失败! %s";
-            message = String.format(message,userPresentableErrorMessage);
             setAndRefreshNote(giftCardRedeem,message);
             return;
         }
         // 礼品卡兑换成功
         String message = "礼品卡[%s]兑换成功!";
-        giftCardRedeem.setGiftCardStatus("兑换成功");
+        giftCardRedeem.setGiftCardStatus("已兑换");
         message = String.format(message,giftCardCode);
         setAndRefreshNote(giftCardRedeem,message);
     }
@@ -372,10 +374,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 });
             }catch (Exception e){
                 Platform.runLater(() -> {
-                    checkAccountDescLabel.setText("接口数据处理异常");
+                    checkAccountDescLabel.setText("数据处理异常");
                     countryLabel.setText("国家：" + "");
                     blanceLabel.setText( "余额：" + "");
-                    statusLabel.setText( "状态：" + "接口数据处理异常");
+                    statusLabel.setText( "状态：" + "数据处理异常");
                 });
             } finally {
                 Platform.runLater(() -> {

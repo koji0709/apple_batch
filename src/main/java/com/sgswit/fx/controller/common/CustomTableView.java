@@ -112,6 +112,24 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     }
                 });
             } else {
+                if ("note".equals(column.getId())){
+                    column.setCellFactory(new Callback() {
+                        @Override
+                        public Object call(Object param) {
+                            TableCell cell = new TableCell() {
+                                @Override
+                                protected void updateItem(Object item, boolean empty) {
+                                    super.updateItem(item, empty);
+                                    if (item != null && StrUtil.isNotEmpty(item.toString())){
+                                        this.setText(item.toString());
+                                        this.setTooltip(new Tooltip(item.toString()));
+                                    }
+                                }
+                            };
+                            return cell;
+                        }
+                    });
+                }
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
         }
@@ -187,7 +205,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     } catch (ServiceException e) {
                         // 异常不做处理只是做一个停止程序作用
                     } catch (Exception e) {
-                        setAndRefreshNote(account, "接口数据处理异常", true);
+                        setAndRefreshNote(account, "数据处理异常", true);
                         e.printStackTrace();
                     }
                 });
@@ -314,7 +332,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         // 把序号列删除掉
         localHistoryTableView.getColumns().remove(0);
         // 添加入库时间
-        TableColumn<Account, String> createTime = new TableColumn<>("入库时间");
+        TableColumn<T, String> createTime = new TableColumn<>("入库时间");
         createTime.setPrefWidth(120);
         createTime.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         localHistoryTableView.getColumns().add(createTime);
@@ -461,7 +479,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
     }
-
+    
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */

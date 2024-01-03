@@ -4,6 +4,7 @@ import com.sgswit.fx.controller.common.AppleIdView;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 
 /**
  * 开通双重认证view元素
@@ -20,5 +21,5 @@ public class SecurityUpgradeView extends AppleIdView {
      * 手机号码地区
      */
     @FXML
-    protected ChoiceBox dialCodeChoiceBox;
+    protected ComboBox dialCodeComboBox;
 }

@@ -38,6 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -47,108 +48,112 @@ import java.util.stream.Collectors;
 /**
  * @author DELL
  */
-public class CommRightContextMenuView<T> extends CommonView{
+public class CommRightContextMenuView<T> extends CommonView {
     private Integer currentMenuIndex;
     private static double leftMenuWidth = 120;
     private static double buttonHeight = 20;
-    /**主题色**/
+    /**
+     * 主题色
+     **/
     private static String COLOR_PRIMARY = "#e0e0e0";
-    /**被选中的字体颜色**/
-    private static String COLOR_SELECTED  = "black";
-    /**被选中的按钮背景颜色**/
+    /**
+     * 被选中的字体颜色
+     **/
+    private static String COLOR_SELECTED = "black";
+    /**
+     * 被选中的按钮背景颜色
+     **/
     private static String COLOR_HOVER = "#169bd5";
-    private Stage stage=null;
-    private static List<String> copyFields=null;
+    private Stage stage = null;
+    private static List<String> copyFields = null;
 
     private static TableView accountTableView;
 
+    private static List<KeyValuePair> allList = getAllList();
 
-
-
-
-    private static List<KeyValuePair> allList=getAllList();
-
-    private static List<KeyValuePair> getAllList(){
-        List<KeyValuePair> allList=new ArrayList<>();
+    private static List<KeyValuePair> getAllList() {
+        List<KeyValuePair> allList = new ArrayList<>();
         Class<Constant.RightContextMenu> emClass = Constant.RightContextMenu.class;
         Constant.RightContextMenu[] arr = emClass.getEnumConstants();
-        for (int i=0; i<arr.length;i++){
-            KeyValuePair keyValuePair=new KeyValuePair(arr[i].getCode(),arr[i].getTitle(),arr[i].getPath());
+        for (int i = 0; i < arr.length; i++) {
+            KeyValuePair keyValuePair = new KeyValuePair(arr[i].getCode(), arr[i].getTitle(), arr[i].getPath());
             allList.add(keyValuePair);
         }
         return allList;
     }
 
     /**
-     　* 右键点击事件
+     * 　* 右键点击事件
+     *
      * @param
      * @param contextMenuEvent
      * @param tableView
-     * @param items 菜单
-     * @param fields 需要复制的字段
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 13:52
+     * @param items            菜单
+     * @param fields           需要复制的字段
+     *                         　* @return void
+     *                         　* @throws
+     *                         　* @author DeZh
+     *                         　* @date 2023/12/22 13:52
      */
-    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent,TableView tableView,List<String> items,List<String> fields) {
-        copyFields=fields;
-        accountTableView=tableView;
+    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent, TableView tableView, List<String> items, List<String> fields) {
+        copyFields = fields;
+        accountTableView = tableView;
         try {
-            if(items.size()==0){
+            if (items.size() == 0) {
                 return;
             }
 
-            List<KeyValuePair> list=new ArrayList<>();
-            for(String k:items){
+            List<KeyValuePair> list = new ArrayList<>();
+            for (String k : items) {
                 Optional<KeyValuePair> cartOptional = allList.stream().filter(item -> item.getKey().equals(k)).findFirst();
                 if (cartOptional.isPresent()) {
                     // 存在
                     list.add(cartOptional.get());
                 }
             }
-            if(list.size()==0){
+            if (list.size() == 0) {
                 return;
             }
-            ObservableList<T> selectedRows=accountTableView.getSelectionModel().getSelectedItems();
-            if(selectedRows.size()==0){
+            ObservableList<T> selectedRows = accountTableView.getSelectionModel().getSelectedItems();
+            if (selectedRows.size() == 0) {
                 return;
             }
-            openMenu(contextMenuEvent,list);
-        }catch (Exception e){
+            openMenu(contextMenuEvent, list);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-   /**
-   　* 打开右键菜单
+    /**
+     * 　* 打开右键菜单
+     *
      * @param
-    * @param contextMenuEvent
-    * @param items
-   　* @return void
-   　* @throws
-   　* @author DeZh
-   　* @date 2023/12/22 20:52
-   */
+     * @param contextMenuEvent
+     * @param items            　* @return void
+     *                         　* @throws
+     *                         　* @author DeZh
+     *                         　* @date 2023/12/22 20:52
+     */
     private void openMenu(ContextMenuEvent contextMenuEvent, List<KeyValuePair> items) {
-        double x= contextMenuEvent.getScreenX();
-        double y=contextMenuEvent.getScreenY();
+        double x = contextMenuEvent.getScreenX();
+        double y = contextMenuEvent.getScreenY();
+        if (stage != null) {
+            stage.close();
+        }
         stage = new Stage();
-        stage.setX(x+1);
+        stage.setX(x + 1);
         stage.setY(y);
         Group root = new Group(getMenu(items));
-        stage.setScene(new Scene(root, leftMenuWidth,Region.USE_PREF_SIZE));
+        stage.setScene(new Scene(root, leftMenuWidth, Region.USE_PREF_SIZE));
         stage.initModality(Modality.NONE);
         stage.setResizable(false);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
         //焦点失去事件，关闭窗口
-        stage.focusedProperty().addListener(new ChangeListener<Boolean>()
-        {
+        stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean onHidden, Boolean onShown)
-            {
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean onHidden, Boolean onShown) {
                 stage.close();
             }
         });
@@ -161,7 +166,7 @@ public class CommRightContextMenuView<T> extends CommonView{
         vbox.setMinWidth(leftMenuWidth);
         setPaneBackground(vbox, Color.web(COLOR_PRIMARY));
         // 增加菜单中的项目
-        vbox.getChildren().addAll(getMenuItemList(leftMenuWidth,items));
+        vbox.getChildren().addAll(getMenuItemList(leftMenuWidth, items));
         return vbox;
     }
 
@@ -171,61 +176,61 @@ public class CommRightContextMenuView<T> extends CommonView{
     private List<Button> getMenuItemList(double width, List<KeyValuePair> itemNameList) {
         List<Button> buttonList = new ArrayList<>(itemNameList.size());
         for (KeyValuePair keyValuePair : itemNameList) {
-            String title=keyValuePair.getValue();
-            Map<String,Object> userData=new HashMap<>();
-            userData.put("title",keyValuePair.getValue());
+            String title = keyValuePair.getValue();
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("title", keyValuePair.getValue());
             Button button = new Button(keyValuePair.getValue());
             button.setMinWidth(width);
             button.setPrefHeight(buttonHeight);
             button.setId(keyValuePair.getKey());
             setButtonBackground(button, Color.web(COLOR_PRIMARY), Color.BLACK);
             //增加鼠标移动到菜单上到hover效果
-            button.setOnMouseMoved(event->{
-                if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
+            button.setOnMouseMoved(event -> {
+                if (currentMenuIndex == null || !button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
                     setButtonBackground(button, Color.web(COLOR_HOVER), Color.BLACK);
                     setFont(button, Color.BLACK, -1);
-                }else {
+                } else {
                     setButtonBackground(button, Color.web(COLOR_HOVER), Color.web(COLOR_SELECTED));
                 }
             });
-            button.setOnMouseExited(event->{
-                if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
+            button.setOnMouseExited(event -> {
+                if (currentMenuIndex == null || !button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
                     setButtonBackground(button, Color.web(COLOR_PRIMARY), Color.BLACK);
-                }else {
+                } else {
                     setButtonBackground(button, Color.web(COLOR_PRIMARY), Color.web(COLOR_SELECTED));
                 }
 
             });
-            button.setOnMouseClicked(event->{
-                String buttonId= button.getId();
-                ObservableList<T> selectedRows=accountTableView.getSelectionModel().getSelectedItems();
-                if(selectedRows.size()==0){
+            button.setOnMouseClicked(event -> {
+                String buttonId = button.getId();
+                ObservableList<T> selectedRows = accountTableView.getSelectionModel().getSelectedItems();
+                if (selectedRows.size() == 0) {
                     return;
                 }
                 T account = selectedRows.get(0);
-                if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())){
+                if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())) {
                     copyInfo(account);
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())){
+                } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
                     accountTableView.getItems().remove(account);
                     accountTableView.refresh();
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())){
-                    openCodePopup(account,title,Constant.RightContextMenu.CODE.getCode());
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())){
+                } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
+                    openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
+                } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
                     reExecute(account);
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())){
-                    openCodePopup(account,title,Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
-                }else if(buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())){
-                    if (account instanceof Account){
+                } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
+                    openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+                } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {
+                    if (account instanceof Account) {
                         Account account1 = (Account) account;
                         String securityCode = openSecurityCodePopupView(account1.getAccount());
-                        if (!StrUtil.isEmpty(securityCode)){
+                        if (!StrUtil.isEmpty(securityCode)) {
                             account1.setSecurityCode(securityCode);
                             accountHandler(account);
                         }
-                    }else if(account instanceof ConsumptionBill){
-                        String securityCode = openSecurityCodePopupView(ReflectUtil.getFieldValue(account,"account").toString());
-                        if (!StrUtil.isEmpty(securityCode)){
-                            twoFactorCodeExecute(account,securityCode);
+                    } else if (account instanceof ConsumptionBill) {
+                        String securityCode = openSecurityCodePopupView(ReflectUtil.getFieldValue(account, "account").toString());
+                        if (!StrUtil.isEmpty(securityCode)) {
+                            twoFactorCodeExecute(account, securityCode);
                         }
                     }
                 }
@@ -235,130 +240,161 @@ public class CommRightContextMenuView<T> extends CommonView{
         }
         return buttonList;
     }
+
     /**
-    　* 复制当前行信息
-      * @param
-     * @param selectedRow
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 17:55
-    */
-    private void copyInfo(T selectedRow){
-        try {
-            List<String> out=new ArrayList<>();
-            JSON jsonObject=JSONUtil.parse(selectedRow);
-            Class clazz = selectedRow.getClass();
-            // 获取所有的属性
-            Field[] fields = clazz.getDeclaredFields();
-            // 遍历属性
-            for (Field field : fields) {
-                // 判断属性是否有注解
-                if (field.isAnnotationPresent(CustomAnnotation.class)) {
-                    boolean copyFlag=false;
-                    CustomAnnotation annotation = field.getAnnotation(CustomAnnotation.class);
-                    boolean copy = annotation.copy();
-                    if(copy){
-                        if(null==copyFields ||copyFields.size()==0){
-                            copyFlag=true;
-                        }else if(copyFields.contains(field.getName())){
-                            copyFlag=true;
-                        }else{
-
-                        }
-
-                    }
-                    if(copyFlag){
-                        Object value=jsonObject.getByPath(field.getName());
-                        if(null!=value && !StringUtils.isEmpty(value.toString())){
-                            out.add(value.toString());
-                        }else{
-                            out.add(annotation.desc());
-                        }
+     * 　* 复制当前行信息
+     *
+     * @param
+     * @param selectedRow 　* @return void
+     *                    　* @throws
+     *                    　* @author DeZh
+     *                    　* @date 2023/12/22 17:55
+     */
+//    private void copyInfo(T selectedRow){
+//        try {
+//            List<String> out=new ArrayList<>();
+//            JSON jsonObject=JSONUtil.parse(selectedRow);
+//            Class clazz = selectedRow.getClass();
+//            // 获取所有的属性
+//            Field[] fields = clazz.getDeclaredFields();
+//            // 遍历属性
+//            for (Field field : fields) {
+//                // 判断属性是否有注解
+//                if (field.isAnnotationPresent(CustomAnnotation.class)) {
+//                    boolean copyFlag=false;
+//                    CustomAnnotation annotation = field.getAnnotation(CustomAnnotation.class);
+//                    boolean copy = annotation.copy();
+//                    if(copy){
+//                        if(null==copyFields ||copyFields.size()==0){
+//                            copyFlag=true;
+//                        }else if(copyFields.contains(field.getName())){
+//                            copyFlag=true;
+//                        }else{
+//
+//                        }
+//
+//                    }
+//                    if(copyFlag){
+//                        Object value=jsonObject.getByPath(field.getName());
+//                        if(null!=value && !StringUtils.isEmpty(value.toString())){
+//                            out.add(value.toString());
+//                        }else{
+//                            out.add(annotation.desc());
+//                        }
+//                    }
+//                }
+//            }
+//            String str = out.stream().collect(Collectors.joining("----"));
+//            ClipboardManager.setClipboard(str);
+//            super.alert("复制成功！");
+//        }catch (Exception e){
+//
+//        }
+//    }
+    private void copyInfo(T selectModel) {
+        List<String> resutList = new ArrayList<>();
+        for (Object column : accountTableView.getColumns()) {
+            TableColumn tableColumn = (TableColumn) column;
+            String id = tableColumn.getId();
+            String text = tableColumn.getText();
+            if (!"seq".equals(id)) {
+                if (ReflectUtil.hasField(selectModel.getClass(), id)) {
+                    Object value = ReflectUtil.invoke(
+                            selectModel
+                            , "get" + id.substring(0, 1).toUpperCase() + id.substring(1));
+                    if (value != null && StrUtil.isNotEmpty(value.toString())) {
+                        text = value.toString();
                     }
                 }
+                resutList.add(text);
             }
-            String str = out.stream().collect(Collectors.joining("----"));
+        }
+        String str = resutList.stream().collect(Collectors.joining("----"));
+        try {
             ClipboardManager.setClipboard(str);
-            super.alert("复制成功！");
-        }catch (Exception e){
+        } catch (Exception e) {
+            alert("复制失败！");
+        }
+        alert("复制成功！");
+    }
 
+    /**
+     * 　* 弹出验证码弹出框
+     *
+     * @param
+     * @param o 　* @return void
+     *          　* @throws
+     *          　* @author DeZh
+     *          　* @date 2023/12/22 17:56
+     */
+    private void openCodePopup(T o, String title, String type) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-code-popup.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 385, 170);
+            scene.getRoot().setStyle("-fx-font-family: 'serif'");
+            CommCodePopupView fxmlLoaderController = fxmlLoader.getController();
+            String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(o, "account")).getValue();
+            fxmlLoaderController.setAccount(account);
+            Stage popupStage = new Stage();
+            popupStage.setTitle(title);
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.setScene(scene);
+            popupStage.setResizable(false);
+            popupStage.initStyle(StageStyle.UTILITY);
+            popupStage.showAndWait();
+            String code = fxmlLoaderController.getSecurityCode();
+            if (StringUtils.isEmpty(code)) {
+                return;
+            }
+            if (Constant.RightContextMenu.CODE.getCode().equals(type)) {
+                secondStepHandler(o, code);
+            } else if (Constant.RightContextMenu.TWO_FACTOR_CODE.getCode().equals(type)) {
+                twoFactorCodeExecute(o, code);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-    /**
-    　* 弹出验证码弹出框
-      * @param
-     * @param o
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 17:56
-    */
-    private void openCodePopup(T o,String title,String type){
-       try {
-           FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/comm-code-popup.fxml"));
-           Scene scene = new Scene(fxmlLoader.load(), 385, 170);
-           scene.getRoot().setStyle("-fx-font-family: 'serif'");
-           CommCodePopupView fxmlLoaderController = fxmlLoader.getController();
-           String account= ((SimpleStringProperty)ReflectUtil.getFieldValue(o,"account")).getValue();
-           fxmlLoaderController.setAccount(account);
-           Stage popupStage = new Stage();
-           popupStage.setTitle(title);
-           popupStage.initModality(Modality.APPLICATION_MODAL);
-           popupStage.setScene(scene);
-           popupStage.setResizable(false);
-           popupStage.initStyle(StageStyle.UTILITY);
-           popupStage.showAndWait();
-           String code = fxmlLoaderController.getSecurityCode();
-           if(StringUtils.isEmpty(code)){
-               return;
-           }
-           if(Constant.RightContextMenu.CODE.getCode().equals(type)){
-               secondStepHandler(o,code);
-           }else if(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode().equals(type)){
-               twoFactorCodeExecute(o,code);
-           }
-       }catch (Exception e){
-            e.printStackTrace();
-       }
-    }
 
     /**
-    　* 第二步操作
-      * @param
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 17:38
-    */
-    protected void secondStepHandler(T account, String code){
-    }
-
-    /**
-    　* 重新执行
-      * @param
-     * @param o
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 18:04
-    */
-    protected void reExecute(T o){ }
-    /**
-     　* 双重验证
-     * @param
-     * @param o
-    　* @return void
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/12/22 18:04
+     * 　* 第二步操作
+     *
+     * @param  　* @return void
+     *         　* @throws
+     *         　* @author DeZh
+     *         　* @date 2023/12/22 17:38
      */
-    protected void twoFactorCodeExecute(T o, String code){ }
+    protected void secondStepHandler(T account, String code) {
+    }
+
+    /**
+     * 　* 重新执行
+     *
+     * @param
+     * @param o 　* @return void
+     *          　* @throws
+     *          　* @author DeZh
+     *          　* @date 2023/12/22 18:04
+     */
+    protected void reExecute(T o) {
+    }
+
+    /**
+     * 　* 双重验证
+     *
+     * @param
+     * @param o 　* @return void
+     *          　* @throws
+     *          　* @author DeZh
+     *          　* @date 2023/12/22 18:04
+     */
+    protected void twoFactorCodeExecute(T o, String code) {
+    }
 
     /**
      * 打开双重认证视图
      */
-    public String openSecurityCodePopupView(String account){
+    public String openSecurityCodePopupView(String account) {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/securitycode-popup.fxml"));
         Scene scene = null;
         try {
@@ -379,7 +415,7 @@ public class CommRightContextMenuView<T> extends CommonView{
 
         String type = s.getSecurityType();
         String code = s.getSecurityCode();
-        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(code)){
+        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(code)) {
             return "";
         }
         return type + "-" + code;
@@ -399,7 +435,7 @@ public class CommRightContextMenuView<T> extends CommonView{
         button.setBackground(new Background(new BackgroundFill(bg, null, null)));
         button.setTextFill(text);
         button.setCursor(Cursor.HAND);
-        button.setPadding(new Insets(5,0,5,5));
+        button.setPadding(new Insets(5, 0, 5, 5));
     }
 
     public static void setFont(Labeled node, Color color, double fontSize) {

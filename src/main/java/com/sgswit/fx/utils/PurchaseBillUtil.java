@@ -39,7 +39,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class PurchaseBillUtil {
-    public static void main( String[] args ) throws Exception {
+
+    public static void main(String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
 //
@@ -983,6 +984,8 @@ public class PurchaseBillUtil {
         return iTunesLogin(authCode,guid,0,paras);
     }
 
+    private static Integer num = 0;
+
     private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
@@ -1015,6 +1018,10 @@ public class PurchaseBillUtil {
             if(res.getStatus()==302 && attempt ==0){
                 return iTunesLogin(authCode,guid,1,paras);
             }else if(res.getStatus()==503){
+                if(num > 5){
+                    return paras;
+                }
+                num++;
                 iTunesLogin(authCode,guid,attempt,paras);
             }
             String rb = res.charset("UTF-8").body();
