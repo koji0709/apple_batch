@@ -255,6 +255,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                             account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
+                            insertLocalHistory(List.of(account));
                         }else{
                             account.setNote("登录成功，正在修改...");
                             accountTableView.refresh();
@@ -300,7 +301,9 @@ public class CountryModifyController extends CustomTableView<Account> implements
                             res.put("addressInfo",body);
                             Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
                             account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
+                            insertLocalHistory(List.of(account));
                         }
+
                         accountTableView.refresh();
                     } catch (Exception e) {
                         account.setNote("操作失败，接口异常");
@@ -389,14 +392,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+       super.localHistoryButtonAction();
     }
 
     private void initAccountTableView(){

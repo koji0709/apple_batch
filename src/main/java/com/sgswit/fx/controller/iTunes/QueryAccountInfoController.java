@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.*;
@@ -254,7 +255,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                         }else {
                             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
-                                setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
+                                tableRefreshAndInsertLocal(account, "此 Apple ID 尚未用于 App Store。");
                                 return;
                             }
 
@@ -299,11 +300,11 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             }else {
                                 account.setFamilyDetails("-");
                             }
-                            setAndRefreshNote(account,"查询完成");
+                            tableRefreshAndInsertLocal(account, "查询完成");
                             accountTableView.refresh();
                         }
                     } catch (Exception e) {
-                        setAndRefreshNote(account,"操作失败，接口异常。");
+                        tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");
                         accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -323,5 +324,10 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                 }
             }
         }).start();
+    }
+    private void tableRefreshAndInsertLocal(ConsumptionBill account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        super.insertLocalHistory(List.of(account));
     }
 }

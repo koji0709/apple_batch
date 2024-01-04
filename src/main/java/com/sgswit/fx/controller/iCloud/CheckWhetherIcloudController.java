@@ -14,6 +14,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
@@ -82,14 +83,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        super.localHistoryButtonAction();
     }
     @FXML
     protected void onAccountExportBtnClick() throws Exception{
@@ -183,7 +177,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                         account.setArea(regionId);
                         account.setDsid(rspJSON.getStr("dsid"));
                     }
-                    tableRefresh(account,message);
+                    tableRefreshAndInsertLocal(account,message);
                 }else{
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
@@ -193,16 +187,15 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefresh(account,message);
+                        tableRefreshAndInsertLocal(account,message);
                     }else{
-                        tableRefresh(account,rspJSON.getStr("status-message"));
+                        tableRefreshAndInsertLocal(account,rspJSON.getStr("status-message"));
                     }
 
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"Apple ID或密码错误。");
-                e.printStackTrace();
+                tableRefreshAndInsertLocal(account,"Apple ID或密码错误。");
             }
         }else {
             tableRefresh(account,response.body());
@@ -220,6 +213,11 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
     private void tableRefresh(Account account,String message){
         account.setNote(message);
         accountTableView.refresh();
+    }
+    private void tableRefreshAndInsertLocal(Account account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        super.insertLocalHistory(List.of(account));
     }
     @FXML
     public void onStopBtnClick(ActionEvent actionEvent) {

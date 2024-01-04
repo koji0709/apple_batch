@@ -294,14 +294,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
 
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+       super.localHistoryButtonAction();
     }
 
     private void initAccountTableView(){

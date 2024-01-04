@@ -74,14 +74,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        super.localHistoryButtonAction();
     }
     @FXML
     protected void onAccountExportBtnClick() throws Exception{
@@ -121,8 +114,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                                 accountTableView.refresh();
                                 checkCloudAcc(account);
                             } catch (Exception e) {
-                                account.setNote("操作失败，接口异常");
-                                accountTableView.refresh();
+                                tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                                 accountQueryBtn.setDisable(false);
                                 accountQueryBtn.setText("开始执行");
                                 accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -166,7 +158,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
                             tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
-                            message=comAppleMobileme.getByPath("status-message",String.class);
+                            return;
                         }else{
                             message="查询成功";
                             account.setFamilyDetails("无");
@@ -179,7 +171,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                         account.setArea(regionId);
                     }
                     account.setDsid(rspJSON.getStr("dsid"));
-                    tableRefresh(account,message);
+                    tableRefreshAndInsertLocal(account, message);
                 }else{
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
@@ -189,18 +181,17 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefresh(account,message);
+                        tableRefreshAndInsertLocal(account, message);
                     }else{
-                        tableRefresh(account,rspJSON.getStr("status-message"));
+                        tableRefreshAndInsertLocal(account, rspJSON.getStr("status-message"));
                     }
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"Apple ID或密码错误。");
-                e.printStackTrace();
+                tableRefreshAndInsertLocal(account, "Apple ID或密码错误。");
             }
         }else {
-            tableRefresh(account,response.body());
+            tableRefreshAndInsertLocal(account, response.body());
         }
     }
     private void initAccountTableView(){
@@ -215,6 +206,11 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
     private void tableRefresh(Account account,String message){
         account.setNote(message);
         accountTableView.refresh();
+    }
+    private void tableRefreshAndInsertLocal(Account account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        super.insertLocalHistory(List.of(account));
     }
     @FXML
     public void onStopBtnClick(ActionEvent actionEvent) {

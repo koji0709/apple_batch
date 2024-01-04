@@ -188,15 +188,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/giftCard-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        super.localHistoryButtonAction();
     }
     @FXML
     protected void onAccountExportBtnClick() throws Exception{
@@ -445,29 +437,24 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(503==step4Res.getStatus()){
-            giftCard.setNote("当前服务不可用，请稍后重试");
-            accountTableView.refresh();
+            tableRefreshAndInsertLocal(giftCard,"当前服务不可用，请稍后重试");
         }else if(step4Res.getStatus()!=200){
-            giftCard.setNote("余额查询失败");
-            accountTableView.refresh();
+            tableRefreshAndInsertLocal(giftCard,"余额查询失败");
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             String status=bodyJson.getByPath("head.status").toString();
             if(!Constant.SUCCESS.equals(status)){
-                giftCard.setNote("余额查询失败");
-                accountTableView.refresh();
+                tableRefreshAndInsertLocal(giftCard,"余额查询失败");
                 return;
             }
             Object balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance");
             Object giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber");
             if(null==balance){
-                giftCard.setNote("这不是有效的礼品");
-                accountTableView.refresh();
+                tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品");
             }else{
                 giftCard.setBalance(balance.toString());
                 giftCard.setGiftCardNumber(giftCardNumber.toString().split(";")[1]);
-                giftCard.setNote("查询成功");
-                accountTableView.refresh();
+                tableRefreshAndInsertLocal(giftCard,"查询成功");
             }
         }
     }

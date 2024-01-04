@@ -1,11 +1,14 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -112,30 +115,29 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                 Map<String,Object> res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
                                 if(!res.get("code").equals(Constant.SUCCESS)){
                                     account.setNote(res.get("msg").toString());
+                                    tableRefreshAndInsertLocal(account, res.get("msg").toString());
                                 }else{
                                     boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                                     if(!hasInspectionFlag){
-                                        account.setNote("此 Apple ID 尚未用于 App Store。");
-                                        accountTableView.refresh();
+                                        tableRefreshAndInsertLocal(account,"此 Apple ID 尚未用于 App Store。");
                                         return;
                                     }
                                     account.setNote("登录成功，数据删除中...");
                                     accountTableView.refresh();
                                     res=ITunesUtil.delPaymentInfos(res);
                                     if(res.get("code").equals(Constant.SUCCESS)){
-                                        account.setNote("删除成功");
+                                        tableRefreshAndInsertLocal(account, "删除成功");
                                     }else{
-                                        account.setNote(res.get("msg").toString());
+                                        tableRefreshAndInsertLocal(account, MapUtils.getStr(res,"msg"));
                                     }
+
                                 }
                                 accountTableView.refresh();
                             } catch (Exception e) {
-                                account.setNote("操作失败，接口异常");
-                                accountTableView.refresh();
+                                tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                                 accountQueryBtn.setDisable(false);
                                 accountQueryBtn.setText("开始执行");
                                 accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                e.printStackTrace();
                             }
                         }finally {
                             //JavaFX Application Thread会逐个阻塞的执行这些任务
@@ -155,26 +157,9 @@ public class PaymentMethodController extends CustomTableView<Account> implements
 
         }
     }
-    private void queryFail(Account account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
-    }
-    private void messageFun(Account account,String message) {
-        account.setNote(message);
-        accountTableView.refresh();
-    }
-
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/account-querylog-popup.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("账户查询记录");
-        popupStage.initModality(Modality.WINDOW_MODAL);
-        popupStage.setScene(scene);
-        popupStage.showAndWait();
+        super.localHistoryButtonAction();
     }
 
     private void initAccountTableView(){
@@ -184,7 +169,11 @@ public class PaymentMethodController extends CustomTableView<Account> implements
         note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
     }
 
-
+    private void tableRefreshAndInsertLocal(Account account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        super.insertLocalHistory(List.of(account));
+    }
     public void onStopBtnClick(ActionEvent actionEvent) {
     }
 }
