@@ -148,6 +148,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                         public void run(){
                             try {
                                 try {
+                                    account.setHasFinished(false);
                                     account.setNote("登录中...");
                                     accountTableView.refresh();
                                     int accountPurchasesLast90Count=0;
@@ -194,7 +195,9 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                         account.setNote(String.valueOf(res.get("msg")));
                                         accountTableView.refresh();
                                     }
+                                    account.setHasFinished(true);
                                 } catch (Exception e) {
+                                    account.setHasFinished(true);
                                     account.setNote("操作失败，接口异常");
                                     accountTableView.refresh();
                                     accountQueryBtn.setDisable(false);
@@ -222,16 +225,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
             e.printStackTrace();
         }
 
-    }
-
-    private void queryFail(ConsumptionBill account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
-    }
-    private void messageFun(ConsumptionBill account,String message) {
-        account.setNote(message);
-        accountTableView.refresh();
     }
 
     @FXML

@@ -235,6 +235,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
             public void run(){
                 try {
                     try {
+                        account.setHasFinished(false);
                         setAndRefreshNote(account,"正在登录...",false);
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
                         Map<String,Object> accountInfoMap=account.getAuthData();
@@ -300,10 +301,12 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             }else {
                                 account.setFamilyDetails("-");
                             }
+                            account.setHasFinished(true);
                             tableRefreshAndInsertLocal(account, "查询完成");
                             accountTableView.refresh();
                         }
                     } catch (Exception e) {
+                        account.setHasFinished(true);
                         tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");

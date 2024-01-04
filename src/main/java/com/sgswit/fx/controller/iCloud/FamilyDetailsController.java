@@ -86,8 +86,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
 
     @FXML

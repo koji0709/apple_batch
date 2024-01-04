@@ -212,7 +212,7 @@ public class PurchaseBillUtil {
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         String url="https://reportaproblem.apple.com/";
-        HttpResponse res = HttpUtils.createGet(url)
+        HttpResponse res = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -225,7 +225,7 @@ public class PurchaseBillUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = HttpUtils.createGet(pre1.header("Location"))
+        HttpResponse res = HttpUtil.createGet(pre1.header("Location"))
                 .header(headers)
                 .execute();
         return res;
@@ -244,7 +244,7 @@ public class PurchaseBillUtil {
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = HttpUtils.createGet(url)
+        HttpResponse res = HttpUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -417,7 +417,7 @@ public class PurchaseBillUtil {
         headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
         headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0"));
         String location = res1.header("Location");
-        HttpResponse res2 = HttpUtils.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
+        HttpResponse res2 = HttpUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
                 .header(headers)
                 .execute();
 
@@ -444,7 +444,7 @@ public class PurchaseBillUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Connection",ListUtil.toList("keep-alive"));
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtils.createGet(scUrl)
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -471,7 +471,7 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse res2 = HttpUtils.createGet(scUrl)
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -498,7 +498,7 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse res2 = HttpUtils.createGet(scUrl)
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -527,7 +527,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
 
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtils.createGet(scUrl)
+        HttpResponse res2 = HttpUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -608,7 +608,7 @@ public class PurchaseBillUtil {
         }
         String loginCookies = cookieBuilder.substring(1);
         String loginUrl="https://reportaproblem.apple.com/api/login";
-        HttpResponse loginResponse = HttpUtils.createGet(loginUrl)
+        HttpResponse loginResponse = HttpUtil.createGet(loginUrl)
                 .header(headers)
                 .cookie(loginCookies)
                 .execute();
@@ -696,7 +696,7 @@ public class PurchaseBillUtil {
       headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
       headers.put("Te",ListUtil.toList("trailers"));
       String url="https://reportaproblem.apple.com/api/order/"+weborder+"/invoice";
-      HttpResponse searchResponse = HttpUtils.createGet(url)
+      HttpResponse searchResponse = HttpUtil.createGet(url)
               .header(headers)
               .cookie(cookies)
               .execute();
@@ -993,7 +993,7 @@ public class PurchaseBillUtil {
                 "<plist version=\"1.0\"><dict><key>appleId</key><string>"+paras.get("account")+"</string><key>attempt</key><string>4</string><key>createSession</key><string>true</string><key>guid</key><string>"+guid+"</string><key>password</key><string>"+paras.get("pwd")+authCode+"</string><key>rmp</key><string>0</string><key>why</key><string>signIn</string></dict></plist>";
         try {
             String authUrl=MapUtil.getStr(paras,"authUrl");
-            HttpResponse res = HttpUtils.createPost(authUrl)
+            HttpResponse res = HttpUtil.createPost(authUrl)
                     .header(headers)
                     .cookie(MapUtils.getStr(paras,"cookies"))
                     .body(authBody, ContentType.FORM_URLENCODED.toString())
@@ -1089,7 +1089,7 @@ public class PurchaseBillUtil {
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {
-            HttpResponse res = HttpUtils.createGet(accountUrl)
+            HttpResponse res = HttpUtil.createGet(accountUrl)
                     .header(headers)
                     .cookie(cookies)
                     .execute();

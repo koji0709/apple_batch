@@ -138,8 +138,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
 
     @FXML
@@ -162,6 +161,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
             public void run(){
                 try {
                     try {
+                        account.setHasFinished(false);
                         account.setNote("正在登录...");
                         accountTableView.refresh();
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
@@ -201,8 +201,10 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
                             }
                             account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
                         }
+                        account.setHasFinished(true);
                         accountTableView.refresh();
                     } catch (Exception e) {
+                        account.setHasFinished(true);
                         tableRefreshAndInsertLocal(account, "操作失败，接口异常。");
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");

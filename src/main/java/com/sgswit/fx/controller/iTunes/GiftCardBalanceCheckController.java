@@ -200,8 +200,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
@@ -433,6 +432,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             tableRefreshAndInsertLocal(giftCard,"输入代码不符合查询格式");
             return;
         }
+        giftCard.setHasFinished(false);
         tableRefresh(giftCard,"正在查询...");
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
@@ -457,6 +457,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 tableRefreshAndInsertLocal(giftCard,"查询成功");
             }
         }
+        giftCard.setHasFinished(true);
     }
 
     private void initAccountTableView(){

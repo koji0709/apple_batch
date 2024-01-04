@@ -204,14 +204,20 @@ public class CommRightContextMenuView<T> extends CommonView {
                 if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())) {
                     copyInfo(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
-                    int num=0;
-                    if(!StringUtils.isEmpty(accountNumLabel.getText()) && num>0){
-                        num=Integer.valueOf(accountNumLabel.getText());
-                        num--;
+                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+                    if(!hasFinished){
+                        alert("有工作正在进行中，当前数据无法删除！", Alert.AlertType.ERROR);
+                        return;
+                    }else{
+                        int num=0;
+                        if(!StringUtils.isEmpty(accountNumLabel.getText())){
+                            num=Integer.valueOf(accountNumLabel.getText());
+                            num--;
+                        }
+                        accountNumLabel.setText(String.valueOf(num));
+                        accountTableView.getItems().remove(account);
+                        accountTableView.refresh();
                     }
-                    accountNumLabel.setText(String.valueOf(num));
-                    accountTableView.getItems().remove(account);
-                    accountTableView.refresh();
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {

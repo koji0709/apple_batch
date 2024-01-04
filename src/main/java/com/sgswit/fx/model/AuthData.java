@@ -14,6 +14,7 @@ public class AuthData {
     private Map<String,Object> authData = new HashMap<>();
     private String step;
     private String authCode = "";
+    private boolean hasFinished = true;
 
     public Map<String, Object> getAuthData() {
         return authData;
@@ -37,5 +38,13 @@ public class AuthData {
 
     public void setAuthCode(String authCode) {
         this.authCode = authCode;
+    }
+
+    public boolean isHasFinished() {
+        return hasFinished;
+    }
+
+    public void setHasFinished(boolean hasFinished) {
+        this.hasFinished = hasFinished;
     }
 }

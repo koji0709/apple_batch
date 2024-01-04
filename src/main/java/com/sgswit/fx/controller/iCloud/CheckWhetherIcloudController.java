@@ -95,8 +95,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
 
     @FXML
@@ -200,15 +199,6 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
         }else {
             tableRefresh(account,response.body());
         }
-    }
-    private void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
-        dsid.setCellValueFactory(new PropertyValueFactory<Account,String>("dsid"));
-        support.setCellValueFactory(new PropertyValueFactory<Account,String>("support"));
-        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
     }
     private void tableRefresh(Account account,String message){
         account.setNote(message);

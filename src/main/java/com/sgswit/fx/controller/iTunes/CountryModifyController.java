@@ -203,8 +203,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
 
     @FXML
@@ -237,6 +236,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
             public void run(){
                 try {
                     try {
+                        account.setHasFinished(false);
                         account.setNote("正在登录...");
                         accountTableView.refresh();
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
@@ -301,13 +301,15 @@ public class CountryModifyController extends CustomTableView<Account> implements
                             res.put("addressInfo",body);
                             Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
                             account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
+                            account.setHasFinished(false);
                             insertLocalHistory(List.of(account));
                         }
-
+                        account.setHasFinished(true);
                         accountTableView.refresh();
                     } catch (Exception e) {
+                        account.setHasFinished(true);
                         account.setNote("操作失败，接口异常");
-                        accountTableView.refresh();
+                        insertLocalHistory(List.of(account));
                         accountQueryBtn.setDisable(false);
                         accountQueryBtn.setText("开始执行");
                         accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

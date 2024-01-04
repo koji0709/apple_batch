@@ -88,8 +88,7 @@ public class PaymentMethodController extends CustomTableView<Account> implements
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
-        this.list.clear();
-        accountTableView.refresh();
+        super.clearAccountListButtonAction();
     }
 
     @FXML
@@ -110,6 +109,7 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                     public void run(){
                         try {
                             try {
+                                account.setHasFinished(false);
                                 account.setNote("正在登录...");
                                 accountTableView.refresh();
                                 Map<String,Object> res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
@@ -132,8 +132,10 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                     }
 
                                 }
+                                account.setHasFinished(true);
                                 accountTableView.refresh();
                             } catch (Exception e) {
+                                account.setHasFinished(true);
                                 tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                                 accountQueryBtn.setDisable(false);
                                 accountQueryBtn.setText("开始执行");

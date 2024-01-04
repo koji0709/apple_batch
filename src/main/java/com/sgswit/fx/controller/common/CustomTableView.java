@@ -411,8 +411,17 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 清空列表按钮点击
      */
     public void clearAccountListButtonAction() {
+        //判断任务是否进行中
+        for(T account:accountList){
+            Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+            if(!hasFinished){
+                alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
+                return;
+            }
+        }
         accountList.clear();
-        accountNumLabel.setText("");
+        accountNumLabel.setText("0");
+        accountTableView.refresh();
     }
 
     /**

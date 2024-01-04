@@ -10,7 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
  * @description: TODO
  * @date 2023/10/3121:37
  */
-public class GiftCard {
+public class GiftCard extends AuthData{
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty giftCardCode;
     private final SimpleStringProperty balance;
