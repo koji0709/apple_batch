@@ -13,6 +13,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -31,6 +32,7 @@ import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +61,8 @@ public class CommRightContextMenuView<T> extends CommonView {
     private static TableView accountTableView;
 
     private static List<KeyValuePair> allList = getAllList();
+    @FXML
+    protected Label accountNumLabel;
 
     private static List<KeyValuePair> getAllList() {
         List<KeyValuePair> allList = new ArrayList<>();
@@ -200,6 +204,12 @@ public class CommRightContextMenuView<T> extends CommonView {
                 if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())) {
                     copyInfo(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
+                    int num=0;
+                    if(!StringUtils.isEmpty(accountNumLabel.getText()) && num>0){
+                        num=Integer.valueOf(accountNumLabel.getText());
+                        num--;
+                    }
+                    accountNumLabel.setText(String.valueOf(num));
                     accountTableView.getItems().remove(account);
                     accountTableView.refresh();
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {

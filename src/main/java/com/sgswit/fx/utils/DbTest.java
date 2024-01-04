@@ -26,6 +26,12 @@ public class DbTest {
             System.out.println(generex.random().toUpperCase());
         }
 
+
+//        String cCreditInfoRegex = ".+----.+";
+//        if("djabdel_94@hotmail.com----Wei100287..".matches(cCreditInfoRegex)){
+//            System.out.println("1");
+//        }
+
     }
 
 }

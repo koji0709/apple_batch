@@ -98,8 +98,8 @@ public class CountryModifyController extends CustomTableView<Account> implements
 
     private String fromType=null;
 
-
     private ObservableList<Account> list = FXCollections.observableArrayList();
+
 
     public CountryModifyController(){
 

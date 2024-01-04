@@ -590,6 +590,7 @@ public class ITunesUtil {
         body = String.format(body,appstoreDownloadVo.getGuid(),trackId,trackId);
         HttpResponse purchaseRsp = HttpUtil.createPost(url)
                 .header(headers)
+                .cookie(appstoreDownloadVo.getCookie())
                 .body(body)
                 .execute();
 
@@ -749,7 +750,6 @@ public class ITunesUtil {
         account.setPwd("dPFb6cSD41");
 
         String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        //HttpResponse authRsp = ITunesUtil.authenticate(account,"",guid);
         HttpResponse authRsp = null;
         String storeFront = "";
 

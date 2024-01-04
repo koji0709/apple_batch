@@ -58,9 +58,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     @FXML
     public TableView<T> accountTableView;
 
-    @FXML
-    protected Label accountNumLable;
-
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
@@ -254,7 +251,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (!accountList1.isEmpty()) {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
-                accountNumLable.setText(accountList.size() + "");
+                accountNumLabel.setText(accountList.size() + "");
             }
             stage.close();
         });
@@ -415,7 +412,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public void clearAccountListButtonAction() {
         accountList.clear();
-        accountNumLable.setText("");
+        accountNumLabel.setText("");
     }
 
     /**

@@ -29,7 +29,7 @@
                                         <HBox prefHeight="30" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                             <children>
                                                 <Label text="列表中账户数量：      " />
-                                                <Label fx:id="accountNumLable" textFill="#e20404" />
+                                                <Label fx:id="accountNumLabel" textFill="#e20404" />
                                             </children>
                                         </HBox>
 

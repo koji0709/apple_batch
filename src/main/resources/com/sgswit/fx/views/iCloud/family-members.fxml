@@ -82,7 +82,7 @@
                                                 <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
-                                        <Label fx:id="accountNumLable" text="0" />
+                                        <Label fx:id="accountNumLabel" text="0" />
                                     </HBox>
                                     <HBox prefHeight="30.0" prefWidth="340.0">
                                         <Label text="成功数：" wrapText="true">
