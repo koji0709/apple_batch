@@ -69,7 +69,8 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             // 更改AppleID
             Object verifyRsp = authData.get("verifyRsp");
             if (verifyRsp == null){
-                throwAndRefreshNote(account,"请先开始执行");
+                setAndRefreshNote(account,"请先开始执行",false);
+                return;
             }
             HttpResponse updateRsp = isUpdateAppleId ? AppleIDUtil.updateAppleId((HttpResponse) verifyRsp, account, verifyCode.toString())
                                             : AppleIDUtil.addRescueEmail((HttpResponse)verifyRsp,account, verifyCode.toString());
@@ -93,10 +94,10 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             if (birthdayDatePickerValue != null){
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
-                    setAndRefreshNote(account,"修改生日失败");
+                    appendAndRefreshNote(account,"修改生日失败");
                 }else{
                     account.setBirthday(birthdayDatePickerValue.toString());
-                    setAndRefreshNote(account,"修改生日成功");
+                    appendAndRefreshNote(account,"修改生日成功");
                 }
             }
 
@@ -105,10 +106,10 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             if (!StrUtil.isEmpty(newPwd)){
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    setAndRefreshNote(account,"修改密码失败");
+                    appendAndRefreshNote(account,"修改密码失败");
                 }else{
                     account.setPwd(newPwd);
-                    setAndRefreshNote(account,"修改密码成功");
+                    appendAndRefreshNote(account,"修改密码成功");
                 }
             }
 
@@ -125,14 +126,15 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                         ,answer3TextFieldText,142,"你的父母是在哪里认识的？");
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    setAndRefreshNote(account,"修改密保失败");
+                    appendAndRefreshNote(account,"修改密保失败");
                 }else{
                     account.setAnswer1(answer1TextFieldText);
                     account.setAnswer2(answer2TextFieldText);
                     account.setAnswer3(answer3TextFieldText);
-                    setAndRefreshNote(account,"修改密保成功");
+                    appendAndRefreshNote(account,"修改密保成功");
                 }
             }
+            setAndRefreshNote(account,account.getNote());
         }
 
     }

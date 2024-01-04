@@ -42,7 +42,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         signInMap.put("pwd",pwd);
 
         //登录 通用 www.icloud.com
-        setAndRefreshNote(accountModel,"开始签名");
+        setAndRefreshNote(accountModel,"开始签名",false);
         HttpResponse singInRes = ICloudWeblogin.signin(signInMap);
         // 设置账号对应的国家
         String domain = "icloud.com";

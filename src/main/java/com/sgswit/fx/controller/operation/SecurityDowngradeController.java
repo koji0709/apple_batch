@@ -40,7 +40,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         String newPassword = pwdTextField.getText();
 
         // 识别验证码
-        setAndRefreshNote(account,"开始获取验证码..");
+        setAndRefreshNote(account,"开始获取验证码..",false);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
         if (verifyAppleIdRsp.getStatus() == 503){
             setAndRefreshNote(account,"操作频繁");
@@ -50,10 +50,10 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             setAndRefreshNote(account,"验证码自动识别失败");
             return;
         }
-        setAndRefreshNote(account,"验证码自动校验完毕");
+        setAndRefreshNote(account,"验证码自动校验完毕",false);
 
         // 关闭双重认证
-        setAndRefreshNote(account,"开始进入关闭双重认证流程...");
+        setAndRefreshNote(account,"开始进入关闭双重认证流程...",false);
         HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
         if (securityDowngradeRsp == null){
             setAndRefreshNote(account,account.getNote());

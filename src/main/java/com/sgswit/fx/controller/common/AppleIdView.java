@@ -101,7 +101,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 if (questionRsp.getStatus() != 412) {
                     throwAndRefreshNote(account,"密保问题验证失败;");
                 }
-                setAndRefreshNote(account,"密保问题验证通过");
+                setAndRefreshNote(account,"密保问题验证通过",false);
                 ThreadUtil.sleep(500);
                 setAndRefreshNote(account,"正在阅读协议...",false);
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
@@ -129,7 +129,7 @@ public class AppleIdView extends CustomTableView<Account> {
         if (tokenRsp.getStatus() != 200){
             throwAndRefreshNote(account,"登录异常;");
         }
-        setAndRefreshNote(account,"登陆成功;");
+        setAndRefreshNote(account,"登陆成功;",false);
         account.setIsLogin(true);
     }
 

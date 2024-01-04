@@ -96,7 +96,8 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         } else {
             Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
             if (securityUpgradeVerifyPhoneObject == null){
-                throwAndRefreshNote(account,"请先发送验证码");
+                setAndRefreshNote(account,"请先发送验证码",false);
+                return;
             }
             HttpResponse securityUpgradeVerifyPhoneRsp = (HttpResponse) securityUpgradeVerifyPhoneObject;
             JSON jsonBody2 = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());

@@ -48,7 +48,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setGuid(loginInfo.getGuid());
             accountModel.setAuthData(loginInfo.getAuthData());
             accountModel.setCookieMap(loginInfo.getCookieMap());
-            setAndRefreshNote(accountModel,"成功获取登陆信息。");
+            setAndRefreshNote(accountModel,"成功获取登陆信息。",false);
         }
 
         if (accountModel.isLogin()){
@@ -87,7 +87,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
         if (verify){
-            setAndRefreshNote(accountModel,"登陆成功。");
+            setAndRefreshNote(accountModel,"登陆成功。",false);
             accountModel.getAuthData().put("authRsp",loginRsp);
             accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
             accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
