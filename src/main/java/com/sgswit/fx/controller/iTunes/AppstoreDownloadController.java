@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -19,6 +20,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
@@ -184,13 +186,32 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
 
     @Override
     protected void secondStepHandler(AppstoreDownloadVo account, String code) {
-        account.setAuthCode(code);
-        accountHandler(account);
+        ThreadUtil.execute(() -> {
+            try {
+                account.setAuthCode(code);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
     protected void reExecute(AppstoreDownloadVo o) {
-        accountHandler(o);
+        ThreadUtil.execute(() -> {
+            try {
+                setAndRefreshNote(o, "执行中", false);
+                accountHandler(o);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(o, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
     public boolean purchaseAnddownloadApp(AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){

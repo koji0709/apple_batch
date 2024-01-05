@@ -303,13 +303,31 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     @Override
     protected void secondStepHandler(GiftCardRedeem account, String code) {
-        account.setAuthCode(code);
-        accountHandler(account);
+        ThreadUtil.execute(() -> {
+            try {
+                account.setAuthCode(code);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
     protected void reExecute(GiftCardRedeem o) {
-        accountHandler(o);
+        ThreadUtil.execute(() -> {
+            try {
+                accountHandler(o);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(o, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
 

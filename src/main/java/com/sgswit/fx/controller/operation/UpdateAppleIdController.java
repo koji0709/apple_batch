@@ -1,8 +1,10 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.AuthData;
@@ -153,13 +155,32 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     protected void reExecute(Account account) {
-        accountHandler(account);
+        ThreadUtil.execute(() -> {
+            try {
+                setAndRefreshNote(account, "执行中", false);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
     protected void secondStepHandler(Account account, String code) {
-        account.getAuthData().put("verifyCode",code);
-        accountHandler(account);
+        ThreadUtil.execute(() -> {
+            try {
+                account.getAuthData().put("verifyCode",code);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
 }

@@ -1,12 +1,14 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.AppleIdView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.scene.input.ContextMenuEvent;
@@ -74,7 +76,17 @@ public class SupportPinController extends AppleIdView {
 
     @Override
     protected void reExecute(Account account) {
-        accountHandler(account);
+        ThreadUtil.execute(() -> {
+            try {
+                setAndRefreshNote(account, "执行中", false);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            }
+        });
     }
 
 }
