@@ -5,6 +5,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -15,11 +16,14 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * <p>
@@ -32,6 +36,21 @@ import java.util.List;
 public class RapidFiltrationController extends CustomTableView<Account> {
 
     private Integer num = 0;
+
+    public List<String> menuItem =new ArrayList<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        accountHandler(account);
+    }
 
     @FXML
     public void onAccountInputBtnClick(){
@@ -46,24 +65,25 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         accountTableView.refresh();
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
+        if(step1Res.body().startsWith("<html>")){
+            num++;
+            if(num >= 5){
+                account.setNote("操作频繁");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+                return;
+            }
+            accountHandler(account);
+
+        }
         if (step1Res.getStatus() != 409) {
             queryFail(account,step1Res.body());
             return ;
         }
+
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
-            if(step1Res.body().startsWith("<html>")){
-                num++;
-                if(num >= 5){
-                    account.setNote("操作频繁");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                    return;
-                }
-                accountHandler(account);
-
-            }
             queryFail(account,step1Res.body());
             return ;
         }
@@ -74,8 +94,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
             //非双重认证
-            String body = step21Res.body();
-            String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
+//            String body = step21Res.body();
+//            String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
 //            List<Question> qs = JSONUtil.toList(questions, Question.class);
 
             account.setNote("正常账号");

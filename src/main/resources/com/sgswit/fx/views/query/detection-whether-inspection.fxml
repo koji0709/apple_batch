@@ -96,7 +96,7 @@
                   </TitledPane>
                   <TitledPane layoutX="13.0" layoutY="197.0" prefHeight="427.0" prefWidth="1077.0" text="账号列表">
                      <content>
-                        <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="364.0" prefWidth="1066.0">
                           <columns>
                             <TableColumn fx:id="seq" prefWidth="75.0" style="-fx-alignment: CENTER" text="序号" />
                             <TableColumn fx:id="account" prefWidth="230.0" style="-fx-alignment: CENTER" text="账号" />

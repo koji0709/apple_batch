@@ -8,11 +8,14 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
+import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -25,6 +28,20 @@ import java.util.*;
  */
 public class WhetherAppleIdController extends CustomTableView<Account> {
 
+    public List<String> menuItem =new ArrayList<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        accountHandler(account);
+    }
     public void openImportAccountView(){
         openImportAccountView(List.of("account"));
     }

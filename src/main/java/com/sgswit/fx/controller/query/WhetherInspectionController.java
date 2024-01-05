@@ -4,9 +4,13 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import javafx.scene.input.ContextMenuEvent;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * <p>
@@ -17,6 +21,21 @@ import java.util.Map;
  * @createTime 2023/09/23
  */
 public class WhetherInspectionController extends CustomTableView<Account> {
+
+    public List<String> menuItem =new ArrayList<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        accountHandler(account);
+    }
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));

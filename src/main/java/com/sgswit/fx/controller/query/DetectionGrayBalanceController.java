@@ -14,11 +14,11 @@ import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.ShoppingUtil;
 import com.sgswit.fx.utils.WebLoginUtil;
 import javafx.event.ActionEvent;
+import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 
 /**
  * <p>
@@ -29,6 +29,21 @@ import java.util.Map;
  * @createTime 2023/09/23
  */
 public class DetectionGrayBalanceController extends CustomTableView<Account> {
+
+    public List<String> menuItem =new ArrayList<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        accountHandler(account);
+    }
 
     public void openImportAccountView(ActionEvent actionEvent) {
         openImportAccountView(List.of("account----pwd"));
