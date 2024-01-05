@@ -11,6 +11,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
@@ -54,31 +55,13 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
 
     @Override
     protected void secondStepHandler(Account account, String code) {
-        ThreadUtil.execute(() -> {
-            try {
-                account.setAuthCode(code);
-                accountHandler(account);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(account, "数据处理异常", true);
-                e.printStackTrace();
-            }
-        });
+        account.setAuthCode(code);
+        accountHandlerExpand(account);
     }
 
     @Override
-    protected void reExecute(Account o) {
-        ThreadUtil.execute(() -> {
-            try {
-                accountHandler(o);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(o, "数据处理异常", true);
-                e.printStackTrace();
-            }
-        });
+    protected void reExecute(Account account) {
+        accountHandlerExpand(account);
     }
 
 }

@@ -195,33 +195,35 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     ThreadUtil.sleep(1000);
                 }
                 ThreadUtil.sleep(1500);
-                ThreadUtil.execute(() -> {
-                    boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
-                    try {
-                        if (hasField){
-                            ReflectUtil.invoke(account,"setHasFinished",false);
-                        }
-                        setAndRefreshNote(account, "执行中", false);
-                        accountHandler(account);
-                    } catch (ServiceException e) {
-                        // 异常不做处理只是做一个停止程序作用
-                    } catch (Exception e) {
-                        setAndRefreshNote(account, "数据处理异常", true);
-                        e.printStackTrace();
-                    } finally {
-                        if (hasField){
-                            ReflectUtil.invoke(account,"setHasFinished",true);
-                        }
-                    }
-                });
-
+                accountHandlerExpand(account);
                 if (i == accountList.size() - 1) {
                     // 任务执行结束, 恢复执行按钮状态
                     Platform.runLater(() -> setExecuteButtonStatus(false));
                 }
             }
         });
+    }
 
+    public void accountHandlerExpand(T account){
+        ThreadUtil.execute(() -> {
+            boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
+            try {
+                if (hasField){
+                    ReflectUtil.invoke(account,"setHasFinished",false);
+                }
+                setAndRefreshNote(account, "执行中", false);
+                accountHandler(account);
+            } catch (ServiceException e) {
+                // 异常不做处理只是做一个停止程序作用
+            } catch (Exception e) {
+                setAndRefreshNote(account, "数据处理异常", true);
+                e.printStackTrace();
+            } finally {
+                if (hasField){
+                    ReflectUtil.invoke(account,"setHasFinished",true);
+                }
+            }
+        });
     }
 
     /**

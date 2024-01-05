@@ -128,31 +128,12 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     protected void reExecute(Account account) {
-        ThreadUtil.execute(() -> {
-            try {
-                setAndRefreshNote(account, "执行中", false);
-                accountHandler(account);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(account, "数据处理异常", true);
-                e.printStackTrace();
-            }
-        });
+        accountHandlerExpand(account);
     }
 
     @Override
     protected void secondStepHandler(Account account, String code) {
-        ThreadUtil.execute(() -> {
-            try {
-                account.getAuthData().put("verifyCode",code);
-                accountHandler(account);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(account, "数据处理异常", true);
-                e.printStackTrace();
-            }
-        });
+        account.getAuthData().put("verifyCode",code);
+        accountHandlerExpand(account);
     }
 }
