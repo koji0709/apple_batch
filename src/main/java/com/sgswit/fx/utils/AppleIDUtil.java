@@ -1016,6 +1016,11 @@ public class AppleIDUtil {
                 .header(verifyPhone2Rsp.headers())
                 .execute();
 
+        if (unenrollmentRsp.getStatus() == 503){
+            account.setNote("操作频繁");
+            return null;
+        }
+
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = HttpUtil.createGet(host + verifyBirthday1Location)
                 .header(buildHeader(account))
@@ -1028,6 +1033,11 @@ public class AppleIDUtil {
                 .header("Content-Type","application/json")
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .execute();
+
+        if (verifyBirthday2Rsp.getStatus() == 503){
+            account.setNote("操作频繁");
+            return null;
+        }
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         if (StrUtil.isEmpty(verifyQuestions1Location)){
