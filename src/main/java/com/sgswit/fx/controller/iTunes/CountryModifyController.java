@@ -86,13 +86,11 @@ public class CountryModifyController extends CustomTableView<Account> implements
     private Button accountExportBtn;
 
     @FXML
-    private ChoiceBox<KeyValuePair> countryBox;
-
-    private List<KeyValuePair> countryList=new ArrayList<>();
+    private ComboBox<Map<String,String>> countryBox;
 
     @FXML
-    public ChoiceBox<KeyValuePair> customCountryBox;
-    private List<KeyValuePair> customCountryList=new ArrayList<>();
+    public ComboBox<Map<String,String>> customCountryBox;
+
     @FXML
     public HBox customCountrySelectId;
 
@@ -114,17 +112,21 @@ public class CountryModifyController extends CustomTableView<Account> implements
     /**快捷国家资料下拉**/
     protected void countryDataFun(){
         for(BaseAreaInfo baseAreaInfo: DataUtil.getFastCountry()){
-            countryList.add(new KeyValuePair(baseAreaInfo.getCode(),baseAreaInfo.getNameZh()));
+            countryBox.getItems().add(new HashMap<>(){{
+                put("name",baseAreaInfo.getNameZh());
+                put("code",baseAreaInfo.getCode());
+            }});
         }
-        countryBox.getItems().addAll(countryList);
-        countryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
+        countryBox.converterProperty().set(new StringConverter<>() {
             @Override
-            public String toString(KeyValuePair object) {
-                return object.getValue();
+            public String toString(Map<String, String> map) {
+                if(null==map){
+                    return "";
+                }
+                return map.get("name");
             }
-
             @Override
-            public KeyValuePair fromString(String string) {
+            public Map<String, String> fromString(String string) {
                 return null;
             }
         });
@@ -143,7 +145,6 @@ public class CountryModifyController extends CustomTableView<Account> implements
     /**自定义国家信息下拉**/
     protected void customCountryDataFun(){
         customCountryBox.getItems().clear();
-        customCountryList.clear();
         //判断是否显示 自定义国家下拉框
         List<UserNationalModel> list=new ArrayList<>();
         File jsonFile = new File("userNationalData.json");
@@ -158,19 +159,24 @@ public class CountryModifyController extends CustomTableView<Account> implements
         if(list.size()>0){
             customCountrySelectId.setVisible(true);
             for(UserNationalModel baseAreaInfo: list){
-                customCountryList.add(new KeyValuePair(baseAreaInfo.getId(),baseAreaInfo.getName()));
+                customCountryBox.getItems().add(new HashMap<>(){{
+                    put("name",baseAreaInfo.getName());
+                    put("code",baseAreaInfo.getId());
+                }});
             }
-            customCountryBox.getItems().addAll(customCountryList);
         }else{
             customCountrySelectId.setVisible(false);
         }
-        customCountryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
+        customCountryBox.converterProperty().set(new StringConverter<>() {
             @Override
-            public String toString(KeyValuePair object) {
-                return object.getValue();
+            public String toString(Map<String,String> map) {
+                if(null==map){
+                    return "";
+                }
+                return map.get("name");
             }
             @Override
-            public KeyValuePair fromString(String string) {
+            public Map<String,String> fromString(String string) {
                 return null;
             }
         });
@@ -266,7 +272,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                                 File jsonFile = new File("userNationalData.json");
                                 String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
                                 List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
-                                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().getKey())).collect(Collectors.toList()).get(0);
+                                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().get("code"))).collect(Collectors.toList()).get(0);
                                 targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
                                 Map<String,Object> bodyMap=new HashMap<>();
                                 bodyMap.put("iso3CountryCode",u.getPayment().getBillingAddress().getCountryCode());
@@ -290,8 +296,8 @@ public class CountryModifyController extends CustomTableView<Account> implements
                                 body=MapUtil.join(bodyMap,"&","=",true);
                             }else{
                                 //快捷国家信息
-                                targetCountry=countryBox.getSelectionModel().getSelectedItem().getValue();
-                                String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
+                                targetCountry=countryBox.getSelectionModel().getSelectedItem().get("name");
+                                String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
                                 //生成填充数据
                                 body=generateFillData(countryCode);
                             }
@@ -421,13 +427,9 @@ public class CountryModifyController extends CustomTableView<Account> implements
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> items=new ArrayList<>(){{
-            add(Constant.RightContextMenu.DELETE.getCode());
-            add(Constant.RightContextMenu.REEXECUTE.getCode());
-            add(Constant.RightContextMenu.COPY.getCode());
-            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
-        }};
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
     @FXML
     public void onStopBtnClick(ActionEvent actionEvent) {

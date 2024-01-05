@@ -314,14 +314,10 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> items=new ArrayList<>(){{
-            add(Constant.RightContextMenu.DELETE.getCode());
-            add(Constant.RightContextMenu.REEXECUTE.getCode());
-            add(Constant.RightContextMenu.COPY.getCode());
-            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
-            add(Constant.RightContextMenu.CODE.getCode());
-        }};
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        items.add(Constant.RightContextMenu.CODE.getCode());
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
 
     /**重新执行**/

@@ -10,7 +10,7 @@
    <children>
       <Pane prefHeight="200.0" prefWidth="200.0">
          <children>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0" prefWidth="1100.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0" prefWidth="1100.0">
                <children>
                    <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="10.0" layoutY="14.0" prefHeight="165.0" prefWidth="375.0" text="操作">
                        <content>
@@ -73,7 +73,7 @@
                            </GridPane>
                        </content>
                    </TitledPane>
-                   <TitledPane fx:id="accNum" layoutX="685.0" layoutY="14.0" prefHeight="165.0" prefWidth="275.0" text="操作说明">
+                   <TitledPane layoutX="685.0" layoutY="14.0" prefHeight="165.0" prefWidth="275.0" text="操作说明">
                        <content>
                            <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="419.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                <children>
@@ -149,7 +149,7 @@
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="254.0">
                            <children>
                               <Label layoutX="12.0" layoutY="40.0" text="选择国家" />
-                              <ChoiceBox fx:id="countryBox" layoutX="70.0" layoutY="36.0" prefHeight="23.0" prefWidth="134.0" />
+                              <ComboBox fx:id="countryBox" layoutX="65.0" layoutY="36.0" maxHeight="150.0" prefWidth="150.0" />
                               <Label layoutX="218.0" layoutY="84.0" onMouseClicked="#onAddCountryBtnClick" text="新增国家" textFill="#315efb" underline="true">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
@@ -162,11 +162,11 @@
                                           <Insets top="3.0" />
                                        </HBox.margin>
                                     </Label>
-                                    <ChoiceBox fx:id="customCountryBox" prefHeight="23.0" prefWidth="134.0">
+                                    <ComboBox fx:id="customCountryBox" maxHeight="150.0" prefWidth="150.0">
                                        <HBox.margin>
-                                          <Insets left="8.0" />
+                                          <Insets />
                                        </HBox.margin>
-                                    </ChoiceBox>
+                                    </ComboBox>
                                  </children>
                               </HBox>
                            </children>
@@ -175,6 +175,7 @@
                   </TitledPane>
                </children>
             </AnchorPane>
-         </children></Pane>
+         </children>
+      </Pane>
    </children>
 </VBox>

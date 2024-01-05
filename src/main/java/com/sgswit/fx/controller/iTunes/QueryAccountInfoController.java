@@ -187,13 +187,9 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> items=new ArrayList<>(){{
-            add(Constant.RightContextMenu.DELETE.getCode());
-            add(Constant.RightContextMenu.REEXECUTE.getCode());
-            add(Constant.RightContextMenu.COPY.getCode());
-            add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
-        }};
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items,null);
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
 
     /**重新执行**/

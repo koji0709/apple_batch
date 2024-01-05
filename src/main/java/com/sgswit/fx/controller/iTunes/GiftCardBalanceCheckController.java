@@ -75,7 +75,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     @FXML
     public TableColumn note;
     @FXML
-    public ChoiceBox<Map<String,String>> countryBox;
+    public ComboBox<Map<String,String>> countryBox;
     @FXML
     public TextField account_pwd;
     @FXML
@@ -128,7 +128,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         //默认美国
         countryBox.getSelectionModel().select(0);
 
-        countryBox.converterProperty().set(new StringConverter<Map<String, String>>() {
+        countryBox.converterProperty().set(new StringConverter<>() {
             @Override
             public String toString(Map<String, String> map) {
                 return map.get("name");

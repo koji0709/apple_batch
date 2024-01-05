@@ -56,8 +56,6 @@ public class CommRightContextMenuView<T> extends CommonView {
      **/
     private static String COLOR_HOVER = "#169bd5";
     private Stage stage = null;
-    private static List<String> copyFields = null;
-
     private static TableView accountTableView;
 
     private static List<KeyValuePair> allList = getAllList();
@@ -83,13 +81,12 @@ public class CommRightContextMenuView<T> extends CommonView {
      * @param tableView
      * @param items            菜单
      * @param fields           需要复制的字段
-     *                         　* @return void
-     *                         　* @throws
-     *                         　* @author DeZh
-     *                         　* @date 2023/12/22 13:52
+   　* @return void
+     * @throws
+   　* @author DeZh
+  　 * @date 2023/12/22 13:52
      */
     protected void onContentMenuClick(ContextMenuEvent contextMenuEvent, TableView tableView, List<String> items, List<String> fields) {
-        copyFields = fields;
         accountTableView = tableView;
         try {
             if (items.size() == 0) {
@@ -116,7 +113,9 @@ public class CommRightContextMenuView<T> extends CommonView {
             e.printStackTrace();
         }
     }
-
+    protected void onContentMenuClick(ContextMenuEvent contextMenuEvent, TableView tableView, List<String> items) {
+        onContentMenuClick(contextMenuEvent, tableView, items, new ArrayList<>());
+    }
 
     /**
      * 　* 打开右键菜单

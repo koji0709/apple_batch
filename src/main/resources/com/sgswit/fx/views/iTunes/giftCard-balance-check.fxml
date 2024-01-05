@@ -134,9 +134,13 @@
                                           <Insets top="3.0" />
                                        </HBox.margin>
                                     </Label>
+                                    <ComboBox fx:id="countryBox" maxHeight="150.0" prefWidth="100.0">
+                                       <HBox.margin>
+                                          <Insets left="12.0" />
+                                       </HBox.margin>
+                                    </ComboBox>
                                  </children>
                               </HBox>
-                              <ChoiceBox fx:id="countryBox" layoutX="87.0" layoutY="81.0" prefHeight="23.0" prefWidth="134.0" />
                               <TextField fx:id="account_pwd" layoutX="87.0" layoutY="36.0" prefHeight="23.0" prefWidth="231.0" promptText="账号格式:账号----密码" />
                               <Button fx:id="loginBtn" layoutX="369.0" layoutY="36.0" mnemonicParsing="false" onAction="#onClickLoginBtn" text="登录并初始化" />
                               <Label fx:id="alertMessage" alignment="CENTER" contentDisplay="CENTER" layoutX="280.0" layoutY="85.0" prefWidth="240.0" />

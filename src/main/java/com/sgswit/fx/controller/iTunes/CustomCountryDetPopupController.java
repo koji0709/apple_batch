@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.iTunes.bo.BillingAddressParas;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
@@ -18,10 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -47,13 +45,13 @@ import java.util.stream.Collectors;
  */
 public class CustomCountryDetPopupController implements Initializable {
     @FXML
-    public ChoiceBox<KeyValuePair> countryBox;
+    public ComboBox<Map<String, String>> countryBox;
     @FXML
     public TextField name;
     @FXML
     public Pane billMailingAddressPane;
 
-    private List<KeyValuePair> countryList=new ArrayList<>();
+    private List<Map<String, String>> countryList=new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -142,30 +140,40 @@ public class CustomCountryDetPopupController implements Initializable {
         //loading国家信息
         List<BaseAreaInfo> list= DataUtil.getCountry();
         for(BaseAreaInfo baseAreaInfo: list){
-            countryList.add(new KeyValuePair(baseAreaInfo.getCode(),baseAreaInfo.getNameZh()+" - "+baseAreaInfo.getCode()));
+            countryBox.getItems().add(new HashMap<>(){{
+                put("name",baseAreaInfo.getNameZh()+" - "+baseAreaInfo.getCode());
+                put("code",baseAreaInfo.getCode());
+            }});
         }
         countryBox.getItems().addAll(countryList);
-        countryBox.converterProperty().set(new StringConverter<KeyValuePair>() {
+        countryBox.converterProperty().set(new StringConverter<>() {
             @Override
-            public String toString(KeyValuePair object) {
-                return object.getValue();
+            public String toString(Map<String, String> map) {
+                if(null==map){
+                    return "";
+                }
+                return map.get("name");
             }
-
             @Override
-            public KeyValuePair fromString(String string) {
+            public Map<String, String> fromString(String string) {
                 return null;
             }
         });
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                if(!StringUtils.isEmpty(countryList.get(Integer.valueOf(t1.toString())).getKey())){
-                    getAddressFormat(countryList.get(Integer.valueOf(t1.toString())).getKey());
+                String code=countryList.get(Integer.valueOf(t1.toString())).get("code");
+                if(!StringUtils.isEmpty(code)){
+                    getAddressFormat(code);
                 }else{
 
                 }
             }
         });
+
+
+
+
     }
 
     public void onSaveUserNationalDataBtnClick(ActionEvent actionEvent) {
@@ -194,7 +202,7 @@ public class CustomCountryDetPopupController implements Initializable {
 
             GridPane gridPane= (GridPane) billMailingAddressPane.getChildren().get(0);
 
-            String addressFormatListStr=DataUtil.getAddressFormat(countryBox.getSelectionModel().getSelectedItem().getKey());
+            String addressFormatListStr=DataUtil.getAddressFormat(countryBox.getSelectionModel().getSelectedItem().get("code"));
             List<FieldModel> addressFormatList=JSONUtil.parseObj(addressFormatListStr).getBeanList("addressFormatList", FieldModel.class);
             JSON json=JSONUtil.createObj();
             boolean defaultPhoneNumberCountryCode=true;
@@ -235,7 +243,7 @@ public class CustomCountryDetPopupController implements Initializable {
 
                 }
             }
-            String countryCode=countryBox.getSelectionModel().getSelectedItem().getKey();
+            String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
             json.putByPath("billingAddress.countryCode",countryCode);
             if(defaultPhoneNumberCountryCode){
                 json.putByPath("phoneNumber.countryCode",DataUtil.getInfoByCountryCode(countryCode).getDialCode());
