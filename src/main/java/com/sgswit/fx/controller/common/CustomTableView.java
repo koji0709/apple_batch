@@ -196,7 +196,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 }
                 ThreadUtil.sleep(1500);
                 ThreadUtil.execute(() -> {
+                    boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
                     try {
+                        if (hasField){
+                            ReflectUtil.invoke(account,"setHasFinished",false);
+                        }
                         setAndRefreshNote(account, "执行中", false);
                         accountHandler(account);
                     } catch (ServiceException e) {
@@ -204,6 +208,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     } catch (Exception e) {
                         setAndRefreshNote(account, "数据处理异常", true);
                         e.printStackTrace();
+                    } finally {
+                        if (hasField){
+                            ReflectUtil.invoke(account,"setHasFinished",true);
+                        }
                     }
                 });
 
