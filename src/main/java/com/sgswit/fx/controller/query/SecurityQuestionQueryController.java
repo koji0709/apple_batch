@@ -6,6 +6,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -16,13 +17,16 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * <p>
@@ -35,6 +39,21 @@ import java.util.List;
 public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     private Integer num = 0;
+
+    public List<String> menuItem =new ArrayList<>(){{
+        add(Constant.RightContextMenu.DELETE.getCode());
+        add(Constant.RightContextMenu.REEXECUTE.getCode());
+        add(Constant.RightContextMenu.COPY.getCode());
+    }};
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+    }
+
+    @Override
+    protected void reExecute(Problem problem) {
+        accountHandler(problem);
+    }
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));

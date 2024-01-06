@@ -4,7 +4,7 @@ package com.sgswit.fx.model;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Problem {
+public class Problem extends AuthData{
 
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty account;

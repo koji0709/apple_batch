@@ -107,6 +107,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                         };
                         return cell;
                     }
+
                 });
             } else {
                 if ("note".equals(column.getId())){

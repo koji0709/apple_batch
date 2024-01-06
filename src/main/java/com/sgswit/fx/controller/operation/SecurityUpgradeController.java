@@ -110,6 +110,17 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             if (securityUpgradeRsp.getStatus() != 302){
                 throwAndRefreshNote(account,"绑定双重认证失败");
             }
+
+            HttpResponse signInRsp = signIn(account);
+            if(signInRsp.getStatus()!=409){
+                throwAndRefreshNote(account,"绑定双重认证失败");
+            }
+            // Auth
+            String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
+            // 双重认证
+            if (!"hsa2".equals(authType)) {
+                setAndRefreshNote(account,"绑定双重认证失败");
+            }
             setAndRefreshNote(account,"绑定双重认证成功");
         }
 
