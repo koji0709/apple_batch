@@ -38,7 +38,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
     public void accountHandler(Account account) {
         account.setNote("正在登录...");
         accountTableView.refresh();
-        // 登陆
+        // 登录
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...",false);
         HttpResponse step4Res = AppleIDUtil.account(account);

@@ -698,7 +698,7 @@ public class ICloudUtil {
             return;
         }
 
-        // 412普通登陆, 409双重登陆
+        // 412普通登录, 409双重登录
         HttpResponse singInLocalRes = singInRes;
         if (status == 412){
             HttpResponse repairRes = appleIDrepair(singInRes);

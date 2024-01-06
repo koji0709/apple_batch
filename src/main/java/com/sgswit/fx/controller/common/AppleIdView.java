@@ -129,7 +129,7 @@ public class AppleIdView extends CustomTableView<Account> {
         if (tokenRsp.getStatus() != 200){
             throwAndRefreshNote(account,"登录异常;");
         }
-        setAndRefreshNote(account,"登陆成功;",false);
+        setAndRefreshNote(account,"登录成功;",false);
         account.setIsLogin(true);
     }
 

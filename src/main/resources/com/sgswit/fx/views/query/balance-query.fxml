@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -31,7 +30,7 @@
                               </Button>
                               <HBox fx:id="accountNumBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="245.0" GridPane.columnIndex="1">
                                  <children>
-                                    <Label  text="列表中账户数量：      " />
+                                    <Label text="列表中账户数量：      " />
                                     <Label fx:id="accountNumLabel" text="0" textFill="#e20404" />
                                  </children>
                               </HBox>
@@ -43,24 +42,14 @@
                                 <rowConstraints>
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints />
                                 </rowConstraints>
                                  <children>
-                                     <Button fx:id="areaQueryLogBtn" mnemonicParsing="false"
-                                             onAction="#localHistoryButtonAction" prefWidth="120.0"
-                                             text="区域查询记录" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                                             textAlignment="CENTER"/>
-                                     <Button fx:id="accountExportBtn" mnemonicParsing="false"
-                                             onAction="#exportExcelButtonAction" prefWidth="120.0"
-                                             text="导出账户" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                                     <Button fx:id="accountInputBtn" mnemonicParsing="false"
-                                             onAction="#onAccountInputBtnClick" prefWidth="120.0" text="账户输入"
-                                             GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                     <Button fx:id="accountClearBtn" mnemonicParsing="false"
-                                             onAction="#clearAccountListButtonAction" prefWidth="120.0"
-                                             text="清空账户列表" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                     <Button mnemonicParsing="false" onAction="#stopTaskButtonAction"
-                                             prefWidth="120.0" text="停止任务" GridPane.columnIndex="0"
-                                             GridPane.rowIndex="2"/>
+                                     <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1" />
+                                     <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                     <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号" />
+                                     <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" />
+                                     <Button mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                  </children>
                               </GridPane>
                            </children>
@@ -99,12 +88,12 @@
                      <content>
                         <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="364.0" prefWidth="1066.0">
                           <columns>
-                            <TableColumn fx:id="seq" style="-fx-alignment: CENTER" prefWidth="75.0" text="序号" />
-                            <TableColumn fx:id="account" style="-fx-alignment: CENTER" prefWidth="180.0" text="账号" />
-                              <TableColumn fx:id="pwd" style="-fx-alignment: CENTER" prefWidth="180.0" text="密码" />
-                              <TableColumn fx:id="state" style="-fx-alignment: CENTER" prefWidth="250.0" text="国家" />
-                              <TableColumn fx:id="balance" style="-fx-alignment: CENTER" prefWidth="220.0" text="余额" />
-                              <TableColumn fx:id="note" style="-fx-alignment: CENTER" prefWidth="180.0" text="信息" />
+                            <TableColumn fx:id="seq" prefWidth="75.0" style="-fx-alignment: CENTER" text="序号" />
+                            <TableColumn fx:id="account" prefWidth="180.0" style="-fx-alignment: CENTER" text="账号" />
+                              <TableColumn fx:id="pwd" prefWidth="180.0" style="-fx-alignment: CENTER" text="密码" />
+                              <TableColumn fx:id="state" prefWidth="250.0" style="-fx-alignment: CENTER" text="国家" />
+                              <TableColumn fx:id="balance" prefWidth="220.0" style="-fx-alignment: CENTER" text="余额" />
+                              <TableColumn fx:id="note" prefWidth="180.0" style="-fx-alignment: CENTER" text="信息" />
                           </columns>
                         </TableView>
                      </content>

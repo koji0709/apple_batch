@@ -41,15 +41,15 @@
                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER">
+                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出账户" GridPane.columnIndex="1">
+                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账户" GridPane.rowIndex="1">
+                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
@@ -57,7 +57,7 @@
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin></Button>
@@ -72,7 +72,7 @@
                           <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="402.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                               <children>
                                   <Label text="导入格式：帐号----密码" textFill="#169BD5" />
-                                  <Label text="功能说明：能否登陆iCloud。" textFill="#169BD5" />
+                                  <Label text="功能说明：能否登录iCloud。" textFill="#169BD5" />
                                   <Label text="操作提示：检测帐号是否为iCloud帐户，也可作为快速检测密正。" textFill="#169BD5" />
                               </children>
                           </VBox>

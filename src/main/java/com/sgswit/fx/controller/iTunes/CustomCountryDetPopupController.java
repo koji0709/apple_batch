@@ -145,7 +145,6 @@ public class CustomCountryDetPopupController implements Initializable {
                 put("code",baseAreaInfo.getCode());
             }});
         }
-        countryBox.getItems().addAll(countryList);
         countryBox.converterProperty().set(new StringConverter<>() {
             @Override
             public String toString(Map<String, String> map) {
@@ -162,7 +161,7 @@ public class CustomCountryDetPopupController implements Initializable {
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                String code=countryList.get(Integer.valueOf(t1.toString())).get("code");
+                String code=countryBox.getItems().get(Integer.valueOf(t1.toString())).get("code");
                 if(!StringUtils.isEmpty(code)){
                     getAddressFormat(code);
                 }else{

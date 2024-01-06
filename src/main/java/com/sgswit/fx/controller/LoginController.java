@@ -88,7 +88,7 @@ public class LoginController extends CommonView implements Initializable {
             rememberMeCheckBox.setSelected(true);
         }
 
-        // 自动登陆
+        // 自动登录
         Boolean autoLogin = PropertiesUtil.getOtherBool("login.auto",false);
         if (autoLogin){
             autoLoginCheckBox.setSelected(true);
@@ -166,7 +166,7 @@ public class LoginController extends CommonView implements Initializable {
         PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
 
         StageUtil.show(StageEnum.MAIN);
-        // 将登陆页面设置为透明,然后关闭
+        // 将登录页面设置为透明,然后关闭
         Stage stage = StageUtil.get(StageEnum.LOGIN);
         stage.setOpacity(0);
         stage.setMaxWidth(0);

@@ -41,15 +41,15 @@
                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER">
+                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出账户" GridPane.columnIndex="1">
+                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账户" GridPane.rowIndex="1">
+                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
@@ -57,7 +57,7 @@
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin></Button>

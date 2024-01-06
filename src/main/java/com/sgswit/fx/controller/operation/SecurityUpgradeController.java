@@ -61,7 +61,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
      */
     @Override
     public void accountHandler(Account account) {
-        // 登陆
+        // 登录
         login(account);
 
         String phone = account.getPhone();

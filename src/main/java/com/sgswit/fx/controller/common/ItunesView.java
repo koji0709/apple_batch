@@ -23,7 +23,7 @@ import java.util.*;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
-    // 登陆成功的账号缓存(缓存一个小时,能刷新)
+    // 登录成功的账号缓存(缓存一个小时,能刷新)
     protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(3600000);
 
     static {
@@ -48,7 +48,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setGuid(loginInfo.getGuid());
             accountModel.setAuthData(loginInfo.getAuthData());
             accountModel.setCookieMap(loginInfo.getCookieMap());
-            setAndRefreshNote(accountModel,"成功获取登陆信息。",false);
+            setAndRefreshNote(accountModel,"成功获取登录信息。",false);
         }
 
         if (accountModel.isLogin()){
@@ -66,7 +66,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         }else{
             Object authRsp = accountModel.getAuthData().get("authRsp");
             if (authRsp == null){
-                throwAndRefreshNote(accountModel,"请先登陆鉴权");
+                throwAndRefreshNote(accountModel,"请先登录鉴权");
             }
             url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+accountModel.getGuid();
             loginRsp = itunesLogin(accountModel,url,1);
@@ -87,7 +87,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
         if (verify){
-            setAndRefreshNote(accountModel,"登陆成功。",false);
+            setAndRefreshNote(accountModel,"登录成功。",false);
             accountModel.getAuthData().put("authRsp",loginRsp);
             accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
             accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
@@ -99,7 +99,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             return;
         }
 
-        String message = "登陆失败。";
+        String message = "登录失败。";
         if (!StrUtil.isEmpty(customerMessage)){
             for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
                 if (StringUtils.containsIgnoreCase(customerMessage,entry.getKey())){
@@ -138,10 +138,10 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         }
 
         // 双重认证
-        if(attempt == 0 && "".equals(failureType) && StrUtil.isEmpty(accountModel.getAuthCode()) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+        if("".equals(failureType) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throwAndRefreshNote(accountModel,"此账号已开启双重认证;");
+            throwAndRefreshNote(accountModel,"Apple ID或密码错误。或需要输入双重验证码;");
         }
 
         if(!"".equals(failureType) && !"".equals(customerMessage)){

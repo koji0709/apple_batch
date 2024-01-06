@@ -42,29 +42,30 @@
                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER">
+                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号" GridPane.rowIndex="0">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin>
                                            </Button>
-                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出账户" GridPane.columnIndex="1">
+                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin>
                                            </Button>
-                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账户" GridPane.rowIndex="1">
+                                           <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#onAreaQueryLogBtnClick" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin>
                                            </Button>
+                                           <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#onAccountExportBtnClick" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                               <GridPane.margin>
+                                                   <Insets left="15.0" />
+                                               </GridPane.margin>
+                                           </Button>
+
                                            <Button fx:id="stopBtn" mnemonicParsing="false" onAction="#onStopBtnClick" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
-                                               </GridPane.margin>
-                                           </Button>
-                                           <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#onAccountClearBtnClick" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                               <GridPane.margin>
-                                                   <Insets left="15.0" />
                                                </GridPane.margin>
                                            </Button>
                                        </children>
@@ -150,21 +151,21 @@
                            <children>
                               <Label layoutX="12.0" layoutY="40.0" text="选择国家" />
                               <ComboBox fx:id="countryBox" layoutX="65.0" layoutY="36.0" maxHeight="150.0" prefWidth="150.0" />
-                              <Label layoutX="218.0" layoutY="84.0" onMouseClicked="#onAddCountryBtnClick" text="新增国家" textFill="#315efb" underline="true">
+                              <Label layoutX="221.0" layoutY="87.0" onMouseClicked="#onAddCountryBtnClick" text="新增国家" textFill="#315efb" underline="true">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Label>
-                              <HBox fx:id="customCountrySelectId" layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="192.0">
+                              <HBox fx:id="customCountrySelectId" layoutX="14.0" layoutY="82.0" prefHeight="25.0" prefWidth="200.0">
                                  <children>
                                     <Label text="自定国家">
                                        <HBox.margin>
                                           <Insets top="3.0" />
                                        </HBox.margin>
                                     </Label>
-                                    <ComboBox fx:id="customCountryBox" maxHeight="150.0" prefWidth="150.0">
+                                    <ComboBox fx:id="customCountryBox" maxHeight="150.0" prefHeight="25.0" prefWidth="150.0">
                                        <HBox.margin>
-                                          <Insets />
+                                          <Insets left="3.0" />
                                        </HBox.margin>
                                     </ComboBox>
                                  </children>

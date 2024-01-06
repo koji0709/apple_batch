@@ -61,7 +61,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
     @FXML
     public TableColumn accountBalance;
     @FXML
-    public javafx.scene.control.TableView accountTableView;
+    public TableView accountTableView;
     @FXML
     public Button accountQueryBtn;
     @FXML
@@ -297,10 +297,11 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             }else {
                                 account.setFamilyDetails("-");
                             }
-                            account.setHasFinished(true);
                             tableRefreshAndInsertLocal(account, "查询完成");
                             accountTableView.refresh();
                         }
+                        account.setHasFinished(true);
+                        accountTableView.refresh();
                     } catch (Exception e) {
                         account.setHasFinished(true);
                         tableRefreshAndInsertLocal(account, "操作失败，接口异常");

@@ -72,7 +72,7 @@
                                     <children>
                                         <Label text="导入格式：帐号----密码" textFill="#169BD5" />
                                         <Label text="功能说明：修复网页iCloud。" textFill="#169BD5" />
-                                        <Label text="操作提示：有一定几率激活iCloud，此功能可解决网页端iCloud无法登陆的问题。" textFill="#169BD5" />
+                                        <Label text="操作提示：有一定几率激活iCloud，此功能可解决网页端iCloud无法登录的问题。" textFill="#169BD5" />
                                     </children>
                                 </VBox>
 

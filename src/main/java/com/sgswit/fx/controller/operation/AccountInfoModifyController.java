@@ -124,7 +124,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
-        // 登陆账号
+        // 登录账号
         login(account);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);

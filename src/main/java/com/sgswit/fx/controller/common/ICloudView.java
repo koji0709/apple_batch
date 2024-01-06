@@ -26,7 +26,7 @@ public class ICloudView<T> extends CustomTableView<T> {
     }
 
     /**
-     * iTunes登陆鉴权
+     * iTunes登录鉴权
      */
     public HttpResponse iCloudLogin(T accountModel){
         String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
@@ -65,7 +65,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             return null;
         }
 
-        // 412普通登陆, 409双重登陆
+        // 412普通登录, 409双重登录
         HttpResponse singInLocalRes = singInRes;
         if (status == 412){
             HttpResponse repairRes = ICloudUtil.appleIDrepair(singInRes);
@@ -92,7 +92,7 @@ public class ICloudView<T> extends CustomTableView<T> {
     }
 
     /**
-     * 校验iTunes登陆成功与否,Model注入信息
+     * 校验iTunes登录成功与否,Model注入信息
      */
     public boolean iCloudLoginVerify(HttpResponse authRsp,T accountModel){
         Boolean verify = authRsp != null && authRsp.getStatus() == 200;
@@ -101,7 +101,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             if (!StrUtil.isEmpty(errorMessages)){
                 setAndRefreshNote(accountModel, errorMessages);
             }else{
-                setAndRefreshNote(accountModel,"登陆失败");
+                setAndRefreshNote(accountModel,"登录失败");
             }
         }
         return verify;

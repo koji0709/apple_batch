@@ -254,7 +254,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             return;
         }
 
-        // 登陆并缓存
+        // 登录并缓存
         itunesLogin(giftCardRedeem);
 
         String giftCardCode = giftCardRedeem.getGiftCardCode();
@@ -283,8 +283,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){// 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("已兑换");
                 message = String.format(message,"该礼品卡已被他人兑换");
-            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登陆
-                message = String.format(message,"登陆信息失效");
+            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登录
+                message = String.format(message,"登录信息失效");
                 giftCardRedeem.setIsLogin(false);
                 loginSuccessMap.remove(giftCardRedeem.getAccount());
             }else{

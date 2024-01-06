@@ -84,11 +84,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     public Label alertMessage;
     @FXML
     public Button loginBtn;
+//
+//    @FXML
+//    private TableView accountTableView;
 
-    @FXML
-    private TableView accountTableView;
-
-    private ObservableList<GiftCard> list = FXCollections.observableArrayList();
+    private ObservableList<GiftCard> accountList = FXCollections.observableArrayList();
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -104,17 +104,15 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             alertMessage.setLabelFor(loginBtn);
             alertMessage.setText("等待初始化....");
         }else{
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        loginAndInit();
-                    }catch (Exception e){
+            new Thread(() -> {
+                try {
+                    loginAndInit();
+                }catch (Exception e){
 
-                    }
                 }
             }).start();
         }
+        super.initialize(url,resourceBundle);
     }
     private void getCountry(){
         String country = ResourceUtil.readUtf8Str("data/giftCard_query_support_country.json");
@@ -178,13 +176,14 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         String[] lineArray = c.getData().split("\n");
         for(String item : lineArray){
             GiftCard giftCard = new GiftCard();
-            giftCard.setSeq(list.size()+1);
+            giftCard.setSeq(accountList.size()+1);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
-            list.add(giftCard);
+            accountList.add(giftCard);
         }
         initAccountTableView();
         accountTableView.setEditable(true);
-        accountTableView.setItems(list);
+        accountTableView.setItems(accountList);
+        accountNumLabel.setText(String.valueOf(accountList.size()));
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
@@ -204,14 +203,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     }
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    loginAndInit();
-                }catch (Exception e){
+        new Thread(() -> {
+            try {
+                loginAndInit();
+            }catch (Exception e){
 
-                }
             }
         }).start();
     }
@@ -225,11 +221,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             alert.show();
             return;
         }
-        if(list.size() < 1){
+        if(accountList.size() < 1){
             return;
         }
         AtomicInteger n=new AtomicInteger();
-        for(GiftCard giftCard:list){
+        for(GiftCard giftCard:accountList){
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
                 continue;
@@ -309,6 +305,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 });
                 return;
             }
+            updateNodeStatus(true);
             String[] its =account_pwd.getText().split("----");
             String account=its[0];
             String pwd=its[1];
@@ -415,6 +412,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         Platform.runLater(new Task<Integer>() {
             @Override
             protected Integer call() {
+            updateNodeStatus(false);
             alertMessage.setText(finalMsg);
             alertMessage.setTextFill(Paint.valueOf(finalColor));
             return 1;
@@ -475,15 +473,20 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     private void tableRefreshAndInsertLocal(GiftCard account, String message){
         account.setNote(message);
         accountTableView.refresh();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                insertLocalHistory(List.of(account));
-            }
-        });
+        new Thread(() -> insertLocalHistory(List.of(account)));
     }
 
     public void onStopBtnClick(ActionEvent actionEvent) {
 
     }
+
+
+
+    protected void updateNodeStatus(boolean status){
+        countryBox.setDisable(status);
+        account_pwd.setDisable(status);
+        loginBtn.setDisable(status);
+        accountQueryBtn.setDisable(status);
+    }
+
 }

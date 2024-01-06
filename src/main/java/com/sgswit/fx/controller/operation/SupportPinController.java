@@ -32,7 +32,7 @@ public class SupportPinController extends AppleIdView {
 
     @Override
     public void accountHandler(Account account) {
-        // 登陆
+        // 登录
         login(account);
 
         HttpResponse supportPinRsp = AppleIDUtil.supportPin(account);

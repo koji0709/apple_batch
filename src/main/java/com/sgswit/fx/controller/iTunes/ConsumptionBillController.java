@@ -4,6 +4,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -14,6 +15,7 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.ConsumptionBill;
+import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -151,6 +153,29 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                     account.setHasFinished(false);
                                     account.setNote("登录中...");
                                     accountTableView.refresh();
+
+                                    //判断账号是否为双重认证的账号
+                                    Account a=new Account();
+                                    a.setPwd(account.getPwd());
+                                    a.setAccount(account.getAccount());
+                                    HttpResponse step1Res = AppleIDUtil.signin(a);
+
+                                    if (step1Res.getStatus() != 409) {
+                                        tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+                                        return ;
+                                    }
+                                    String step1Body = step1Res.body();
+                                    JSON json = JSONUtil.parse(step1Body);
+                                    if (json == null) {
+                                        tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+                                        return ;
+                                    }
+                                    //step2 auth 获取认证信息
+                                    String authType = (String) json.getByPath("authType");
+                                    if ("hsa2".equals(authType)) {
+                                        tableRefreshAndInsertLocal(account, "此账号已开启双重认证");
+                                        return ;
+                                    }
                                     int accountPurchasesLast90Count=0;
                                     Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
                                     if(!accountInfoMap.get("code").equals(Constant.SUCCESS)){
@@ -322,7 +347,15 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
 
     }
-
+    private void tableRefresh(ConsumptionBill account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+    }
+    private void tableRefreshAndInsertLocal(ConsumptionBill account, String message){
+        account.setNote(message);
+        accountTableView.refresh();
+        new Thread(() -> insertLocalHistory(List.of(account)));
+    }
     @Override
     protected void twoFactorCodeExecute(ConsumptionBill a, String authCode){
 
