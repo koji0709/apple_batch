@@ -74,24 +74,30 @@
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                             <children>
                                 <Label text="注：" />
-                                <Label text="账号总数：" wrapText="true">
-                                    <VBox.margin>
-                                        <Insets bottom="3.0" top="2.0" />
-                                    </VBox.margin>
-                                </Label>
-                                <Label fx:id="accountNumLabel" text="0" />
-                                <Label text="成功数：" wrapText="true">
-                                    <VBox.margin>
-                                        <Insets bottom="3.0" top="2.0" />
-                                    </VBox.margin>
-                                </Label>
-                                <Label fx:id="successNumLabel" text="0" />
-                                <Label text="失败数：" wrapText="true">
-                                    <VBox.margin>
-                                        <Insets bottom="3.0" top="2.0" />
-                                    </VBox.margin>
-                                </Label>
-                                <Label fx:id="failNumLabel" text="0" />
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="账号总数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="accountNumLabel" text="0" />
+                                </HBox>
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="成功数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="successNumLabel" text="0" />
+                                </HBox>
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="失败数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="failNumLabel" text="0" />
+                                </HBox>
                               <HBox prefHeight="35.0" prefWidth="340.0">
                                  <children>
                                     <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
