@@ -99,6 +99,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
     private ObservableList<Account> list = FXCollections.observableArrayList();
 
 
+
     public CountryModifyController(){
 
 
@@ -239,7 +240,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
         accountQueryBtn.setDisable(true);
         new Thread(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 try {
                     try {
                         account.setHasFinished(false);
@@ -329,6 +330,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                         e.printStackTrace();
                     }
                 }finally {
+                    ThreadPoolUtil.fixedThreadPool.shutdown();
                     //JavaFX Application Thread会逐个阻塞的执行这些任务
                     Platform.runLater(new Task<Integer>() {
                         @Override

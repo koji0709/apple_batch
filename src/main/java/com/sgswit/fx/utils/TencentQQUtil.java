@@ -36,20 +36,27 @@ public class TencentQQUtil {
      */
     public static List<String> getLoginQQList(){
         final List<String> list= new ArrayList<>();
-        if(SystemUtils.isWindows()){
-            user32.EnumWindows(new User32.WndEnumProc() {
-                @Override
-                public boolean callback(Pointer hWnd, Pointer userData) {
-                    byte[] windowText = new byte[512];
-                    user32.GetWindowTextA(hWnd, windowText, 512);
-                    String wText = Native.toString(windowText);
-                    if(_filterQQInfo(wText)){
-                        list.add(wText.substring(wText.indexOf(QQ_WINDOW_TEXT_PRE) + QQ_WINDOW_TEXT_PRE.length()));
+        String vmName = System.getProperty("java.vm.name");
+
+        if (SystemUtils.isVirtual()) {
+
+        } else {
+            if(SystemUtils.isWindows()){
+                user32.EnumWindows(new User32.WndEnumProc() {
+                    @Override
+                    public boolean callback(Pointer hWnd, Pointer userData) {
+                        byte[] windowText = new byte[512];
+                        user32.GetWindowTextA(hWnd, windowText, 512);
+                        String wText = Native.toString(windowText);
+                        if(_filterQQInfo(wText)){
+                            list.add(wText.substring(wText.indexOf(QQ_WINDOW_TEXT_PRE) + QQ_WINDOW_TEXT_PRE.length()));
+                        }
+                        return true;
                     }
-                    return true;
-                }
-            }, null);
+                }, null);
+            }
         }
+
 
         return list;
     }

@@ -261,7 +261,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
         if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
-            String message = "礼品卡兑换失败!兑换过于频繁";
+            String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
             setAndRefreshNote(giftCardRedeem,message);
             return;
         }

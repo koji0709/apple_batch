@@ -75,7 +75,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         if (step1Res.getStatus() == 503) {
             num++;
             if(num >= 5){
-                queryFail(problem,"操作过于频繁。");
+                queryFail(problem,"操作频繁，请稍后重试！");
                 return;
             }
             accountHandler(problem);

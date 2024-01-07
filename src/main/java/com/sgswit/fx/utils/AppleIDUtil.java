@@ -1017,7 +1017,7 @@ public class AppleIDUtil {
                 .execute();
 
         if (unenrollmentRsp.getStatus() == 503){
-            account.setNote("操作频繁");
+            account.setNote("操作频繁，请稍后重试！");
             return null;
         }
 
@@ -1035,7 +1035,7 @@ public class AppleIDUtil {
                 .execute();
 
         if (verifyBirthday2Rsp.getStatus() == 503){
-            account.setNote("操作频繁");
+            account.setNote("操作频繁，请稍后重试！");
             return null;
         }
 

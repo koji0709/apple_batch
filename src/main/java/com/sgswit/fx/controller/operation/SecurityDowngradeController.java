@@ -45,7 +45,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         setAndRefreshNote(account,"开始获取验证码..",false);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
         if (verifyAppleIdRsp.getStatus() == 503){
-            setAndRefreshNote(account,"操作频繁");
+            setAndRefreshNote(account,"操作频繁，请稍后重试！");
             return;
         }
         if (verifyAppleIdRsp.getStatus() != 302) {

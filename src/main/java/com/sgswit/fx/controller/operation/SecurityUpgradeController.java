@@ -76,7 +76,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-                throwAndRefreshNote(account,"操作频繁");
+                throwAndRefreshNote(account,"操作频繁，请稍后重试！");
             }
             String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){

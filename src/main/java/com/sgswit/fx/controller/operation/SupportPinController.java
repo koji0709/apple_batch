@@ -38,7 +38,7 @@ public class SupportPinController extends AppleIdView {
         HttpResponse supportPinRsp = AppleIDUtil.supportPin(account);
 
         if (supportPinRsp.getStatus() == 503){
-            setAndRefreshNote(account,"操作频繁");
+            setAndRefreshNote(account,"操作频繁，请稍后重试！");
             return;
         }
 

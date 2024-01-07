@@ -63,7 +63,10 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("pwd",account.getPwd());
             paras.put("serviceKey", DataUtil.getWebClientIdByAppleId(account.getAccount()));
             HttpResponse response= WebLoginUtil.signin(paras);
-            if(response.getStatus()!=409){
+            if(response.getStatus()==503){
+                tableRefreshAndInsertLocal(account,"操作频繁，请稍后重试！");
+                return;
+            } else if(response.getStatus()!=409){
                tableRefreshAndInsertLocal(account,WebLoginUtil.serviceErrorMessages(response.body()));
                return;
             }

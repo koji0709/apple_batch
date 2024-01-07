@@ -1,5 +1,7 @@
 package com.sgswit.fx.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author DeZh
  * @title: SystemUtils
@@ -36,6 +38,14 @@ public class SystemUtils {
     public static boolean isLinux() {
         String osName = getOsName();
         return (osName != null && osName.startsWith("Linux")) || (!isWindows() && !isMacOs());
+    }
+    public static boolean isVirtual() {
+        String vmName = System.getProperty("java.vm.name");
+        if (vmName != null && (vmName.contains("VMware") || vmName.contains("VirtualBox"))) {
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

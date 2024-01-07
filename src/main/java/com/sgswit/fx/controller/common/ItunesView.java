@@ -74,7 +74,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         int status = loginRsp.getStatus();
         if (status == 503){
-            throwAndRefreshNote(accountModel,"操作频繁!");
+            throwAndRefreshNote(accountModel,"操作频繁，请稍后重试！!");
         }
 
         if (loginRsp == null || StrUtil.isEmpty(loginRsp.body())){

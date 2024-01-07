@@ -62,6 +62,9 @@ public class WebLoginUtil {
         HttpResponse step0Res = auth(signInMap);
         signInMap.put("a",a);
         HttpResponse step1Res = signinInit(step0Res,signInMap);
+        if(step1Res.getStatus()==503){
+            return step1Res;
+        }
         signInMap.put("g",g);
         signInMap.put("n",n);
         signInMap.put("ra",ra);

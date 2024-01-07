@@ -68,7 +68,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         if(step1Res.body().startsWith("<html>")){
             num++;
             if(num >= 5){
-                account.setNote("操作频繁");
+                account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 return;

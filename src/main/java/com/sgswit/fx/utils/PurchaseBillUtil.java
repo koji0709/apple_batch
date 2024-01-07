@@ -1000,7 +1000,9 @@ public class PurchaseBillUtil {
                     .execute();
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("itspod",res.header(Constant.ITSPOD));
-            paras.put("authUrl",res.header("location"));
+            if(!StringUtils.isEmpty(res.header("location"))){
+                paras.put("authUrl",res.header("location"));
+            }
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
@@ -1016,6 +1018,8 @@ public class PurchaseBillUtil {
                 return iTunesLogin(authCode,guid,1,paras);
             }else if(res.getStatus()==503){
                 if(num > 5){
+                    paras.put("code","503");
+                    paras.put("msg","操作频繁，请稍后重试！");
                     return paras;
                 }
                 num++;

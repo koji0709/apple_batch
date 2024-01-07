@@ -60,7 +60,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 .execute();
         String body = execute.body();
         if(StrUtil.isEmpty(body)){
-            account.setStatus("操作频繁！");
+            account.setStatus("操作频繁，请稍后重试！！");
             account.setNote("查询失败");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
