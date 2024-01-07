@@ -42,7 +42,12 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
 
     @Override
     protected void reExecute(Account account) {
-        accountHandler(account);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                accountHandler(account);
+            }
+        });
     }
 
     public void openImportAccountView(ActionEvent actionEvent) {

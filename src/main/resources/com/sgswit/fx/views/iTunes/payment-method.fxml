@@ -98,6 +98,7 @@
                                           <Insets bottom="3.0" top="2.0" />
                                       </VBox.margin>
                                   </Label>
+                                  <Label fx:id="successNumLabel" text="0" />
                               </HBox>
                               <HBox prefHeight="30.0" prefWidth="340.0">
                                   <Label text="失败数：" wrapText="true">
@@ -105,6 +106,7 @@
                                           <Insets bottom="3.0" top="2.0" />
                                       </VBox.margin>
                                   </Label>
+                                  <Label fx:id="failNumLabel" text="0" />
                               </HBox>
                               <HBox prefHeight="35.0" prefWidth="340.0">
                                   <children>

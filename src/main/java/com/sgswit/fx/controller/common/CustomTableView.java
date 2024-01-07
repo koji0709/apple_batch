@@ -31,6 +31,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -59,6 +60,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     public TableView<T> accountTableView;
     @FXML
     protected Label accountNumLabel;
+    @FXML
+    protected Label successNumLabel;
+    @FXML
+    protected Label failNumLabel;
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
@@ -222,6 +227,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 setAndRefreshNote(account, "数据处理异常", true);
                 e.printStackTrace();
             } finally {
+                setAccountNumLabel();
                 if (hasField){
                     ReflectUtil.invoke(account,"setHasFinished",true);
                 }
@@ -264,7 +270,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (!accountList1.isEmpty()) {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
-                accountNumLabel.setText(accountList.size() + "");
+                setAccountNumLabel();
             }
             stage.close();
         });
@@ -433,7 +439,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
         accountList.clear();
-        accountNumLabel.setText("0");
+        setAccountNumLabel();
         accountTableView.refresh();
     }
 
@@ -444,7 +450,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if (accountList.isEmpty()) {
             return;
         }
-
         List<Entity> insertList = new ArrayList<>();
         for (T account : accountList) {
             Entity entity = new Entity();
@@ -569,5 +574,35 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         accountTableView.refresh();
     }
+    @Override
+    public void setAccountNumLabel() {
+        int successNum=0;
+        int failNum=0;
+        if(accountList.size()>0){
+           T account= accountList.get(0);
+            boolean hasDataStatus = ReflectUtil.hasField(account.getClass(), "dataStatus");
+            if (hasDataStatus) {
+                for(T acc:accountList){
+                    String dataStatus = ReflectUtil.invoke(acc, "getDataStatus");
+                    if(dataStatus.equals("1")){
+                        successNum++;
+                    }else if(dataStatus.equals("0")){
+                        failNum++;
+                    }
+                }
 
+            }
+        }
+        if(null!=accountNumLabel){
+            accountNumLabel.setText(String.valueOf(accountList.size()));
+        }
+        if(null!=successNumLabel){
+            successNumLabel.setText(String.valueOf(successNum));
+        }
+        if(null!=failNumLabel){
+            failNumLabel.setText(String.valueOf(failNum));
+        }
+
+
+    }
 }

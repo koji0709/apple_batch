@@ -261,6 +261,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                             account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
+                            account.setDataStatus("0");
                             insertLocalHistory(List.of(account));
                         }else{
                             account.setNote("登录成功，正在修改...");
@@ -306,6 +307,11 @@ public class CountryModifyController extends CustomTableView<Account> implements
 
                             res.put("addressInfo",body);
                             Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
+                            if(Constant.SUCCESS.equals(MapUtils.getStr(editBillingInfoRes,"code"))){
+                                account.setDataStatus("1");
+                            }else{
+                                account.setDataStatus("0");
+                            }
                             account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
                             account.setHasFinished(false);
                             insertLocalHistory(List.of(account));
@@ -313,6 +319,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                         account.setHasFinished(true);
                         accountTableView.refresh();
                     } catch (Exception e) {
+                        account.setDataStatus("0");
                         account.setHasFinished(true);
                         account.setNote("操作失败，接口异常");
                         insertLocalHistory(List.of(account));
@@ -326,6 +333,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                     Platform.runLater(new Task<Integer>() {
                         @Override
                         protected Integer call() {
+                            setAccountNumLabel();
                             accountQueryBtn.setDisable(false);
                             accountQueryBtn.setText("开始执行");
                             accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

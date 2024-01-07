@@ -15,6 +15,8 @@ public class AuthData {
     private String step;
     private String authCode = "";
     private boolean hasFinished = true;
+    /*数据成功状态：0-失败，1-成功，默认为空*/
+    private String dataStatus = "";
 
     public Map<String, Object> getAuthData() {
         return authData;
@@ -46,5 +48,13 @@ public class AuthData {
 
     public void setHasFinished(boolean hasFinished) {
         this.hasFinished = hasFinished;
+    }
+
+    public String getDataStatus() {
+        return dataStatus;
+    }
+
+    public void setDataStatus(String dataStatus) {
+        this.dataStatus = dataStatus;
     }
 }

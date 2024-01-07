@@ -85,8 +85,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     @FXML
     public Button loginBtn;
 //
-//    @FXML
-//    private TableView accountTableView;
+    @FXML
+    private TableView accountTableView;
 
     private ObservableList<GiftCard> accountList = FXCollections.observableArrayList();
 
@@ -181,9 +181,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             accountList.add(giftCard);
         }
         initAccountTableView();
-        accountTableView.setEditable(true);
         accountTableView.setItems(accountList);
-        accountNumLabel.setText(String.valueOf(accountList.size()));
+        super.accountList=accountList;
+        setAccountNumLabel();
     }
     @FXML
     protected void onAreaQueryLogBtnClick() throws Exception{
@@ -199,6 +199,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
+        super.accountList=accountList;
         super.clearAccountListButtonAction();
     }
     @FXML
@@ -258,6 +259,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
+                                    setAccountNumLabel();
                                     accountQueryBtn.setDisable(false);
                                     accountQueryBtn.setText("开始执行");
                                     accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -427,6 +429,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         Matcher matcher = pattern.matcher(giftCard.getGiftCardCode().toUpperCase());
         giftCard.setLogTime(sdf.format(nowDate));
         if (!matcher.matches()) {
+            giftCard.setDataStatus("0");
             tableRefreshAndInsertLocal(giftCard,"输入代码不符合查询格式");
             return;
         }
@@ -435,21 +438,26 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         ThreadUtil.sleep(1000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(503==step4Res.getStatus()){
+            giftCard.setDataStatus("0");
             tableRefreshAndInsertLocal(giftCard,"当前服务不可用，请稍后重试");
         }else if(step4Res.getStatus()!=200){
+            giftCard.setDataStatus("0");
             tableRefreshAndInsertLocal(giftCard,"余额查询失败");
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             String status=bodyJson.getByPath("head.status").toString();
             if(!Constant.SUCCESS.equals(status)){
+                giftCard.setDataStatus("0");
                 tableRefreshAndInsertLocal(giftCard,"余额查询失败");
                 return;
             }
             Object balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance");
             Object giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber");
             if(null==balance){
+                giftCard.setDataStatus("0");
                 tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品");
             }else{
+                giftCard.setDataStatus("1");
                 giftCard.setBalance(balance.toString());
                 giftCard.setGiftCardNumber(giftCardNumber.toString().split(";")[1]);
                 tableRefreshAndInsertLocal(giftCard,"查询成功");

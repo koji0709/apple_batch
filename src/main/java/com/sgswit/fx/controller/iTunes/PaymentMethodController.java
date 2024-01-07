@@ -114,11 +114,13 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                 accountTableView.refresh();
                                 Map<String,Object> res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
                                 if(!res.get("code").equals(Constant.SUCCESS)){
+                                    account.setDataStatus("0");
                                     account.setNote(res.get("msg").toString());
                                     tableRefreshAndInsertLocal(account, res.get("msg").toString());
                                 }else{
                                     boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                                     if(!hasInspectionFlag){
+                                        account.setDataStatus("0");
                                         tableRefreshAndInsertLocal(account,"此 Apple ID 尚未用于 App Store。");
                                         return;
                                     }
@@ -126,8 +128,10 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                     accountTableView.refresh();
                                     res=ITunesUtil.delPaymentInfos(res);
                                     if(res.get("code").equals(Constant.SUCCESS)){
+                                        account.setDataStatus("1");
                                         tableRefreshAndInsertLocal(account, "删除成功");
                                     }else{
+                                        account.setDataStatus("0");
                                         tableRefreshAndInsertLocal(account, MapUtils.getStr(res,"msg"));
                                     }
 
@@ -135,6 +139,7 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                                 account.setHasFinished(true);
                                 accountTableView.refresh();
                             } catch (Exception e) {
+                                account.setDataStatus("0");
                                 account.setHasFinished(true);
                                 tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                                 accountQueryBtn.setDisable(false);
@@ -146,6 +151,7 @@ public class PaymentMethodController extends CustomTableView<Account> implements
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
+                                    setAccountNumLabel();
                                     accountQueryBtn.setDisable(false);
                                     accountQueryBtn.setText("开始执行");
                                     accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

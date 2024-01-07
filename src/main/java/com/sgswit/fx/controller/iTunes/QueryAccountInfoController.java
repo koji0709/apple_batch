@@ -247,11 +247,13 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             account.setNote(String.valueOf(accountInfoMap.get("msg")));
                             account.setAuthData(accountInfoMap);
                         }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
+                            account.setDataStatus("0");
                             account.setNote(String.valueOf(accountInfoMap.get("msg")));
                             accountTableView.refresh();
                         }else {
                             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
+                                account.setDataStatus("0");
                                 tableRefreshAndInsertLocal(account, "此 Apple ID 尚未用于 App Store。");
                                 return;
                             }
@@ -294,8 +296,10 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                                 }catch (Exception e){
                                     account.setFamilyDetails("-");
                                 }
+                                account.setDataStatus("1");
                             }else {
                                 account.setFamilyDetails("-");
+                                account.setDataStatus("0");
                             }
                             tableRefreshAndInsertLocal(account, "查询完成");
                             accountTableView.refresh();
@@ -303,6 +307,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                         account.setHasFinished(true);
                         accountTableView.refresh();
                     } catch (Exception e) {
+                        account.setDataStatus("0");
                         account.setHasFinished(true);
                         tableRefreshAndInsertLocal(account, "操作失败，接口异常");
                         accountQueryBtn.setDisable(false);
@@ -315,6 +320,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                     Platform.runLater(new Task<Integer>() {
                         @Override
                         protected Integer call() {
+                            setAccountNumLabel();
                             accountQueryBtn.setDisable(false);
                             accountQueryBtn.setText("开始执行");
                             accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

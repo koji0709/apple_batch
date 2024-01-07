@@ -124,8 +124,8 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
             }
         }
         initAccountTableView();
-        accountTableView.setEditable(true);
         accountTableView.setItems(list);
+        setAccountNumLabel();
     }
 
     @FXML
@@ -182,10 +182,12 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
                             account.setNote(String.valueOf(res.get("msg")));
                             account.setAuthData(res);
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
+                            account.setDataStatus("0");
                             tableRefreshAndInsertLocal(account, String.valueOf(res.get("msg")));
                         }else{
                             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                             if(!hasInspectionFlag){
+                                account.setDataStatus("0");
                                 tableRefreshAndInsertLocal(account, "此 Apple ID 尚未用于 App Store。");
                                 return;
                             }
@@ -197,6 +199,11 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
                                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
                                 account.setAuthData(res);
                             }else{
+                                if(Constant.SUCCESS.equals(MapUtils.getStr(addCreditPaymentRes,"code"))){
+                                    account.setDataStatus("1");
+                                }else{
+                                    account.setDataStatus("0");
+                                }
                                 tableRefreshAndInsertLocal(account, MapUtil.getStr(addCreditPaymentRes,"message"));
                             }
                             account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
@@ -216,6 +223,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
                     Platform.runLater(new Task<Integer>() {
                         @Override
                         protected Integer call() {
+                            setAccountNumLabel();
                             accountQueryBtn.setDisable(false);
                             accountQueryBtn.setText("开始执行");
                             accountQueryBtn.setTextFill(Paint.valueOf("#238142"));

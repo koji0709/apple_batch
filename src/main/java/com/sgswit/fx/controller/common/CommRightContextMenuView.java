@@ -59,8 +59,6 @@ public class CommRightContextMenuView<T> extends CommonView {
     private static TableView accountTableView;
 
     private static List<KeyValuePair> allList = getAllList();
-    @FXML
-    protected Label accountNumLabel;
 
     private static List<KeyValuePair> getAllList() {
         List<KeyValuePair> allList = new ArrayList<>();
@@ -208,14 +206,9 @@ public class CommRightContextMenuView<T> extends CommonView {
                         alert("有工作正在进行中，当前数据无法删除！", Alert.AlertType.ERROR);
                         return;
                     }else{
-                        int num=0;
-                        if(!StringUtils.isEmpty(accountNumLabel.getText())){
-                            num=Integer.valueOf(accountNumLabel.getText());
-                            num--;
-                        }
-                        accountNumLabel.setText(String.valueOf(num));
                         accountTableView.getItems().remove(account);
                         accountTableView.refresh();
+                        setAccountNumLabel();
                     }
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
@@ -388,6 +381,10 @@ public class CommRightContextMenuView<T> extends CommonView {
      * 每一个账号的处理器
      */
     public void accountHandler(T account) {
+    }
+
+
+    public void setAccountNumLabel() {
     }
 
     public static void setPaneBackground(Pane pane, Color color) {

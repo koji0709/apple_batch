@@ -124,6 +124,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
+                                    setAccountNumLabel();
                                     accountQueryBtn.setDisable(false);
                                     accountQueryBtn.setText("开始执行");
                                     accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -144,6 +145,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                 String rb = response.charset("UTF-8").body();
                 JSONObject rspJSON = PListUtil.parse(rb);
                 if("0".equals(rspJSON.getStr("status"))){
+                    account.setDataStatus("1");
                     String message="查询成功";
                     JSONObject delegates= rspJSON.getJSONObject("delegates");
                     JSON comAppleMobileme =JSONUtil.parse(delegates.get("com.apple.mobileme"));
@@ -172,6 +174,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                     account.setDsid(rspJSON.getStr("dsid"));
                     tableRefreshAndInsertLocal(account, message);
                 }else{
+                    account.setDataStatus("0");
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
                         if (StringUtils.containsIgnoreCase(rspJSON.getStr("status-message"),entry.getKey())){
@@ -187,9 +190,11 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                 }
 
             }catch (Exception e){
+                account.setDataStatus("0");
                 tableRefreshAndInsertLocal(account, "Apple ID或密码错误。");
             }
         }else {
+            account.setDataStatus("0");
             tableRefreshAndInsertLocal(account, response.body());
         }
     }

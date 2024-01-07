@@ -134,6 +134,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                             Platform.runLater(new Task<Integer>() {
                                 @Override
                                 protected Integer call() {
+                                    setAccountNumLabel();
                                     accountQueryBtn.setDisable(false);
                                     accountQueryBtn.setText("开始执行");
                                     accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
@@ -176,8 +177,10 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                         account.setArea(regionId);
                         account.setDsid(rspJSON.getStr("dsid"));
                     }
+                    account.setDataStatus("1");
                     tableRefreshAndInsertLocal(account,message);
                 }else{
+                    account.setDataStatus("0");
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
                         if (StringUtils.containsIgnoreCase(rspJSON.getStr("status-message"),entry.getKey())){
@@ -190,10 +193,10 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>  impl
                     }else{
                         tableRefreshAndInsertLocal(account,rspJSON.getStr("status-message"));
                     }
-
                 }
 
             }catch (Exception e){
+                account.setDataStatus("0");
                 tableRefreshAndInsertLocal(account,"Apple ID或密码错误。");
             }
         }else {
