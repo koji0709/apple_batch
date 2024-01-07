@@ -57,6 +57,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     @FXML
     public TableView<T> accountTableView;
+    @FXML
+    protected Label accountNumLabel;
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
@@ -110,24 +112,24 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
                 });
             } else {
-                if ("note".equals(column.getId())){
-                    column.setCellFactory(new Callback() {
-                        @Override
-                        public Object call(Object param) {
-                            TableCell cell = new TableCell() {
-                                @Override
-                                protected void updateItem(Object item, boolean empty) {
-                                    super.updateItem(item, empty);
-                                    if (item != null && StrUtil.isNotEmpty(item.toString())){
-                                        this.setText(item.toString());
-                                        this.setTooltip(new Tooltip(item.toString()));
-                                    }
-                                }
-                            };
-                            return cell;
-                        }
-                    });
-                }
+//                if ("note".equals(column.getId())){
+//                    column.setCellFactory(new Callback() {
+//                        @Override
+//                        public Object call(Object param) {
+//                            TableCell cell = new TableCell() {
+//                                @Override
+//                                protected void updateItem(Object item, boolean empty) {
+//                                    super.updateItem(item, empty);
+//                                    if (item != null && StrUtil.isNotEmpty(item.toString())){
+//                                        this.setText(item.toString());
+//                                        this.setTooltip(new Tooltip(item.toString()));
+//                                    }
+//                                }
+//                            };
+//                            return cell;
+//                        }
+//                    });
+//                }
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
         }
