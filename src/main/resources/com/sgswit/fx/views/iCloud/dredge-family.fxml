@@ -121,7 +121,7 @@
                         </TitledPane>
                         <TitledPane layoutX="6.0" layoutY="197.0" prefHeight="427.0" prefWidth="1150.0" text="账号列表">
                             <content>
-                                <TableView fx:id="accountTableView">
+                                <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick">
                                     <columns>
                                         <TableColumn fx:id="seq" prefWidth="70.0" text="序号" />
                                         <TableColumn fx:id="account" prefWidth="210.0" text="账号" />

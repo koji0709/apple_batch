@@ -10,10 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AccountImportUtil;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -57,13 +54,19 @@ public class DredgeFamilyController extends CustomTableView<Account> {
     @Override
     public void accountHandler(Account account){
         tableRefresh(account,"正在登录...");
-        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
+        HttpResponse response;
+        String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
+        if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
+            response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd()+ account.getAuthCode());
+        }else{
+            response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd() );
+        }
         if(response.getStatus()==200){
             try {
                 String rb = response.charset("UTF-8").body();
                 JSONObject rspJSON = PListUtil.parse(rb);
                 if("0".equals(rspJSON.getStr("status"))){
-                    String message="查询成功";
+                    String message;
                     JSONObject delegates= rspJSON.getJSONObject("delegates");
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
@@ -78,6 +81,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
                             message=comAppleMobileme.getByPath("status-message",String.class);
+                            account.getAuthData().put("code",Constant.TWO_FACTOR_AUTHENTICATION);
                         }else{
                             message="未激活iCloud账户";
                         }
@@ -111,5 +115,27 @@ public class DredgeFamilyController extends CustomTableView<Account> {
         account.setNote(message);
         accountTableView.refresh();
         insertLocalHistory(List.of(account));
+    }
+    /**重新执行**/
+    @Override
+    protected void reExecute(Account account){
+        new Thread(()->{
+            accountHandler(account);
+        }).start();
+    }
+    @Override
+    protected void twoFactorCodeExecute(Account account, String authCode){
+        try{
+            Map<String,Object> res=account.getAuthData();
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+                account.setAuthCode(authCode);
+                account.setStep("00");
+                accountHandler(account);
+            }else{
+                alert("未下发双重验证码");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
