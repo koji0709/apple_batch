@@ -6,7 +6,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
-import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.StageEnum;
@@ -17,6 +16,8 @@ import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +25,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -31,11 +33,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.security.Provider;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -114,27 +114,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                         };
                         return cell;
                     }
-
                 });
-            } else {
-//                if ("note".equals(column.getId())){
-//                    column.setCellFactory(new Callback() {
-//                        @Override
-//                        public Object call(Object param) {
-//                            TableCell cell = new TableCell() {
-//                                @Override
-//                                protected void updateItem(Object item, boolean empty) {
-//                                    super.updateItem(item, empty);
-//                                    if (item != null && StrUtil.isNotEmpty(item.toString())){
-//                                        this.setText(item.toString());
-//                                        this.setTooltip(new Tooltip(item.toString()));
-//                                    }
-//                                }
-//                            };
-//                            return cell;
-//                        }
-//                    });
-//                }
+            }else{
                 column.setCellValueFactory(new PropertyValueFactory(column.getId()));
             }
         }
