@@ -95,7 +95,10 @@ public class ICloudView<T> extends CustomTableView<T> {
      * 校验iTunes登录成功与否,Model注入信息
      */
     public boolean iCloudLoginVerify(HttpResponse authRsp,T accountModel){
-        Boolean verify = authRsp != null && authRsp.getStatus() == 200;
+        if (authRsp == null){
+            return false;
+        }
+        Boolean verify = authRsp.getStatus() == 200;
         if (!verify){
             String errorMessages = serviceErrorMessages(authRsp.body());
             if (!StrUtil.isEmpty(errorMessages)){

@@ -38,7 +38,7 @@ public class AppstoreSearchController extends CommonView implements Initializabl
     ToggleGroup itemTypeToggleGroup;
 
     @FXML
-    ChoiceBox countryChoiceBox;
+    ComboBox countryComboBox;
 
     @FXML
     TextField keywordsTextField;
@@ -70,8 +70,8 @@ public class AppstoreSearchController extends CommonView implements Initializabl
 
         // 国家
         List<String> countryList = StoreFontsUtils.getCountryList();
-        countryChoiceBox.setValue("CN-中国大陆");
-        countryChoiceBox.getItems().addAll(countryList);
+        countryComboBox.setValue("CN-中国大陆");
+        countryComboBox.getItems().addAll(countryList);
 
         // 搜索限制条数
         limitChoiceBox.setValue("20");
@@ -89,7 +89,7 @@ public class AppstoreSearchController extends CommonView implements Initializabl
             return;
         }
 
-        String country = countryChoiceBox.getValue().toString();
+        String country = countryComboBox.getValue().toString();
         Integer limit = Integer.valueOf(limitChoiceBox.getValue().toString());
         HttpResponse appstoreSearchRsp = ITunesUtil.appstoreSearch(country.split("-")[0], keywords, limit);
         if (appstoreSearchRsp.getStatus() != 200) {

@@ -108,4 +108,8 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
         }
     }
 
+    @Override
+    protected void reExecute(ICloudFunctionalTesting iCloudFunctionalTesting) {
+        accountHandlerExpand(iCloudFunctionalTesting);
+    }
 }

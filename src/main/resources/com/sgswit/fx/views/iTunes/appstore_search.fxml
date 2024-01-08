@@ -50,11 +50,11 @@
                                                         </ChoiceBox>
                                                         <Label prefWidth="20" text=""/>
                                                         <Label text="国家"/>
-                                                        <ChoiceBox fx:id="countryChoiceBox" prefWidth="120">
+                                                        <ComboBox fx:id="countryComboBox" prefWidth="120" editable="false" visibleRowCount="8">
                                                             <items>
                                                                 <FXCollections fx:factory="observableArrayList"/>
                                                             </items>
-                                                        </ChoiceBox>
+                                                        </ComboBox>
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="10">
