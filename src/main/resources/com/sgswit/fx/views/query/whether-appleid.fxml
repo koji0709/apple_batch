@@ -76,7 +76,7 @@
                         <TitledPane fx:id="accNum" layoutX="968.0" layoutY="14.0" prefHeight="165.0" prefWidth="120.0" text="操作说明">
                             <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                                 <children>
-                                    <Label text="注：" />
+
                                     <HBox prefHeight="30.0" prefWidth="340.0">
                                         <Label text="账号总数：" wrapText="true">
                                             <VBox.margin>
@@ -101,7 +101,7 @@
                                     </HBox>
                                     <HBox prefHeight="35.0" prefWidth="340.0">
                                         <children>
-                                            <Label prefHeight="25.0" prefWidth="72.0" text="查询消耗点：">
+                                            <Label prefHeight="25.0" prefWidth="72.0" text="消耗点：">
                                                 <HBox.margin>
                                                     <Insets top="5.0" />
                                                 </HBox.margin>

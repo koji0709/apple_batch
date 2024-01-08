@@ -216,8 +216,12 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                         PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
                                         //整合数据
                                         integratedData(new HashMap<>(), accountPurchasesLast90Count,account,jsonStrList);
+                                        if(jsonStrList.size()==0){
+                                            account.setNote("所选期间无购买记录");
+                                        }else{
+                                            account.setNote("查询完成");
+                                        }
 
-                                        account.setNote("查询完成");
                                         accountTableView.refresh();
                                     }else{
                                         account.setNote(String.valueOf(res.get("msg")));

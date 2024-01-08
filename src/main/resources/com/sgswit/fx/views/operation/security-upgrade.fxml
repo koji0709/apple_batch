@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.collections.FXCollections?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.SecurityUpgradeController">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距14px-->
@@ -22,27 +22,19 @@
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES" />
                                         <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <!--列表总数-->
-                                        <HBox prefHeight="30" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                            <children>
-                                                <Label text="列表中账户数量：      " />
-                                                <Label fx:id="accountNumLabel" textFill="#e20404" />
-                                            </children>
-                                        </HBox>
 
                                         <!--开始执行-->
-                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0">
                                             <font>
                                                 <Font name="System Bold" size="15" />
                                             </font>
                                         </Button>
 
                                         <!--操作按钮-->
-                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1">
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
                                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
@@ -72,7 +64,7 @@
                                 <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="171.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
                                         <Label text="选择电话号码地区" />
-                                        <ComboBox editable="false" visibleRowCount="8" fx:id="dialCodeComboBox" />
+                                        <ComboBox fx:id="dialCodeComboBox" editable="false" visibleRowCount="8" />
                                         <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>
@@ -97,10 +89,49 @@
                         <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="110" text="执行结果">
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
-                                    <Label text="账号总数：--" />
-                                    <Label text="成功数：--" />
-                                    <Label text="失败数：--" />
-                                    <Label text="消耗点数：30" />
+                                    <children>
+                                        <HBox prefHeight="30.0" prefWidth="340.0">
+                                            <Label text="账号总数：" wrapText="true">
+                                                <VBox.margin>
+                                                    <Insets bottom="3.0" top="2.0" />
+                                                </VBox.margin>
+                                            </Label>
+                                            <Label fx:id="accountNumLabel" text="0" />
+                                        </HBox>
+                                        <HBox prefHeight="30.0" prefWidth="340.0">
+                                            <Label text="成功数：" wrapText="true">
+                                                <VBox.margin>
+                                                    <Insets bottom="3.0" top="2.0" />
+                                                </VBox.margin>
+                                            </Label>
+                                            <Label fx:id="successNumLabel" text="0" />
+                                        </HBox>
+                                        <HBox prefHeight="30.0" prefWidth="340.0">
+                                            <Label text="失败数：" wrapText="true">
+                                                <VBox.margin>
+                                                    <Insets bottom="3.0" top="2.0" />
+                                                </VBox.margin>
+                                            </Label>
+                                            <Label fx:id="failNumLabel" text="0" />
+                                        </HBox>
+                                        <HBox prefHeight="35.0" prefWidth="340.0">
+                                            <children>
+                                                <Label prefHeight="25.0" prefWidth="72.0" text="消耗点：">
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <Label prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                                    <font>
+                                                        <Font name="System Bold" size="16.0" />
+                                                    </font>
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                    </children>
                                 </VBox>
                             </content>
                         </TitledPane>
