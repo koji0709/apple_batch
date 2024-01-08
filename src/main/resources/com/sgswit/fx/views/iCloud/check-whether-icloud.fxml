@@ -125,7 +125,7 @@
                            </children>
                        </VBox>
                    </TitledPane>
-                  <TitledPane layoutX="13.0" layoutY="197.0" text="账号列表">
+                  <TitledPane layoutX="13.0" layoutY="197.0" onContextMenuRequested="#onContentMenuClick" text="账号列表">
                      <content>
                         <TableView fx:id="accountTableView">
                             <columns>
