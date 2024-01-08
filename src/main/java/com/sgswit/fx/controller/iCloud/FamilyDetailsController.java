@@ -13,6 +13,7 @@ import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.PListUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,6 +28,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -34,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -104,42 +107,20 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                 accountQueryBtn.setText("正在查询");
                 accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
                 accountQueryBtn.setDisable(true);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run(){
-                        try {
-                            try {
-                                account.setNote("正在登录...");
-                                accountTableView.refresh();
-                                checkCloudAcc(account);
-                            } catch (Exception e) {
-                                tableRefreshAndInsertLocal(account, "操作失败，接口异常");
-                                accountQueryBtn.setDisable(false);
-                                accountQueryBtn.setText("开始执行");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                e.printStackTrace();
-                            }
-                        }finally {
-                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-                            Platform.runLater(new Task<Integer>() {
-                                @Override
-                                protected Integer call() {
-                                    setAccountNumLabel();
-                                    accountQueryBtn.setDisable(false);
-                                    accountQueryBtn.setText("开始执行");
-                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    return 1;
-                                }
-                            });
-                        }
-                    }
-                }).start();
+                executeFun(account);
             }
         }
     }
+
     protected void checkCloudAcc(Account account) {
         tableRefresh(account,"正在登录...");
-        HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
+        HttpResponse response;
+        String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
+        if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
+            response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd()+ account.getAuthCode());
+        }else{
+            response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd() );
+        }
         if(response.getStatus()==200){
             try {
                 String rb = response.charset("UTF-8").body();
@@ -159,6 +140,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
                             tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
+                            account.getAuthData().put("code",Constant.TWO_FACTOR_AUTHENTICATION);
                             return;
                         }else{
                             message="查询成功";
@@ -209,5 +191,73 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
     }
     @FXML
     public void onStopBtnClick(ActionEvent actionEvent) {
+    }
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
+    }
+    protected  void executeFun(Account account){
+        try {
+            //非双重认证
+            accountQueryBtn.setText("正在查询");
+            accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
+            accountQueryBtn.setDisable(true);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run(){
+                    try {
+                        try {
+                            account.setHasFinished(false);
+                            account.setNote("正在登录...");
+                            accountTableView.refresh();
+                            checkCloudAcc(account);
+                        } catch (Exception e) {
+                            accountQueryBtn.setDisable(false);
+                            accountQueryBtn.setText("开始执行");
+                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                            e.printStackTrace();
+                        }
+                    }finally {
+                        //JavaFX Application Thread会逐个阻塞的执行这些任务
+                        Platform.runLater(new Task<Integer>() {
+                            @Override
+                            protected Integer call() {
+                                setAccountNumLabel();
+                                accountQueryBtn.setDisable(false);
+                                accountQueryBtn.setText("开始执行");
+                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                return 1;
+                            }
+                        });
+                    }
+                }
+            }).start();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**重新执行**/
+    @Override
+    protected void reExecute(Account account){
+        executeFun(account);
+    }
+    @Override
+    protected void twoFactorCodeExecute(Account account, String authCode){
+        try{
+            Map<String,Object> res=account.getAuthData();
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+                account.setAuthCode(authCode);
+                account.setStep("00");
+                executeFun(account);
+            }else{
+                alert("未下发双重验证码");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
