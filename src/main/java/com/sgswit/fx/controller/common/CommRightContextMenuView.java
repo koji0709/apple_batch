@@ -213,6 +213,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
+                    ReflectUtil.invoke(account,"setStep","");
                     reExecute(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());

@@ -32,8 +32,17 @@ public class ICloudUtil {
 //        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
 //        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
 //        leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
+//        accountLoginDemo();
 
-        accountLoginDemo();
+
+        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207" );
+
+        HttpResponse response2= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207123456" );
+
+        System.out.println(response2.getStatus());
+        System.out.println(response2.body());
+
+
     }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         //clientId从数据库中获取每个appleId生成一个
