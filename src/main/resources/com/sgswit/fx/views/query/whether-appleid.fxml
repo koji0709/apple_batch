@@ -3,68 +3,46 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0"
-      prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
+<?import javafx.scene.text.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
     <children>
         <Pane prefHeight="200.0" prefWidth="200.0">
             <children>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0" prefWidth="1100.0">
                     <children>
-                        <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="13.0" layoutY="14.0"
-                                    prefHeight="165.0" prefWidth="409.0" text="操作">
+                        <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="13.0" layoutY="14.0" prefHeight="165.0" prefWidth="409.0" text="操作">
                             <content>
                                 <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="130.0"
-                                                           prefWidth="130.0"/>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="10.0"
-                                                           prefWidth="270.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="10.0" prefWidth="270.0" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="35.0" minHeight="10.0" prefHeight="20.0"
-                                                        vgrow="SOMETIMES"/>
-                                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0"
-                                                        vgrow="SOMETIMES"/>
+                                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Button fx:id="executeButton" mnemonicParsing="false"
-                                                onAction="#executeButtonAction" prefHeight="60.0" prefWidth="100.0"
-                                                text="开始执行" textFill="#238142" GridPane.rowIndex="1">
+                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142">
                                             <font>
-                                                <Font name="System Bold" size="15.0"/>
+                                                <Font name="System Bold" size="15.0" />
                                             </font>
                                         </Button>
-                                        <GridPane alignment="CENTER" prefHeight="95.0" prefWidth="290.0"
-                                                  GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <GridPane alignment="CENTER" prefHeight="95.0" prefWidth="290.0" GridPane.columnIndex="1">
                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0"
-                                                                   prefWidth="130.0"/>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0"
-                                                                   prefWidth="130.0"/>
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints />
                                             </rowConstraints>
                                             <children>
-                                                <Button fx:id="areaQueryLogBtn" mnemonicParsing="false"
-                                                        onAction="#localHistoryButtonAction" prefWidth="120.0"
-                                                        text="区域查询记录" GridPane.rowIndex="0" GridPane.columnIndex="0"
-                                                        textAlignment="CENTER"/>
-                                                <Button fx:id="accountExportBtn" mnemonicParsing="false"
-                                                        onAction="#exportExcelButtonAction" prefWidth="120.0"
-                                                        text="导出账户" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                                <Button fx:id="accountInputBtn" mnemonicParsing="false"
-                                                        onAction="#openImportAccountView" prefWidth="120.0" text="账户输入"
-                                                        GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                                <Button fx:id="accountClearBtn" mnemonicParsing="false"
-                                                        onAction="#clearAccountListButtonAction" prefWidth="120.0"
-                                                        text="清空账户列表" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                                <Button mnemonicParsing="false" onAction="#stopTaskButtonAction"
-                                                        prefWidth="120.0" text="停止任务" GridPane.columnIndex="0"
-                                                        GridPane.rowIndex="2"/>
+                                                <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1" />
+                                                <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#openImportAccountView" prefWidth="120.0" text="导入账号" />
+                                                <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" />
+                                                <Button mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2" />
                                             </children>
                                         </GridPane>
                                     </children>
@@ -75,20 +53,20 @@
                             <content>
                                 <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="400.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <Label text="功能说明：检测是否AppleID"/>
-                                        <Label text="导入格式：单账号，或者正常的格式" wrapText="true">
+                                        <Label text="功能说明：检测是否AppleID" textFill="#169BD5" />
+                                        <Label text="导入格式：单账号，或者正常的格式" textFill="#169BD5" wrapText="true">
                                             <VBox.margin>
-                                                <Insets bottom="3.0" top="2.0"/>
+                                                <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
-                                        <Label text="操作提示： 快速区分是否ApplelD、 帐号是否锁定、是否双重认证、是否未激活等等" wrapText="true">
+                                        <Label text="操作提示： 快速区分是否ApplelD、 帐号是否锁定、是否双重认证、是否未激活等等" textFill="#169BD5" wrapText="true">
                                             <VBox.margin>
-                                                <Insets bottom="3.0" top="2.0"/>
+                                                <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
-                                        <Label text="如果为手机号，请加上国家代码比如：8618852015201" wrapText="true">
+                                        <Label text="如果为手机号，请加上国家代码比如：8618852015201" textFill="#169BD5" wrapText="true">
                                             <VBox.margin>
-                                                <Insets bottom="3.0" top="2.0"/>
+                                                <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
                                     </children>
@@ -145,14 +123,10 @@
                             <content>
                                 <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="364.0" prefWidth="1066.0">
                                     <columns>
-                                        <TableColumn fx:id="seq" style="-fx-alignment: CENTER" prefWidth="75.0"
-                                                     text="序号"/>
-                                        <TableColumn fx:id="account" style="-fx-alignment: CENTER" prefWidth="350.0"
-                                                     text="账号"/>
-                                        <TableColumn fx:id="status" style="-fx-alignment: CENTER" prefWidth="375.0"
-                                                     text="状态"/>
-                                        <TableColumn fx:id="note" style="-fx-alignment: CENTER" prefWidth="280.0"
-                                                     text="信息"/>
+                                        <TableColumn fx:id="seq" prefWidth="75.0" style="-fx-alignment: CENTER" text="序号" />
+                                        <TableColumn fx:id="account" prefWidth="350.0" style="-fx-alignment: CENTER" text="账号" />
+                                        <TableColumn fx:id="status" prefWidth="375.0" style="-fx-alignment: CENTER" text="状态" />
+                                        <TableColumn fx:id="note" prefWidth="280.0" style="-fx-alignment: CENTER" text="信息" />
                                     </columns>
                                 </TableView>
                             </content>
