@@ -198,15 +198,6 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
             tableRefreshAndInsertLocal(account, response.body());
         }
     }
-    private void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        area.setCellValueFactory(new PropertyValueFactory<Account,String>("area"));
-        dsid.setCellValueFactory(new PropertyValueFactory<Account,String>("dsid"));
-        familyDetails.setCellValueFactory(new PropertyValueFactory<Account,String>("familyDetails"));
-        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-    }
     private void tableRefresh(Account account,String message){
         account.setNote(message);
         accountTableView.refresh();

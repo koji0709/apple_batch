@@ -257,21 +257,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
         super.localHistoryButtonAction();
     }
 
-    private void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("pwd"));
-        area.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("area"));
-        accountBalance.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("accountBalance"));
-        status.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("status"));
-        lastPurchaseDate.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("lastPurchaseDate"));
-        earliestPurchaseDate.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("earliestPurchaseDate"));
-        totalConsumption.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("totalConsumption"));
-        totalRefundAmount.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("totalRefundAmount"));
-        purchaseRecord.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("purchaseRecord"));
-        paymentInformation.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("paymentInformation"));
-        shippingAddress.setCellValueFactory(new PropertyValueFactory<ConsumptionBill,String>("shippingAddress"));
-    }
 
     @FXML
     protected void onStopBtnClick(ActionEvent actionEvent) {

@@ -170,13 +170,6 @@ public class PaymentMethodController extends CustomTableView<Account> implements
         super.localHistoryButtonAction();
     }
 
-    private void initAccountTableView(){
-        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
-        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
-        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
-        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
-    }
-
     private void tableRefreshAndInsertLocal(Account account, String message){
         account.setNote(message);
         accountTableView.refresh();
