@@ -52,7 +52,12 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
     protected void reExecute(Problem problem) {
-        accountHandler(problem);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                accountHandler(problem);
+            }
+        }).start();
     }
 
     public void onAccountInputBtnClick(){
@@ -68,19 +73,33 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
-        ThreadUtil.sleep(1000);
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         HttpResponse step1Res = AppleIDUtil.signin(account);
         problem.setNote("查询密保问题中");
         accountTableView.refresh();
         if (step1Res.getStatus() == 503) {
-            num++;
-            if(num >= 5){
+            account.setFailCount(account.getFailCount()+1);
+            if(account.getFailCount() >= 3){
                 queryFail(problem,"操作频繁，请稍后重试！");
                 return;
             }
+            try {
+                Thread.sleep(20*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             accountHandler(problem);
         }
-        if (step1Res.getStatus() != 409) {
+        if(step1Res.getStatus()==503){
+            account.setNote("操作频繁，请稍后重试！");
+            accountTableView.refresh();
+            insertLocalHistory(List.of(problem));
+            return;
+        }else if (step1Res.getStatus() != 409) {
             queryFail(problem);
             return;
         }
@@ -91,7 +110,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             return;
         }
         //step2 获取认证信息 -- 需要输入密保
-        ThreadUtil.sleep(1000);
+        ThreadUtil.sleep(1500);
         HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {

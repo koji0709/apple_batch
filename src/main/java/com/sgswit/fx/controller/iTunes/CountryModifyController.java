@@ -412,6 +412,14 @@ public class CountryModifyController extends CustomTableView<Account> implements
        super.localHistoryButtonAction();
     }
 
+    private void initAccountTableView(){
+        seq.setCellValueFactory(new PropertyValueFactory<Account,Integer>("seq"));
+        account.setCellValueFactory(new PropertyValueFactory<Account,String>("account"));
+        pwd.setCellValueFactory(new PropertyValueFactory<Account,String>("pwd"));
+        originalCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("originalCountry"));
+        targetCountry.setCellValueFactory(new PropertyValueFactory<Account,String>("targetCountry"));
+        note.setCellValueFactory(new PropertyValueFactory<Account,String>("note"));
+    }
     public void onAddCountryBtnClick(MouseEvent mouseEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/custom-country-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 450, 390);

@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.query;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -11,6 +12,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -35,8 +37,6 @@ import java.util.ResourceBundle;
  */
 public class RapidFiltrationController extends CustomTableView<Account> {
 
-    private Integer num = 0;
-
     public List<String> menuItem =new ArrayList<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());
@@ -49,7 +49,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
 
     @Override
     protected void reExecute(Account account) {
-        accountHandler(account);
+        new Thread(()->{
+            accountHandler(account);
+        }).start();
     }
 
     @FXML
@@ -63,20 +65,27 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         //step1 sign 登录
         account.setNote("登录中");
         accountTableView.refresh();
+        ThreadUtil.sleep(2000);
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
-        if(step1Res.body().startsWith("<html>")){
-            num++;
-            if(num >= 5){
+        if(step1Res.getStatus()==503){
+            account.setFailCount(account.getFailCount()+1);
+            if(account.getFailCount() >= 5){
                 account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 return;
             }
+            ThreadUtil.sleep(20*1000);
             accountHandler(account);
 
         }
-        if (step1Res.getStatus() != 409) {
+        if(step1Res.getStatus()==503){
+            account.setNote("操作频繁，请稍后重试！");
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
+            return;
+        }else if (step1Res.getStatus() != 409) {
             queryFail(account,step1Res.body());
             return ;
         }
@@ -84,20 +93,17 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
-            queryFail(account,step1Res.body());
+            account.setNote("操作频繁，请稍后重试！");
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
             return ;
         }
 
-
+        ThreadUtil.sleep(2000);
         //step2 获取认证信息 -- 需要输入密保
         HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
-            //非双重认证
-//            String body = step21Res.body();
-//            String questions = JSONUtil.parseObj(body).getJSONObject("securityQuestions").get("questions").toString();
-//            List<Question> qs = JSONUtil.toList(questions, Question.class);
-
             account.setNote("正常账号");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
@@ -109,6 +115,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     }
 
     private void queryFail(Account account,Object body) {
+        System.out.println(body);
         JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
         String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
         if(message.contains("锁定")){

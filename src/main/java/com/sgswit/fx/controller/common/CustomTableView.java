@@ -194,26 +194,30 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     }
 
     public void accountHandlerExpand(T account){
-        ThreadUtil.execute(() -> {
-            boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
-            try {
-                if (hasField){
-                    ReflectUtil.invoke(account,"setHasFinished",false);
-                }
-                setAndRefreshNote(account, "执行中", false);
-                accountHandler(account);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(account, "数据处理异常", true);
-                e.printStackTrace();
-            } finally {
-                setAccountNumLabel();
-                if (hasField){
-                    ReflectUtil.invoke(account,"setHasFinished",true);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
+                try {
+                    if (hasField){
+                        ReflectUtil.invoke(account,"setHasFinished",false);
+                    }
+                    setAndRefreshNote(account, "执行中", false);
+                    accountHandler(account);
+                } catch (ServiceException e) {
+                    // 异常不做处理只是做一个停止程序作用
+                } catch (Exception e) {
+                    setAndRefreshNote(account, "数据处理异常", true);
+                    e.printStackTrace();
+                } finally {
+                    ReflectUtil.invoke(account,"setFailCount",0);
+                    setAccountNumLabel();
+                    if (hasField){
+                        ReflectUtil.invoke(account,"setHasFinished",true);
+                    }
                 }
             }
-        });
+        }).start();
     }
 
     /**

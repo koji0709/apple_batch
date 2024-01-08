@@ -15,8 +15,10 @@ public class AuthData {
     private String step;
     private String authCode = "";
     private boolean hasFinished = true;
-    /*数据成功状态：0-失败，1-成功，默认为空*/
+    /**数据成功状态：0-失败，1-成功，默认为空**/
     private String dataStatus = "";
+    /**失败次数**/
+    private int failCount = 0;
 
     public Map<String, Object> getAuthData() {
         return authData;
@@ -56,5 +58,13 @@ public class AuthData {
 
     public void setDataStatus(String dataStatus) {
         this.dataStatus = dataStatus;
+    }
+
+    public int getFailCount() {
+        return failCount;
+    }
+
+    public void setFailCount(int failCount) {
+        this.failCount = failCount;
     }
 }

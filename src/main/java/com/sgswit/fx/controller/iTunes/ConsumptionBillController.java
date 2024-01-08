@@ -159,8 +159,11 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
                                     a.setPwd(account.getPwd());
                                     a.setAccount(account.getAccount());
                                     HttpResponse step1Res = AppleIDUtil.signin(a);
-
-                                    if (step1Res.getStatus() != 409) {
+                                    Thread.sleep(2000);
+                                    if (step1Res.getStatus() == 503){
+                                        tableRefreshAndInsertLocal(account, "操作频繁，请稍后重试！");
+                                        return ;
+                                    }else if (step1Res.getStatus() != 409) {
                                         tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
                                         return ;
                                     }
@@ -327,14 +330,10 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
         }
     }
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> items=new ArrayList<>(super.menuItem) ;
-        items.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
-        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
+//        List<String> items=new ArrayList<>(super.menuItem) ;
+//        items.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+//        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
 
-    }
-    private void tableRefresh(ConsumptionBill account, String message){
-        account.setNote(message);
-        accountTableView.refresh();
     }
     private void tableRefreshAndInsertLocal(ConsumptionBill account, String message){
         account.setNote(message);

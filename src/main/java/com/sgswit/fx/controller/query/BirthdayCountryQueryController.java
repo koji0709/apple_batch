@@ -1,12 +1,14 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.AppleIdView;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.utils.AppleIDUtil;
 
 import java.net.URL;
@@ -38,9 +40,19 @@ public class BirthdayCountryQueryController extends AppleIdView {
     public void accountHandler(Account account) {
         account.setNote("正在登录...");
         accountTableView.refresh();
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // 登录
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...",false);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         HttpResponse step4Res = AppleIDUtil.account(account);
         String managerBody = step4Res.body();
         JSON manager = JSONUtil.parse(managerBody);
@@ -63,10 +75,14 @@ public class BirthdayCountryQueryController extends AppleIdView {
         insertLocalHistory(List.of(account));
     }
 
-    private void queryFail(Account account) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        account.setNote(note);
-        accountTableView.refresh();
+    @Override
+    protected void reExecute(Account account) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                accountHandler(account);
+            }
+        }).start();
     }
 
 }

@@ -205,7 +205,7 @@ public class ITunesUtil {
                 result.put("code",Constant.SUCCESS);
                 result.put("msg","操作成功");
             }else{
-                result.put("code","1");
+                result.put("code",Constant.SUCCESS);
                 result.put("msg","无付款方式");
             }
         }

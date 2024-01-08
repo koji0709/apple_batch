@@ -40,7 +40,12 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
 
     @Override
     protected void reExecute(Account account) {
-        accountHandler(account);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                accountHandler(account);
+            }
+        }).start();
     }
     public void openImportAccountView(){
         openImportAccountView(List.of("account"));
@@ -50,7 +55,11 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
     public void accountHandler(Account account) {
         account.setNote("查询中");
         accountTableView.refresh();
-        ThreadUtil.sleep(1000);
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -71,7 +80,11 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         String capToken = object.getStr("token");
 
         //解析图片
-        ThreadUtil.sleep(1000);
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
         String content = payloadJson.getStr("content");
         String predict = OcrUtil.recognize(content);
@@ -84,6 +97,28 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             if(body1.startsWith("<html>")){
                 account.setStatus("网页503");
                 account.setNote("查询失败");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+                return;
+            }
+
+            if (execute1.getStatus() == 503) {
+                account.setFailCount(account.getFailCount()+1);
+                if(account.getFailCount() >= 3){
+                    account.setNote("操作频繁，请稍后重试！");
+                    accountTableView.refresh();
+                    insertLocalHistory(List.of(account));
+                    return;
+                }
+                try {
+                    Thread.sleep(20*1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                accountHandler(account);
+            }
+            if(execute1.getStatus()==503){
+                account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 return;
