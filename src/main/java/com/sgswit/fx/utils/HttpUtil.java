@@ -46,8 +46,7 @@ public class HttpUtil{
     }
 
     public static String getServiceUrl(){
-        Setting config = new Setting("config.properties");
-        return config.getStr("service.url");
+        return PropertiesUtil.getConfig("service.url");
     }
 
     public static boolean verifyRsp(HttpResponse rsp){

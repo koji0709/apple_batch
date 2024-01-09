@@ -1,9 +1,11 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.setting.Setting;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -15,6 +17,29 @@ import java.util.Map;
  */
 public class PropertiesUtil {
     private static final String CUSTOMER_CONFIG = "config.ini";
+
+    private static final Setting config = new Setting("config.properties",Charset.defaultCharset(),false);
+
+    public static String getConfig(String key,String defaultValue) {
+        String res = null;
+        try {
+            res = config.getStr(key, defaultValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+    public static String getConfig(String key) {
+        String res = null;
+        try {
+            res = getConfig(key, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+
     public static void setOtherConfig(String key, String value) {
         try {
             File file= new File(CUSTOMER_CONFIG);
