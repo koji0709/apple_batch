@@ -167,12 +167,14 @@ public class CheckWhetherIcloudController extends CustomTableView<Account> imple
                         tableRefreshAndInsertLocal(account,rspJSON.getStr("status-message"));
                     }
                 }
-
+                account.setHasFinished(true);
             }catch (Exception e){
+                account.setHasFinished(true);
                 account.setDataStatus("0");
                 tableRefreshAndInsertLocal(account,"Apple ID或密码错误。");
             }
         }else {
+            account.setHasFinished(true);
             tableRefresh(account,response.body());
         }
     }
