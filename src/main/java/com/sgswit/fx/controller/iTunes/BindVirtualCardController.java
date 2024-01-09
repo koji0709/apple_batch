@@ -138,6 +138,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
 
     @FXML
     protected void onAccountClearBtnClick() throws Exception{
+        super.accountList=list;
         super.clearAccountListButtonAction();
     }
 

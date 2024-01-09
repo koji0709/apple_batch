@@ -9,10 +9,7 @@ import cn.hutool.setting.Setting;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.MapUtils;
-import com.sgswit.fx.utils.ShoppingUtil;
-import com.sgswit.fx.utils.WebLoginUtil;
+import com.sgswit.fx.utils.*;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -71,9 +68,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                return;
             }
             String countryCode=MapUtils.getStr(paras,"countryCode");
-            Setting config = new Setting("config.properties");
             // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
-            String supportCountry = config.getStr("grayBalance.query.support.country", "");
+            String supportCountry = PropertiesUtil.getConfig("grayBalance.query.support.country");
             if(!StringUtils.containsIgnoreCase(supportCountry,countryCode)){
                 tableRefreshAndInsertLocal(account,"不支持的国家");
                 return;

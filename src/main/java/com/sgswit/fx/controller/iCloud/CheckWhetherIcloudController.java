@@ -49,7 +49,7 @@ import java.util.*;
  * @description: TODO
  * @date 2023/10/2714:40
  */
-public class CheckWhetherIcloudController extends CustomTableView<Account> implements Serializable {
+public class CheckWhetherIcloudController extends CustomTableView<Account>{
 
     @FXML
     public TableColumn seq;

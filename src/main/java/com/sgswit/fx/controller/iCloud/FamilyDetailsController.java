@@ -47,7 +47,7 @@ import java.util.Map;
  * @description: TODO
  * @date 2023/10/2714:40
  */
-public class FamilyDetailsController extends CustomTableView<Account> implements Serializable {
+public class FamilyDetailsController extends CustomTableView<Account> {
 
     @FXML
     public TableColumn seq;
@@ -141,6 +141,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
                             tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
                             account.getAuthData().put("code",Constant.TWO_FACTOR_AUTHENTICATION);
+                            account.setHasFinished(true);
                             return;
                         }else{
                             message="查询成功";
@@ -179,6 +180,7 @@ public class FamilyDetailsController extends CustomTableView<Account> implements
             account.setDataStatus("0");
             tableRefreshAndInsertLocal(account, response.body());
         }
+        account.setHasFinished(true);
     }
     private void tableRefresh(Account account,String message){
         account.setNote(message);
