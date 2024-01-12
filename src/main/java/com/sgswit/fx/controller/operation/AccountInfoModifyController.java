@@ -126,6 +126,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         // 登录账号
         login(account);
+        // 清空之前的信息
+        setAndRefreshNote(account,"",false);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
@@ -249,7 +251,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }
         }
 
-        setAndRefreshNote(account, account.getNote() + "所有操作执行完毕。");
+        setAndRefreshNote(account, account.getNote());
     }
 
     @Override
