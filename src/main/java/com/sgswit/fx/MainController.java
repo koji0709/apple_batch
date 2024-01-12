@@ -299,11 +299,6 @@ public class MainController implements Initializable {
         popupStage.show();
     }
     @FXML
-    protected void callQQ(){
-        String url = "http://wpa.qq.com/msgrd?v=3&uin=748895431&site=qq&menu=yes";
-        browse(url);
-    }
-    @FXML
     public void refreshRemainingPoints() {
         //加载点数
         String s = PropertiesUtil.getOtherConfig("login.info");

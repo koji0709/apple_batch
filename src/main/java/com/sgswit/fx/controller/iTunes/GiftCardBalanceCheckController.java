@@ -451,8 +451,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 tableRefreshAndInsertLocal(giftCard,"余额查询失败");
                 return;
             }
-            Object balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance");
-            Object giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber");
+            String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
+            String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
             if(null==balance){
                 giftCard.setDataStatus("0");
                 tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品");

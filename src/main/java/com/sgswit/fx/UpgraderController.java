@@ -4,7 +4,9 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.http.HttpUtil;
 import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.StageUtil;
+import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -30,11 +33,21 @@ import java.util.ResourceBundle;
  * @description: TODO
  * @date 2024/1/913:51
  */
-public class UpgraderController implements Initializable,Serializable {
+public class UpgraderController implements Initializable {
     @FXML
     public ProgressBar progressBar;
     @FXML
     public TextArea notes;
+
+    public Map<String,Object> data;
+
+    public Map<String, Object> getData() {
+        return data;
+    }
+
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -45,22 +58,39 @@ public class UpgraderController implements Initializable,Serializable {
         String text = FileUtil.readString(fFile, Charset.defaultCharset());
         notes.setText(text);
         progressBar.progressProperty().bind(service.progressProperty());
+    }
+
+
+
+
+
+    public UpgraderController() {
+    }
+    /**
+    　*启动下载
+      * @param
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/1/10 17:40
+    */
+    public void startDownload() {
         service.restart();
     }
 
-    Service<Integer> service = new Service<>() {
-        String filePath = System.getProperty("user.dir");
-        String filename = filePath + "ceshi.exe";
-        String url = "https://i-710.osslan.com:446/01091600157092607bb/2024/01/08/52069ff0c1bfc9c02810b9b259ec1414.exe?st=GwtQtQNDr3UVi1KnzU3UTQ&e=1704792767&b=AbsOsVfSWbpXnFKYAXEPJlYjXkMDclQiVmkMZAXkX9RVvlmwCI8DiVPjBPZXgwPgCcwI0gIjBlYEdws1UHlVYgF9DjhXeVk5V3pSYQ_c_c&fi=157092607&pid=223-91-60-76&up=2&mp=0&co=0";
 
+
+
+    Service<Integer> service = new Service<>() {
         @Override
         protected Task<Integer> createTask() {
             return new Task<>() {
                 @Override
                 protected Integer call() {
-
+                    String filePath = System.getProperty("user.dir");
+                    String filename = filePath + MapUtils.getStr(data,"name")+".exe";
+                    String url = MapUtils.getStr(data,"url");
                     HttpUtil.downloadFile(url, FileUtil.file(filename), new StreamProgress() {
-
                         @Override
                         public void start() {
                             System.out.println("开始下载。。。。");
@@ -73,6 +103,7 @@ public class UpgraderController implements Initializable,Serializable {
 
                         @Override
                         public void finish() {
+                            String clientPath=filename;
                             try {
                                 Platform.runLater(()->{
                                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -80,16 +111,13 @@ public class UpgraderController implements Initializable,Serializable {
                                     confirm.setContentText("下载完成，是否立即运行程序");
                                     Optional<ButtonType> type = confirm.showAndWait();
                                     if (type.get()==ButtonType.OK){
-                                        try {
-                                            Runtime.getRuntime().exec("cmd /k start .\\update.vbs");
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
+                                        if(SystemUtils.isWindows()){
+
                                         }
+                                        autoStartWindowsApp(clientPath);
                                     }else{
 
                                     }
-                                    Stage upgraderStage= StageUtil.get(StageEnum.UPGRADER);
-                                    upgraderStage.close();
                                     //关闭应用程序
                                     Platform.exit();
                                     System.exit(0);
@@ -106,5 +134,20 @@ public class UpgraderController implements Initializable,Serializable {
             };
         }
     };
-
+    private void  autoStartWindowsApp(String clientPath){
+        try {
+            // 设置需要启动的客户端路径及参数（根据实际情况修改）
+            ProcessBuilder processBuilder = new ProcessBuilder(clientPath);
+            // 启动进程并等待其结束
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("客户端已成功启动！");
+            } else {
+                System.err.println("无法启动客户端，错误代码：" + exitCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

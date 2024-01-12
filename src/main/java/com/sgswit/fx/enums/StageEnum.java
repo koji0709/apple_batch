@@ -6,7 +6,7 @@ import javafx.stage.StageStyle;
 
 public enum StageEnum {
     /********** 升级 ***********/
-    UPGRADER(PropertiesUtil.getConfig("softwareInfo.name")+"-自动更新","views/upgrader.fxml",400,600,StageStyle.DECORATED,Modality.WINDOW_MODAL,""),
+    UPGRADER(PropertiesUtil.getConfig("softwareInfo.name")+"-自动更新","views/upgrader.fxml",400,600,StageStyle.UNDECORATED,Modality.WINDOW_MODAL,""),
     /********** MAIN区 ***********/
     LOGIN("APPLE批量处理程序 - 登录","views/login.fxml",400,400,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
     MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
