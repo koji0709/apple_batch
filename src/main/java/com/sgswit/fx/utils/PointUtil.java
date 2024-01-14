@@ -53,15 +53,16 @@ public class PointUtil {
             map.put("notes",notes);
             map.put("username",username);
             String body = JSONUtil.toJsonStr(map);
-            HttpResponse rsp = HttpUtil.post("/api/data/pointCost",body);
-            JSON json=JSONUtil.parse(rsp.body());
-            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                res.put("code", Constant.SUCCESS);
-            }else{
-                res.put("code", "-1");
-                res.put("message", json.getByPath("message",String.class));
-            }
-            refreshRemainingPointsUI("0");
+//            HttpResponse rsp = HttpUtil.post("/api/data/pointCost",body);
+////            JSON json=JSONUtil.parse(rsp.body());
+////            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+////                res.put("code", Constant.SUCCESS);
+////            }else{
+////                res.put("code", "-1");
+////                res.put("message", json.getByPath("message",String.class));
+////            }
+////            refreshRemainingPointsUI("0");
+            res.put("code", Constant.SUCCESS);
         }catch (Exception e){
 
         }
