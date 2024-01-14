@@ -4,12 +4,15 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Paint;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -37,6 +40,15 @@ public class CommonView implements Initializable {
         alert.setTitle("提示信息");
         alert.setHeaderText(message);
         alert.show();
+    }
+    public void alertUI(String message, Alert.AlertType alertType) {
+        Platform.runLater(new Task<Integer>() {
+            @Override
+            protected Integer call() {
+                alert(message, alertType);
+                return 1;
+            }
+        });
     }
 
     /**

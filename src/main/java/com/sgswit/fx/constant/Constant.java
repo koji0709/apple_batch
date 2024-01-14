@@ -13,6 +13,8 @@ public class Constant {
     public static final String FailureTypeTemporarilyUnavailable = "2059";
 
     public static final String CustomerMessageNotYetUsediTunesStore = "has not yet been used with the iTunes Store.";
+    public static final String ACCOUNT_IS_DISABLED = "Your account is disabled.";
+    public static final String  ACCOUNT_HAS_BEEN_LOCKED = "You cannot login because your account has been locked";
 
     public static final String AppleIdOrPasswordIncorrectly = "Your Apple ID or password was entered incorrectly.";
 
@@ -35,8 +37,8 @@ public class Constant {
     public static final String BROWSER_CLIENT_INFO = "{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNAA1ckHmeHZ.QxQeLaD.SAuXjodUW1BNyhw.Tf5.EKWJ9Zb4JRJE_.z9Oyd7lY5BNleBBNlYCa1nkBMfs.5o8\"}";
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
-        put("Your account is disabled.","出于安全原因，你的账户已被锁定。");
-        put("You cannot login because your account has been locked","帐户存在欺诈行为，已被【双禁】。");
+        put(ACCOUNT_IS_DISABLED,"出于安全原因，你的账户已被锁定。");
+        put(ACCOUNT_HAS_BEEN_LOCKED,"帐户存在欺诈行为，已被【双禁】。");
         put(CustomerMessageBadLogin,"Apple ID或密码错误。或需要输入验证码！");
         put(CustomerMessageNotYetUsediTunesStore,"此 Apple ID 尚未用于 App Store。");
         put(AppleIdOrPasswordIncorrectly,"Apple ID或密码错误。");

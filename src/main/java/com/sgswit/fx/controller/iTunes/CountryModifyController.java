@@ -20,6 +20,7 @@ import com.sgswit.fx.controller.CommController;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.model.CreditCard;
@@ -243,6 +244,12 @@ public class CountryModifyController extends CustomTableView<Account> implements
             public void run() {
                 try {
                     try {
+                        //扣除点数
+                        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),PointUtil.out,account.getAccount());
+                        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                            alertUI(pointCost.get("message"), Alert.AlertType.ERROR);
+                            return;
+                        }
                         account.setHasFinished(false);
                         account.setNote("正在登录...");
                         accountTableView.refresh();
@@ -260,10 +267,14 @@ public class CountryModifyController extends CustomTableView<Account> implements
                         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
                             account.setNote(String.valueOf(res.get("msg")));
                             account.setAuthData(res);
+                            //返还点数
+                            PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),PointUtil.in,account.getAccount());
                         }else if(!Constant.SUCCESS.equals(res.get("code"))){
                             account.setNote(String.valueOf(res.get("msg")));
                             account.setDataStatus("0");
                             insertLocalHistory(List.of(account));
+                            //返还点数
+                            PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),PointUtil.in,account.getAccount());
                         }else{
                             account.setNote("登录成功，正在修改...");
                             accountTableView.refresh();
@@ -312,6 +323,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                                 account.setDataStatus("1");
                             }else{
                                 account.setDataStatus("0");
+                                PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),PointUtil.in,account.getAccount());
                             }
                             account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
                             account.setHasFinished(false);
