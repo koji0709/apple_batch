@@ -41,7 +41,6 @@ public class HttpUtil{
                 .header("Content-Type", "application/json")
                 .body(body)
                 .execute();
-        Console.log("[POST] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 

@@ -247,7 +247,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
                         //扣除点数
                         Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),PointUtil.out,account.getAccount());
                         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                            alertUI(pointCost.get("message"), Alert.AlertType.ERROR);
+                            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
                             return;
                         }
                         account.setHasFinished(false);
