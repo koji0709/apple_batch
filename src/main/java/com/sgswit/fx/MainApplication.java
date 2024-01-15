@@ -61,11 +61,11 @@ public class MainApplication extends Application {
             return;
         }
 
-        ProcessBuilder processBuilder = new ProcessBuilder("tasklist.exe");
-        Process process = processBuilder.start();
-        String tasksList = toString(process.getInputStream());
-
-        System.out.println(tasksList);
+//        ProcessBuilder processBuilder = new ProcessBuilder("tasklist.exe");
+//        Process process = processBuilder.start();
+//        String tasksList = toString(process.getInputStream());
+//
+//        System.out.println(tasksList);
         // 添加守护线程，程序退出时释放锁
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

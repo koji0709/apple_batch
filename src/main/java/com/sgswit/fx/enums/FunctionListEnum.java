@@ -1,5 +1,6 @@
 package com.sgswit.fx.enums;
 
+import com.sgswit.fx.MainController;
 import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
@@ -45,12 +46,12 @@ public enum FunctionListEnum {
     APPLE_ID_OVERCHECK("3170",100,"AppleID过检"),
     /********** QUERY区 ***********/
     RAPID_FILTRATION("4110",5,"极速过滤密正"),
-    DETECTION_WHETHER("4110",5,"检测是否过检"),
-    WHETHER_APPLEID("4110",10,"检测是否AppleID"),
-    BIRTHDAY_COUNTRY_QUERY("4110",20,"查询生日国家"),
-    SECURITY_QUESTION("4110",5,"查询密保问题"),
-    CHECK_GRAY_BALANCE("4110",20,"检测灰余额"),
-    BALANCE_QUERY("4110",20,"密保查询余额"),
+    DETECTION_WHETHER("4120",5,"检测是否过检"),
+    WHETHER_APPLEID("4130",10,"检测是否AppleID"),
+    BIRTHDAY_COUNTRY_QUERY("4140",20,"查询生日国家"),
+    SECURITY_QUESTION("4150",5,"查询密保问题"),
+    CHECK_GRAY_BALANCE("4160",20,"检测灰余额"),
+    BALANCE_QUERY("4170",20,"密保查询余额"),
 
     /********** TOOLBOX区 ***********/
 
@@ -98,4 +99,5 @@ public enum FunctionListEnum {
         }
         return null;
     }
+
 }

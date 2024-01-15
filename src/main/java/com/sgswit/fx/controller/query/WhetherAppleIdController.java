@@ -69,8 +69,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 .execute();
         String body = execute.body();
         if(StrUtil.isEmpty(body)){
-            account.setStatus("操作频繁，请稍后重试！！");
-            account.setNote("查询失败");
+            account.setNote("操作频繁，请稍后重试！！");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
             return;
@@ -88,91 +87,79 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
         String content = payloadJson.getStr("content");
         String predict = OcrUtil.recognize(content);
-            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-            HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
-                    .body(bodys)
-                    .header(headers)
-                    .execute();
-            String body1 = execute1.body();
-            if(body1.startsWith("<html>")){
-                account.setStatus("网页503");
-                account.setNote("查询失败");
-                accountTableView.refresh();
-                insertLocalHistory(List.of(account));
-                return;
-            }
-
-            if (execute1.getStatus() == 503) {
-                account.setFailCount(account.getFailCount()+1);
-                if(account.getFailCount() >= 3){
-                    account.setNote("操作频繁，请稍后重试！");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                    return;
-                }
-                try {
-                    Thread.sleep(20*1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                accountHandler(account);
-            }
-            if(execute1.getStatus()==503){
+        String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
+        HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+                .body(bodys)
+                .header(headers)
+                .execute();
+        if (execute1.getStatus() == 503) {
+            account.setFailCount(account.getFailCount()+1);
+            if(account.getFailCount() >= 10){
                 account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 return;
             }
-            if (!StringUtils.isEmpty(execute1.body())) {
-                JSONObject object2 = JSONUtil.parseObj(execute1.body());
-                String service_errors = object2.getStr("service_errors");
-                if (service_errors != null) {
-                    JSONArray service_errors1 = JSONUtil.parseArray(service_errors);
-                    String message = JSONUtil.parseObj(service_errors1.get(0)).getStr("message");
-                    if(message.startsWith("请输入你")){
-                       accountHandler(account);
-                    }else {
-                        account.setStatus(message);
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
-                        insertLocalHistory(List.of(account));
-                    }
-
-                } else if (object2.getStr("serviceErrors") != null) {
-                    account.setStatus("此AppleID无效或不受支持");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                }
-
-
-            } else {
-                HttpResponse location = HttpUtil.createGet("https://iforgot.apple.com" + execute1.header("Location"))
-                        .header(headers)
-                        .execute();
-
-                if (StringUtils.isEmpty(location.body())) {
-                    account.setStatus("此AppleID已开启双重认证");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                } else if (JSONUtil.parseObj(location.body()).get("account") != null) {
-                    account.setStatus("此AppleID已被锁定");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                }else if(JSONUtil.parseObj(location.body()).get("trustedPhones") != null){
-                    account.setStatus("此AppleID已开启双重认证");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                } else {
-                    account.setStatus("此AppleID正常");
-                    account.setNote("查询成功");
-                    accountTableView.refresh();
-                    insertLocalHistory(List.of(account));
-                }
+            try {
+                Thread.sleep(20*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            accountHandler(account);
+        }
+        if(execute1.getStatus()==503){
+            account.setNote("操作频繁，请稍后重试！");
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
+            return;
+        }
+        if (!StringUtils.isEmpty(execute1.body())) {
+            JSONObject object2 = JSONUtil.parseObj(execute1.body());
+            String service_errors = object2.getStr("service_errors");
+            if (service_errors != null) {
+                JSONArray service_errors1 = JSONUtil.parseArray(service_errors);
+                String message = JSONUtil.parseObj(service_errors1.get(0)).getStr("code");
+                if(message.equals("captchaAnswer.Invalid")){
+                   accountHandler(account);
+                }else {
+                    account.setStatus(message);
+                    account.setNote("查询成功");
+                    accountTableView.refresh();
+                    insertLocalHistory(List.of(account));
+                }
+
+            } else if (object2.getStr("serviceErrors") != null) {
+                account.setStatus("此AppleID无效或不受支持");
+                account.setNote("查询成功");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            }
+        } else {
+            HttpResponse location = HttpUtil.createGet("https://iforgot.apple.com" + execute1.header("Location"))
+                    .header(headers)
+                    .execute();
+            if (StringUtils.isEmpty(location.body())) {
+                account.setStatus("此AppleID已开启双重认证");
+                account.setNote("查询成功");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            } else if (JSONUtil.parseObj(location.body()).get("account") != null) {
+                account.setStatus("此AppleID已被锁定");
+                account.setNote("查询成功");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            }else if(JSONUtil.parseObj(location.body()).get("trustedPhones") != null){
+                account.setStatus("此AppleID已开启双重认证");
+                account.setNote("查询成功");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            } else {
+                account.setStatus("此AppleID正常");
+                account.setNote("查询成功");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            }
+        }
 
     }
 

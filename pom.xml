@@ -126,11 +126,6 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.44.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.60</version>
-        </dependency>
 
     </dependencies>
 

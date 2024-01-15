@@ -14,8 +14,8 @@ open module com.sgswit.fx {
     requires org.bouncycastle.provider;
     requires JsoupXpath;
     requires generex;
-    requires commons.configuration;
     requires d4ocr;
+    requires commons.configuration;
     requires java.desktop;
     requires org.apache.commons.lang3;
     exports com.sgswit.fx;

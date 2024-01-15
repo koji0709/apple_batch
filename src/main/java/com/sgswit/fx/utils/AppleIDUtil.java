@@ -1155,7 +1155,7 @@ public class AppleIDUtil {
      * 验证码并且验证通过(如果验证码不通过则重试三次)
      */
     public static HttpResponse captchaAndVerify(Account account) {
-        return captchaAndVerify(account,3);
+        return captchaAndVerify(account,10);
     }
     public static HttpResponse captchaAndVerify(Account account,Integer retry){
         HttpResponse captchaRsp = captcha(account);
@@ -1182,8 +1182,6 @@ public class AppleIDUtil {
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(account,verifyAppleIdBody);
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
-            Console.log("[验证码识别错误] Base64: " + captBase64);
-            Console.log("[验证码识别错误] Answer: " + captAnswer);
             return captchaAndVerify(account,--retry);
         }
         account.updateLoginInfo(verifyAppleIdRsp);
