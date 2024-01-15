@@ -223,7 +223,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             e.printStackTrace();
                         }
 
-                        if ((i+1) % 5 == 0){
+                        if ((i+1) != accountList.size() && (i+1) % 5 == 0){
+                            setAndRefreshNote(accountList.get(i+1),"程序等待执行中");
                             ThreadUtil.sleep(1000 * 60);
                         }
 
