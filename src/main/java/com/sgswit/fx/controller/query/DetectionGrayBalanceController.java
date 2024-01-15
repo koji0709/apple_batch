@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import javafx.event.ActionEvent;
@@ -26,7 +27,11 @@ import java.util.*;
  * @createTime 2023/09/23
  */
 public class DetectionGrayBalanceController extends CustomTableView<Account> {
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CHECK_GRAY_BALANCE.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     public List<String> menuItem =new ArrayList<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());

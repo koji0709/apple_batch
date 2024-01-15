@@ -11,9 +11,11 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -28,6 +30,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_UPGRADE.getCode())));
         super.initialize(url, resourceBundle);
         initViewData();
     }

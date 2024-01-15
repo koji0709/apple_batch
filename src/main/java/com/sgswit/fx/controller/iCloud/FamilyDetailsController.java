@@ -10,11 +10,9 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.MapUtils;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,9 +34,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * @author DeZh
@@ -71,6 +71,11 @@ public class FamilyDetailsController extends CustomTableView<Account> {
 
     private ObservableList<Account> list = FXCollections.observableArrayList();
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.FAMILY_DETAILS.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
         super.openImportAccountView(List.of("account----pwd"));

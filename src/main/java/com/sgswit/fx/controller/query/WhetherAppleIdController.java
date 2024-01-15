@@ -10,8 +10,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,7 +29,11 @@ import java.util.*;
  * @createTime 2023/09/23
  */
 public class WhetherAppleIdController extends CustomTableView<Account> {
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.WHETHER_APPLEID.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     public List<String> menuItem =new ArrayList<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());

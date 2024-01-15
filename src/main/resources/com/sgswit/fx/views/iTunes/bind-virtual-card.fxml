@@ -111,12 +111,12 @@
                          </HBox>
                          <HBox prefHeight="35.0" prefWidth="340.0">
                              <children>
-                                 <Label prefHeight="25.0" prefWidth="72.0" text="消耗点：">
+                                 <Label prefHeight="25.0" prefWidth="50.0" text="消耗点：">
                                      <HBox.margin>
                                          <Insets top="5.0" />
                                      </HBox.margin>
                                  </Label>
-                                 <Label prefHeight="25.0" prefWidth="20.0" text="15" textFill="RED">
+                                 <Label  fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="15" textFill="RED">
                                      <font>
                                          <Font name="System Bold" size="16.0" />
                                      </font>

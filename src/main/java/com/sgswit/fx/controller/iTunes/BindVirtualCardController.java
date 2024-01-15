@@ -6,10 +6,12 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.MapUtils;
+import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -74,7 +76,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard> imple
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BIND_VIRTUAL_CARD.getCode())));
     }
 
 

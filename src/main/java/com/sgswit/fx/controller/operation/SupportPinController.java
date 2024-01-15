@@ -9,20 +9,28 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.AppleIdView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.scene.input.ContextMenuEvent;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 
 
 /**
  * 生成支持PIN controller
  */
 public class SupportPinController extends AppleIdView {
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SUPPORT_PIN.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     /**
      * 导入账号
      */

@@ -8,9 +8,11 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
+import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
@@ -64,6 +66,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected Label successNumLabel;
     @FXML
     protected Label failNumLabel;
+    @FXML
+    public Label pointLabel;
 
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
@@ -156,6 +160,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             alert("账号都已处理！");
             return;
         }
+
+        //计算需要执行的总数量
+        Map<String,String> pointCost= PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),accountList);
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
+
 
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);

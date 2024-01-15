@@ -1,7 +1,9 @@
 package com.sgswit.fx.controller.iCloud;
 
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,7 @@ public class FamilyMembersController extends CustomTableView<Account> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.FAMILY_MEMBERS.getCode())));
         super.initialize(url,resourceBundle);
         start();
     }

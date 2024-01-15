@@ -12,6 +12,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.ConsumptionBill;
@@ -99,6 +100,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CONSUMPTION_BILL.getCode())));
         ObservableList<String> list = FXCollections.observableArrayList();
         list.add("30天");
         list.add("60天");

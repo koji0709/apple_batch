@@ -25,6 +25,7 @@ import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
@@ -81,6 +82,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.APPSTORE_DOWNLOAD.getCode())));
         super.initialize(url, resourceBundle);
         useUrlCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {

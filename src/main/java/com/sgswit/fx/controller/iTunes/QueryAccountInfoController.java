@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.CreditCard;
@@ -79,6 +80,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.QUERY_ACCOUNT_INFO.getCode())));
         super.initialize(url,resourceBundle);
     }
 

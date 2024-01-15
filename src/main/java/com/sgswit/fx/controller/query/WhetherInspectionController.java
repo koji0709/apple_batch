@@ -2,7 +2,9 @@ package com.sgswit.fx.controller.query;
 
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -21,7 +23,11 @@ import java.util.ResourceBundle;
  * @createTime 2023/09/23
  */
 public class WhetherInspectionController extends CustomTableView<Account> {
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DETECTION_WHETHER.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     public List<String> menuItem =new ArrayList<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());

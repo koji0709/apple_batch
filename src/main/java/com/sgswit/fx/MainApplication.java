@@ -45,6 +45,7 @@ public class MainApplication extends Application {
         HostServicesUtil.setHostServices(getHostServices());
         new Thread(() -> DataUtil.getCountry()).start();
         new Thread(() -> DataUtil.getNews()).start();
+        new Thread(() -> PointUtil.getPointConfig()).start();
         //进程锁
         FileLock lock = FileChannel.open(
                 Paths.get(System.getProperty("user.dir"), "single_instance.lock"),

@@ -6,8 +6,10 @@ import cn.hutool.http.HttpResponse;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.scene.control.TableView;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -19,7 +21,11 @@ import java.util.*;
  * 关闭双重认证controller
  */
 public class SecurityDowngradeController extends SecurityDowngradeView {
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_DOWNGRADE.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     /**
      * 导入账号按钮点击
      */

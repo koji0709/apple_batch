@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
@@ -28,10 +30,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
@@ -46,7 +46,11 @@ import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
  */
 public class DredgeFamilyController extends CustomTableView<Account> {
 
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DREDGE_FAMILY.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     public void openImportAccountView(){
         openImportAccountView(List.of("account----pwd----paymentAccount----paymentPwd"));
     }
@@ -137,5 +141,8 @@ public class DredgeFamilyController extends CustomTableView<Account> {
         } catch(Exception e){
             e.printStackTrace();
         }
+    }
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
     }
 }

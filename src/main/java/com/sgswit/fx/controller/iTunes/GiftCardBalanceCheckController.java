@@ -12,6 +12,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.GiftCard;
@@ -97,6 +98,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     private static ExecutorService executor = ThreadUtil.newExecutor(1);
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BLANCE.getCode())));
         getCountry();
         String cardAccount= PropertiesUtil.getOtherConfig("cardAccount");
         account_pwd.setText(cardAccount);

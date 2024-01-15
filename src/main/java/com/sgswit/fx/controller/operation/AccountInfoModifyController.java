@@ -11,9 +11,11 @@ import com.github.javafaker.Faker;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.collections.FXCollections;
 
 import java.net.URL;
@@ -28,6 +30,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.ACCOUNT_INFO_MODIFY.getCode())));
         super.initialize(url,resourceBundle);
         initViewData();
         menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());

@@ -6,11 +6,9 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.MapUtils;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -18,9 +16,11 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
 
@@ -34,7 +34,11 @@ import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
  */
 public class CloseFamilyController extends CustomTableView<Account> {
 
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CLOSE_FAMILY.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     public void openImportAccountView(){
         openImportAccountView(List.of("account----pwd"));
     }

@@ -20,6 +20,7 @@ import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
@@ -77,7 +78,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     private static Integer processNum = 0;
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM.getCode())));
+        super.initialize(url, resourceBundle);
+    }
     /**
      * 导入账号
      */

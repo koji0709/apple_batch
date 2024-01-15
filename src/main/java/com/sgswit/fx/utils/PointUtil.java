@@ -1,8 +1,10 @@
 package com.sgswit.fx.utils;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.system.UserInfo;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -13,9 +15,11 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author DeZh
@@ -27,6 +31,7 @@ import java.util.Map;
 public class PointUtil {
     public static String out="-";
     public static String in="+";
+    public static List<Map> pointConfigList=new ArrayList<>();;
     /**
     　* 点数消耗记录
       * @param
@@ -96,13 +101,49 @@ public class PointUtil {
         Label label = (Label) root.lookup("#remainingPoints");
         label.setText(remainingPoints);
     }
-    public static void refreshRemainingPointsUI(String remainingPoints){
+    public static void refreshRemainingPointsUI(String points){
         Platform.runLater(new Task<Integer>() {
             @Override
             protected Integer call() {
-                refreshRemainingPoints(remainingPoints);
+                refreshRemainingPoints(points);
                 return 1;
             }
         });
+    }
+    public static void getPointConfig() {
+        try {
+            if(null==pointConfigList || pointConfigList.size()==0){
+                HttpResponse rsp = HttpUtil.get("/api/data/getPointConfig");
+                JSON json=JSONUtil.parse(rsp.body());
+                if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                    pointConfigList= JSONUtil.toList(json.getByPath("data",String.class), Map.class);
+                }
+            }
+        }catch (Exception e){
+
+        }
+    }
+    /**
+    　* 根据代码获取点数
+      * @param
+     * @param code
+    　* @return int
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/1/15 20:08
+    */
+    public static int getPointByCode(String code) {
+        int point=0;
+        try {
+            if(null==pointConfigList || pointConfigList.size()==0){
+                point=FunctionListEnum.getFunEnumByCode(code).getPoint();
+            }else {
+                Object pointObj=pointConfigList.stream().filter(n->n.get("functionCode").equals(code)).findAny().get().get("point");
+                point=Integer.valueOf(pointObj.toString());
+            }
+        }catch (Exception e){
+
+        }
+        return point;
     }
 }

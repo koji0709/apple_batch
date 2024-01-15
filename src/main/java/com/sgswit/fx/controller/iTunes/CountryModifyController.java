@@ -107,6 +107,7 @@ public class CountryModifyController extends CustomTableView<Account> implements
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.COUNTRY_MODIFY.getCode())));
         countryDataFun();
         customCountryDataFun();
         super.initialize(url,resourceBundle);

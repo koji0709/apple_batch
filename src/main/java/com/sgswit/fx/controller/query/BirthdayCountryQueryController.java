@@ -7,9 +7,11 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.AppleIdView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.PointUtil;
 
 import java.net.URL;
 import java.util.List;
@@ -28,6 +30,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode())));
         super.initialize(url,resourceBundle);
         menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
     }

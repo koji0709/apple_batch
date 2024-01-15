@@ -6,9 +6,11 @@ import cn.hutool.http.HttpResponse;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.AuthData;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -29,6 +31,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.UPDATE_APPLE_ID.getCode())));
         super.initialize(url,resourceBundle);
         opTypeChoiceBox.setValue("更改AppleId");
     }

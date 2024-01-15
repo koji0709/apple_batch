@@ -8,10 +8,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -38,7 +40,11 @@ import java.util.ResourceBundle;
  */
 public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
-    private Integer num = 0;
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_QUESTION.getCode())));
+        super.initialize(url, resourceBundle);
+    }
 
     public List<String> menuItem =new ArrayList<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
