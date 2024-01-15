@@ -227,6 +227,12 @@ public class CountryModifyController extends CustomTableView<Account> implements
             alert.show();
             return;
         }
+        //计算需要执行的总数量
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),list);
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         for(Account account:list){
             if (!StrUtil.isEmptyIfStr(account.getNote())) {
                 continue;

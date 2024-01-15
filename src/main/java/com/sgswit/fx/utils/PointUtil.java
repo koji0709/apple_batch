@@ -1,8 +1,5 @@
 package com.sgswit.fx.utils;
-
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.crypto.symmetric.SymmetricCrypto;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
@@ -14,8 +11,10 @@ import javafx.concurrent.Task;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,18 +39,20 @@ public class PointUtil {
     　* @author DeZh
     　* @date 2024/1/12 14:21
     */
-    public static Map<String,String> pointCost(String functionCode,String type,String appleId,String notes){
+    public static Map<String,String> pointCost(String functionCode,String type,String appleId,String notes,int num,String flag){
         Map<String,String> res=  new HashMap<>();
         try{
             //获取当前登录账号的用户名
             String username=PropertiesUtil.getOtherConfig("login.userName");
             FunctionListEnum anEnum=FunctionListEnum.getFunEnumByCode(functionCode);
-            Map<String,String> map=new HashMap<>();
+            Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);
             map.put("type",type);
             map.put("appleId",appleId);
             map.put("notes",notes);
             map.put("username",username);
+            map.put("num",num);
+            map.put("flag",flag);
             String body = JSONUtil.toJsonStr(map);
             HttpResponse rsp = HttpUtil.post("/api/data/pointCost",body);
             JSON json=JSONUtil.parse(rsp.body());
@@ -74,7 +75,20 @@ public class PointUtil {
         }else{
             notes="失败后返还";
         }
-        return pointCost(functionCode,type,appleId,notes);
+        return pointCost(functionCode,type,appleId,notes,1,"");
+    }
+    public static Map<String,String> pointCost(String functionCode, List list){
+        int num=0;
+        for(Object account:list){
+            Object note= ReflectUtil.getFieldValue(account, "getNote");
+            if(null==note||"".equals(note)){
+                num++;
+            }
+        }
+        if(num==1){
+            return new HashMap<>(1){{put("code", Constant.SUCCESS);}};
+        }
+        return pointCost(functionCode,out,"","",num,"all");
     }
     public static void refreshRemainingPoints(String remainingPoints){
         Stage main= StageUtil.get(StageEnum.MAIN);
