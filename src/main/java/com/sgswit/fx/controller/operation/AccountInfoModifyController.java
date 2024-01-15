@@ -13,7 +13,7 @@ import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.NbUtil;
+import com.sgswit.fx.utils.DataUtil;
 import javafx.collections.FXCollections;
 
 import java.net.URL;
@@ -37,12 +37,12 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 初始化视图数据
      */
     public void initViewData(){
-        List<List<String>> questionList = NbUtil.getQuestionList();
+        List<List<String>> questionList = DataUtil.getQuestionList();
         question1ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(0)));
         question2ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(1)));
         question3ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(2)));
 
-        List<String> languageList = NbUtil.getLanguageList();
+        List<String> languageList = DataUtil.getLanguageList();
         updateShowLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
 
         nameGenerationTypeChoiceBox.setValue("固定姓名");
@@ -196,7 +196,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             String body = "{\"questions\":[{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}" +
                     ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}" +
                     ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}]}";
-            LinkedHashMap<String, Integer> questionMap = NbUtil.getQuestionMap();
+            LinkedHashMap<String, Integer> questionMap = DataUtil.getQuestionMap();
 
             body = String.format(body
                     ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
@@ -241,7 +241,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改显示语言
         if (updateShowLangCheckBoxSelected){
             Object showLang = updateShowLangChoiceBox.getValue();
-            LinkedHashMap<String, String> languageMap = NbUtil.getLanguageMap();
+            LinkedHashMap<String, String> languageMap = DataUtil.getLanguageMap();
             String langCode = languageMap.get(showLang);
             HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
             if (changeShowLanguageRsp.getStatus() != 200){
