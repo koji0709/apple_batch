@@ -48,6 +48,12 @@ public class BalanceQueryController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         account.setNote("查询余额中");
         accountTableView.refresh();
         Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
@@ -56,20 +62,18 @@ public class BalanceQueryController extends CustomTableView<Account> {
             if(!hasInspectionFlag){
                 account.setNote("此 Apple ID 尚未用于 App Store。");
                 accountTableView.refresh();
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             res= PurchaseBillUtil.accountSummary(res);
             account.setState(res.get("countryName") != null? res.get("countryName").toString():"无");
             account.setBalance(res.get("creditDisplay")!= null? res.get("creditDisplay").toString():"0");
             account.setNote("查询成功");
-            //扣除点数
-            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.out,account.getAccount());
-            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-                return;
-            }
         }else {
             account.setNote(res.get("msg").toString());
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
         }
         accountTableView.refresh();
         insertLocalHistory(List.of(account));

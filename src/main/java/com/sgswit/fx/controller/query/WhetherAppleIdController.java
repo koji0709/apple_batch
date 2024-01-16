@@ -60,6 +60,12 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         account.setNote("查询中");
         accountTableView.refresh();
         try {
@@ -79,6 +85,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             account.setNote("操作频繁，请稍后重试！！");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
             return;
         }
         JSONObject object = JSONUtil.parseObj(body);
@@ -105,6 +113,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             try {
@@ -118,14 +128,11 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             account.setNote("操作频繁，请稍后重试！");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
             return;
         }
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.out,account.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
+
         if (!StringUtils.isEmpty(execute1.body())) {
             JSONObject object2 = JSONUtil.parseObj(execute1.body());
             String service_errors = object2.getStr("service_errors");

@@ -75,7 +75,12 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
     public void accountHandler(Problem problem) {
-
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.out,problem.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         //step1 sign 登录
         problem.setNote("登录中");
         accountTableView.refresh();
@@ -94,6 +99,8 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 3){
                 queryFail(problem,"操作频繁，请稍后重试！");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             try {
@@ -107,15 +114,21 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             account.setNote("操作频繁，请稍后重试！");
             accountTableView.refresh();
             insertLocalHistory(List.of(problem));
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             return;
         }else if (step1Res.getStatus() != 409) {
             queryFail(problem);
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             return;
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
             queryFail(problem);
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             return;
         }
         //step2 获取认证信息 -- 需要输入密保
@@ -123,12 +136,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
-            //扣除点数
-            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.out,problem.getAccount());
-            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-                return;
-            }
+
             //非双重认证
             String body = step21Res.body();
             Document prodDoc = Jsoup.parse(body);
@@ -145,6 +153,8 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             problem.setNote("此账号已开启双重认证");
             accountTableView.refresh();
             insertLocalHistory(List.of(problem));
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
         }
     }
 

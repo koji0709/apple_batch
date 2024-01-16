@@ -50,30 +50,38 @@ public class WhetherInspectionController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
-        account.setNote("登录中");
-        accountTableView.refresh();
-        Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
-        account.setNote("查询是否过检中");
-        accountTableView.refresh();
-        if(res.get("code").equals(Constant.SUCCESS)){
-            //扣除点数
-            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.out,account.getAccount());
-            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-                return;
-            }
-            int purchasesLast90Count=0;
-            boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-            if(hasInspectionFlag){
-                purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
-            }
-            account.setInspection(hasInspectionFlag? "已过检":"未过检");
-            account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
-            account.setNote("查询成功");
-        }else {
-            account.setNote(res.get("msg").toString());
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
         }
-        accountTableView.refresh();
-        insertLocalHistory(List.of(account));
+        try {
+            account.setNote("登录中");
+            accountTableView.refresh();
+            Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
+            account.setNote("查询是否过检中");
+            accountTableView.refresh();
+            if(res.get("code").equals(Constant.SUCCESS)){
+
+                int purchasesLast90Count=0;
+                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
+                if(hasInspectionFlag){
+                    purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
+                }
+                account.setInspection(hasInspectionFlag? "已过检":"未过检");
+                account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
+                account.setNote("查询成功");
+            }else {
+                account.setNote(res.get("msg").toString());
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
+            }
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
+        }catch (Exception e){
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
+        }
     }
 }

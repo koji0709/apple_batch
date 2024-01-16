@@ -66,6 +66,12 @@ public class RapidFiltrationController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         //step1 sign 登录
         account.setNote("登录中");
         accountTableView.refresh();
@@ -78,24 +84,23 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             ThreadUtil.sleep(20*1000);
             accountHandler(account);
 
         }
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.out,account.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
+
         if(step1Res.getStatus()==503){
             account.setNote("操作频繁，请稍后重试！");
             //返还点数
             PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             return;
         }else if (step1Res.getStatus() != 409) {
             queryFail(account,step1Res.body());

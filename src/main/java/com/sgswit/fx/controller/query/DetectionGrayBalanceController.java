@@ -60,6 +60,12 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
     @Override
     public void accountHandler(Account account) {
         try {
+            //扣除点数
+            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.out,account.getAccount());
+            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+                return;
+            }
             tableRefresh(account,"正在获取AppleID国家...");
             Map<String,Object> paras=new HashMap<>();
             paras.put("account",account.getAccount());
@@ -68,9 +74,13 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             HttpResponse response= WebLoginUtil.signin(paras);
             if(response.getStatus()==503){
                 tableRefreshAndInsertLocal(account,"操作频繁，请稍后重试！");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             } else if(response.getStatus()!=409){
                tableRefreshAndInsertLocal(account,WebLoginUtil.serviceErrorMessages(response.body()));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                return;
             }
             String countryCode=MapUtils.getStr(paras,"countryCode");
@@ -78,6 +88,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             String supportCountry = PropertiesUtil.getConfig("grayBalance.query.support.country");
             if(!StringUtils.containsIgnoreCase(supportCountry,countryCode)){
                 tableRefreshAndInsertLocal(account,"不支持的国家");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             if("USA".equalsIgnoreCase(countryCode)){
@@ -90,6 +102,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             accountTableView.refresh();
             if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
                 tableRefreshAndInsertLocal(account,"该账户为双重认证用户,请输入双重验证码");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
 
@@ -105,6 +119,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> prodMap = ShoppingUtil.getProd(paras);
             if(!Constant.SUCCESS.equals(prodMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(prodMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             account.setNote("商品信息加载成功...");
@@ -117,6 +133,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(addMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }else{
                 account.setNote("添加到购物车成功");
@@ -129,6 +147,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> bag = ShoppingUtil.shopbag(addMap);
             if(!Constant.SUCCESS.equals(bag.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(bag,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             // 提交购物车
@@ -140,6 +160,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag);
             if(!Constant.SUCCESS.equals(cheMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(cheMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             //调登录页面
@@ -149,6 +171,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> signInMap = ShoppingUtil.shopSignIn(cheMap);
             if(!Constant.SUCCESS.equals(signInMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(signInMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             //登录
@@ -159,6 +183,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             if(signInResp.getStatus() == 409){
                 if("hsa2".equals(JSONUtil.parseObj(signInResp.body()).getStr("authType"))){
                     tableRefreshAndInsertLocal(account,"该账户为双重认证用户,请输入双重验证码");
+                    //返还点数
+                    PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                     return;
                 }
 
@@ -166,6 +192,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
 
             }else if(signInResp.getStatus() == 503){
                 tableRefreshAndInsertLocal(account,"操作频繁，请稍后重试！");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
 
@@ -178,6 +206,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> checkoutStartMap = ShoppingUtil.callBack(signInMap);
             if(!Constant.SUCCESS.equals(checkoutStartMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(checkoutStartMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             //chechout start
@@ -186,6 +216,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> checkoutMap = ShoppingUtil.checkout(checkoutStartMap);
             if(!Constant.SUCCESS.equals(checkoutMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(checkoutMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             Thread.sleep(2000);
@@ -193,6 +225,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> shippingMap= ShoppingUtil.fillmentToShipping(checkoutMap);
             if(!Constant.SUCCESS.equals(shippingMap.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(shippingMap,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             Thread.sleep(2000);
@@ -200,6 +234,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String, Object> map = ShoppingUtil.shippingToBilling(shippingMap);
             if(!Constant.SUCCESS.equals(map.get("code"))){
                 tableRefreshAndInsertLocal(account, MapUtil.getStr(map,"msg"));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             account.setState(map.get("address").toString());
@@ -209,14 +245,10 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);
             if(httpResponse.getStatus() != 200){
                 tableRefreshAndInsertLocal(account,"余额查询失败");
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }else {
-                //扣除点数
-                Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.out,account.getAccount());
-                if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                    alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-                    return;
-                }
                 JSONObject meta = JSONUtil.parseObj(httpResponse.body());
 
                 List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
@@ -241,6 +273,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 tableRefreshAndInsertLocal(account,"查询成功");
             }
         }catch (Exception e){
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
             tableRefreshAndInsertLocal(account,"余额查询失败");
         }
 
