@@ -6,6 +6,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -61,6 +62,12 @@ public class BalanceQueryController extends CustomTableView<Account> {
             account.setState(res.get("countryName") != null? res.get("countryName").toString():"无");
             account.setBalance(res.get("creditDisplay")!= null? res.get("creditDisplay").toString():"0");
             account.setNote("查询成功");
+            //扣除点数
+            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.out,account.getAccount());
+            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+                return;
+            }
         }else {
             account.setNote(res.get("msg").toString());
         }

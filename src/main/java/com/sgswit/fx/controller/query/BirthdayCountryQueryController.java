@@ -12,9 +12,11 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.scene.control.Alert;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -41,6 +43,12 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
     @Override
     public void accountHandler(Account account) {
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         account.setNote("正在登录...");
         accountTableView.refresh();
         try {
@@ -56,26 +64,31 @@ public class BirthdayCountryQueryController extends AppleIdView {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        HttpResponse step4Res = AppleIDUtil.account(account);
-        String managerBody = step4Res.body();
-        JSON manager = JSONUtil.parse(managerBody);
+        try {
+            HttpResponse step4Res = AppleIDUtil.account(account);
+            String managerBody = step4Res.body();
+            JSON manager = JSONUtil.parse(managerBody);
 
-        String state = (String) manager.getByPath("account.person.primaryAddress.countryCode");
-        String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
-        String name = (String) manager.getByPath("name.fullName");
-        String birthday = (String) manager.getByPath("localizedBirthday");
-        String status = "正常";
-        String note = "查询成功";
+            String state = (String) manager.getByPath("account.person.primaryAddress.countryCode");
+            String area = (String) manager.getByPath("account.person.primaryAddress.countryName");
+            String name = (String) manager.getByPath("name.fullName");
+            String birthday = (String) manager.getByPath("localizedBirthday");
+            String status = "正常";
+            String note = "查询成功";
 
-        account.setStatus(status);
-        account.setState(state);
-        account.setName(name);
-        account.setBirthday(birthday);
-        account.setNote(note);
-        account.setArea(area);
-        account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
-        accountTableView.refresh();
-        insertLocalHistory(List.of(account));
+            account.setStatus(status);
+            account.setState(state);
+            account.setName(name);
+            account.setBirthday(birthday);
+            account.setNote(note);
+            account.setArea(area);
+            account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
+            accountTableView.refresh();
+            insertLocalHistory(List.of(account));
+        }catch (Exception e){
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.in,account.getAccount());
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -117,6 +118,12 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             account.setNote("操作频繁，请稍后重试！");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
+            return;
+        }
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;
         }
         if (!StringUtils.isEmpty(execute1.body())) {

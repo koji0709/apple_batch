@@ -19,15 +19,13 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * <p>
@@ -86,8 +84,16 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             accountHandler(account);
 
         }
+        //扣除点数
+        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.out,account.getAccount());
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            return;
+        }
         if(step1Res.getStatus()==503){
             account.setNote("操作频繁，请稍后重试！");
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
             return;
@@ -100,6 +106,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
             account.setNote("操作频繁，请稍后重试！");
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
             return ;

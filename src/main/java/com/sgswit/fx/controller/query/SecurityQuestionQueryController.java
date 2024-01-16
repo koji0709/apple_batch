@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
@@ -28,6 +29,7 @@ import org.jsoup.select.Elements;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -73,6 +75,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
     public void accountHandler(Problem problem) {
+
         //step1 sign 登录
         problem.setNote("登录中");
         accountTableView.refresh();
@@ -120,6 +123,12 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
         String authType = (String) json.getByPath("authType");
         if ("sa".equals(authType)) {
+            //扣除点数
+            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.out,problem.getAccount());
+            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+                return;
+            }
             //非双重认证
             String body = step21Res.body();
             Document prodDoc = Jsoup.parse(body);

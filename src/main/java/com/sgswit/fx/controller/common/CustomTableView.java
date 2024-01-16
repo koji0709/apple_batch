@@ -168,7 +168,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             return;
         }
 
-
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
 

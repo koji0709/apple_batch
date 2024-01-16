@@ -6,6 +6,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -55,6 +56,12 @@ public class WhetherInspectionController extends CustomTableView<Account> {
         account.setNote("查询是否过检中");
         accountTableView.refresh();
         if(res.get("code").equals(Constant.SUCCESS)){
+            //扣除点数
+            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.out,account.getAccount());
+            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+                return;
+            }
             int purchasesLast90Count=0;
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(hasInspectionFlag){

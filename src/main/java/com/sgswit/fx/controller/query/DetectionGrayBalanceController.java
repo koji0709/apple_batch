@@ -12,6 +12,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -210,6 +211,12 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 tableRefreshAndInsertLocal(account,"余额查询失败");
                 return;
             }else {
+                //扣除点数
+                Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.out,account.getAccount());
+                if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                    alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+                    return;
+                }
                 JSONObject meta = JSONUtil.parseObj(httpResponse.body());
 
                 List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
