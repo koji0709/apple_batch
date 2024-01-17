@@ -32,15 +32,16 @@ public class ICloudWeblogin {
     private static String frameId = "";
     private static String clientId = "";
 
-    public static void main(String[] args) throws  Exception{
-        Map<String,String> signInMap = new HashMap<>();
-        /// clientid 类似deviceid guid 一个客户端一个
-        signInMap.put("clientId","a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
-        signin(signInMap);
-    }
+//    public static void main(String[] args) throws  Exception{
+//        Map<String,String> signInMap = new HashMap<>();
+//        /// clientid 类似deviceid guid 一个客户端一个
+//        signInMap.put("clientId","a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
+//        signin(signInMap);
+//    }
 
     public static HttpResponse signin(Map<String,String> signInMap){
-        frameId  = createFrameId();
+//        frameId  = createFrameId();
+        frameId = signInMap.get("frameId");
         clientId = signInMap.get("clientId");
 
         //step1  signin
@@ -326,7 +327,7 @@ public class ICloudWeblogin {
         return sb.toString();
     }
 
-    private static String createFrameId(){
+    public static String createFrameId(){
 
         Digester md5 = new Digester(DigestAlgorithm.MD5);
         StringBuilder sb = new StringBuilder();

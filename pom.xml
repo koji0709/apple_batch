@@ -161,38 +161,38 @@
                 </executions>
             </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.5.5</version>
-                    <configuration>
-<!--                        <archive>-->
-<!--                            <manifest>-->
-<!--                                <mainClass>com.sgswit.fx.AppLauncher</mainClass>-->
-<!--                            </manifest>-->
-<!--                        </archive>-->
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
-                    </configuration>
-                    <!--下面是为了使用 mvn package命令，如果不加则使用mvn assembly-->
-                    <executions>
-                        <execution>
-                            <id>make-assemble</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.sgswit.fx.AppLauncher</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <!--下面是为了使用 mvn package命令，如果不加则使用mvn assembly-->
+                <executions>
+                    <execution>
+                        <id>make-assemble</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 
             <!-- javapackager  -->
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
-                <version>1.6.7</version>
+                <version>1.7.5</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -209,14 +209,14 @@
                             <bundleJre>true</bundleJre>
                             <!--是否绑自定义jre-->
                             <customizedJre>false</customizedJre>
-                            <generateInstaller>false</generateInstaller>
+                            <generateInstaller>true</generateInstaller>
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
 
                             <copyDependencies>false</copyDependencies>
                             <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
-                            <platform>windows</platform>
-<!--                             <platform>mac</platform>-->
+                            <!--                            <platform>mac</platform>-->
+                            <!--                             <platform>mac</platform>-->
                             <!--                            <platform>mac|windows</platform>-->
                         </configuration>
                     </execution>

@@ -8,6 +8,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.KeyValuePair;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.ClipboardManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -218,15 +219,17 @@ public class CommRightContextMenuView<T> extends CommonView {
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {
-                    if (account instanceof Account) {
-                        Account account1 = (Account) account;
-                        String securityCode = openSecurityCodePopupView(account1.getAccount());
+                    if (account instanceof LoginInfo) {
+                        LoginInfo account1 = (LoginInfo) account;
+                        String accountNo = ((SimpleStringProperty) ReflectUtil.getFieldValue(account, "account")).getValue();
+                        String securityCode = openSecurityCodePopupView(accountNo);
                         if (!StrUtil.isEmpty(securityCode)) {
                             account1.setSecurityCode(securityCode);
                             accountHandler(account);
                         }
                     } else if (account instanceof ConsumptionBill) {
-                        String securityCode = openSecurityCodePopupView(ReflectUtil.getFieldValue(account, "account").toString());
+                        String accountNo = ((SimpleStringProperty) ReflectUtil.getFieldValue(account, "account")).getValue();
+                        String securityCode = openSecurityCodePopupView(accountNo);
                         if (!StrUtil.isEmpty(securityCode)) {
                             twoFactorCodeExecute(account, securityCode);
                         }

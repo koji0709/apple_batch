@@ -1,11 +1,31 @@
 package com.sgswit.fx.controller.iCloud;
 
-import com.sgswit.fx.controller.common.CustomTableView;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ICloudView;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.ICloudUtil;
+
+import java.net.URL;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.ResourceBundle;
 
 
-public class ICloudActivateMailController extends CustomTableView<Account> {
+public class ICloudActivateMailController extends ICloudView<Account> {
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
+        menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+    }
 
     /**
      * 导入账号
@@ -16,6 +36,98 @@ public class ICloudActivateMailController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        iCloudLogin(account);
+        if (account.isLogin()){
+            Map<String, String> signInMap = (Map<String, String>) account.getAuthData().get("signInMap");
+            HttpResponse accountLoginRsp = (HttpResponse) account.getAuthData().get("accountLoginRsp");
+            JSONObject jo = JSONUtil.parseObj(accountLoginRsp.body());
 
+            String iCloudAppleIdAlias = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
+            if (!StrUtil.isEmpty(iCloudAppleIdAlias)){
+                setAndRefreshNote(account,"该账号已存在专属邮箱:" + iCloudAppleIdAlias);
+                return;
+            }
+
+            account.updateLoginInfo(accountLoginRsp);
+            String domain = signInMap.get("domain");
+            JSONObject webservices = (JSONObject) jo.getByPath("webservices");
+            if (!webservices.containsKey("mccgateway")){
+                setAndRefreshNote(account,"该账号不能激活邮箱");
+                return;
+            }
+
+            // https://p218-mccgateway.icloud.com.cn:443
+            String url = webservices.getJSONObject("mccgateway").getStr("url");
+            // 去除:443
+            url = url.substring(0,url.length() - 3);
+            // 获取218
+            String pNum = url.substring(9,url.indexOf("-"));
+
+            // 如果用户设置了,就使用用户设置的邮箱
+            String email = account.getEmail();
+
+            // 获取推荐邮箱
+            if (StrUtil.isEmpty(email)){
+                HttpResponse emailSuggestionsRsp = ICloudUtil.emailSuggestions(account, pNum, domain);
+                if (emailSuggestionsRsp.getStatus() == 200){
+                    List<String> suggestions = JSONUtil.parseObj(emailSuggestionsRsp.body()).getByPath("suggestions.name", List.class);
+                    if (!CollUtil.isEmpty(suggestions)){
+                        email = suggestions.get(0);
+                    }
+                }
+            }
+
+            // 如果没有配置好邮箱,则随机生成(必须最多20个字符,且是字母开头)
+            if (StrUtil.isEmpty(email)){
+                String prefix = account.getAccount();
+                if (NumberUtil.isNumber(prefix)) {
+                    prefix = "m" + prefix;
+                }else{
+                    int i = prefix.indexOf("@");
+                    if (i != -1){
+                        prefix = prefix.substring(0, i);
+                    }
+                }
+                email = prefix + RandomUtil.randomNumbers(prefix.length() < 4 ? 6 : 4) + "@icloud.com";
+            }
+
+            // 检测邮箱是否可用
+            Boolean available = false;
+            HttpResponse emailAvailabilityRsp = ICloudUtil.emailAvailability(account, pNum, domain, email);
+            if (emailAvailabilityRsp.getStatus() == 200){
+                JSONObject emailAvailabilityBody = JSONUtil.parseObj(emailAvailabilityRsp.body());
+                available = emailAvailabilityBody.getBool("available",false);
+            }
+
+            if (!available){
+                setAndRefreshNote(account,"该邮箱不可用");
+                return;
+            }
+
+            HttpResponse activateEmailRsp = ICloudUtil.activateEmail(account, pNum, domain, email);
+            if (activateEmailRsp.getStatus() != 200){
+                setAndRefreshNote(account,"邮箱激活失败");
+            }
+
+            account.setEmail(email);
+            setAndRefreshNote(account,"邮箱激活成功");
+        }
+    }
+
+    public static void main(String[] args) {
+        String url = "https://p218-mccgateway.icloud.com.cn:443";
+        url = url.substring(0,url.length() - 3);
+        System.err.println(url);
+        String pNum = url.substring(9,url.indexOf("-"));
+        System.err.println(pNum);
+
+        System.err.println("dsads".indexOf("@"));
+
+    }
+
+    @Override
+    protected void reExecute(Account account) {
+        account.setSecurityCode("");
+        accountHandlerExpand(account);
     }
 }

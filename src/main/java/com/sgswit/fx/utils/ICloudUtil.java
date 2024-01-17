@@ -11,7 +11,9 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.model.LoginInfo;
 
 import java.util.*;
 
@@ -330,48 +332,7 @@ public class ICloudUtil {
         return res;
     }
 
-    public static HttpResponse accountLogin(HttpResponse singInLocalRes,String domain){
-        Map<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-
-        headers.put("Content-Type", ListUtil.toList("text/plain;charset=UTF-8"));
-        headers.put("Accept",ListUtil.toList("*/*"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
-        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
-        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
-        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-
-        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
-        headers.put("Origin",ListUtil.toList("https://www."+domain));
-
-
-        //String url = "https://setup.icloud.com/setup/ws/1/accountLogin?clientBuildNumber=2404Project58&clientMasteringNumber=2404B21&clientId=f8f619cb-b355-442c-bba0-1a172766b162";
-        String url = "https://setup."+domain+"/setup/ws/1/accountLogin";
-        String body = "{\"dsWebAuthToken\":\""+singInLocalRes.header("X-Apple-Session-Token")+"\",\"accountCountryCode\":\"" +singInLocalRes.header("X-Apple-ID-Account-Country")+ "\",\"extended_login\":false}";
-
-        HttpResponse loginRsp =  HttpUtil.createPost(url)
-                .header(headers)
-                .body(body)
-                .execute();
-
-        System.out.println("------------------accountLogin-----------------------------------------------");
-        System.out.println(loginRsp.getStatus());
-//        System.out.println(loginRsp.headers());
-//        System.out.println(loginRsp.body());
-
-        if(loginRsp.getStatus()==302){
-            //非 www.icloud.com账户（亦即美国账户），需要到具体国家的icloud域名上获取账户信息
-            JSONObject jo = JSONUtil.parseObj(loginRsp.body());
-            String iCloudUrl = jo.getStr("domainToUse");
-            return accountLogin(singInLocalRes,iCloudUrl.toLowerCase());
-        }
-        return loginRsp;
-    }
-    public static HttpResponse appleIDrepair(HttpResponse singInRes){
+    public static HttpResponse appleIDrepair(HttpResponse signInRes){
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -390,7 +351,7 @@ public class ICloudUtil {
 
         headers.put("Referer",ListUtil.toList("https://idmsa.apple.com/"));
 
-        HttpResponse res =  HttpUtil.createGet(singInRes.header("Location"))
+        HttpResponse res =  HttpUtil.createGet(signInRes.header("Location"))
                 .header(headers)
                 .execute();
 
@@ -402,7 +363,7 @@ public class ICloudUtil {
 
         return res;
     }
-    public static HttpResponse appleIDrepairOptions(HttpResponse singInRes,HttpResponse repairRes,String clientId,String sessionId){
+    public static HttpResponse appleIDrepairOptions(HttpResponse signInRes,HttpResponse repairRes,String clientId,String sessionId){
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -414,7 +375,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-        headers.put("X-Apple-OAuth-Context",ListUtil.toList(singInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
         headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
 
@@ -428,7 +389,7 @@ public class ICloudUtil {
         headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
 
         headers.put("scnt",ListUtil.toList(repairRes.header("scnt")));
-        headers.put("X-Apple-Session-Token",ListUtil.toList(singInRes.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(signInRes.header("X-Apple-Repair-Session-Token")));
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
@@ -446,7 +407,7 @@ public class ICloudUtil {
 
         return res;
     }
-    public static HttpResponse appleIDUpgrade(HttpResponse singInRes,HttpResponse optionsRes,String clientId,String sessionId){
+    public static HttpResponse appleIDUpgrade(HttpResponse signInRes,HttpResponse optionsRes,String clientId,String sessionId){
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -458,7 +419,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-        headers.put("X-Apple-OAuth-Context",ListUtil.toList(singInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
         headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
 
@@ -488,7 +449,7 @@ public class ICloudUtil {
 
         return res;
     }
-    public static HttpResponse appleIDSetuplater(HttpResponse singInRes,HttpResponse optionsRes,HttpResponse upgradeRes,String clientId,String sessionId){
+    public static HttpResponse appleIDSetuplater(HttpResponse signInRes,HttpResponse optionsRes,HttpResponse upgradeRes,String clientId,String sessionId){
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -500,7 +461,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-        headers.put("X-Apple-OAuth-Context",ListUtil.toList(singInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
         headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
 
@@ -530,7 +491,7 @@ public class ICloudUtil {
 
         return res;
     }
-    public static HttpResponse appleIDrepairOptions2(HttpResponse singInRes,HttpResponse optionsRes, HttpResponse setuplaterRes,String clientId,String sessionId){
+    public static HttpResponse appleIDrepairOptions2(HttpResponse signInRes,HttpResponse optionsRes, HttpResponse setuplaterRes,String clientId,String sessionId){
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -542,7 +503,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-        headers.put("X-Apple-OAuth-Context",ListUtil.toList(singInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[hsa2_enrollment]"));
         headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
 
@@ -574,7 +535,7 @@ public class ICloudUtil {
 
         return res;
     }
-    public static HttpResponse appleIDrepairComplete(HttpResponse singInRes,HttpResponse options2Res,String clientId,String sessionId){
+    public static HttpResponse appleIDrepairComplete(HttpResponse signInRes,HttpResponse options2Res,String clientId,String sessionId){
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -606,10 +567,10 @@ public class ICloudUtil {
 
         headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
 
-        headers.put("scnt",ListUtil.toList(singInRes.header("scnt")));
+        headers.put("scnt",ListUtil.toList(signInRes.header("scnt")));
         headers.put("X-Apple-Repair-Session-Token",ListUtil.toList(options2Res.header("X-Apple-Session-Token")));
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(singInRes.header("X-Apple-ID-Session-Id")));
-        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(singInRes.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(signInRes.header("X-Apple-ID-Session-Id")));
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(signInRes.header("X-Apple-Auth-Attributes")));
 
         String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
         HttpResponse res =  HttpUtil.createPost(url)
@@ -625,6 +586,349 @@ public class ICloudUtil {
 
         return res;
     }
+
+    public static HttpResponse auth(HttpResponse signInRes,String frameId,String clientId,String domain){
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("Accept", ListUtil.toList("text/html"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(signInRes.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
+        headers.put("X-Apple-OAuth-Redirect-URI", ListUtil.toList("https://www." + domain));
+        headers.put("X-Apple-OAuth-Require-Grant-Code", ListUtil.toList("true"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
+
+        headers.put("X-Apple-Offer-Security-Upgrade", ListUtil.toList("1"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+
+        headers.put("scnt",ListUtil.toList(signInRes.header("scnt")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(signInRes.header("X-Apple-ID-Session-Id")));
+
+        String url = "https://idmsa.apple.com/appleauth/auth";
+        HttpResponse res =  HttpUtil.createGet(url)
+                .header(headers)
+//                .disableCookie()
+                .cookie(CookieUtils.getCookiesFromHeader(signInRes))
+                .execute();
+
+        System.out.println("------------------auth-----------------------------------------------");
+        System.out.println(res.getStatus());
+        System.out.println(res.headers());
+
+        System.out.println("------------------auth----------------------------------------------");
+
+        return res;
+    }
+
+    public static HttpResponse securityCode(Map<String,String> signInMap,HttpResponse authRsp) {
+        String clientId = signInMap.get("clientId");
+        String frameId  = signInMap.get("frameId");
+        String redirectUri   = signInMap.get("redirectUri");
+        String securityCode   = signInMap.get("securityCode");
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com/"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("Sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("Sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("X-Apple-App-Id", ListUtil.toList(clientId));
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(authRsp.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
+
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
+        headers.put("X-Apple-OAuth-Redirect-URI", ListUtil.toList(redirectUri));
+        headers.put("X-Apple-OAuth-Require-Grant-Code", ListUtil.toList("true"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
+
+        headers.put("X-Apple-Offer-Security-Upgrade", ListUtil.toList("1"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+
+        headers.put("Scnt",List.of(authRsp.header("scnt")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(authRsp.header("X-Apple-ID-Session-Id")));
+
+        System.err.println(headers);
+        String scDeviceBody = "{\"securityCode\":{\"code\":\"%s\"}}";
+        String scPhoneBody = "{\"phoneNumber\":{\"id\":1},\"securityCode\":{\"code\":\"%s\"},\"mode\":\"sms\"}";
+
+        String url = "";
+        String body = "";
+
+        String type = securityCode.split("-")[0];
+        String code = securityCode.split("-")[1];
+
+        if ("device".equals(type)) {
+            url = "https://idmsa.apple.com/appleauth/auth/verify/trusteddevice/securitycode";
+            body = String.format(scDeviceBody, code);
+        } else if ("sms".equals(type)) {
+            url = "https://idmsa.apple.com/appleauth/auth/verify/phone/securitycode";
+            body = String.format(scPhoneBody, code);
+        }
+
+        HttpResponse rsp = null;
+        if (!"".equals(body)) {
+            rsp = HttpUtil.createPost(url)
+                    .header(headers)
+                    .body(body)
+//                    .cookie(signInMap.get("cookie"))
+                    .disableCookie()
+                    .execute();
+        }
+        return rsp;
+    }
+
+    public static HttpResponse trust(Map<String, String> signInMap, HttpResponse securityCodeRsp) {
+        String clientId = signInMap.get("clientId");
+        String frameId  = signInMap.get("frameId");
+        String redirectUri   = signInMap.get("redirectUri");
+        String securityCode   = signInMap.get("securityCode");
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com/"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("Sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("Sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("X-Apple-App-Id", ListUtil.toList(clientId));
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(securityCodeRsp.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
+
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
+        headers.put("X-Apple-OAuth-Redirect-URI", ListUtil.toList(redirectUri));
+        headers.put("X-Apple-OAuth-Require-Grant-Code", ListUtil.toList("true"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
+
+        headers.put("X-Apple-Offer-Security-Upgrade", ListUtil.toList("1"));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+
+        headers.put("Scnt",List.of(securityCodeRsp.header("scnt")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(securityCodeRsp.header("X-Apple-ID-Session-Id")));
+
+        return HttpUtil.createGet("https://idmsa.apple.com/appleauth/auth/2sv/trust")
+                .header(headers)
+                .cookie(CookieUtils.getCookiesFromHeader(securityCodeRsp))
+                .execute();
+    }
+
+    public static HttpResponse accountLogin(HttpResponse singInLocalRes,String domain){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("text/plain;charset=UTF-8"));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
+        headers.put("Origin",ListUtil.toList("https://www."+domain));
+
+
+//        String url = "https://setup.icloud.com/setup/ws/1/accountLogin?clientBuildNumber=2404Project58&clientMasteringNumber=2404B21&clientId=f8f619cb-b355-442c-bba0-1a172766b162";
+        //String url = "https://setup.icloud.com.cn/setup/ws/1/accountLogin?clientBuildNumber=2404Project58&clientMasteringNumber=2404B21&clientId=74c7c902-3472-4d63-adf8-bb651ec76266";
+        String url = "https://setup."+domain+"/setup/ws/1/accountLogin";
+        String body = "{\"dsWebAuthToken\":\""+singInLocalRes.header("X-Apple-Session-Token")+"\",\"accountCountryCode\":\"" +singInLocalRes.header("X-Apple-ID-Account-Country")+ "\",\"extended_login\":false}";
+
+        HttpResponse loginRsp =  HttpUtil.createPost(url)
+                .header(headers)
+                .body(body)
+                .execute();
+
+        System.out.println("------------------accountLogin-----------------------------------------------");
+        System.out.println(loginRsp.getStatus());
+//        System.out.println(loginRsp.headers());
+//        System.out.println(loginRsp.body());
+        return loginRsp;
+    }
+
+    public static HttpResponse repairWebICloud(HttpResponse authRsp,String domain) {
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("text/plain;charset=UTF-8"));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
+        headers.put("Origin",ListUtil.toList("https://www."+domain));
+
+        JSONObject body = JSONUtil.parseObj(authRsp.body());
+        String url = "https://setup."+domain+"/setup/ws/1/getTerms";
+        String languageCode = body.getByPath("dsInfo.languageCode", String.class);
+        HttpResponse getTermsRsp = HttpUtil.createPost(url)
+                .header(headers)
+                .body("{\"locale\":\"" + languageCode + "\"}")
+                .cookie(CookieUtils.getCookiesFromHeader(authRsp))
+                .execute();
+
+        JSONObject termsRspBody = JSONUtil.parseObj(getTermsRsp.body());
+        String termsVersion = termsRspBody.getByPath("iCloudTerms.version",String.class);
+
+        String url1 = "https://setup."+domain+"/setup/ws/1/repairDone";
+        HttpResponse repairDoneRsp = HttpUtil.createPost(url1)
+                .header(headers)
+                .body("{\"acceptedICloudTerms\":"+termsVersion+",\"gcbdPrivacyNoticeAccepted\":true}")
+                .cookie(CookieUtils.getCookiesFromHeader(authRsp))
+                .execute();
+        return repairDoneRsp;
+    }
+
+    public static HttpResponse emailSuggestions(LoginInfo loginInfo,String pNum,String domain){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
+        headers.put("Origin",ListUtil.toList("https://www."+domain));
+        //headers.put("Host",ListUtil.toList(""));
+
+        String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/emailSuggestions";
+        HttpResponse emailAvailabilityRsp = HttpUtil.createGet(url)
+                .header(headers)
+                .cookie(loginInfo.getCookie())
+                .execute();
+        return emailAvailabilityRsp;
+    }
+
+    public static HttpResponse emailAvailability(LoginInfo loginInfo,String pNum,String domain,String email){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
+        headers.put("Origin",ListUtil.toList("https://www."+domain));
+        //headers.put("Host",ListUtil.toList(""));
+
+        String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/emailAvailability";
+        HttpResponse emailAvailabilityRsp = HttpUtil.createPost(url)
+                .header(headers)
+                .body("{\"email\":\""+email+"\",\"entryPoint\":\"APP_LIBRARY\"}")
+                .cookie(loginInfo.getCookie())
+                .execute();
+        return emailAvailabilityRsp;
+    }
+
+    public static HttpResponse activateEmail(LoginInfo loginInfo,String pNum,String domain,String email){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("*/*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
+        headers.put("Origin",ListUtil.toList("https://www."+domain));
+        //headers.put("Host",ListUtil.toList(""));
+
+        String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/activateEmail";
+        HttpResponse activateEmailRsp = HttpUtil.createPost(url)
+                .header(headers)
+                .body("{\"email\":\""+email+"\"}")
+                .cookie(loginInfo.getCookie())
+                .execute();
+        return activateEmailRsp;
+    }
+
+
+
     public static String getSessionId(HttpResponse res){
         String sessionId = "";
         if(null != res.headers().get("Set-Cookie")) {
@@ -681,77 +985,6 @@ public class ICloudUtil {
         return clientId;
     }
 
-    private static void accountLoginDemo(){
-        String redirectUri = "https://www.icloud.com";
-        String clientId = getClientId();
 
-        Map<String,String> signInMap = new HashMap<>();
-        signInMap.put("clientId",clientId);
-        signInMap.put("redirectUri",redirectUri);
-        signInMap.put("account","djli0506@163.com");
-        signInMap.put("pwd","!!B0527s0207!!");
-
-        //登录 通用 www.icloud.com
-        HttpResponse singInRes = ICloudWeblogin.signin(signInMap);
-        // 设置账号对应的国家
-        String domain = "icloud.com";
-        //非双重认证账号，登录后，http code = 412；
-        //        此时返回的header中 有 X-Apple-Repair-Session-Token ，无 X-Apple-Session-Token，
-        //        需先进行处理后，才能返回X-Apple-Session-Token（为了后续继续使用非双重认证，此时仅过一趟，不做处理）
-        // 双重认证账号，登录成功后， http code = 409；
-        //        但此时返回的header中包含 X-Apple-Session-Token，可直接使用获取icloud账户信息
-        int status = singInRes.getStatus();
-
-        if (status != 412 && status != 409){
-            Console.log("status: {}",status);
-            return;
-        }
-
-        // 412普通登录, 409双重登录
-        HttpResponse singInLocalRes = singInRes;
-        if (status == 412){
-            HttpResponse repairRes = appleIDrepair(singInRes);
-            //获取session-id，后续操作需基于该id进行处理
-            String sessionId = getSessionId(repairRes);
-            HttpResponse optionsRes = appleIDrepairOptions(singInRes,repairRes,clientId,sessionId);
-            HttpResponse upgradeRes = appleIDUpgrade(singInRes,optionsRes,clientId,sessionId);
-            HttpResponse setuplaterRes = appleIDSetuplater(singInRes,optionsRes,upgradeRes,clientId,sessionId);
-            HttpResponse options2Res = appleIDrepairOptions2(singInRes,optionsRes,setuplaterRes,clientId,sessionId);
-            HttpResponse completeRes = appleIDrepairComplete(singInRes,options2Res,clientId,sessionId);
-
-            //处理后，获取account 信息
-            singInLocalRes = completeRes;
-        }
-
-        HttpResponse authRsp = null;
-        String sessionToken = singInLocalRes.header("X-Apple-Session-Token");
-        if (!StrUtil.isEmpty(sessionToken)){
-            authRsp = accountLogin(singInLocalRes, domain);
-        }
-
-        if (authRsp != null){
-            JSONObject jo = JSONUtil.parseObj(authRsp.body());
-            System.err.println(jo);
-            String icloudMail = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
-            if(StrUtil.isNotEmpty(icloudMail)){
-                //
-                System.out.println("-------icloud mail is : " + icloudMail + "-----------");
-            }
-
-            JSONObject webservices = (JSONObject) jo.getByPath("webservices");
-            if(webservices.containsKey("mail")){
-                String mailStatus = webservices.getByPath("mail.status").toString();
-                if("active".equals(mailStatus)){
-                    System.out.println("------------mail service is actived ---------------");
-                }
-            }
-
-            Boolean isRepairNeeded = (Boolean)jo.getByPath("isRepairNeeded");
-            if(isRepairNeeded){
-                System.out.println("---------icloud need to be repired");
-            }
-            System.out.println("------------------accountLogin----------------------------------------------");
-        }
-    }
 
 }

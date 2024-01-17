@@ -11,6 +11,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
@@ -574,7 +575,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             String note1 = ReflectUtil.invoke(account, "getNote");
             note1 = StrUtil.isEmpty(note1) ? "" : note1;
             note1 = note1.startsWith("执行中") ? "" : note1;
-            note = note1 + note + ";";
+            note = note1 + note + "。";
             ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();

@@ -160,6 +160,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         return accountList1;
     }
 
+//    private static Map<String,Integer>
+
     /**
      * 执行按钮点击
      */

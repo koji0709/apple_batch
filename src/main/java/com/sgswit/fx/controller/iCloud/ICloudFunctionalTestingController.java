@@ -13,10 +13,18 @@ import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class ICloudFunctionalTestingController extends ICloudView<ICloudFunctionalTesting> {
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
+        menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+    }
 
     /**
      * 导入账号
@@ -28,14 +36,10 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
     @Override
     public void accountHandler(ICloudFunctionalTesting iCloudFunctionalTesting) {
         checkICloudStatus(iCloudFunctionalTesting);
+        iCloudLogin(iCloudFunctionalTesting);
 
-        HttpResponse authRsp = iCloudLogin(iCloudFunctionalTesting);
-        boolean verify = iCloudLoginVerify(authRsp, iCloudFunctionalTesting);
-        if (!verify){
-            return;
-        }
-
-        JSONObject jo = JSONUtil.parseObj(authRsp.body());
+        HttpResponse accountLoginRsp = (HttpResponse) iCloudFunctionalTesting.getAuthData().get("accountLoginRsp");
+        JSONObject jo = JSONUtil.parseObj(accountLoginRsp.body());
         String icloudMail = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
         if(StrUtil.isNotEmpty(icloudMail)){
             iCloudFunctionalTesting.setIcloudMail(icloudMail);

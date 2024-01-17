@@ -14,6 +14,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
 
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class AppleIDUtil {
         return rsp;
     }
 
-    public static HttpResponse auth(Account account,HttpResponse signInRsp) {
+    public static HttpResponse auth(LoginInfo loginInfo, HttpResponse signInRsp) {
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("application/json, text/html, */*"));
@@ -63,9 +64,9 @@ public class AppleIDUtil {
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(loginInfo.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(loginInfo.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(loginInfo.getClientId()));
 
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -75,14 +76,14 @@ public class AppleIDUtil {
         String url = "https://idmsa.apple.com/appleauth/auth";
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header(headers)
-                .cookie(account.getCookie())
+                .cookie(loginInfo.getCookie())
                 .execute();
 
-        account.updateLoginInfo(rsp);
+        loginInfo.updateLoginInfo(rsp);
         return rsp;
     }
 
-    public static HttpResponse securityCode(Account account,HttpResponse authRsp) {
+    public static HttpResponse securityCode(LoginInfo loginInfo,HttpResponse authRsp) {
         HashMap<String, List<String>> headers = new HashMap<>();
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
@@ -93,9 +94,9 @@ public class AppleIDUtil {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(loginInfo.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(loginInfo.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(loginInfo.getClientId()));
 
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -108,8 +109,8 @@ public class AppleIDUtil {
         String url = "";
         String body = "";
 
-        String type = account.getSecurityCode().split("-")[0];
-        String code = account.getSecurityCode().split("-")[1];
+        String type = loginInfo.getSecurityCode().split("-")[0];
+        String code = loginInfo.getSecurityCode().split("-")[1];
 
         if ("device".equals(type)) {
             url = "https://idmsa.apple.com/appleauth/auth/verify/trusteddevice/securitycode";
@@ -124,10 +125,10 @@ public class AppleIDUtil {
             rsp = HttpUtil.createPost(url)
                     .header(headers)
                     .body(body)
-                    .cookie(account.getCookie())
+                    .cookie(loginInfo.getCookie())
                     .execute();
 
-            account.updateLoginInfo(rsp);
+            loginInfo.updateLoginInfo(rsp);
         }
         return rsp;
     }

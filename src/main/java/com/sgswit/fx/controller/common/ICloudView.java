@@ -7,13 +7,14 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.utils.ICloudUtil;
-import com.sgswit.fx.utils.ICloudWeblogin;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.net.URL;
 import java.util.*;
@@ -28,94 +29,148 @@ public class ICloudView<T> extends CustomTableView<T> {
     /**
      * iTunes登录鉴权
      */
-    public HttpResponse iCloudLogin(T accountModel){
-        String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
-        String pwd     = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
+    public void iCloudLogin(T account) {
+        LoginInfo loginInfo = (LoginInfo) account;
+        // 第一次进入icloud.com
+        if (loginInfo.isLogin()){
+            return;
+        }
+        if (StrUtil.isEmpty(loginInfo.getSecurityCode())) {
+            String accountNo = ((SimpleStringProperty) ReflectUtil.getFieldValue(account, "account")).getValue();
+            String pwd = ((SimpleStringProperty) ReflectUtil.getFieldValue(account, "pwd")).getValue();
 
-        String redirectUri = "https://www.icloud.com";
-        String clientId = ICloudUtil.getClientId();
+            String clientId = ICloudUtil.getClientId();
+            String frameId = ICloudWeblogin.createFrameId();
+            String redirectUri = "https://www.icloud.com";
+            String domain = "icloud.com";
 
-        Map<String,String> signInMap = new HashMap<>();
-        signInMap.put("clientId",clientId);
-        signInMap.put("redirectUri",redirectUri);
-        signInMap.put("account",account);
-        signInMap.put("pwd",pwd);
+            Map<String, String> signInMap = new HashMap<>();
+            signInMap.put("clientId", clientId);
+            signInMap.put("frameId", frameId);
+            signInMap.put("redirectUri", redirectUri);
+            signInMap.put("domain", domain);
+            signInMap.put("account", accountNo);
+            signInMap.put("pwd", pwd);
+
+            iCloudLoginHandler(account, signInMap);
+        } else {
+            // 双重认证登陆
+            Map<String, Object> authData = loginInfo.getAuthData();
+            HttpResponse signInRsp = (HttpResponse) authData.get("signInRsp");
+            HttpResponse authRsp = (HttpResponse) authData.get("authRsp");
+
+            Map<String, String> signInMap = (Map<String, String>) authData.get("signInMap");
+            signInMap.put("securityCode", loginInfo.getSecurityCode());
+            signInMap.put("cookie", loginInfo.getCookie());
+            if (authRsp.getStatus() != 200) {
+                throwAndRefreshNote(account, "登陆失败");
+            }
+
+            HttpResponse securityCodeRsp = ICloudUtil.securityCode(signInMap, authRsp);
+            String body = securityCodeRsp.body();
+            if (securityCodeRsp.getStatus() != 200 && securityCodeRsp.getStatus() != 204) {
+                throwAndRefreshNote(account,serviceErrorMessages(body), "登陆失败");
+            }
+
+            HttpResponse trustRsp = ICloudUtil.trust(signInMap,securityCodeRsp);
+            HttpResponse accountLoginRsp = ICloudUtil.accountLogin(trustRsp, signInMap.get("domain"));
+            loginInfo.getAuthData().put("accountLoginRsp",accountLoginRsp);
+            ((LoginInfo) account).setIsLogin(true);
+            setAndRefreshNote(account,"登陆成功",false);
+        }
+    }
+
+    public HttpResponse iCloudLoginHandler(T account, Map<String, String> signInMap) {
+        String clientId = signInMap.get("clientId");
+        String frameId = signInMap.get("frameId");
+        String domain = signInMap.get("domain");
 
         //登录 通用 www.icloud.com
-        setAndRefreshNote(accountModel,"开始签名",false);
-        HttpResponse singInRes = ICloudWeblogin.signin(signInMap);
-        // 设置账号对应的国家
-        String domain = "icloud.com";
+        setAndRefreshNote(account, "开始签名", false);
+        HttpResponse signInRsp = ICloudWeblogin.signin(signInMap);
         //非双重认证账号，登录后，http code = 412；
         //        此时返回的header中 有 X-Apple-Repair-Session-Token ，无 X-Apple-Session-Token，
         //        需先进行处理后，才能返回X-Apple-Session-Token
         // 双重认证账号，登录成功后， http code = 409；
         //        但此时返回的header中包含 X-Apple-Session-Token，可直接使用获取icloud账户信息
-        int status = singInRes.getStatus();
+        int status = signInRsp.getStatus();
 
-        if (status != 412 && status != 409){
-            String errorMessages = serviceErrorMessages(singInRes.body());
-            if (!StrUtil.isEmpty(errorMessages)){
-                setAndRefreshNote(accountModel, errorMessages);
-                return null;
+        if (status != 412 && status != 409) {
+            String errorMessages = serviceErrorMessages(signInRsp.body());
+            if (!StrUtil.isEmpty(errorMessages)) {
+                throwAndRefreshNote(account, errorMessages);
             }
-
-            Console.log("status: {}",status);
-            setAndRefreshNote(accountModel,"签名失败; status=" + status);
-            return null;
+            Console.log("status: {}", status);
+            throwAndRefreshNote(account, "签名失败; status=" + status);
         }
+
+        setAndRefreshNote(account, "签名结束", false);
 
         // 412普通登录, 409双重登录
-        HttpResponse singInLocalRes = singInRes;
-        if (status == 412){
-            HttpResponse repairRes = ICloudUtil.appleIDrepair(singInRes);
+        if (status == 412) {
+            HttpResponse repairRes = ICloudUtil.appleIDrepair(signInRsp);
             //获取session-id，后续操作需基于该id进行处理
             String sessionId = ICloudUtil.getSessionId(repairRes);
-            HttpResponse optionsRes = ICloudUtil.appleIDrepairOptions(singInRes,repairRes,clientId,sessionId);
-            HttpResponse upgradeRes = ICloudUtil.appleIDUpgrade(singInRes,optionsRes,clientId,sessionId);
-            HttpResponse setuplaterRes = ICloudUtil.appleIDSetuplater(singInRes,optionsRes,upgradeRes,clientId,sessionId);
-            HttpResponse options2Res = ICloudUtil.appleIDrepairOptions2(singInRes,optionsRes,setuplaterRes,clientId,sessionId);
-            HttpResponse completeRes = ICloudUtil.appleIDrepairComplete(singInRes,options2Res,clientId,sessionId);
-
-            //处理后，获取account 信息
-            singInLocalRes = completeRes;
+            HttpResponse optionsRes = ICloudUtil.appleIDrepairOptions(signInRsp, repairRes, clientId, sessionId);
+            HttpResponse upgradeRes = ICloudUtil.appleIDUpgrade(signInRsp, optionsRes, clientId, sessionId);
+            HttpResponse setuplaterRes = ICloudUtil.appleIDSetuplater(signInRsp, optionsRes, upgradeRes, clientId, sessionId);
+            HttpResponse options2Res = ICloudUtil.appleIDrepairOptions2(signInRsp, optionsRes, setuplaterRes, clientId, sessionId);
+            HttpResponse completeRes = ICloudUtil.appleIDrepairComplete(signInRsp, options2Res, clientId, sessionId);
+            signInRsp = completeRes;
+        } else if (status == 409) {
+            HttpResponse authRsp = ICloudUtil.auth(signInRsp, frameId, clientId, domain);
+            Map<String, Object> authData = new HashMap<>();
+            authData.put("authRsp", authRsp);
+            authData.put("signInRsp", signInRsp);
+            authData.put("signInMap", signInMap);
+            LoginInfo loginInfo = (LoginInfo) account;
+            loginInfo.setAuthData(authData);
+            setAndRefreshNote(account, "此账号已开启双重认证");
         }
 
-        HttpResponse authRsp = null;
-        String sessionToken = singInLocalRes.header("X-Apple-Session-Token");
-
-        if (!StrUtil.isEmpty(sessionToken)){
-            authRsp = ICloudUtil.accountLogin(singInLocalRes, domain);
+        HttpResponse accountLoginRsp = null;
+        String sessionToken = signInRsp.header("X-Apple-Session-Token");
+        if (!StrUtil.isEmpty(sessionToken)) {
+            accountLoginRsp = ICloudUtil.accountLogin(signInRsp, domain);
+            repairWebICloud(accountLoginRsp, account, domain);
         }
 
-        return authRsp;
+        if (accountLoginRsp.getStatus() == 302) {
+            //非 www.icloud.com账户（亦即美国账户），需要到具体国家的icloud域名上获取账户信息
+            JSONObject jo = JSONUtil.parseObj(accountLoginRsp.body());
+            domain = jo.getStr("domainToUse").toLowerCase();
+            signInMap.put("redirectUri", "https://www." + domain);
+            signInMap.put("domain", domain);
+            return iCloudLoginHandler(account, signInMap);
+        }
+        LoginInfo loginInfo = (LoginInfo) account;
+        loginInfo.getAuthData().put("accountLoginRsp", accountLoginRsp);
+        if (status == 412) {
+            loginInfo.setIsLogin(true);
+            setAndRefreshNote(account, "登陆成功", false);
+        }
+        return accountLoginRsp;
     }
 
-    /**
-     * 校验iTunes登录成功与否,Model注入信息
-     */
-    public boolean iCloudLoginVerify(HttpResponse authRsp,T accountModel){
-        if (authRsp == null){
-            return false;
-        }
-        Boolean verify = authRsp.getStatus() == 200;
-        if (!verify){
-            String errorMessages = serviceErrorMessages(authRsp.body());
-            if (!StrUtil.isEmpty(errorMessages)){
-                setAndRefreshNote(accountModel, errorMessages);
-            }else{
-                setAndRefreshNote(accountModel,"登录失败");
+    public void repairWebICloud(HttpResponse accountLoginRsp, T account, String domain) {
+        JSONObject body = JSONUtil.parseObj(accountLoginRsp.body());
+        Boolean isRepairNeeded = body.getBool("isRepairNeeded", false);
+        if (isRepairNeeded) {
+            setAndRefreshNote(account, "同意协议中..", false);
+            HttpResponse repairDoneRsp = ICloudUtil.repairWebICloud(accountLoginRsp, domain);
+            Boolean success = JSONUtil.parseObj(repairDoneRsp.body()).getBool("success");
+            if (!success) {
+                throwAndRefreshNote(account, "iCloud网页登陆修复失败");
             }
         }
-        return verify;
     }
 
-    private String serviceErrorMessages(String body){
-        if (StrUtil.isEmpty(body)){
+    private String serviceErrorMessages(String body) {
+        if (StrUtil.isEmpty(body)) {
             return null;
         }
         List messageList = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
-        if (messageList == null){
+        if (messageList == null) {
             return null;
         }
         return String.join(";", messageList);
@@ -126,7 +181,7 @@ public class ICloudView<T> extends CustomTableView<T> {
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent, List<String> menuItemList) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItemList,new ArrayList<>());
+        super.onContentMenuClick(contextMenuEvent, accountTableView, menuItemList, new ArrayList<>());
     }
 
 }
