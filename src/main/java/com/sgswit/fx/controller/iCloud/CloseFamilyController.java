@@ -33,7 +33,10 @@ import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
  * @createTime 2023/12/11
  */
 public class CloseFamilyController extends CustomTableView<Account> {
-
+    @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.CLOSE_FAMILY.getCode();
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CLOSE_FAMILY.getCode())));

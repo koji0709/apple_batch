@@ -22,6 +22,10 @@ import java.util.*;
  */
 public class BalanceQueryController extends CustomTableView<Account> {
     @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.BALANCE_QUERY.getCode();
+    }
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BALANCE_QUERY.getCode())));
         super.initialize(url, resourceBundle);
@@ -54,12 +58,16 @@ public class BalanceQueryController extends CustomTableView<Account> {
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;
         }
+        account.setHasFinished(false);
         account.setNote("查询余额中");
         accountTableView.refresh();
         Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
+        account.setHasFinished(true);
         if(res.get("code").equals(Constant.SUCCESS)){
+            account.setDataStatus("1");
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(!hasInspectionFlag){
+                account.setDataStatus("0");
                 account.setNote("此 Apple ID 尚未用于 App Store。");
                 accountTableView.refresh();
                 //返还点数
@@ -71,6 +79,7 @@ public class BalanceQueryController extends CustomTableView<Account> {
             account.setBalance(res.get("creditDisplay")!= null? res.get("creditDisplay").toString():"0");
             account.setNote("查询成功");
         }else {
+            account.setDataStatus("0");
             account.setNote(res.get("msg").toString());
             //返还点数
             PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());

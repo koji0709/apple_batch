@@ -78,6 +78,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     private Class clz = Account.class;
     private List<String> formats;
 
+    protected String funCode="0";
+
+    /**
+     * 由子类设置功能代码，在计算扣点时 使用
+     */
+    public void setFunCode() {}
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -162,7 +170,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
 
         //计算需要执行的总数量
-        Map<String,String> pointCost= PointUtil.pointCost(FunctionListEnum.COUNTRY_MODIFY.getCode(),accountList);
+        setFunCode();
+        Map<String,String> pointCost= PointUtil.pointCost(funCode,accountList);
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;

@@ -43,6 +43,10 @@ import java.util.ResourceBundle;
 public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.SECURITY_QUESTION.getCode();
+    }
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_QUESTION.getCode())));
         super.initialize(url, resourceBundle);
@@ -81,6 +85,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;
         }
+        problem.setHasFinished(false);
         //step1 sign 登录
         problem.setNote("登录中");
         accountTableView.refresh();
@@ -96,11 +101,12 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         problem.setNote("查询密保问题中");
         accountTableView.refresh();
         if (step1Res.getStatus() == 503) {
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 3){
+                problem.setHasFinished(true);
                 queryFail(problem,"操作频繁，请稍后重试！");
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
             try {
@@ -109,53 +115,42 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
                 e.printStackTrace();
             }
             accountHandler(problem);
+        }else{
+            if (step1Res.getStatus() != 409) {
+                problem.setHasFinished(true);
+                queryFail(problem);
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
+                return;
+            }
+            String step1Body = step1Res.body();
+            JSON json = JSONUtil.parse(step1Body);
+            //step2 获取认证信息 -- 需要输入密保
+            ThreadUtil.sleep(1500);
+            HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
+            String authType = (String) json.getByPath("authType");
+            if ("sa".equals(authType)) {
+                //非双重认证
+                String body = step21Res.body();
+                Document prodDoc = Jsoup.parse(body);
+                Elements initDataElement = prodDoc.select("script[class=boot_args]");
+                JSONObject object = JSONUtil.parseObj(initDataElement.html());
+                String questions = object.getJSONObject("direct").getJSONObject("twoSV").getJSONObject("securityQuestions").get("questions").toString();
+                List<Question> qs = JSONUtil.toList(questions, Question.class);
+                problem.setProblem1(qs.get(0).getQuestion());
+                problem.setProblem2(qs.get(1).getQuestion());
+                problem.setNote("查询完毕");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(problem));
+            } else if ("hsa2".equals(authType)) {
+                problem.setNote("此账号已开启双重认证");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(problem));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
+            }
         }
-        if(step1Res.getStatus()==503){
-            account.setNote("操作频繁，请稍后重试！");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(problem));
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
-            return;
-        }else if (step1Res.getStatus() != 409) {
-            queryFail(problem);
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
-            return;
-        }
-        String step1Body = step1Res.body();
-        JSON json = JSONUtil.parse(step1Body);
-        if (json == null) {
-            queryFail(problem);
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
-            return;
-        }
-        //step2 获取认证信息 -- 需要输入密保
-        ThreadUtil.sleep(1500);
-        HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
-        String authType = (String) json.getByPath("authType");
-        if ("sa".equals(authType)) {
-
-            //非双重认证
-            String body = step21Res.body();
-            Document prodDoc = Jsoup.parse(body);
-            Elements initDataElement = prodDoc.select("script[class=boot_args]");
-            JSONObject object = JSONUtil.parseObj(initDataElement.html());
-            String questions = object.getJSONObject("direct").getJSONObject("twoSV").getJSONObject("securityQuestions").get("questions").toString();
-            List<Question> qs = JSONUtil.toList(questions, Question.class);
-            problem.setProblem1(qs.get(0).getQuestion());
-            problem.setProblem2(qs.get(1).getQuestion());
-            problem.setNote("查询完毕");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(problem));
-        } else if ("hsa2".equals(authType)) {
-            problem.setNote("此账号已开启双重认证");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(problem));
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
-        }
+        problem.setHasFinished(true);
     }
 
 

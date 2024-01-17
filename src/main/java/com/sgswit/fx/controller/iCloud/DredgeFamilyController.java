@@ -45,7 +45,10 @@ import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
  * @createTime 2023/12/11
  */
 public class DredgeFamilyController extends CustomTableView<Account> {
-
+    @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.DREDGE_FAMILY.getCode();
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DREDGE_FAMILY.getCode())));

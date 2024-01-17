@@ -29,6 +29,10 @@ import java.util.*;
  */
 public class DetectionGrayBalanceController extends CustomTableView<Account> {
     @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.CHECK_GRAY_BALANCE.getCode();
+    }
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CHECK_GRAY_BALANCE.getCode())));
         super.initialize(url, resourceBundle);
@@ -66,6 +70,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
                 return;
             }
+            account.setHasFinished(false);
             tableRefresh(account,"正在获取AppleID国家...");
             Map<String,Object> paras=new HashMap<>();
             paras.put("account",account.getAccount());
@@ -73,20 +78,23 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("serviceKey", DataUtil.getWebClientIdByAppleId(account.getAccount()));
             HttpResponse response= WebLoginUtil.signin(paras);
             if(response.getStatus()==503){
+                account.setHasFinished(true);
                 tableRefreshAndInsertLocal(account,"操作频繁，请稍后重试！");
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             } else if(response.getStatus()!=409){
-               tableRefreshAndInsertLocal(account,WebLoginUtil.serviceErrorMessages(response.body()));
+                account.setHasFinished(true);
+                tableRefreshAndInsertLocal(account,WebLoginUtil.serviceErrorMessages(response.body()));
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
-               return;
+                return;
             }
             String countryCode=MapUtils.getStr(paras,"countryCode");
             // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
             String supportCountry = PropertiesUtil.getConfig("grayBalance.query.support.country");
             if(!StringUtils.containsIgnoreCase(supportCountry,countryCode)){
+                account.setHasFinished(true);
                 tableRefreshAndInsertLocal(account,"不支持的国家");
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
@@ -103,6 +111,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
                 tableRefreshAndInsertLocal(account,"该账户为双重认证用户,请输入双重验证码");
                 //返还点数
+                account.setHasFinished(true);
                 PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
                 return;
             }
@@ -276,6 +285,8 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //返还点数
             PointUtil.pointCost(FunctionListEnum.CHECK_GRAY_BALANCE.getCode(),PointUtil.in,account.getAccount());
             tableRefreshAndInsertLocal(account,"余额查询失败");
+        }finally {
+            account.setHasFinished(true);
         }
 
     }

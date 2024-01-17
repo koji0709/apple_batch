@@ -1183,9 +1183,10 @@ public class AppleIDUtil {
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
             return captchaAndVerify(account,--retry);
+        }else{
+            account.updateLoginInfo(verifyAppleIdRsp);
+            return verifyAppleIdRsp;
         }
-        account.updateLoginInfo(verifyAppleIdRsp);
-        return verifyAppleIdRsp;
     }
 
     /**

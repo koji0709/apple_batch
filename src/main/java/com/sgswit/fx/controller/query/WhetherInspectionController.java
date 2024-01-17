@@ -25,6 +25,10 @@ import java.util.ResourceBundle;
  */
 public class WhetherInspectionController extends CustomTableView<Account> {
     @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.DETECTION_WHETHER.getCode();
+    }
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DETECTION_WHETHER.getCode())));
         super.initialize(url, resourceBundle);
@@ -56,14 +60,15 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;
         }
+        account.setHasFinished(false);
         try {
             account.setNote("登录中");
             accountTableView.refresh();
             Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
             account.setNote("查询是否过检中");
             accountTableView.refresh();
+            account.setHasFinished(true);
             if(res.get("code").equals(Constant.SUCCESS)){
-
                 int purchasesLast90Count=0;
                 boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
                 if(hasInspectionFlag){
@@ -80,6 +85,7 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
         }catch (Exception e){
+            account.setHasFinished(true);
             //返还点数
             PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
         }

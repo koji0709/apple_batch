@@ -70,7 +70,10 @@ public class FamilyDetailsController extends CustomTableView<Account> {
     private TableView accountTableView;
 
     private ObservableList<Account> list = FXCollections.observableArrayList();
-
+    @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.FAMILY_DETAILS.getCode();
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.FAMILY_DETAILS.getCode())));

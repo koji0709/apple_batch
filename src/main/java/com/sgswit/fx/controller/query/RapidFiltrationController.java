@@ -37,6 +37,10 @@ import java.util.*;
  */
 public class RapidFiltrationController extends CustomTableView<Account> {
     @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.RAPID_FILTRATION.getCode();
+    }
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.RAPID_FILTRATION.getCode())));
         super.initialize(url, resourceBundle);
@@ -66,6 +70,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
+        account.setHasFinished(false);
         //扣除点数
         Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.out,account.getAccount());
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
@@ -79,58 +84,45 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
         if(step1Res.getStatus()==503){
+            //返还点数
+            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 5){
                 account.setNote("操作频繁，请稍后重试！");
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
+                account.setHasFinished(true);
                 return;
             }
-            ThreadUtil.sleep(20*1000);
+            ThreadUtil.sleep(10*1000);
             accountHandler(account);
+        }else{
+            if (step1Res.getStatus() != 409) {
+                account.setHasFinished(true);
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
+                queryFail(account,step1Res.body());
+                return ;
+            }
 
-        }
+            String step1Body = step1Res.body();
+            JSON json = JSONUtil.parse(step1Body);
 
-        if(step1Res.getStatus()==503){
-            account.setNote("操作频繁，请稍后重试！");
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
-            return;
-        }else if (step1Res.getStatus() != 409) {
-            queryFail(account,step1Res.body());
-            return ;
+            ThreadUtil.sleep(2000);
+            //step2 获取认证信息 -- 需要输入密保
+            HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
+            String authType = (String) json.getByPath("authType");
+            if ("sa".equals(authType)) {
+                account.setNote("正常账号");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            } else if ("hsa2".equals(authType)) {
+                account.setNote("此账号已开启双重认证");
+                accountTableView.refresh();
+                insertLocalHistory(List.of(account));
+            }
         }
-
-        String step1Body = step1Res.body();
-        JSON json = JSONUtil.parse(step1Body);
-        if (json == null) {
-            account.setNote("操作频繁，请稍后重试！");
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
-            return ;
-        }
-
-        ThreadUtil.sleep(2000);
-        //step2 获取认证信息 -- 需要输入密保
-        HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
-        String authType = (String) json.getByPath("authType");
-        if ("sa".equals(authType)) {
-            account.setNote("正常账号");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
-        } else if ("hsa2".equals(authType)) {
-            account.setNote("此账号已开启双重认证");
-            accountTableView.refresh();
-            insertLocalHistory(List.of(account));
-        }
+        account.setHasFinished(true);
     }
 
     private void queryFail(Account account,Object body) {

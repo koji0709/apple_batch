@@ -29,7 +29,10 @@ import java.util.ResourceBundle;
  */
 public class BirthdayCountryQueryController extends AppleIdView {
 
-
+    @Override
+    public void setFunCode() {
+        super.funCode=FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode();
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode())));
@@ -49,6 +52,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
             return;
         }
+        account.setHasFinished(false);
         account.setNote("正在登录...");
         accountTableView.refresh();
         try {
@@ -85,7 +89,9 @@ public class BirthdayCountryQueryController extends AppleIdView {
             account.setLogtime(DateUtil.format(DateUtil.date(),"yyyy-MM-dd HH:mm:ss"));
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
+            account.setHasFinished(true);
         }catch (Exception e){
+            account.setHasFinished(true);
             //返还点数
             PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.in,account.getAccount());
         }
