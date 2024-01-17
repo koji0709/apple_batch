@@ -457,11 +457,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
             String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
             if(null==balance){
                 giftCard.setDataStatus("0");
-                tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品");
+                tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品(或已兑换)");
             }else{
                 giftCard.setDataStatus("1");
-                giftCard.setBalance(balance.toString());
-                giftCard.setGiftCardNumber(giftCardNumber.toString().split(";")[1]);
+                giftCard.setBalance(balance);
+                giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
                 tableRefreshAndInsertLocal(giftCard,"查询成功");
             }
         }

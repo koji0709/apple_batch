@@ -38,74 +38,6 @@ import java.util.*;
 
 public class PurchaseBillUtil {
 
-    public static void main(String[] args ) throws Exception {
-//        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
-//
-//        if(res.get("code").equals(Constant.SUCCESS)){
-//            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
-//            String token=loginResult.get("token").toString();
-//            String dsid=loginResult.get("dsid").toString();
-//            String searchCookies=loginResult.get("searchCookies").toString();
-//            List<String > jsonStrList=new ArrayList<>();
-//            jsonStrList.clear();
-//            search(jsonStrList,dsid,"",token,searchCookies);
-//            System.out.println(jsonStrList);
-//        }
-//        Map<String,Object> res= iTunesAuth("josepharnoldc4@outlook.com","Zxc112211");
-//        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
-//        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
-//        Map<String,Object> res= iTunesAuth("495575670@qq.com","B0527s0207");
-        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
-        accountPurchasesLast90Count(res);
-//        String body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
-
-//        res.put("addressInfo",body);
-//        if(Constant.TWO_FACTOR_AUTHENTICATION.equalsIgnoreCase(MapUtil.getStr(res,"code"))){
-//            System.out.println("------enter 2FA code---------");
-//
-//            InputStreamReader is = new InputStreamReader(System.in);  //new构造InputStreamReader对象
-//            BufferedReader br = new BufferedReader(is);  //拿构造的方法传到BufferedReader中
-//            try{  //该方法中有个IOExcepiton需要捕获
-//                String authCode = br.readLine();
-//                System.out.println(iTunesAuth(authCode,res));
-//
-//                ITunesUtil.editAccountFieldsSrv(res);
-//            } catch(IOException e){
-//                e.printStackTrace();
-//            }
-//        }else{
-//            ITunesUtil.editAccountFieldsSrv(res);
-//        }
-
-//for (int i=0;i<10;i++){
-//    Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
-//
-//}
-
-
-//        ITunesUtil.appStoreOverCheck(res);
-//        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
-//        res.put("creditCardNumber","6222530919802624");
-//        res.put("creditCardExpirationMonth","7");
-//        res.put("creditCardExpirationYear","2026");
-//        res.put("creditVerificationNumber","016");
-//        res=ITunesUtil.addCreditPayment(res,"01");
-//        System.err.println("请输入验证码：");
-//        String smsCode = cn.hutool.core.lang.Console.input().trim();
-//        System.out.println(smsCode);
-//        res.put("smsCode",smsCode);
-//        res=ITunesUtil.addCreditPayment(res,"02");
-
-
-//        iTunesAuth("1948401156@qq.com","B0527s0207!");
-
-//        iTunesAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        iTunesAuth("epine@163.com","Jtsfh1982");
-
-
-
-    }
     ///网页版版
     public static Map<String,Object> webLoginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
@@ -981,16 +913,36 @@ public class PurchaseBillUtil {
         paras.put("authUrl",authUrl);
         return iTunesLogin(authCode,guid,0,paras);
     }
-
-    private static Integer num = 0;
-
     private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
+        int num=0;
+        if(null==paras.get("num") || "".equals(MapUtils.getStr(paras,"num"))){
+
+        }else{
+            num=MapUtils.getInt(paras,"num");
+        }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-                "<plist version=\"1.0\"><dict><key>appleId</key><string>"+paras.get("account")+"</string><key>attempt</key><string>4</string><key>createSession</key><string>true</string><key>guid</key><string>"+guid+"</string><key>password</key><string>"+paras.get("pwd")+authCode+"</string><key>rmp</key><string>0</string><key>why</key><string>signIn</string></dict></plist>";
+                "<plist version=\"1.0\">"+
+                    "<dict>"+
+                        "<key>appleId</key>"+
+                        "<string>"+paras.get("account")+"</string>"+
+                        "<key>attempt</key>"+
+                        "<string>4</string>"+
+                        "<key>createSession</key>"+
+                        "<string>true</string>"+
+                        "<key>guid</key>"+
+                        "<string>"+guid+"</string>"+
+                        "<key>password</key>"+
+                        "<string>"+paras.get("pwd")+authCode+"</string>"+
+                        "<key>rmp</key>"+
+                        "<string>0</string>"+
+                        "<key>why</key>"+
+                        "<string>signIn</string>"+
+                    "</dict>"+
+                "</plist>";
         try {
             String authUrl=MapUtil.getStr(paras,"authUrl");
             HttpResponse res = HttpUtil.createPost(authUrl)
@@ -1023,6 +975,7 @@ public class PurchaseBillUtil {
                     return paras;
                 }
                 num++;
+                paras.put("num",num);
                 iTunesLogin(authCode,guid,attempt,paras);
             }
             String rb = res.charset("UTF-8").body();

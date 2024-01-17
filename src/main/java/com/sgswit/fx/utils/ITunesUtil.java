@@ -70,8 +70,7 @@ public class ITunesUtil {
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("X-Token",ListUtil.toList("17F0A7C9295E7B44BA41A2F39E8626AA"));
 
-        String cookie="wosid=LBsKRssFyD0ZND4BKNqJeM;woinst=-1;ns-mzf-inst=240-29-443-112-216-9041-3300097-30-mr30;mzf_in=3300097;mzf_dr=0;hsaccnt=1;session-store-id=DE803D26F256B83EE2FF0995D148C221;X-Dsid=8135448658;mz_at0-8135448658=AwQAAAEBAAH70AAAAABlJOhxwbF3d2O6TPHcEKYKAFvwothLUEM=;ampsc=But8SXC+zW5BZC2G3dKqYW5AwB6BSZpcKKRWoQi1xbQ=;mz_at_ssl-8135448658=AwUAAAEBAAH70AAAAABlJOhxNjR8LaUW1MlaenhYHwMSnqs/u24=;mz_at_mau-8135448658=AwIAAAEBAAH70AAAAABlJOhxSvg154dYPDoZtKkVRQCIWDzD+Js=;pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030;wosid-lite=ZcLHGT6BVCNQUjSxI3OfYM;itspod=30;";
-
+        String cookie=CookieUtils.getCookiesFromHeader(response);
 
         HttpResponse step4Res = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases?isJsonApiFormat=true&page=1")
                 .header(headers)
@@ -107,8 +106,7 @@ public class ITunesUtil {
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZ1AAAAABlbuYKP7hYlRFLTKQGuqllgT8SVh9Ca0w="));
-        String cookie="amp=wGmqWc+tU5BPYIxtZTS67zmX7VrVrSK6kLs9DN0xJcLT0EGAfagTSF2by2JACpWA7IZUM75ULaCeNad0jCUC0DcoHzfVDRsOCoXwcLQaywM=; mt-tkn-8135448658=AtZhe8l+IrVrzE0Naxsi8hLyXmMyrK1YeiRwrxGTnqJNskBCWiKHYjr5aWpsMZxcXe4J2YGfaGBax9AOYXijgdfcP0WylhotJ0RI2NZbr2PRx7CmxrXbBMq5iZupygq8T2U9ulOPcVxCXBrdTQNQlcH5HfY3WJv3mrW/7B464SI935H2G2D4ep6nrvQKckGJmNl3ycA=; mz_mt0-8135448658=AolMJGAKMP7xwnuOPTRZVKoxnSgmdfuNWBuyhG9MsUMkn//PB6cAvSmDl52ZUxImL6886q9Lg/uJKTi1/4o+PsTsUd4aCLJ7hMXBQLcweDOP0/mzgOO3oqDU1N9ym2VtsSPp88TmXOLR0Fsj3JvPnQ8yafFGM9lxfjWmkwWoeiNK6/RNn2vUelMBE4YFO6sLwF5sQQo=; ampsc=ukfVwNIDoZHQtu2N9c1CJ7CKqFmT9T7J/1arwOfEnzY=; itspod=30; mz_at0-8135448658=AwQAAAECAAHZ1AAAAABlbuYK6+eAeRvWUZmm5fGYvWdgNiCjsMg=; mz_at_ssl-8135448658=AwUAAAECAAHZ1AAAAABlbuYKzGpJ/FCnkSdpeD1H2uN8r/uBvn8=; pldfltcid=33c1e4e8ac6640f6961f682af925fe1a030; wosid-lite=GtN5UQnYgi8Fj9XbbKwJg0; X-Dsid=8135448658; xp_ci=";
-
+        String cookie=CookieUtils.getCookiesFromHeader(response);
         HttpResponse step4Res = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)
                 .cookie(cookie)
