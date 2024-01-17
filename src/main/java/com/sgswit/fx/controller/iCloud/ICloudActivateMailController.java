@@ -91,7 +91,11 @@ public class ICloudActivateMailController extends ICloudView<Account> {
                     prefix = prefix.substring(0, i);
                 }
             }
-            email = prefix + RandomUtil.randomNumbers(prefix.length() < 4 ? 6 : 4) + "@icloud.com";
+            prefix = prefix + RandomUtil.randomNumbers(prefix.length() < 4 ? 8 : 4);
+            if (prefix.length() > 20){
+                prefix = prefix.substring(0,20);
+            }
+            email = prefix + "@icloud.com";
         }
 
         // 检测邮箱是否可用
