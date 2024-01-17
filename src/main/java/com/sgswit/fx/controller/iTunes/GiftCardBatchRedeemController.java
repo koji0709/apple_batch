@@ -217,7 +217,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         if (reentrantLock.isLocked()) {
                             return;
                         }
-                        ThreadUtil.sleep(2000);
+                        ThreadUtil.sleep(1000);
                         try {
                             setAndRefreshNote(giftCardRedeem, "执行中", false);
                             accountHandler(giftCardRedeem);
@@ -229,7 +229,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         }
 
                         if ((i+1) != accountList.size() && (i+1) % 5 == 0){
-                            setAndRefreshNote(accountList.get(i+1),"程序等待执行中");
+
+                            //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
+                            for(GiftCardRedeem g:accountList){
+                                if(StringUtils.isEmpty(g.getNote())){
+                                    setAndRefreshNote(g,"兑换暂不可用，将在一分钟之后执行");
+                                }
+                            }
                             ThreadUtil.sleep(1000 * 60);
                         }
 
@@ -244,6 +250,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         });
 
     }
+
+
+
+
+
+
 
     /**
      * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
