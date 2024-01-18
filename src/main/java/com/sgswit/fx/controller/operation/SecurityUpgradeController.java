@@ -79,11 +79,11 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-                throwAndRefreshNote(account,"操作频繁，请稍后重试！");
+                throw new ServiceException("操作频繁，请稍后重试！");
             }
             String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){
-                throwAndRefreshNote(account,failMessage);
+                throw new ServiceException(failMessage);
             }
 
             JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
@@ -93,7 +93,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
                 List meesageList = jsonBody.getByPath("phoneNumberVerification.serviceErrors.message", List.class);
                 String message = String.join(",", meesageList);
-                throwAndRefreshNote(account,message,"发送验证码失败");
+                throw new ServiceException(message,"发送验证码失败");
             }
 
             account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
@@ -111,18 +111,18 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
             HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp,account,body2);
             if (securityUpgradeRsp.getStatus() != 302){
-                throwAndRefreshNote(account,"绑定双重认证失败");
+                throw new ServiceException("绑定双重认证失败");
             }
 
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
-                throwAndRefreshNote(account,"绑定双重认证失败");
+                throw new ServiceException("绑定双重认证失败");
             }
             // Auth
             String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
             // 双重认证
             if (!"hsa2".equals(authType)) {
-                setAndRefreshNote(account,"绑定双重认证失败");
+                throw new ServiceException("绑定双重认证失败");
             }
             setAndRefreshNote(account,"绑定双重认证成功");
         }

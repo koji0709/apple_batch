@@ -54,18 +54,18 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
         Object verifyCode = authData.get("verifyCode");
         if (verifyCode == null){
             if (account.getAccount().equals(account.getEmail())){
-                throwAndRefreshNote(account,"新账号或救援邮箱不能和当前账号使用同一个邮箱");
+                throw new ServiceException("新账号或救援邮箱不能和当前账号使用同一个邮箱");
             }
             // 发送邮件
             HttpResponse verifyRsp = isUpdateAppleId ? AppleIDUtil.updateAppleIdSendVerifyCode(account)
                                         :  AppleIDUtil.addRescueEmailSendVerifyCode(account);
             if (isUpdateAppleId){
                 if (verifyRsp.getStatus() != 200){
-                    throwAndRefreshNote(account,getValidationErrors(verifyRsp.body()),"发送邮件失败");
+                    throw new ServiceException(getValidationErrors(verifyRsp.body()),"发送邮件失败");
                 }
             }else{
                 if (verifyRsp.getStatus() != 201){
-                    throwAndRefreshNote(account,getValidationErrors(verifyRsp.body()),"发送邮件失败");
+                    throw new ServiceException(getValidationErrors(verifyRsp.body()),"发送邮件失败");
                 }
             }
             account.getAuthData().put("verifyRsp",verifyRsp);

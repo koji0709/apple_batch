@@ -155,4 +155,5 @@ public class PointUtil {
         long end =System.currentTimeMillis();
         System.out.println(1000 * 60-(end-start));
     }
+
 }

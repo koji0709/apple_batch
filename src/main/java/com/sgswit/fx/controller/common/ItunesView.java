@@ -66,7 +66,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         }else{
             Object authRsp = accountModel.getAuthData().get("authRsp");
             if (authRsp == null){
-                throwAndRefreshNote(accountModel,"请先登录鉴权");
+                throw new ServiceException("请先登录鉴权");
             }
             url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+accountModel.getGuid();
             loginRsp = itunesLogin(accountModel,url,1);
@@ -74,11 +74,11 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         int status = loginRsp.getStatus();
         if (status == 503){
-            throwAndRefreshNote(accountModel,"操作频繁，请稍后重试！!");
+            throw new ServiceException("操作频繁，请稍后重试！!");
         }
 
         if (loginRsp == null || StrUtil.isEmpty(loginRsp.body())){
-            throwAndRefreshNote(accountModel,"AppleID或密码错误。");
+            throw new ServiceException("AppleID或密码错误。");
         }
 
         JSONObject json = PListUtil.parse(loginRsp.body());
@@ -108,7 +108,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
                 }
             }
         }
-        throwAndRefreshNote(accountModel,message);
+        throw new ServiceException(message);
     }
 
     private HttpResponse itunesLogin(T accountModel,String url,Integer attempt){
@@ -141,7 +141,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         if("".equals(failureType) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throwAndRefreshNote(accountModel,"Apple ID或密码错误。或需要输入双重验证码;");
+            throw new ServiceException("Apple ID或密码错误。或需要输入双重验证码;");
         }
 
         if(!"".equals(failureType) && !"".equals(customerMessage)){

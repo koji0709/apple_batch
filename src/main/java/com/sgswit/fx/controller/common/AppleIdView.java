@@ -30,7 +30,7 @@ public class AppleIdView extends CustomTableView<Account> {
         HttpResponse signInRsp = AppleIDUtil.signin(account);
 
         if(signInRsp.getStatus()==503){
-            throwAndRefreshNote(account,"操作频繁，请稍后重试！");
+            throw new ServiceException("操作频繁，请稍后重试！");
         }
 
         String status = "正常";
@@ -53,7 +53,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            throwAndRefreshNote(account,"请检查用户名密码是否正确");
+            throw new ServiceException("请检查用户名密码是否正确");
         }
 
         return signInRsp;
@@ -74,14 +74,14 @@ public class AppleIdView extends CustomTableView<Account> {
             Map<String, Object> authData = account.getAuthData();
             HttpResponse authRsp = (HttpResponse) authData.get("authRsp");
             if (authRsp == null){
-                throwAndRefreshNote(account,"请先执行程序;");
+                throw new ServiceException("请先执行程序;");
             }
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
         }else{
             setAndRefreshNote(account,"正在验证账号密码...",false);
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
-                throwAndRefreshNote(account,"请检查用户名密码是否正确;");
+                throw new ServiceException("请检查用户名密码是否正确;");
             }
             // Auth
             HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
@@ -90,16 +90,16 @@ public class AppleIdView extends CustomTableView<Account> {
             // 双重认证
             if ("hsa2".equals(authType)) {
                 account.getAuthData().put("authRsp",authRsp);
-                throwAndRefreshNote(account,"此账号已开启双重认证;");
+                throw new ServiceException("此账号已开启双重认证;");
             } else { // sa 密保认证
                 if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
-                    throwAndRefreshNote(account,"密保认证必须输入密保问题;");
+                    throw new ServiceException("密保认证必须输入密保问题;");
                 }
                 // 密保认证
                 setAndRefreshNote(account,"正在验证密保问题...",false);
                 HttpResponse questionRsp = AppleIDUtil.questions(account,authRsp);
                 if (questionRsp.getStatus() != 412) {
-                    throwAndRefreshNote(account,"密保问题验证失败;");
+                    throw new ServiceException("密保问题验证失败;");
                 }
                 setAndRefreshNote(account,"密保问题验证通过",false);
                 ThreadUtil.sleep(500);
@@ -127,7 +127,7 @@ public class AppleIdView extends CustomTableView<Account> {
         account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
 
         if (tokenRsp.getStatus() != 200){
-            throwAndRefreshNote(account,"登录异常;");
+            throw new ServiceException("登录异常;");
         }
         setAndRefreshNote(account,"登录成功;",false);
         account.setIsLogin(true);

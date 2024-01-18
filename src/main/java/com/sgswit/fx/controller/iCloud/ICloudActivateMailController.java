@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ICloudView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ICloudUtil;
 
@@ -47,16 +48,14 @@ public class ICloudActivateMailController extends ICloudView<Account> {
 
         String iCloudAppleIdAlias = jo.getByPath("dsInfo.iCloudAppleIdAlias").toString();
         if (!StrUtil.isEmpty(iCloudAppleIdAlias)) {
-            setAndRefreshNote(account, "该账号已存在专属邮箱:" + iCloudAppleIdAlias);
-            return;
+            throw new ServiceException("该账号已存在专属邮箱:" + iCloudAppleIdAlias);
         }
 
         account.updateLoginInfo(accountLoginRsp);
         String domain = signInMap.get("domain");
         JSONObject webservices = (JSONObject) jo.getByPath("webservices");
         if (!webservices.containsKey("mccgateway")) {
-            setAndRefreshNote(account, "该账号不能激活邮箱");
-            return;
+            throw new ServiceException("该账号不能激活邮箱");
         }
 
         // https://p218-mccgateway.icloud.com.cn:443
@@ -107,13 +106,12 @@ public class ICloudActivateMailController extends ICloudView<Account> {
         }
 
         if (!available) {
-            setAndRefreshNote(account, "该邮箱不可用");
-            return;
+            throw new ServiceException("该邮箱不可用");
         }
 
         HttpResponse activateEmailRsp = ICloudUtil.activateEmail(account, pNum, domain, email);
         if (activateEmailRsp.getStatus() != 200) {
-            setAndRefreshNote(account, "邮箱激活失败");
+            throw new ServiceException("邮箱激活失败");
         }
 
         account.setEmail(email);

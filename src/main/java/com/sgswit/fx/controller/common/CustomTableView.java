@@ -16,6 +16,7 @@ import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -102,6 +103,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 stageMap.forEach((stageName, stageEnum) -> {
                     if (view.equals(stageEnum.getView())) {
                         stage = stageEnum;
+                        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.getFunEnumByDesc(stageEnum.getTitle()).getCode())));
                     }
                 });
             }
@@ -220,6 +222,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                // 扣除点数
+                pointDedu(account);
                 boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
                 try {
                     if (hasField){
@@ -227,10 +231,15 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     }
                     setAndRefreshNote(account, "执行中", false);
                     accountHandler(account);
-                } catch (ServiceException e) {
-                    // 异常不做处理只是做一个停止程序作用
-                } catch (Exception e) {
-                    setAndRefreshNote(account, "数据处理异常", true);
+                    setDataStatus(account,true);
+                } catch (ServiceException e) {// 业务异常
+                    setAndRefreshNote(account,e.getMessage());
+                    pointIncr(account);
+                    setDataStatus(account,false);
+                } catch (Exception e) {// 程序异常
+                    setAndRefreshNote(account, "数据处理异常");
+                    pointIncr(account);
+                    setDataStatus(account,false);
                     e.printStackTrace();
                 } finally {
                     ReflectUtil.invoke(account,"setFailCount",0);
@@ -517,71 +526,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
     }
 
-    /**
-     * 设置账号的执行信息,以及刷新列表保存本地记录
-     */
-    public void setAndRefreshNote(T account, String note) {
-        setAndRefreshNote(account, note, true);
-    }
-
-    /**
-     * 设置账号的执行信息,以及刷新列表保存本地记录
-     */
-    public void setAndRefreshNote(T account, String note, String defaultNote) {
-        note = StrUtil.isEmpty(note) ? defaultNote : note;
-        setAndRefreshNote(account, note, true);
-    }
-
-    /**
-     * 设置账号的执行信息,以及刷新列表保存本地记录
-     */
-    public void setAndRefreshNote(T account, String note, boolean saveLog) {
-//        ThreadUtil.execute(() -> {
-            boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-            if (hasNote) {
-                ReflectUtil.invoke(account, "setNote", note);
-            }
-            accountTableView.refresh();
-//        });
-        if (saveLog) {
-            ThreadUtil.execute(() -> {
-                insertLocalHistory(List.of(account));
-            });
-        }
-    }
-
-    /**
-     * 抛出异常，异常不做处理只是做一个停止程序作用
-     */
-    public void throwAndRefreshNote(T account, String message){
-        setAndRefreshNote(account,message);
-        throw new ServiceException(message);
-    }
-
-    /**
-     * 抛出异常，异常不做处理只是做一个停止程序作用
-     */
-    public void throwAndRefreshNote(T account, String message,String defaultMessage){
-        setAndRefreshNote(account,message,defaultMessage);
-        throw new ServiceException(!StrUtil.isEmpty(message) ? message : defaultMessage);
-    }
-
-    public void appendAndRefreshNote(T account, String note) {
-        appendAndRefreshNote(account, "", note);
-    }
-
-    public void appendAndRefreshNote(T account, String note, String defaultNote) {
-        note = StrUtil.isEmpty(note) ? defaultNote : note;
-        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
-        if (hasNote) {
-            String note1 = ReflectUtil.invoke(account, "getNote");
-            note1 = StrUtil.isEmpty(note1) ? "" : note1;
-            note1 = note1.startsWith("执行中") ? "" : note1;
-            note = note1 + note + "。";
-            ReflectUtil.invoke(account, "setNote", note);
-        }
-        accountTableView.refresh();
-    }
     @Override
     public void setAccountNumLabel() {
         int successNum=0;
@@ -610,7 +554,99 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if(null!=failNumLabel){
             failNumLabel.setText(String.valueOf(failNum));
         }
-
-
     }
+
+
+    public String getAccountNo(T account){
+        Object account1 = ReflectUtil.getFieldValue(account, "account");
+        if (account1 instanceof SimpleStringProperty){
+            return ((SimpleStringProperty) account1).getValue();
+        }else{
+            return account1.toString();
+        }
+    }
+
+    /**
+     * 点数扣除
+     * @param account
+     */
+    public void pointDedu(T account){
+        pointCost(account,PointUtil.out,funCode);
+    }
+
+    /**
+     * 点数返回
+     */
+    public void pointIncr(T account){
+        pointCost(account,PointUtil.in,funCode);
+    }
+
+    /**
+     * 点数操作
+     */
+    public void pointCost(T account,String type,String point){
+        Map<String,String> pointCost = PointUtil.pointCost(point,PointUtil.out,getAccountNo(account));
+        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+        }
+    }
+
+    public void setDataStatus(T account,Boolean success){
+        boolean hasDataStatus = ReflectUtil.hasField(account.getClass(), "dataStatus");
+        if (hasDataStatus) {
+            ReflectUtil.invoke(account, "setDataStatus",success ? "1" : "0");
+        }
+    }
+
+    /**
+     * 设置账号的执行信息,以及刷新列表保存本地记录
+     */
+    public void setAndRefreshNote(T account, String note) {
+        setAndRefreshNote(account, note, true);
+    }
+
+    /**
+     * 设置账号的执行信息,以及刷新列表保存本地记录
+     */
+    public void setAndRefreshNote(T account, String note, String defaultNote) {
+        note = StrUtil.isEmpty(note) ? defaultNote : note;
+        setAndRefreshNote(account, note, true);
+    }
+
+    /**
+     * 设置账号的执行信息,以及刷新列表保存本地记录
+     */
+    public void setAndRefreshNote(T account, String note, boolean saveLog) {
+//        ThreadUtil.execute(() -> {
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (hasNote) {
+            ReflectUtil.invoke(account, "setNote", note);
+        }
+        accountTableView.refresh();
+//        });
+        if (saveLog) {
+            ThreadUtil.execute(() -> {
+                insertLocalHistory(List.of(account));
+            });
+        }
+    }
+
+    public void appendAndRefreshNote(T account, String note) {
+        appendAndRefreshNote(account, "", note);
+    }
+
+    public void appendAndRefreshNote(T account, String note, String defaultNote) {
+        note = StrUtil.isEmpty(note) ? defaultNote : note;
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (hasNote) {
+            String note1 = ReflectUtil.invoke(account, "getNote");
+            note1 = StrUtil.isEmpty(note1) ? "" : note1;
+            note1 = note1.startsWith("执行中") ? "" : note1;
+            note = note1 + note + "。";
+            ReflectUtil.invoke(account, "setNote", note);
+        }
+        accountTableView.refresh();
+    }
+
+
 }

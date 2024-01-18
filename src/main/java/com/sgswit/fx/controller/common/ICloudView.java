@@ -63,13 +63,13 @@ public class ICloudView<T> extends CustomTableView<T> {
             signInMap.put("securityCode", loginInfo.getSecurityCode());
             signInMap.put("cookie", loginInfo.getCookie());
             if (authRsp.getStatus() != 200) {
-                throwAndRefreshNote(account, "登陆失败");
+                throw new ServiceException("登陆失败");
             }
 
             HttpResponse securityCodeRsp = ICloudUtil.securityCode(signInMap, authRsp);
             String body = securityCodeRsp.body();
             if (securityCodeRsp.getStatus() != 200 && securityCodeRsp.getStatus() != 204) {
-                throwAndRefreshNote(account,serviceErrorMessages(body), "登陆失败");
+                throw new ServiceException(serviceErrorMessages(body),"登陆失败");
             }
 
             HttpResponse trustRsp = ICloudUtil.trust(signInMap,securityCodeRsp);
@@ -94,16 +94,10 @@ public class ICloudView<T> extends CustomTableView<T> {
         // 双重认证账号，登录成功后， http code = 409；
         //        但此时返回的header中包含 X-Apple-Session-Token，可直接使用获取icloud账户信息
         int status = signInRsp.getStatus();
-
         if (status != 412 && status != 409) {
             String errorMessages = serviceErrorMessages(signInRsp.body());
-            if (!StrUtil.isEmpty(errorMessages)) {
-                throwAndRefreshNote(account, errorMessages);
-            }
-            Console.log("status: {}", status);
-            throwAndRefreshNote(account, "签名失败; status=" + status);
+            throw new ServiceException(errorMessages,"签名失败; status=" + status);
         }
-
         setAndRefreshNote(account, "签名结束", false);
 
         // 412普通登录, 409双重登录
@@ -160,7 +154,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             HttpResponse repairDoneRsp = ICloudUtil.repairWebICloud(accountLoginRsp, domain);
             Boolean success = JSONUtil.parseObj(repairDoneRsp.body()).getBool("success");
             if (!success) {
-                throwAndRefreshNote(account, "iCloud网页登陆修复失败");
+                throw new ServiceException("iCloud网页登陆修复失败");
             }
         }
     }

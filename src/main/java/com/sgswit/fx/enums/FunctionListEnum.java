@@ -100,4 +100,12 @@ public enum FunctionListEnum {
         return null;
     }
 
+    public static FunctionListEnum getFunEnumByDesc(String desc) {
+        for (FunctionListEnum myEnum : values()) {
+            if(desc.equals(myEnum.desc)){
+                return myEnum;
+            }
+        }
+        return null;
+    }
 }
