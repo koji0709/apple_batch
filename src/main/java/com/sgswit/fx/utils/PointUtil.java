@@ -1,11 +1,13 @@
 package com.sgswit.fx.utils;
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.system.UserInfo;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import javafx.application.Platform;
@@ -145,5 +147,12 @@ public class PointUtil {
 
         }
         return point;
+    }
+
+    public static void main(String[] args) {
+        long start =System.currentTimeMillis();
+        //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
+        long end =System.currentTimeMillis();
+        System.out.println(1000 * 60-(end-start));
     }
 }

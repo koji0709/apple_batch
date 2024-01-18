@@ -25,10 +25,6 @@ public class FamilyMembersController extends CustomTableView<Account> {
 
     public ComboBox nameGenerationTypeChoiceBox;
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.FAMILY_MEMBERS.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.FAMILY_MEMBERS.getCode())));
         super.initialize(url,resourceBundle);

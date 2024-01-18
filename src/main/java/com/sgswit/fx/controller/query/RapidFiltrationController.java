@@ -37,10 +37,6 @@ import java.util.*;
  */
 public class RapidFiltrationController extends CustomTableView<Account> {
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.RAPID_FILTRATION.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.RAPID_FILTRATION.getCode())));
         super.initialize(url, resourceBundle);

@@ -84,7 +84,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     /**
      * 由子类设置功能代码，在计算扣点时 使用
      */
-    public void setFunCode() {}
+    public void setFunCode() {
+        funCode=pointLabel.getText();
+    }
 
 
     @Override

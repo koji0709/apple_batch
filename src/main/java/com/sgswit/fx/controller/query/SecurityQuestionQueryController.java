@@ -43,10 +43,6 @@ import java.util.ResourceBundle;
 public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.SECURITY_QUESTION.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_QUESTION.getCode())));
         super.initialize(url, resourceBundle);

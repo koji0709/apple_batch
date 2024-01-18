@@ -22,10 +22,6 @@ import java.util.*;
  */
 public class BalanceQueryController extends CustomTableView<Account> {
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.BALANCE_QUERY.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BALANCE_QUERY.getCode())));
         super.initialize(url, resourceBundle);

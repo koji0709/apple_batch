@@ -28,11 +28,6 @@ import java.util.ResourceBundle;
  * @createTime 2023/09/23
  */
 public class BirthdayCountryQueryController extends AppleIdView {
-
-    @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode();
-    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode())));

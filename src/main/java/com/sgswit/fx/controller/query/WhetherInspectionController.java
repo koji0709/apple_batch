@@ -25,10 +25,6 @@ import java.util.ResourceBundle;
  */
 public class WhetherInspectionController extends CustomTableView<Account> {
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.DETECTION_WHETHER.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DETECTION_WHETHER.getCode())));
         super.initialize(url, resourceBundle);

@@ -31,10 +31,6 @@ import java.util.*;
  */
 public class WhetherAppleIdController extends CustomTableView<Account> {
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.WHETHER_APPLEID.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.WHETHER_APPLEID.getCode())));
         super.initialize(url, resourceBundle);

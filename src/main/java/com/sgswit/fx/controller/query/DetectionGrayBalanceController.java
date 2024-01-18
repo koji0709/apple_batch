@@ -29,10 +29,6 @@ import java.util.*;
  */
 public class DetectionGrayBalanceController extends CustomTableView<Account> {
     @Override
-    public void setFunCode() {
-        super.funCode=FunctionListEnum.CHECK_GRAY_BALANCE.getCode();
-    }
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CHECK_GRAY_BALANCE.getCode())));
         super.initialize(url, resourceBundle);
