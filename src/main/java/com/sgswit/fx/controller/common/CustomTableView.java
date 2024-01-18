@@ -82,14 +82,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     protected String funCode="0";
 
-    /**
-     * 由子类设置功能代码，在计算扣点时 使用
-     */
-    public void setFunCode() {
-        funCode=pointLabel.getText();
-    }
-
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -104,6 +96,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     if (view.equals(stageEnum.getView())) {
                         stage = stageEnum;
                         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.getFunEnumByDesc(stageEnum.getTitle()).getCode())));
+                        funCode = FunctionListEnum.getFunEnumByDesc(stageEnum.getTitle()).getCode();
                     }
                 });
             }
@@ -175,7 +168,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
 
         //计算需要执行的总数量
-        setFunCode();
         Map<String,String> pointCost= PointUtil.pointCost(funCode,accountList);
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
             alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
@@ -223,10 +215,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // 扣除点数
-                pointDedu(account);
                 boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
                 try {
+                    // 扣除点数
+                    pointDedu(account);
                     if (hasField){
                         ReflectUtil.invoke(account,"setHasFinished",false);
                     }
@@ -244,8 +236,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     // todo 如果返回点数失败怎么处理
                     if (PointUtil.in.equals(type)){
                     }
-                }
-                catch (Exception e) {// 程序异常
+                } catch (Exception e) {// 程序异常
                     setAndRefreshNote(account, "数据处理异常");
                     pointIncr(account);
                     setDataStatus(account,false);
@@ -557,15 +548,19 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
             }
         }
-        if(null!=accountNumLabel){
-            accountNumLabel.setText(String.valueOf(accountList.size()));
-        }
-        if(null!=successNumLabel){
-            successNumLabel.setText(String.valueOf(successNum));
-        }
-        if(null!=failNumLabel){
-            failNumLabel.setText(String.valueOf(failNum));
-        }
+        int finalSuccessNum = successNum;
+        int finalFailNum = failNum;
+        Platform.runLater(()->{
+            if(null!=accountNumLabel){
+                accountNumLabel.setText(String.valueOf(accountList.size()));
+            }
+            if(null!=successNumLabel){
+                successNumLabel.setText(String.valueOf(finalSuccessNum));
+            }
+            if(null!=failNumLabel){
+                failNumLabel.setText(String.valueOf(finalFailNum));
+            }
+        });
     }
 
 
@@ -596,8 +591,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     /**
      * 点数操作
      */
-    public void pointCost(T account,String type,String point){
-        Map<String,String> pointCost = PointUtil.pointCost(point,type,getAccountNo(account));
+    public void pointCost(T account,String type,String funcCode){
+        Map<String,String> pointCost = PointUtil.pointCost(funcCode,type,getAccountNo(account));
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
             throw new PointCostException(type,pointCost.get("msg"));
         }

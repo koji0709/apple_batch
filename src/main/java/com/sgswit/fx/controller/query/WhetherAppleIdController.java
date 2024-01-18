@@ -47,7 +47,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
 
     @Override
     protected void reExecute(Account account) {
-        setFunCode();
         new Thread(new Runnable() {
             @Override
             public void run() {

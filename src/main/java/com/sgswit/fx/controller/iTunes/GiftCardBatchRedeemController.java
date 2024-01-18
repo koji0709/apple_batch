@@ -329,7 +329,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public void checkAccountBtnAction(){
         new Thread(() -> {
-            String point = String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode()));
             try{
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
@@ -343,7 +342,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 }
 
                 // 扣除点数
-                pointCost(singleGiftCardRedeem,PointUtil.out, point);
+                pointCost(singleGiftCardRedeem,PointUtil.out, FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
 
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("");
@@ -389,7 +388,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
                 });
                 // 异常返回点数
-                pointCost(singleGiftCardRedeem,PointUtil.in,point);
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
             }catch (Exception e){
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("数据处理异常");
@@ -398,7 +397,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     statusLabel.setText( "状态：" + "数据处理异常");
                 });
                 // 异常返回点数
-                pointCost(singleGiftCardRedeem,PointUtil.in,point);
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
             } finally {
                 Platform.runLater(() -> {
                     checkAccountBtn.setDisable(false);
