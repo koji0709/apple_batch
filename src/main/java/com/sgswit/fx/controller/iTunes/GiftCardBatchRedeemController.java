@@ -160,7 +160,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         return accountList1;
     }
 
-//    private static Map<String,Integer>
 
     /**
      * 执行按钮点击
@@ -220,15 +219,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             return;
                         }
                         ThreadUtil.sleep(1000);
-                        try {
-                            setAndRefreshNote(giftCardRedeem, "执行中");
-                            accountHandler(giftCardRedeem);
-                        } catch (ServiceException e) {
-                            // 异常不做处理只是做一个停止程序作用
-                        } catch (Exception e) {
-                            setAndRefreshNote(giftCardRedeem, "数据处理异常");
-                            e.printStackTrace();
-                        }
+                        accountHandlerExpand(giftCardRedeem);
 
                         if ((i+1) != accountList.size() && (i+1) % 5 == 0){
 

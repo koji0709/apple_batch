@@ -184,7 +184,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                 appstoreDownloadVo.setFailNum(failNum+"");
             }
         }
-        setAndRefreshNote(appstoreDownloadVo,"执行完毕");
+        setAndRefreshNote(appstoreDownloadVo,"下载完毕");
     }
 
     @Override
