@@ -225,7 +225,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                         String securityCode = openSecurityCodePopupView(accountNo);
                         if (!StrUtil.isEmpty(securityCode)) {
                             account1.setSecurityCode(securityCode);
-                            accountHandler(account);
+                            accountHandlerExpand(account);
                         }
                     } else if (account instanceof ConsumptionBill) {
                         String accountNo = ((SimpleStringProperty) ReflectUtil.getFieldValue(account, "account")).getValue();
@@ -384,8 +384,9 @@ public class CommRightContextMenuView<T> extends CommonView {
     /**
      * 每一个账号的处理器
      */
-    public void accountHandler(T account) {
+    public void accountHandlerExpand(T account) {
     }
+    public void accountHandler(T account){}
 
 
     public void setAccountNumLabel() {

@@ -137,6 +137,13 @@ public class ICloudView<T> extends CustomTableView<T> {
             signInMap.put("domain", domain);
             return iCloudLoginHandler(account, signInMap);
         }
+
+        Object note = ReflectUtil.getFieldValue(account, "getNote");
+        // 如果是双重认证不该扣分数,抛出异常补给用户
+        if ("此账号已开启双重认证".equals(note)){
+            throw new ServiceException(note.toString());
+        }
+
         LoginInfo loginInfo = (LoginInfo) account;
         loginInfo.getAuthData().put("accountLoginRsp", accountLoginRsp);
         if (status == 412) {
