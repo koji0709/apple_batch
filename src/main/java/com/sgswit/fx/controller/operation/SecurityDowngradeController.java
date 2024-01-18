@@ -61,8 +61,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         setAndRefreshNote(account,"开始进入关闭双重认证流程...");
         HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
         if (securityDowngradeRsp == null){
-            setAndRefreshNote(account,account.getNote());
-            return;
+            throw new ServiceException(account.getNote());
         }
 
         if (securityDowngradeRsp.getStatus() != 302){

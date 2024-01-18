@@ -237,7 +237,15 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     setAndRefreshNote(account,e.getMessage());
                     pointIncr(account);
                     setDataStatus(account,false);
-                } catch (Exception e) {// 程序异常
+                }catch (PointCostException e){
+                    setAndRefreshNote(account,e.getMessage());
+                    setDataStatus(account,false);
+                    String type = e.getType();
+                    // todo 如果返回点数失败怎么处理
+                    if (PointUtil.in.equals(type)){
+                    }
+                }
+                catch (Exception e) {// 程序异常
                     setAndRefreshNote(account, "数据处理异常");
                     pointIncr(account);
                     setDataStatus(account,false);
@@ -589,9 +597,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 点数操作
      */
     public void pointCost(T account,String type,String point){
-        Map<String,String> pointCost = PointUtil.pointCost(point,PointUtil.out,getAccountNo(account));
+        Map<String,String> pointCost = PointUtil.pointCost(point,type,getAccountNo(account));
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
+            throw new PointCostException(type,pointCost.get("msg"));
         }
     }
 
@@ -606,7 +614,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
     public void setAndRefreshNote(T account, String note) {
-        setAndRefreshNote(account, note);
+        setAndRefreshNote(account, note,"");
     }
 
     /**
