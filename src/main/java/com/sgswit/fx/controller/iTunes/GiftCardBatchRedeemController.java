@@ -329,6 +329,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public void checkAccountBtnAction(){
         new Thread(() -> {
+            String point = String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode()));
             try{
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
@@ -340,6 +341,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
                     return;
                 }
+
+                // 扣除点数
+                pointCost(singleGiftCardRedeem,PointUtil.out, point);
+
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("");
                     statusLabel.setText( "状态：" + "正在检测...");
@@ -383,6 +388,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     blanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
                 });
+                // 异常返回点数
+                pointCost(singleGiftCardRedeem,PointUtil.in,point);
             }catch (Exception e){
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("数据处理异常");
@@ -390,6 +397,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     blanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + "数据处理异常");
                 });
+                // 异常返回点数
+                pointCost(singleGiftCardRedeem,PointUtil.in,point);
             } finally {
                 Platform.runLater(() -> {
                     checkAccountBtn.setDisable(false);
