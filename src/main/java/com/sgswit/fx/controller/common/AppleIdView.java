@@ -78,7 +78,7 @@ public class AppleIdView extends CustomTableView<Account> {
             }
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
         }else{
-            setAndRefreshNote(account,"正在验证账号密码...",false);
+            setAndRefreshNote(account,"正在验证账号密码...");
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
                 throw new ServiceException("请检查用户名密码是否正确;");
@@ -96,14 +96,14 @@ public class AppleIdView extends CustomTableView<Account> {
                     throw new ServiceException("密保认证必须输入密保问题;");
                 }
                 // 密保认证
-                setAndRefreshNote(account,"正在验证密保问题...",false);
+                setAndRefreshNote(account,"正在验证密保问题...");
                 HttpResponse questionRsp = AppleIDUtil.questions(account,authRsp);
                 if (questionRsp.getStatus() != 412) {
                     throw new ServiceException("密保问题验证失败;");
                 }
-                setAndRefreshNote(account,"密保问题验证通过",false);
+                setAndRefreshNote(account,"密保问题验证通过");
                 ThreadUtil.sleep(500);
-                setAndRefreshNote(account,"正在阅读协议...",false);
+                setAndRefreshNote(account,"正在阅读协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
                 String XAppleIDSessionId = "";
                 String scnt = accountRepairRsp.header("scnt");
@@ -113,7 +113,7 @@ public class AppleIdView extends CustomTableView<Account> {
                         XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
                     }
                 }
-                setAndRefreshNote(account,"正在同意协议...",false);
+                setAndRefreshNote(account,"正在同意协议...");
                 HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(account, questionRsp, accountRepairRsp);
                 HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,repareOptionsRsp,XAppleIDSessionId,scnt);
                 HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(account,securityUpgradeRsp,XAppleIDSessionId,scnt);
@@ -129,7 +129,7 @@ public class AppleIdView extends CustomTableView<Account> {
         if (tokenRsp.getStatus() != 200){
             throw new ServiceException("登录异常;");
         }
-        setAndRefreshNote(account,"登录成功;",false);
+        setAndRefreshNote(account,"登录成功;");
         account.setIsLogin(true);
     }
 

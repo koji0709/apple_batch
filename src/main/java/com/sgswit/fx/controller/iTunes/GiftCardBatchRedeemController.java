@@ -221,12 +221,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         }
                         ThreadUtil.sleep(1000);
                         try {
-                            setAndRefreshNote(giftCardRedeem, "执行中", false);
+                            setAndRefreshNote(giftCardRedeem, "执行中");
                             accountHandler(giftCardRedeem);
                         } catch (ServiceException e) {
                             // 异常不做处理只是做一个停止程序作用
                         } catch (Exception e) {
-                            setAndRefreshNote(giftCardRedeem, "数据处理异常", true);
+                            setAndRefreshNote(giftCardRedeem, "数据处理异常");
                             e.printStackTrace();
                         }
 

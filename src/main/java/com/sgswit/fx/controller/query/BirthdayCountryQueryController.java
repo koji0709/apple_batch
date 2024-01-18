@@ -57,7 +57,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
         }
         // 登录
         login(account);
-        setAndRefreshNote(account,"正在读取用户信息...",false);
+        setAndRefreshNote(account,"正在读取用户信息...");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

@@ -76,7 +76,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             HttpResponse accountLoginRsp = ICloudUtil.accountLogin(trustRsp, signInMap.get("domain"));
             loginInfo.getAuthData().put("accountLoginRsp",accountLoginRsp);
             ((LoginInfo) account).setIsLogin(true);
-            setAndRefreshNote(account,"登陆成功",false);
+            setAndRefreshNote(account,"登陆成功");
         }
     }
 
@@ -86,7 +86,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         String domain = signInMap.get("domain");
 
         //登录 通用 www.icloud.com
-        setAndRefreshNote(account, "开始签名", false);
+        setAndRefreshNote(account, "开始签名");
         HttpResponse signInRsp = ICloudWeblogin.signin(signInMap);
         //非双重认证账号，登录后，http code = 412；
         //        此时返回的header中 有 X-Apple-Repair-Session-Token ，无 X-Apple-Session-Token，
@@ -98,7 +98,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             String errorMessages = serviceErrorMessages(signInRsp.body());
             throw new ServiceException(errorMessages,"签名失败; status=" + status);
         }
-        setAndRefreshNote(account, "签名结束", false);
+        setAndRefreshNote(account, "签名结束");
 
         // 412普通登录, 409双重登录
         if (status == 412) {
@@ -141,7 +141,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         loginInfo.getAuthData().put("accountLoginRsp", accountLoginRsp);
         if (status == 412) {
             loginInfo.setIsLogin(true);
-            setAndRefreshNote(account, "登陆成功", false);
+            setAndRefreshNote(account, "登陆成功");
         }
         return accountLoginRsp;
     }
@@ -150,7 +150,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         JSONObject body = JSONUtil.parseObj(accountLoginRsp.body());
         Boolean isRepairNeeded = body.getBool("isRepairNeeded", false);
         if (isRepairNeeded) {
-            setAndRefreshNote(account, "同意协议中..", false);
+            setAndRefreshNote(account, "同意协议中..");
             HttpResponse repairDoneRsp = ICloudUtil.repairWebICloud(accountLoginRsp, domain);
             Boolean success = JSONUtil.parseObj(repairDoneRsp.body()).getBool("success");
             if (!success) {

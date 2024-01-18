@@ -52,12 +52,10 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
         if (verifyAppleIdRsp.getStatus() == 503){
-            setAndRefreshNote(account,"操作频繁，请稍后重试！");
-            return;
+            throw new ServiceException("操作频繁，请稍后重试！");
         }
         if (verifyAppleIdRsp.getStatus() != 302) {
-            setAndRefreshNote(account,"验证码自动识别失败");
-            return;
+            throw new ServiceException("验证码自动识别失败");
         }
 
         // 修改密码 (如果账号被锁定,则解锁改密)
@@ -68,7 +66,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
             setAndRefreshNote(account,"解锁改密成功");
         }else{
             String failMessage = hasFailMessage(updatePwdByProtectionRsp) ? failMessage(updatePwdByProtectionRsp) : "解锁改密失败";
-            setAndRefreshNote(account,failMessage);
+            throw new ServiceException(failMessage);
         }
     }
 

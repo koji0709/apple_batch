@@ -229,7 +229,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     if (hasField){
                         ReflectUtil.invoke(account,"setHasFinished",false);
                     }
-                    setAndRefreshNote(account, "执行中", false);
+                    setAndRefreshNote(account, "执行中");
                     accountHandler(account);
                     setDataStatus(account,true);
                 } catch (ServiceException e) {// 业务异常
@@ -247,6 +247,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     if (hasField){
                         ReflectUtil.invoke(account,"setHasFinished",true);
                     }
+                    ThreadUtil.execute(() -> {
+                        insertLocalHistory(List.of(account));
+                    });
                 }
             }
         }).start();
@@ -602,7 +605,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
     public void setAndRefreshNote(T account, String note) {
-        setAndRefreshNote(account, note, true);
+        setAndRefreshNote(account, note);
     }
 
     /**
@@ -610,25 +613,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public void setAndRefreshNote(T account, String note, String defaultNote) {
         note = StrUtil.isEmpty(note) ? defaultNote : note;
-        setAndRefreshNote(account, note, true);
-    }
-
-    /**
-     * 设置账号的执行信息,以及刷新列表保存本地记录
-     */
-    public void setAndRefreshNote(T account, String note, boolean saveLog) {
-//        ThreadUtil.execute(() -> {
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
         if (hasNote) {
             ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
-//        });
-        if (saveLog) {
-            ThreadUtil.execute(() -> {
-                insertLocalHistory(List.of(account));
-            });
-        }
     }
 
     public void appendAndRefreshNote(T account, String note) {

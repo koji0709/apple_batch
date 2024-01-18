@@ -172,11 +172,11 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
             for (AppstoreItemVo appstoreItemVo : appDataList) {
                 String trackName = appstoreItemVo.getTrackName();
                 String trackId = appstoreItemVo.getTrackJson().getStr("trackId");
-//                if (Double.valueOf(appstoreItemVo.getPrice()) > 0){
-//                    failNum+=1;
-//                    Console.log("暂只支持免费应用！[{}] 价格:{}", trackName,appstoreItemVo.getPrice());
-//                    continue;
-//                }
+                if (Double.valueOf(appstoreItemVo.getPrice()) > 0){
+                    failNum+=1;
+                    Console.log("暂只支持免费应用！[{}] 价格:{}", trackName,appstoreItemVo.getPrice());
+                    continue;
+                }
                 boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackName);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;

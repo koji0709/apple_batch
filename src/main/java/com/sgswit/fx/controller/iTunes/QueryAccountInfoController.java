@@ -221,7 +221,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                 try {
                     try {
                         account.setHasFinished(false);
-                        setAndRefreshNote(account,"正在登录...",false);
+                        setAndRefreshNote(account,"正在登录...");
                         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
                         Map<String,Object> accountInfoMap=account.getAuthData();
                         if("00".equals(step)){
@@ -247,7 +247,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                                 return;
                             }
 
-                            setAndRefreshNote(account,"登录成功，读取用户信息...",false);
+                            setAndRefreshNote(account,"登录成功，读取用户信息...");
                             Map<String,Object> accountSummaryMap=PurchaseBillUtil.accountSummary(accountInfoMap);
                             account.setArea(accountInfoMap.get("countryName").toString());
                             account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
@@ -256,7 +256,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                             account.setName(accountInfoMap.get("name").toString());
                             int purchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
                             account.setPurchaseRecord(String.valueOf(purchasesLast90Count));
-                            setAndRefreshNote(account,"查询成功，获取家庭共享信息...",false);
+                            setAndRefreshNote(account,"查询成功，获取家庭共享信息...");
                             //家庭共享信息
                             HttpResponse response= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
                             if(response.getStatus()==200){

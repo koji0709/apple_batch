@@ -74,8 +74,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
             // 更改AppleID
             Object verifyRsp = authData.get("verifyRsp");
             if (verifyRsp == null){
-                setAndRefreshNote(account,"请先开始执行",false);
-                return;
+                throw new ServiceException("请先开始执行");
             }
             HttpResponse updateRsp = isUpdateAppleId ? AppleIDUtil.updateAppleId((HttpResponse) verifyRsp, account, verifyCode.toString())
                                             : AppleIDUtil.addRescueEmail((HttpResponse)verifyRsp,account, verifyCode.toString());
@@ -139,7 +138,9 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                     appendAndRefreshNote(account,"修改密保成功");
                 }
             }
-            setAndRefreshNote(account,account.getNote());
+            if (!account.getNote().contains("成功")){
+                throw new ServiceException(account.getNote());
+            }
         }
 
     }
@@ -158,17 +159,7 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
 
     @Override
     protected void reExecute(Account account) {
-        ThreadUtil.execute(() -> {
-            try {
-                setAndRefreshNote(account, "执行中", false);
-                accountHandler(account);
-            } catch (ServiceException e) {
-                // 异常不做处理只是做一个停止程序作用
-            } catch (Exception e) {
-                setAndRefreshNote(account, "数据处理异常", true);
-                e.printStackTrace();
-            }
-        });
+        accountHandlerExpand(account);
     }
 
     @Override
