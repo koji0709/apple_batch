@@ -78,7 +78,7 @@ public class MainApplication extends Application {
         }));
         // 检查并更新版本
         try {
-            boolean debug=PropertiesUtil.getConfigBool("debug",false);
+            boolean debug=PropertiesUtil.getConfigBool("debug",true);
             if(!debug && checkAndUpdateVersion()){
                 return;
             }else{

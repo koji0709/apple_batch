@@ -27,7 +27,7 @@ public class PropertiesUtil {
             if(null==res || res.equals("")){
                 f= defaultValue;
             }else{
-                Boolean.valueOf(res);
+                f=Boolean.valueOf(res);
             }
         } catch (Exception e) {
             f=defaultValue;
