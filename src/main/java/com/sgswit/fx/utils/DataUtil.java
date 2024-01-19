@@ -16,7 +16,10 @@ import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,12 +138,30 @@ public class DataUtil {
             boolean verify = HttpUtil.verifyRsp(rsp);
             if (!verify){
             }else {
-                File fFile = new File("news.ini");
-                if(!fFile.exists()){
-                    fFile.createNewFile();
+                String fileName="news.ini";
+                File fFile = new File(fileName);
+                if(fFile.exists()){
+                    fFile.delete();
                 }
-                String test=JSONUtil.parse(rsp.body()).getByPath("data.content",String.class);
-                FileUtil.writeBytes(test.getBytes( Charset.defaultCharset()), fFile);
+                JSON json=JSONUtil.parse(rsp.body());
+                String title=json.getByPath("data.title",String.class);
+                String content=json.getByPath("data.content",String.class);
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
+                try{
+                    writer.write(title+":");
+                    writer.write("\n");
+                    writer.write("\n");
+                    writer.write(content);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    writer.flush();
+                    writer.close();
+                }
+
+
+
+
             }
         }catch (Exception e){
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -12,7 +13,11 @@
       </VBox>
       <VBox layoutY="28.0" prefHeight="360.0" prefWidth="245.0">
          <children>
-            <TextArea fx:id="news" prefHeight="370.0" prefWidth="245.0" text=""  wrapText="true"/>
+            <TextArea fx:id="news" editable="false" prefHeight="360.0" prefWidth="245.0" text="" wrapText="true">
+               <VBox.margin>
+                  <Insets top="8.0" />
+               </VBox.margin>
+            </TextArea>
          </children>
       </VBox>
    </children>

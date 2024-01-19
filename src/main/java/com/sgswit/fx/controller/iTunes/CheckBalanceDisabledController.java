@@ -1,18 +1,11 @@
 package com.sgswit.fx.controller.iTunes;
 
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.dd.plist.NSObject;
-import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
-import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 

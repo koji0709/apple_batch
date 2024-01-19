@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SQLiteUtil {
-
     /**
      * 查询本地历史记录
      * @return

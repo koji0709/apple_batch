@@ -16,7 +16,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.constant.StoreFontsUtil;
+import com.sgswit.fx.constant.StoreFontsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -26,9 +26,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -958,7 +955,7 @@ public class PurchaseBillUtil {
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
-            String countryCode=StoreFontsUtil.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
             String countryName="-";
             if(StringUtils.isEmpty(countryCode)){
 
@@ -1056,7 +1053,7 @@ public class PurchaseBillUtil {
             Element addressElement=element.getElementsByClass("address").get(0);
             String address=addressElement.html().replace("<br>",",");
             paras.put("address",address);
-            String countryCode=StoreFontsUtil.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryCode=StoreFontsUtils.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
             String countryName =DataUtil.getNameByCountryCode(countryCode);
             //账号国家
             paras.put("countryName",countryName);
