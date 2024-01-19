@@ -10,6 +10,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
@@ -79,12 +80,12 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     .header(headers)
                     .execute();
             if(execute.getStatus()==503){
-                account.setNote("操作频繁，请稍后重试！！");
-                accountTableView.refresh();
+//                account.setNote("操作频繁，请稍后重试！！");
+//                accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
-                return;
+                throw new ServiceException("操作频繁，请稍后重试！！");
             }else{
                 String body = execute.body();
                 JSONObject object = JSONUtil.parseObj(body);
@@ -111,9 +112,9 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){
                         account.setNote("操作频繁，请稍后重试！");
-                        accountTableView.refresh();
+//                        accountTableView.refresh();
                         insertLocalHistory(List.of(account));
-                        return;
+                        throw new ServiceException("操作频繁，请稍后重试！！");
                     }
                     try {
                         Thread.sleep(20*1000);

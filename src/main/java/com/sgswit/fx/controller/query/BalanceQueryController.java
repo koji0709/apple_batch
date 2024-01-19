@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.query;
 
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
@@ -64,11 +65,11 @@ public class BalanceQueryController extends CustomTableView<Account> {
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(!hasInspectionFlag){
                 account.setDataStatus("0");
-                account.setNote("此 Apple ID 尚未用于 App Store。");
-                accountTableView.refresh();
+//                account.setNote("此 Apple ID 尚未用于 App Store。");
+//                accountTableView.refresh();
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
-                return;
+                throw new ServiceException("此 Apple ID 尚未用于 App Store。");
             }
             res= PurchaseBillUtil.accountSummary(res);
             account.setState(res.get("countryName") != null? res.get("countryName").toString():"无");
@@ -76,9 +77,10 @@ public class BalanceQueryController extends CustomTableView<Account> {
             account.setNote("查询成功");
         }else {
             account.setDataStatus("0");
-            account.setNote(res.get("msg").toString());
+//            account.setNote(res.get("msg").toString());
             //返还点数
             PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
+            throw new ServiceException(res.get("msg").toString());
         }
         accountTableView.refresh();
         insertLocalHistory(List.of(account));

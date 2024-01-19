@@ -8,6 +8,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -102,8 +103,8 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 3){
                 problem.setHasFinished(true);
-                queryFail(problem,"操作频繁，请稍后重试！");
-                return;
+//                queryFail(problem,"操作频繁，请稍后重试！");
+                throw new ServiceException("操作频繁，请稍后重试！");
             }
             try {
                 Thread.sleep(20*1000);
@@ -114,10 +115,10 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         }else{
             if (step1Res.getStatus() != 409) {
                 problem.setHasFinished(true);
-                queryFail(problem);
+//                queryFail(problem);
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
-                return;
+                throw new ServiceException("查询失败，请确认用户名密码是否正确");
             }
             String step1Body = step1Res.body();
             JSON json = JSONUtil.parse(step1Body);
@@ -139,11 +140,12 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
                 accountTableView.refresh();
                 insertLocalHistory(List.of(problem));
             } else if ("hsa2".equals(authType)) {
-                problem.setNote("此账号已开启双重认证");
-                accountTableView.refresh();
-                insertLocalHistory(List.of(problem));
+//                problem.setNote("此账号已开启双重认证");
+//                accountTableView.refresh();
+//                insertLocalHistory(List.of(problem));
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
+                throw new ServiceException("此账号已开启双重认证");
             }
         }
         problem.setHasFinished(true);

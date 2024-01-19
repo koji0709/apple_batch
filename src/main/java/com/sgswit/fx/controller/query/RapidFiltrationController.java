@@ -8,6 +8,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -88,15 +89,13 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 account.setHasFinished(true);
-                return;
+                throw new ServiceException("操作频繁，请稍后重试！！");
             }
             ThreadUtil.sleep(10*1000);
             accountHandler(account);
         }else{
             if (step1Res.getStatus() != 409) {
                 account.setHasFinished(true);
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
                 queryFail(account,step1Res.body());
                 return ;
             }

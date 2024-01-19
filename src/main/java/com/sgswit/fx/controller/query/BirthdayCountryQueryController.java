@@ -7,6 +7,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.AppleIdView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -89,6 +90,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
             account.setHasFinished(true);
             //返还点数
             PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.in,account.getAccount());
+            throw new ServiceException("查询失败！");
         }
     }
 

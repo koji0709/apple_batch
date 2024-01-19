@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.query;
 
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
@@ -74,9 +75,10 @@ public class WhetherInspectionController extends CustomTableView<Account> {
                 account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
                 account.setNote("查询成功");
             }else {
-                account.setNote(res.get("msg").toString());
+//                account.setNote(res.get("msg").toString());
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
+                throw new ServiceException(res.get("msg").toString());
             }
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
@@ -84,6 +86,7 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             account.setHasFinished(true);
             //返还点数
             PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
+            throw new ServiceException("操作频繁，请稍后重试！！");
         }
     }
 }
