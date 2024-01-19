@@ -20,6 +20,20 @@ public class PropertiesUtil {
 
     private static final Setting config = new Setting("config.properties",Charset.defaultCharset(),false);
 
+    public static boolean getConfigBool(String key,Boolean defaultValue) {
+        boolean f=false;
+        try {
+            String res = config.getStr(key);
+            if(null==res || res.equals("")){
+                f= defaultValue;
+            }else{
+                Boolean.valueOf(res);
+            }
+        } catch (Exception e) {
+            f=defaultValue;
+        }
+        return f;
+    }
     public static String getConfig(String key,String defaultValue) {
         String res = null;
         try {

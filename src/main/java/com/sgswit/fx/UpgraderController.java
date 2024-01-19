@@ -88,13 +88,11 @@ public class UpgraderController implements Initializable {
                 @Override
                 protected Integer call() {
                     String filePath = System.getProperty("user.dir");
-                    String filename = filePath + MapUtils.getStr(data,"name")+".exe";
+                    String filename = filePath +"/"+ MapUtils.getStr(data,"name");
                     String url = MapUtils.getStr(data,"url");
                     HttpUtil.downloadFile(url, FileUtil.file(filename), new StreamProgress() {
                         @Override
-                        public void start() {
-                            System.out.println("开始下载。。。。");
-                        }
+                        public void start() {}
 
                         @Override
                         public void progress(long totalSize, long progressSize) {
@@ -121,8 +119,6 @@ public class UpgraderController implements Initializable {
                                     //关闭应用程序
                                     Platform.exit();
                                     System.exit(0);
-
-
                                 });
                             }catch (Exception e){
                                 e.printStackTrace();
@@ -142,10 +138,11 @@ public class UpgraderController implements Initializable {
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                System.out.println("客户端已成功启动！");
+
             } else {
-                System.err.println("无法启动客户端，错误代码：" + exitCode);
+
             }
+            //删除文件
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

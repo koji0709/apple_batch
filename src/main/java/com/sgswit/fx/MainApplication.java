@@ -32,6 +32,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -77,11 +78,12 @@ public class MainApplication extends Application {
         }));
         // 检查并更新版本
         try {
-//            if(checkAndUpdateVersion()){
-//                return;
-//            }else{
+            boolean debug=PropertiesUtil.getConfigBool("debug",false);
+            if(!debug && checkAndUpdateVersion()){
+                return;
+            }else{
                 StageUtil.show(StageEnum.LOGIN);
-//            }
+            }
         }catch (Exception e){
 
         }
@@ -102,9 +104,10 @@ public class MainApplication extends Application {
     public boolean checkAndUpdateVersion(){
         //1-windows,2-mac
         String platform=PropertiesUtil.getConfig("softwareInfo.platform");
+        String softwareInfoName=PropertiesUtil.getConfig("softwareInfo.name");
 
         // 查询最新发布的版本信息
-        HttpResponse rsp = HttpUtil.get("/versionControl/latestVersion/"+platform);
+        HttpResponse rsp = HttpUtil.get("/api/version/getLastInfo/"+platform);
         boolean success = HttpUtil.verifyRsp(rsp);
         if (!success){
             return false;
@@ -128,38 +131,31 @@ public class MainApplication extends Application {
             return false;
         }
 
-        // 检测是否强制更新
-        int isForceUpdate = versionData.getInt("isForceUpdate");
+        Map<String,Object> userData=new HashMap<>();
+        String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"),platform.equals("1")?"exe":"dgm"});
+        userData.put("name",name);
+        userData.put("url",versionData.getStr("url"));
 
-        // 强制更新
-        if (isForceUpdate == 0){
-            Map<String,Object> userData=new HashMap<>();
-            userData.put("name","果果批处理程序");
-            userData.put("url",versionData.getStr("url"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(StageEnum.UPGRADER.getView()));
 
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(StageEnum.UPGRADER.getView()));
-
-            Scene scene = null;
-            try {
-                scene = new Scene(fxmlLoader.load(), StageEnum.UPGRADER.getHight(), StageEnum.UPGRADER.getWidth());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            scene.getRoot().setStyle("-fx-font-family: 'serif'");
-            Stage popupStage = new Stage();
-            popupStage.setTitle(StageEnum.UPGRADER.getTitle());
-            popupStage.initModality(StageEnum.UPGRADER.getInitModality());
-            popupStage.setScene(scene);
-            popupStage.setResizable(false);
-            popupStage.initStyle(StageEnum.UPGRADER.getInitStyle());
-            UpgraderController upgraderController = fxmlLoader.getController();
-            upgraderController.setData(userData);
-            upgraderController.startDownload();
-            popupStage.show();
-            return true;
-        }else{
-            return false;
+        Scene scene = null;
+        try {
+            scene = new Scene(fxmlLoader.load(), StageEnum.UPGRADER.getHight(), StageEnum.UPGRADER.getWidth());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle(StageEnum.UPGRADER.getTitle());
+        popupStage.initModality(StageEnum.UPGRADER.getInitModality());
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageEnum.UPGRADER.getInitStyle());
+        UpgraderController upgraderController = fxmlLoader.getController();
+        upgraderController.setData(userData);
+        upgraderController.startDownload();
+        popupStage.show();
+        return true;
     }
 
     @Override
