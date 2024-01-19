@@ -310,4 +310,9 @@ public class MainController implements Initializable {
             remainingPoints.setText(points);
         }
     }
+    @FXML
+    public void onLineUpgrader(ActionEvent actionEvent) {
+        String url = PropertiesUtil.getConfig("online.upgraderUrl");
+        browse(url);
+    }
 }

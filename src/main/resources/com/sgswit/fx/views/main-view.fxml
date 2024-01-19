@@ -37,6 +37,11 @@
                         <Font size="13.0" />
                      </font>
                   </Hyperlink>
+                  <Hyperlink layoutX="300.0" layoutY="90.0" onAction="#onLineUpgrader" text="下载地址" textFill="WHITE">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Hyperlink>
                </children>
             </Pane>
             <Pane layoutY="130.0" prefHeight="390.0" prefWidth="150.0">
