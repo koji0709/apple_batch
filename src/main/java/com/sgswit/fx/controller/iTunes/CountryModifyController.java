@@ -173,10 +173,6 @@ public class CountryModifyController extends CustomTableView<Account>{
         super.openImportAccountView(List.of("account----pwd"));
     }
 
-
-
-
-
     @Override
     public boolean executeButtonActionBefore() {
         if(StringUtils.isEmpty(fromType)){

@@ -31,6 +31,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -61,7 +62,7 @@ import java.util.regex.Pattern;
  * @description: TODO
  * @date 2023/10/2714:40
  */
-public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> implements Initializable {
+public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     @FXML
     public TableColumn seq;
@@ -80,7 +81,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     @FXML
     public TextField account_pwd;
     @FXML
-    public Button accountQueryBtn;
+    public Button executeButton;
     @FXML
     public Label alertMessage;
     @FXML
@@ -200,8 +201,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         }).start();
     }
 
+    @Override
     @FXML
-    protected void onAccountQueryBtnClick() throws Exception{
+        public void executeButtonAction(){
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
@@ -221,9 +223,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                 if(null==hashMap || hashMap.size()==0){
                     loginAndInit();
                 }
-                accountQueryBtn.setText("正在查询");
-                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accountQueryBtn.setDisable(true);
+                executeButton.setText("正在查询");
+                executeButton.setTextFill(Paint.valueOf("#FF0000"));
+                executeButton.setDisable(true);
                 new Thread(new Runnable() {
                     @Override
                     public void run(){
@@ -236,9 +238,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                                 n.addAndGet(1);
                                 checkBalance(giftCard, hashMap);
                             } catch (Exception e) {
-                                accountQueryBtn.setDisable(false);
-                                accountQueryBtn.setText("开始执行");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                executeButton.setDisable(false);
+                                executeButton.setText("开始执行");
+                                executeButton.setTextFill(Paint.valueOf("#238142"));
                                 e.printStackTrace();
                             }
                         }finally {
@@ -247,9 +249,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
                                 @Override
                                 protected Integer call() {
                                     setAccountNumLabel();
-                                    accountQueryBtn.setDisable(false);
-                                    accountQueryBtn.setText("开始执行");
-                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
+                                    executeButton.setDisable(false);
+                                    executeButton.setText("开始执行");
+                                    executeButton.setTextFill(Paint.valueOf("#238142"));
                                     return 1;
                                 }
                             });
@@ -469,14 +471,21 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
     public void stopTaskButtonAction(ActionEvent actionEvent) {
 
     }
-
-
-
     protected void updateNodeStatus(boolean status){
         countryBox.setDisable(status);
         account_pwd.setDisable(status);
         loginBtn.setDisable(status);
-        accountQueryBtn.setDisable(status);
+        executeButton.setDisable(status);
     }
-
+    @Override
+    public void accountHandlerExpand(GiftCard giftCard) {
+        new Thread(()->{
+            checkBalance(giftCard, hashMap);
+        }).start();
+    }
+    @FXML
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
+    }
 }

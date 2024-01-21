@@ -104,7 +104,7 @@
                                           <Insets top="5.0" />
                                        </HBox.margin>
                                     </Label>
-                                    <Label  fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                    <Label fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
                                        <font>
                                           <Font name="System Bold" size="16.0" />
                                        </font>
@@ -120,7 +120,7 @@
                   </TitledPane>
                   <TitledPane layoutX="13.0" layoutY="197.0" prefHeight="427.0" prefWidth="1077.0" text="账号列表">
                      <content>
-                        <TableView fx:id="accountTableView" prefHeight="364.0" prefWidth="1066.0">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="364.0" prefWidth="1066.0">
                           <columns>
                               <TableColumn fx:id="seq" prefWidth="75.0" text="序号" />
                               <TableColumn fx:id="giftCardCode" prefWidth="204.99998474121094" text="礼品卡" />
