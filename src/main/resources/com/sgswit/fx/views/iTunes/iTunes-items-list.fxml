@@ -55,10 +55,6 @@
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />
          </GridPane.margin></Button>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="管理订阅项目" GridPane.halignment="CENTER" GridPane.rowIndex="8" GridPane.valignment="CENTER">
-         <GridPane.margin>
-            <Insets bottom="4.0" top="4.0" />
-         </GridPane.margin></Button>
     <Button mnemonicParsing="false" onAction="#onBindVirtualCardBtnClick" prefHeight="25.0" prefWidth="140.0" text="绑定虚拟卡" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="4.0" top="4.0" />

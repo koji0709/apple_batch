@@ -11,6 +11,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
@@ -19,6 +20,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -211,6 +213,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");
+                if(securityCode){
+                    ReflectUtil.invoke(account,"setSecurityCode","");
+                }
                 boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
                 try {
                     // 扣除点数
@@ -250,7 +256,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }).start();
     }
-
     /**
      * 导入账号按钮点击
      * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
@@ -486,7 +491,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 导出Excel按钮点击
      */
     public void exportExcelButtonAction() {
-        alert("导出Excel按钮点击");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("友情提示");
+        alert.setHeaderText("功能建设中，敬请期待");
+        alert.show();
     }
 
     /**
@@ -605,9 +613,18 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */
     public void setAndRefreshNote(T account, String note) {
-        setAndRefreshNote(account, note,"");
+        Platform.runLater(new Task<Integer>() {
+            @Override
+            protected Integer call() {
+                setAndRefreshNote(account, note,"");
+                return 1;
+            }
+        });
     }
-
+    protected void tableRefreshAndInsertLocal(T account, String message){
+        setAndRefreshNote(account,message);
+        insertLocalHistory(List.of(account));
+    }
     /**
      * 设置账号的执行信息,以及刷新列表保存本地记录
      */

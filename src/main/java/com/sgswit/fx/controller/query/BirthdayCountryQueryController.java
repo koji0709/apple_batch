@@ -42,12 +42,6 @@ public class BirthdayCountryQueryController extends AppleIdView {
 
     @Override
     public void accountHandler(Account account) {
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.out,account.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
         account.setHasFinished(false);
         account.setNote("正在登录...");
         accountTableView.refresh();
@@ -88,20 +82,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
             account.setHasFinished(true);
         }catch (Exception e){
             account.setHasFinished(true);
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.BIRTHDAY_COUNTRY_QUERY.getCode(),PointUtil.in,account.getAccount());
             throw new ServiceException("查询失败！");
         }
     }
-
-    @Override
-    protected void reExecute(Account account) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                accountHandler(account);
-            }
-        }).start();
-    }
-
 }

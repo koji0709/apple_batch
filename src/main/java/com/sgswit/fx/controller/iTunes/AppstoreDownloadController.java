@@ -179,11 +179,6 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         accountHandlerExpand(account);
     }
 
-    @Override
-    protected void reExecute(AppstoreDownloadVo account) {
-        accountHandlerExpand(account);
-    }
-
     public boolean purchaseAnddownloadApp(AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){
         trackName = StrUtil.isEmpty(trackName) ? trackId : trackName;
         if (trackName.length() > 6){

@@ -51,7 +51,6 @@ public class PointUtil {
         try{
             //获取当前登录账号的用户名
             String username=PropertiesUtil.getOtherConfig("login.userName");
-            FunctionListEnum anEnum=FunctionListEnum.getFunEnumByCode(functionCode);
             Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);
             map.put("type",type);
@@ -91,9 +90,6 @@ public class PointUtil {
             if(null==note||"".equals(note)){
                 num++;
             }
-        }
-        if(num==1){
-            return new HashMap<>(1){{put("code", Constant.SUCCESS);}};
         }
         return pointCost(functionCode,out,"","",num,"all");
     }

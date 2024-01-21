@@ -214,8 +214,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
-                    ReflectUtil.invoke(account,"setStep","");
-                    reExecute(account);
+                    accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {
@@ -325,18 +324,6 @@ public class CommRightContextMenuView<T> extends CommonView {
      *         　* @date 2023/12/22 17:38
      */
     protected void secondStepHandler(T account, String code) {
-    }
-
-    /**
-     * 　* 重新执行
-     *
-     * @param
-     * @param o 　* @return void
-     *          　* @throws
-     *          　* @author DeZh
-     *          　* @date 2023/12/22 18:04
-     */
-    protected void reExecute(T o) {
     }
 
     /**

@@ -111,9 +111,4 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
             setAndRefreshNote(account,body);
         }
     }
-
-    @Override
-    protected void reExecute(ICloudFunctionalTesting iCloudFunctionalTesting) {
-        accountHandlerExpand(iCloudFunctionalTesting);
-    }
 }

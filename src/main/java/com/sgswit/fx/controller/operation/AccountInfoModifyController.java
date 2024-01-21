@@ -259,12 +259,4 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             throw new ServiceException(account.getNote());
         }
     }
-
-    @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
-
-
 }

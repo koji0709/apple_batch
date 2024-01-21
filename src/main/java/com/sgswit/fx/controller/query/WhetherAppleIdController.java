@@ -45,16 +45,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
-
-    @Override
-    protected void reExecute(Account account) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                accountHandler(account);
-            }
-        }).start();
-    }
     public void openImportAccountView(){
         openImportAccountView(List.of("account"));
     }
@@ -63,11 +53,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
     public void accountHandler(Account account) {
         //扣除点数
         try {
-            Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.out,account.getAccount());
-            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-                alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-                return;
-            }
             account.setHasFinished(false);
             account.setNote("查询中");
             accountTableView.refresh();
@@ -80,8 +65,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     .header(headers)
                     .execute();
             if(execute.getStatus()==503){
-//                account.setNote("操作频繁，请稍后重试！！");
-//                accountTableView.refresh();
                 insertLocalHistory(List.of(account));
                 //返还点数
                 PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
@@ -111,8 +94,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){
-                        account.setNote("操作频繁，请稍后重试！");
-//                        accountTableView.refresh();
                         insertLocalHistory(List.of(account));
                         throw new ServiceException("操作频繁，请稍后重试！！");
                     }

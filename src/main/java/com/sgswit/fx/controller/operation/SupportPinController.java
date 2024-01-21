@@ -78,9 +78,4 @@ public class SupportPinController extends AppleIdView {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
 }

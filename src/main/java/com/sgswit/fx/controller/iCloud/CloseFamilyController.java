@@ -57,7 +57,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
                 String rb = response.charset("UTF-8").body();
                 JSONObject rspJSON = PListUtil.parse(rb);
                 if("0".equals(rspJSON.getStr("status"))){
-                    String message="查询成功";
+                    String message;
                     JSONObject delegates= rspJSON.getJSONObject("delegates");
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
@@ -116,13 +116,6 @@ public class CloseFamilyController extends CustomTableView<Account> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
 
-    /**重新执行**/
-    @Override
-    protected void reExecute(Account account){
-        new Thread(()->{
-            accountHandler(account);
-        }).start();
-    }
     @Override
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
@@ -130,7 +123,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
             if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
-                accountHandler(account);
+                accountHandlerExpand(account);
             }else{
                 alert("未下发双重验证码");
             }

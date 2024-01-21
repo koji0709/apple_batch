@@ -117,10 +117,4 @@ public class ICloudActivateMailController extends ICloudView<Account> {
         account.setEmail(email);
         setAndRefreshNote(account, "邮箱激活成功");
     }
-
-    @Override
-    protected void reExecute(Account account) {
-        account.setSecurityCode("");
-        accountHandlerExpand(account);
-    }
 }

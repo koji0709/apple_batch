@@ -40,10 +40,6 @@ public class WhetherInspectionController extends CustomTableView<Account> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        accountHandler(account);
-    }
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
@@ -75,17 +71,12 @@ public class WhetherInspectionController extends CustomTableView<Account> {
                 account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
                 account.setNote("查询成功");
             }else {
-//                account.setNote(res.get("msg").toString());
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
                 throw new ServiceException(res.get("msg").toString());
             }
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
         }catch (Exception e){
             account.setHasFinished(true);
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.DETECTION_WHETHER.getCode(),PointUtil.in,account.getAccount());
             throw new ServiceException("操作频繁，请稍后重试！！");
         }
     }

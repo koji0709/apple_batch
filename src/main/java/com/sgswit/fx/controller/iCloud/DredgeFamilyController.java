@@ -119,13 +119,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
         accountTableView.refresh();
         insertLocalHistory(List.of(account));
     }
-    /**重新执行**/
-    @Override
-    protected void reExecute(Account account){
-        new Thread(()->{
-            accountHandler(account);
-        }).start();
-    }
+
     @Override
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
@@ -133,7 +127,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
             if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
-                accountHandler(account);
+                accountHandlerExpand(account);
             }else{
                 alert("未下发双重验证码");
             }

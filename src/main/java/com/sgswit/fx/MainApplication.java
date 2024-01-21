@@ -104,21 +104,12 @@ public class MainApplication extends Application {
         if (versionData == null){
             return false;
         }
-        Double latestVersionNum = versionData.getDouble("versionNum");
+        String latestVersionNum = versionData.getStr("versionNum");
         String currentVersionNum = PropertiesUtil.getConfig("softwareInfo.version");
-
-        // 如果没有设置当前版本信息, 则默认最高版本信息
-        boolean isNumber = NumberUtil.isNumber(currentVersionNum);
-        if (StrUtil.isEmpty(currentVersionNum) || !isNumber){
-            PropertiesUtil.setOtherConfig("version",String.valueOf(latestVersionNum));
-            return false;
-        }
-
         // 比较版本大小
-        if (latestVersionNum <= Double.valueOf(currentVersionNum)){
+        if (latestVersionNum.compareToIgnoreCase(currentVersionNum)<0){
             return false;
         }
-
         Map<String,Object> userData=new HashMap<>();
         String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"),platform.equals("1")?"exe":"dgm"});
         userData.put("name",name);

@@ -27,7 +27,7 @@ import java.util.*;
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
         //HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.2121" );
-//        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
+        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
 //        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
 //        getiTunesAccountPaymentInfo(getAuthByHttResponse(response),"djli0506@163.com","8135448658");
 //        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
@@ -37,12 +37,12 @@ public class ICloudUtil {
 //        accountLoginDemo();
 
 
-        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207" );
+//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207" );
+//
+//        HttpResponse response2= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207123456" );
 
-        HttpResponse response2= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207123456" );
-
-        System.out.println(response2.getStatus());
-        System.out.println(response2.body());
+        System.out.println(response.getStatus());
+        System.out.println(response.body());
 
 
     }
@@ -56,13 +56,14 @@ public class ICloudUtil {
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
 
-        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        String body =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<plist version=\"1.0\">" +
                 "<dict>" +
                 "<key>apple-id</key>" +
                 "<string>"+appleId+"</string>" +
                 "<key>client-id</key>" +
-                "<string>"+ clientId +"</string>" +
+                "<string>"+clientId+"</string>" +
                 "<key>delegates</key>" +
                 "<dict><key>com.apple.gamecenter</key>" +
                 "<dict/>" +
@@ -71,7 +72,7 @@ public class ICloudUtil {
                 "<key>com.apple.private.ids</key>" +
                 "<dict>" +
                 "<key>protocol-version</key>" +
-                "<string>8</string>" +
+                "<string>4</string>" +
                 "</dict> </dict>" +
                 "<key>password</key>" +
                 "<string>"+password+"</string>" +

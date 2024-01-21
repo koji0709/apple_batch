@@ -42,6 +42,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Handler;
 
 /**
  * @author DeZh
@@ -50,39 +51,7 @@ import java.util.concurrent.ExecutorService;
  * @description: TODO
  * @date 2023/10/219:01
  */
-public class ConsumptionBillController extends CustomTableView<ConsumptionBill> implements Initializable {
-    @FXML
-    public TableColumn seq;
-    @FXML
-    public TableColumn account;
-    @FXML
-    public TableColumn note;
-    @FXML
-    public TableColumn area;
-    @FXML
-    public TableColumn status;
-    @FXML
-    public TableColumn lastPurchaseDate;
-    @FXML
-    public TableColumn earliestPurchaseDate;
-    @FXML
-    public TableColumn totalConsumption;
-    @FXML
-    public TableColumn totalRefundAmount;
-    @FXML
-    public TableColumn purchaseRecord;
-    @FXML
-    public TableColumn paymentInformation;
-    @FXML
-    public TableColumn shippingAddress;
-    @FXML
-    public TableColumn pwd;
-    @FXML
-    public TableColumn accountBalance;
-    @FXML
-    public javafx.scene.control.TableView accountTableView;
-    @FXML
-    public Button accountQueryBtn;
+public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
     @FXML
     public CheckBox isFilterFree;
     @FXML
@@ -92,8 +61,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
     @FXML
     public ChoiceBox<String> rangeSelect;
 
-    private ObservableList<ConsumptionBill> accountList = FXCollections.observableArrayList();
-    private static ExecutorService executor = ThreadUtil.newExecutor(1);
     public ConsumptionBillController(){
 
     }
@@ -116,165 +83,90 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
         super.openImportAccountView(List.of("account----pwd"));
     }
 
-    @FXML
-    protected void onAccountExportBtnClick() throws Exception{
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("友情提示");
-        alert.setHeaderText("功能建设中，敬请期待");
-        alert.show();
-    }
-
-    @FXML
-    protected void onAccountClearBtnClick() throws Exception{
-        super.clearAccountListButtonAction();
-    }
-
-    @FXML
-    protected void onAccountQueryBtnClick(){
-        try {
-            accountList=accountTableView.getItems();
-            if(accountList.size() < 1){
+    @Override
+    public void accountHandler(ConsumptionBill account) {
+        account.setHasFinished(false);
+        setAndRefreshNote(account,"登录中...");
+        //判断账号是否为双重认证的账号
+        Account a=new Account();
+        a.setPwd(account.getPwd());
+        a.setAccount(account.getAccount());
+        HttpResponse step1Res = AppleIDUtil.signin(a);
+        ThreadUtil.sleep(2000);
+        if (step1Res.getStatus() == 503){
+            account.setHasFinished(true);
+            tableRefreshAndInsertLocal(account, "操作频繁，请稍后重试！");
+            return ;
+        }else if (step1Res.getStatus() != 409) {
+            account.setHasFinished(true);
+            tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+            return ;
+        }
+        String step1Body = step1Res.body();
+        JSON json = JSONUtil.parse(step1Body);
+        if (json == null) {
+            account.setHasFinished(true);
+            tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+            return ;
+        }
+        //step2 auth 获取认证信息
+        String authType = (String) json.getByPath("authType");
+        if ("hsa2".equals(authType)) {
+            account.setHasFinished(true);
+            tableRefreshAndInsertLocal(account, "此账号已开启双重认证");
+            return ;
+        }
+        int accountPurchasesLast90Count=0;
+        Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+        if(!accountInfoMap.get("code").equals(Constant.SUCCESS)){
+            account.setHasFinished(true);
+            setAndRefreshNote(account,String.valueOf(accountInfoMap.get("msg")));
+            return;
+        }else{
+            boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
+            if(!hasInspectionFlag){
+                account.setHasFinished(true);
+                setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
                 return;
             }
-            for(ConsumptionBill account:accountList){
-                //判断是否已执行或执行中,避免重复执行
-                if(!StrUtil.isEmptyIfStr(account.getNote())){
-                    continue;
-                }else{
-                    accountQueryBtn.setText("正在查询");
-                    accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                    accountQueryBtn.setDisable(true);
+            accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
+            account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
+            account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
+            account.setShippingAddress(accountInfoMap.get("address").toString());
+            account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
 
-                    account.setNote("正在登录...");
-                    accountTableView.refresh();
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run(){
-                            try {
-                                try {
-                                    account.setHasFinished(false);
-                                    account.setNote("登录中...");
-                                    accountTableView.refresh();
-
-                                    //判断账号是否为双重认证的账号
-                                    Account a=new Account();
-                                    a.setPwd(account.getPwd());
-                                    a.setAccount(account.getAccount());
-                                    HttpResponse step1Res = AppleIDUtil.signin(a);
-                                    Thread.sleep(2000);
-                                    if (step1Res.getStatus() == 503){
-                                        account.setHasFinished(true);
-                                        tableRefreshAndInsertLocal(account, "操作频繁，请稍后重试！");
-                                        return ;
-                                    }else if (step1Res.getStatus() != 409) {
-                                        account.setHasFinished(true);
-                                        tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
-                                        return ;
-                                    }
-                                    String step1Body = step1Res.body();
-                                    JSON json = JSONUtil.parse(step1Body);
-                                    if (json == null) {
-                                        account.setHasFinished(true);
-                                        tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
-                                        return ;
-                                    }
-                                    //step2 auth 获取认证信息
-                                    String authType = (String) json.getByPath("authType");
-                                    if ("hsa2".equals(authType)) {
-                                        account.setHasFinished(true);
-                                        tableRefreshAndInsertLocal(account, "此账号已开启双重认证");
-                                        return ;
-                                    }
-                                    int accountPurchasesLast90Count=0;
-                                    Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
-                                    if(!accountInfoMap.get("code").equals(Constant.SUCCESS)){
-                                        account.setNote(String.valueOf(accountInfoMap.get("msg")));
-                                        accountTableView.refresh();
-                                        account.setHasFinished(true);
-                                        return;
-                                    }else{
-                                        boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
-                                        if(!hasInspectionFlag){
-                                            account.setNote("此 Apple ID 尚未用于 App Store。");
-                                            accountTableView.refresh();
-                                            account.setHasFinished(true);
-                                            return;
-                                        }
-                                        accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
-                                        account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
-                                        account.setAccountBalance(accountInfoMap.get("creditDisplay").toString());
-                                        account.setShippingAddress(accountInfoMap.get("address").toString());
-                                        account.setPaymentInformation(accountInfoMap.get("paymentMethod").toString());
-
-                                        accountPurchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
-                                        account.setNote("数据加载中...");
-                                        accountTableView.refresh();
-                                    }
-
-                                    Map<String,Object> res= PurchaseBillUtil.webLoginAndAuth(account.getAccount(),account.getPwd());
-                                    if(res.get("code").equals(Constant.SUCCESS)){
-                                        accountTableView.refresh();
-                                        Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
-                                        String token=loginResult.get("token").toString();
-                                        String dsid=loginResult.get("dsid").toString();
-                                        String searchCookies=loginResult.get("searchCookies").toString();
-                                        account.setArea(loginResult.get("countryName").toString());
-                                        List<String> jsonStrList=new ArrayList<>();
-                                        jsonStrList.clear();
-                                        PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
-                                        //整合数据
-                                        integratedData(new HashMap<>(), accountPurchasesLast90Count,account,jsonStrList);
-                                        if(jsonStrList.size()==0){
-                                            account.setNote("所选期间无购买记录");
-                                        }else{
-                                            account.setNote("查询完成");
-                                        }
-
-                                        accountTableView.refresh();
-                                    }else{
-                                        account.setNote(String.valueOf(res.get("msg")));
-                                        accountTableView.refresh();
-                                    }
-                                    account.setHasFinished(true);
-                                } catch (Exception e) {
-                                    account.setHasFinished(true);
-                                    account.setNote("操作失败，接口异常");
-                                    accountTableView.refresh();
-                                    accountQueryBtn.setDisable(false);
-                                    accountQueryBtn.setText("开始执行");
-                                    accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                    e.printStackTrace();
-                                }
-                            }finally {
-                                //JavaFX Application Thread会逐个阻塞的执行这些任务
-                                Platform.runLater(new Task<Integer>() {
-                                    @Override
-                                    protected Integer call() {
-                                        accountQueryBtn.setDisable(false);
-                                        accountQueryBtn.setText("开始执行");
-                                        accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                        return 1;
-                                    }
-                                });
-                            }
-                        }
-                    }).start();
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
+            accountPurchasesLast90Count=PurchaseBillUtil.accountPurchasesLast90Count(accountInfoMap);
+            setAndRefreshNote(account,"数据加载中...");
         }
 
+        Map<String,Object> res= PurchaseBillUtil.webLoginAndAuth(account.getAccount(),account.getPwd());
+        if(res.get("code").equals(Constant.SUCCESS)){
+            accountTableView.refresh();
+            Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
+            String token=loginResult.get("token").toString();
+            String dsid=loginResult.get("dsid").toString();
+            String searchCookies=loginResult.get("searchCookies").toString();
+            account.setArea(loginResult.get("countryName").toString());
+            List<String> jsonStrList=new ArrayList<>();
+            jsonStrList.clear();
+            PurchaseBillUtil.search(jsonStrList,dsid,"",token,searchCookies);
+            //整合数据
+            integratedData(new HashMap<>(), accountPurchasesLast90Count,account,jsonStrList);
+            if(jsonStrList.size()==0){
+                account.setNote("所选期间无购买记录");
+            }else{
+                account.setNote("查询完成");
+            }
+
+            accountTableView.refresh();
+        }else{
+            setAndRefreshNote(account,String.valueOf(res.get("msg")));
+        }
+        account.setHasFinished(true);
     }
 
     @FXML
-    protected void onAreaQueryLogBtnClick() throws Exception{
-        super.localHistoryButtonAction();
-    }
-
-
-    @FXML
-    protected void onStopBtnClick(ActionEvent actionEvent) {
+    protected void stopTaskButtonAction(ActionEvent actionEvent) {
 
     }
     private  void integratedData(Map<String,Object> queryParas,int accountPurchasesLast90Count,ConsumptionBill consumptionBill,List<String> datas) {
@@ -346,11 +238,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill> 
 //        items.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
 //        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
 
-    }
-    private void tableRefreshAndInsertLocal(ConsumptionBill account, String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        new Thread(() -> insertLocalHistory(List.of(account)));
     }
     @Override
     protected void twoFactorCodeExecute(ConsumptionBill a, String authCode){

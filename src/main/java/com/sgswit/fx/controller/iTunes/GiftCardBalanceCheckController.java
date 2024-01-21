@@ -187,23 +187,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         super.accountList=accountList;
         setAccountNumLabel();
     }
-    @FXML
-    protected void onAreaQueryLogBtnClick() throws Exception{
-        super.localHistoryButtonAction();
-    }
-    @FXML
-    protected void onAccountExportBtnClick() throws Exception{
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("友情提示");
-        alert.setHeaderText("功能建设中，敬请期待");
-        alert.show();
-    }
 
-    @FXML
-    protected void onAccountClearBtnClick() throws Exception{
-        super.accountList=accountList;
-        super.clearAccountListButtonAction();
-    }
+
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
         new Thread(() -> {
@@ -480,13 +465,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> i
         giftCard.setNote(message);
         accountTableView.refresh();
     }
-    private void tableRefreshAndInsertLocal(GiftCard account, String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        new Thread(() -> insertLocalHistory(List.of(account)));
-    }
 
-    public void onStopBtnClick(ActionEvent actionEvent) {
+    public void stopTaskButtonAction(ActionEvent actionEvent) {
 
     }
 

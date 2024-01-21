@@ -158,11 +158,6 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
     }
 
     @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
-    @Override
     protected void secondStepHandler(Account account, String code) {
         account.getAuthData().put("verifyCode",code);
         accountHandlerExpand(account);

@@ -59,16 +59,6 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Problem problem) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                accountHandler(problem);
-            }
-        }).start();
-    }
-
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
     }
@@ -76,12 +66,6 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
 
     @Override
     public void accountHandler(Problem problem) {
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.out,problem.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
         problem.setHasFinished(false);
         //step1 sign 登录
         problem.setNote("登录中");
@@ -103,7 +87,6 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 3){
                 problem.setHasFinished(true);
-//                queryFail(problem,"操作频繁，请稍后重试！");
                 throw new ServiceException("操作频繁，请稍后重试！");
             }
             try {
@@ -115,9 +98,6 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         }else{
             if (step1Res.getStatus() != 409) {
                 problem.setHasFinished(true);
-//                queryFail(problem);
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
                 throw new ServiceException("查询失败，请确认用户名密码是否正确");
             }
             String step1Body = step1Res.body();
@@ -140,11 +120,6 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
                 accountTableView.refresh();
                 insertLocalHistory(List.of(problem));
             } else if ("hsa2".equals(authType)) {
-//                problem.setNote("此账号已开启双重认证");
-//                accountTableView.refresh();
-//                insertLocalHistory(List.of(problem));
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
                 throw new ServiceException("此账号已开启双重认证");
             }
         }

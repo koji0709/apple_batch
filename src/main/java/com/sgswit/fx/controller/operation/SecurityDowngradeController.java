@@ -80,11 +80,4 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         }};
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
-
-    @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
-
 }

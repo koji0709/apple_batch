@@ -32,7 +32,7 @@ public class AccountImportUtil<T>{
         put("paymentPwd","付款账号密码");
         put("memberAccount","成员账号");
         put("memberPwd","成员账号密码");
-        put("cvv","安全吗（CVV）");
+        put("cvv","安全码（CVV）");
         put("giftCardCode","礼品卡");
     }};
 

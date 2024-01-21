@@ -301,12 +301,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         accountHandlerExpand(account);
     }
 
-    @Override
-    protected void reExecute(GiftCardRedeem account) {
-        accountHandlerExpand(account);
-    }
-
-
     /**
      * 检测账号按钮点击
      */

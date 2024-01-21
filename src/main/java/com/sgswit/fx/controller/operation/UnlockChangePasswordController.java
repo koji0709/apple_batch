@@ -79,9 +79,4 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
 }

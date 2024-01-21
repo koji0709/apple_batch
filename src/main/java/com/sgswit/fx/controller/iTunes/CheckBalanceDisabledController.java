@@ -52,9 +52,4 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         accountHandlerExpand(account);
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        accountHandlerExpand(account);
-    }
-
 }

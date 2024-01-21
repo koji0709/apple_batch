@@ -52,13 +52,6 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        new Thread(()->{
-            accountHandler(account);
-        }).start();
-    }
-
     @FXML
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
@@ -68,12 +61,6 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     @Override
     public void accountHandler(Account account) {
         account.setHasFinished(false);
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.out,account.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
         //step1 sign 登录
         account.setNote("登录中");
         accountTableView.refresh();
@@ -81,8 +68,6 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
         if(step1Res.getStatus()==503){
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 5){
                 account.setNote("操作频繁，请稍后重试！");
@@ -97,6 +82,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             if (step1Res.getStatus() != 409) {
                 account.setHasFinished(true);
                 queryFail(account,step1Res.body());
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
                 return ;
             }
 

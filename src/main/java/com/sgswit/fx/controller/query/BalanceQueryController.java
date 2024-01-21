@@ -37,10 +37,6 @@ public class BalanceQueryController extends CustomTableView<Account> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    @Override
-    protected void reExecute(Account account) {
-        accountHandler(account);
-    }
 
     public void onAccountInputBtnClick(){
         openImportAccountView(List.of("account----pwd"));
@@ -49,15 +45,8 @@ public class BalanceQueryController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
-        //扣除点数
-        Map<String,String> pointCost=PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.out,account.getAccount());
-        if(!Constant.SUCCESS.equals(pointCost.get("code"))){
-            alertUI(pointCost.get("msg"), Alert.AlertType.ERROR);
-            return;
-        }
         account.setHasFinished(false);
-        account.setNote("查询余额中");
-        accountTableView.refresh();
+        setAndRefreshNote(account,"查询余额中...");
         Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
         account.setHasFinished(true);
         if(res.get("code").equals(Constant.SUCCESS)){
@@ -65,10 +54,6 @@ public class BalanceQueryController extends CustomTableView<Account> {
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(!hasInspectionFlag){
                 account.setDataStatus("0");
-//                account.setNote("此 Apple ID 尚未用于 App Store。");
-//                accountTableView.refresh();
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
                 throw new ServiceException("此 Apple ID 尚未用于 App Store。");
             }
             res= PurchaseBillUtil.accountSummary(res);
@@ -77,9 +62,6 @@ public class BalanceQueryController extends CustomTableView<Account> {
             account.setNote("查询成功");
         }else {
             account.setDataStatus("0");
-//            account.setNote(res.get("msg").toString());
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.BALANCE_QUERY.getCode(),PointUtil.in,account.getAccount());
             throw new ServiceException(res.get("msg").toString());
         }
         accountTableView.refresh();

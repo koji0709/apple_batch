@@ -48,28 +48,6 @@ import java.util.ResourceBundle;
  * @date 2023/10/2714:40
  */
 public class FamilyDetailsController extends CustomTableView<Account> {
-
-    @FXML
-    public TableColumn seq;
-    @FXML
-    public TableColumn account;
-    @FXML
-    public TableColumn area;
-    @FXML
-    public TableColumn dsid;
-    @FXML
-    public TableColumn familyDetails;
-    @FXML
-    public TableColumn note;
-    @FXML
-    public TableColumn pwd;
-    @FXML
-    public Button accountQueryBtn;
-
-    @FXML
-    private TableView accountTableView;
-
-    private ObservableList<Account> list = FXCollections.observableArrayList();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.FAMILY_DETAILS.getCode())));
@@ -78,42 +56,6 @@ public class FamilyDetailsController extends CustomTableView<Account> {
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
         super.openImportAccountView(List.of("account----pwd"));
-    }
-    @FXML
-    protected void onAreaQueryLogBtnClick() throws Exception{
-        super.localHistoryButtonAction();
-    }
-    @FXML
-    protected void onAccountExportBtnClick() throws Exception{
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("友情提示");
-        alert.setHeaderText("功能建设中，敬请期待");
-        alert.show();
-    }
-
-    @FXML
-    protected void onAccountClearBtnClick() throws Exception{
-        super.clearAccountListButtonAction();
-    }
-
-    @FXML
-    protected void onAccountQueryBtnClick() throws Exception{
-        list=accountTableView.getItems();
-        if(list.size() < 1){
-            return;
-        }
-        for(Account account:list){
-            //判断是否已执行或执行中,避免重复执行
-            if(!StrUtil.isEmptyIfStr(account.getNote())){
-                continue;
-            }else{
-                //非双重认证
-                accountQueryBtn.setText("正在查询");
-                accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-                accountQueryBtn.setDisable(true);
-                executeFun(account);
-            }
-        }
     }
 
     protected void checkCloudAcc(Account account) {
@@ -190,67 +132,20 @@ public class FamilyDetailsController extends CustomTableView<Account> {
         account.setNote(message);
         accountTableView.refresh();
     }
-    private void tableRefreshAndInsertLocal(Account account, String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        super.insertLocalHistory(List.of(account));
-    }
-    @FXML
-    public void onStopBtnClick(ActionEvent actionEvent) {
-    }
+
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;
         items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
-    protected  void executeFun(Account account){
-        try {
-            //非双重认证
-            accountQueryBtn.setText("正在查询");
-            accountQueryBtn.setTextFill(Paint.valueOf("#FF0000"));
-            accountQueryBtn.setDisable(true);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
-                        try {
-                            account.setHasFinished(false);
-                            account.setNote("正在登录...");
-                            accountTableView.refresh();
-                            checkCloudAcc(account);
-                        } catch (Exception e) {
-                            accountQueryBtn.setDisable(false);
-                            accountQueryBtn.setText("开始执行");
-                            accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                            e.printStackTrace();
-                        }
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
-                                setAccountNumLabel();
-                                accountQueryBtn.setDisable(false);
-                                accountQueryBtn.setText("开始执行");
-                                accountQueryBtn.setTextFill(Paint.valueOf("#238142"));
-                                return 1;
-                            }
-                        });
-                    }
-                }
-            }).start();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    /**重新执行**/
     @Override
-    protected void reExecute(Account account){
-        executeFun(account);
+    public void accountHandler(Account account){
+        account.setNote("正在登录...");
+        accountTableView.refresh();
+        checkCloudAcc(account);
     }
+
     @Override
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
@@ -258,7 +153,7 @@ public class FamilyDetailsController extends CustomTableView<Account> {
             if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
-                executeFun(account);
+                accountHandlerExpand(account);
             }else{
                 alert("未下发双重验证码");
             }
