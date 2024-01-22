@@ -176,7 +176,7 @@
                         <CheckBox text="出现频繁重新执行" />
                         <CheckBox text="同账号以单线程工作" />
                         <CheckBox fx:id="hidePwdCheckBox" text="隐藏导入密码" />
-                        <CheckBox text="导入后滚动到最底行" />
+                        <CheckBox fx:id="scrollToLastRowCheckBox" text="导入后滚动到最底行" />
                         <Button text="工作2窗口" />
                         <Button text="工作3窗口" />
                     </children>
@@ -189,7 +189,7 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="250" text="账号" />
-                                <TableColumn fx:id="pwd" prefWidth="100" text="密码" />
+                                <TableColumn fx:id="pwd" visible="false" prefWidth="100" text="密码" />
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="礼品卡" />
                                 <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态" />
                                 <TableColumn fx:id="execTime" prefWidth="130" text="执行时间" />

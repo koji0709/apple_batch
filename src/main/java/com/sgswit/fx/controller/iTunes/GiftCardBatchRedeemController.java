@@ -61,13 +61,20 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @FXML
     CheckBox hidePwdCheckBox;
 
+    @FXML
+    CheckBox scrollToLastRowCheckBox;
+
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     private static Integer processNum = 0;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
+
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM.getCode())));
+        hidePwdCheckBox.setSelected(true);
+        scrollToLastRowCheckBox.setSelected(true);
+
         hidePwdCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             // newValue true = 隐藏密码, false = 展示密码
             accountTableView.getColumns().forEach(tableColumn -> {
@@ -76,6 +83,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 }
             });
         });
+
     }
     /**
      * 导入账号
@@ -85,6 +93,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
         openImportAccountView(Collections.emptyList(),desc);
+        boolean selected = scrollToLastRowCheckBox.isSelected();
+        if (selected){
+            accountTableView.scrollTo(accountList.size()-1);
+        }
     }
 
     @Override
