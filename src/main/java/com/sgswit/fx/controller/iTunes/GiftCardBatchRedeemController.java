@@ -461,4 +461,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         return matcher.matches();
     }
 
+    public void show2WindowAction(){
+        StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM2);
+    }
+
+    public void show3WindowAction(){
+        StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM3);
+    }
+
 }
