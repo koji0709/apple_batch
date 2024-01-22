@@ -80,7 +80,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
             boolean f=false;
             //判断是否符合正则表达式
             CreditCard creditCard = new CreditCard();
-            item=StringUtils.replacePattern(item, "-| ", " ");
+            item=StringUtils.replacePattern(item, "-| ", " ").trim();
             item= CustomStringUtils.replaceMultipleSpaces(item,"----");
             String[] array=item.split("----");
             if(array.length==3){

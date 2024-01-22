@@ -56,7 +56,7 @@ public class AccountImportUtil<T>{
         if (accountStr.contains("{-}")){
             accountStr = accountStr.replace("{-}",REPLACE_MENT);
         }
-        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ");
+        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
         accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"----");
         accountStr = accountStr.replaceAll("----","-");
 
