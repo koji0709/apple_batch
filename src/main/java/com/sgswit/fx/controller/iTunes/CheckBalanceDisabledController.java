@@ -27,8 +27,8 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
      */
     @Override
     public void accountHandler(Account account) {
+        setAndRefreshNote(account,"登录查询中...");
         itunesLogin(account);
-
         HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
         JSONObject rspJSON = PListUtil.parse(authRsp.body());
         String balance  = rspJSON.getStr("creditDisplay","0");

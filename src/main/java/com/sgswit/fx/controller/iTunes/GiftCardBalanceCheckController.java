@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -233,6 +234,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                             try {
                                 if(n.get()==4){
                                     n.set(0);
+                                    Thread.sleep(1000);
                                     loginAndInit();
                                 }
                                 n.addAndGet(1);
@@ -478,10 +480,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         executeButton.setDisable(status);
     }
     @Override
-    public void accountHandlerExpand(GiftCard giftCard) {
-        new Thread(()->{
-            checkBalance(giftCard, hashMap);
-        }).start();
+    public void accountHandler(GiftCard giftCard) {
+        checkBalance(giftCard, hashMap);
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

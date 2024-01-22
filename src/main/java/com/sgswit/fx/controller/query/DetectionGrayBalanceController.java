@@ -123,8 +123,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new ServiceException(MapUtil.getStr(cheMap,"msg"));
             }
             //调登录页面
-            account.setNote("登录页面加载中...");
-            accountTableView.refresh();
+            setAndRefreshNote(account,"登录页面加载中...");
             Thread.sleep(2000);
             Map<String,Object> signInMap = ShoppingUtil.shopSignIn(cheMap);
             if(!Constant.SUCCESS.equals(signInMap.get("code"))){
@@ -177,7 +176,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new ServiceException( MapUtil.getStr(map,"msg"));
             }
             account.setState(map.get("address").toString());
-            accountTableView.refresh();
+            setAndRefreshNote(account,"");
             //确认地址 - 显示账户余额
             Thread.sleep(2000);
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);

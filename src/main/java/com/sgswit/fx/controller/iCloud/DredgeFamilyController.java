@@ -56,7 +56,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account){
-        tableRefresh(account,"正在登录...");
+        setAndRefreshNote(account,"正在登录...");
         HttpResponse response;
         String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
         if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
@@ -74,7 +74,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
-                        tableRefresh(account,"登录成功，正在开通...");
+                        setAndRefreshNote(account,"登录成功，正在开通...");
                         Map<String,Object> res=ICloudUtil.createFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount(),account.getPwd(),account.getPaymentAccount(),account.getPaymentPwd());
                         if(Constant.SUCCESS.equals(res.get("code"))){
                             message = "开通成功";
@@ -89,7 +89,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
                             message="未激活iCloud账户";
                         }
                     }
-                    tableRefresh(account,message);
+                    setAndRefreshNote(account,message);
                 }else{
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
@@ -99,25 +99,19 @@ public class DredgeFamilyController extends CustomTableView<Account> {
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefresh(account,message);
+                        setAndRefreshNote(account,message);
                     }else{
-                        tableRefresh(account,rspJSON.getStr("status-message"));
+                        setAndRefreshNote(account,rspJSON.getStr("status-message"));
                     }
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"Apple ID或密码错误。");
+                setAndRefreshNote(account,"Apple ID或密码错误。");
                 e.printStackTrace();
             }
         }else {
-            tableRefresh(account,response.body());
+            setAndRefreshNote(account,response.body());
         }
-    }
-
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        insertLocalHistory(List.of(account));
     }
 
     @Override

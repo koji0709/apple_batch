@@ -55,11 +55,9 @@ public class WhetherInspectionController extends CustomTableView<Account> {
         }
         account.setHasFinished(false);
         try {
-            account.setNote("登录中");
-            accountTableView.refresh();
+            setAndRefreshNote(account,"登录中...");
             Map<String, Object> res = PurchaseBillUtil.iTunesAuth(account.getAccount(), account.getPwd());
-            account.setNote("查询是否过检中");
-            accountTableView.refresh();
+            setAndRefreshNote(account,"查询是否过检中...");
             account.setHasFinished(true);
             if(res.get("code").equals(Constant.SUCCESS)){
                 int purchasesLast90Count=0;

@@ -66,6 +66,7 @@ public class PaymentMethodController extends CustomTableView<Account>{
     }
     @Override
     public void accountHandler(Account account){
+        setAndRefreshNote(account, "正在登录...");
         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
         Map<String,Object> res=account.getAuthData();
         if("00".equals(step)){

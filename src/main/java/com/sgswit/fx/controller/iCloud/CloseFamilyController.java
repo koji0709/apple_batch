@@ -44,7 +44,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account){
-        tableRefresh(account,"正在登录...");
+        setAndRefreshNote(account,"正在登录...");
         HttpResponse response;
         String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
         if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
@@ -62,7 +62,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
                     JSON comAppleMobileme = JSONUtil.parse(delegates.get("com.apple.mobileme"));
                     String status= comAppleMobileme.getByPath("status",String.class);
                     if("0".equals(status)){
-                        tableRefresh(account,"登录成功，正在关闭...");
+                        setAndRefreshNote(account,"登录成功，正在关闭...");
                         //关闭家庭共享
                         Map<String,Object> res=ICloudUtil.leaveFamily(ICloudUtil.getAuthByHttResponse(response),account.getAccount());
                         if(Constant.SUCCESS.equals(res.get("code"))){
@@ -78,7 +78,7 @@ public class CloseFamilyController extends CustomTableView<Account> {
                             message="未激活iCloud账户";
                         }
                     }
-                    tableRefresh(account,message);
+                    setAndRefreshNote(account,message);
                 }else{
                     String message="";
                     for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
@@ -88,26 +88,20 @@ public class CloseFamilyController extends CustomTableView<Account> {
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefresh(account,message);
+                        setAndRefreshNote(account,message);
                     }else{
-                        tableRefresh(account,rspJSON.getStr("status-message"));
+                        setAndRefreshNote(account,rspJSON.getStr("status-message"));
                     }
                 }
 
             }catch (Exception e){
-                tableRefresh(account,"Apple ID或密码错误。");
+                setAndRefreshNote(account,"Apple ID或密码错误。");
                 e.printStackTrace();
             }
         }else {
-            tableRefresh(account,response.body());
+            setAndRefreshNote(account,response.body());
         }
 
-    }
-
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        insertLocalHistory(List.of(account));
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

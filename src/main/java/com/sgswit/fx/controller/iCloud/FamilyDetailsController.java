@@ -59,7 +59,7 @@ public class FamilyDetailsController extends CustomTableView<Account> {
     }
 
     protected void checkCloudAcc(Account account) {
-        tableRefresh(account,"正在登录...");
+        setAndRefreshNote(account,"正在登录...");
         HttpResponse response;
         String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
         if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
@@ -85,7 +85,7 @@ public class FamilyDetailsController extends CustomTableView<Account> {
                         }
                     }else{
                         if(Constant.ACCOUNT_INVALID_HSA_TOKEN.equals(comAppleMobileme.getByPath("status-error",String.class))){
-                            tableRefresh(account,comAppleMobileme.getByPath("status-message",String.class));
+                            setAndRefreshNote(account,comAppleMobileme.getByPath("status-message",String.class));
                             account.getAuthData().put("code",Constant.TWO_FACTOR_AUTHENTICATION);
                             account.setHasFinished(true);
                             return;
@@ -101,7 +101,7 @@ public class FamilyDetailsController extends CustomTableView<Account> {
                         account.setArea(regionId);
                     }
                     account.setDsid(rspJSON.getStr("dsid"));
-                    tableRefreshAndInsertLocal(account, message);
+                    setAndRefreshNote(account, message);
                 }else{
                     account.setDataStatus("0");
                     String message="";
@@ -112,25 +112,21 @@ public class FamilyDetailsController extends CustomTableView<Account> {
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefreshAndInsertLocal(account, message);
+                        setAndRefreshNote(account, message);
                     }else{
-                        tableRefreshAndInsertLocal(account, rspJSON.getStr("status-message"));
+                        setAndRefreshNote(account, rspJSON.getStr("status-message"));
                     }
                 }
 
             }catch (Exception e){
                 account.setDataStatus("0");
-                tableRefreshAndInsertLocal(account, "Apple ID或密码错误。");
+                setAndRefreshNote(account, "Apple ID或密码错误。");
             }
         }else {
             account.setDataStatus("0");
-            tableRefreshAndInsertLocal(account, response.body());
+            setAndRefreshNote(account, response.body());
         }
         account.setHasFinished(true);
-    }
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
     }
 
     @FXML
@@ -141,8 +137,6 @@ public class FamilyDetailsController extends CustomTableView<Account> {
     }
     @Override
     public void accountHandler(Account account){
-        account.setNote("正在登录...");
-        accountTableView.refresh();
         checkCloudAcc(account);
     }
 

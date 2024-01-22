@@ -63,7 +63,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>{
     }
 
     protected void checkCloudAcc(Account account) {
-        tableRefresh(account,"正在登录...");
+        setAndRefreshNote(account,"正在登录...");
         HttpResponse response;
         String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
         if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
@@ -124,12 +124,8 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>{
             }
         }else {
             account.setHasFinished(true);
-            tableRefresh(account,response.body());
+            setAndRefreshNote(account,response.body());
         }
-    }
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
     }
 
     @FXML

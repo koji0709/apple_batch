@@ -66,7 +66,6 @@ import java.util.stream.Collectors;
 　* @date 2023/10/27 10:10
  */
 public class CountryModifyController extends CustomTableView<Account>{
-
     @FXML
     private ComboBox<Map<String,String>> countryBox;
     @FXML
@@ -208,7 +207,6 @@ public class CountryModifyController extends CustomTableView<Account>{
         }else if(!Constant.SUCCESS.equals(res.get("code"))){
             account.setNote(String.valueOf(res.get("msg")));
             account.setDataStatus("0");
-            insertLocalHistory(List.of(account));
             throw new ServiceException(String.valueOf(res.get("msg")));
         }else{
             setAndRefreshNote(account,"登录成功，正在修改...");
@@ -260,7 +258,6 @@ public class CountryModifyController extends CustomTableView<Account>{
             }
             account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
             account.setHasFinished(false);
-            insertLocalHistory(List.of(account));
         }
         account.setHasFinished(true);
         accountTableView.refresh();

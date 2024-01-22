@@ -68,8 +68,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
     public void accountHandler(Problem problem) {
         problem.setHasFinished(false);
         //step1 sign 登录
-        problem.setNote("登录中");
-        accountTableView.refresh();
+        setAndRefreshNote(problem,"登录中...");
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
@@ -79,8 +78,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
             e.printStackTrace();
         }
         HttpResponse step1Res = AppleIDUtil.signin(account);
-        problem.setNote("查询密保问题中");
-        accountTableView.refresh();
+        setAndRefreshNote(problem,"查询密保问题中...");
         if (step1Res.getStatus() == 503) {
             //返还点数
             PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
@@ -125,18 +123,4 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         }
         problem.setHasFinished(true);
     }
-
-
-    private void queryFail(Problem problem) {
-        String note = "查询失败，请确认用户名密码是否正确";
-        problem.setNote(note);
-        accountTableView.refresh();
-        insertLocalHistory(List.of(problem));
-    }
-    private void queryFail(Problem problem,String notes) {
-        problem.setNote(notes);
-        accountTableView.refresh();
-        insertLocalHistory(List.of(problem));
-    }
-
 }

@@ -15,6 +15,7 @@ import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
+import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -213,10 +214,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");
-                if(securityCode){
-                    ReflectUtil.invoke(account,"setSecurityCode","");
-                }
                 boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
                 try {
                     // 扣除点数
@@ -451,6 +448,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 清空列表按钮点击
      */
     public void clearAccountListButtonAction() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setHeaderText("");
+        confirm.setContentText("确认删除列表数据？");
+        Optional<ButtonType> type = confirm.showAndWait();
+        if (type.get()==ButtonType.OK){
+        }else{
+            return;
+        }
         //判断任务是否进行中
         for(T account:accountList){
             Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");

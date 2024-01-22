@@ -43,8 +43,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
     @Override
     public void accountHandler(Account account) {
         account.setHasFinished(false);
-        account.setNote("正在登录...");
-        accountTableView.refresh();
+        setAndRefreshNote(account, "正在登录...");
         try {
             Thread.sleep(1500);
         } catch (InterruptedException e) {

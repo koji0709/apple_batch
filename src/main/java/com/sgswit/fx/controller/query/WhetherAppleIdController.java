@@ -54,8 +54,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         //扣除点数
         try {
             account.setHasFinished(false);
-            account.setNote("查询中");
-            accountTableView.refresh();
+            setAndRefreshNote(account,"查询中...");
             Thread.sleep(2*1000);
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
@@ -117,15 +116,13 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                             accountHandler(account);
                         }else {
                             account.setStatus(message);
-                            account.setNote("查询成功");
-                            accountTableView.refresh();
+                            setAndRefreshNote(account,"查询成功");
                             insertLocalHistory(List.of(account));
                         }
 
                     } else if (object2.getStr("serviceErrors") != null) {
                         account.setStatus("此AppleID无效或不受支持");
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"查询成功");
                         insertLocalHistory(List.of(account));
                     }
                 } else {
@@ -134,23 +131,19 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                             .execute();
                     if (StringUtils.isEmpty(location.body())) {
                         account.setStatus("此AppleID已开启双重认证");
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"查询成功");
                         insertLocalHistory(List.of(account));
                     } else if (JSONUtil.parseObj(location.body()).get("account") != null) {
                         account.setStatus("此AppleID已被锁定");
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"查询成功");
                         insertLocalHistory(List.of(account));
                     }else if(JSONUtil.parseObj(location.body()).get("trustedPhones") != null){
                         account.setStatus("此AppleID已开启双重认证");
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"查询成功");
                         insertLocalHistory(List.of(account));
                     } else {
                         account.setStatus("此AppleID正常");
-                        account.setNote("查询成功");
-                        accountTableView.refresh();
+                        setAndRefreshNote(account,"查询成功");
                         insertLocalHistory(List.of(account));
                     }
                 }

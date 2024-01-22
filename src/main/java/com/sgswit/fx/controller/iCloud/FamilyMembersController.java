@@ -71,23 +71,17 @@ public class FamilyMembersController extends CustomTableView<Account> {
         if("添加家庭成员".equals(value)){
             if(StringUtils.isEmpty(account.getMemberPwd())){
                 message = "账号导入格式不正确";
-                tableRefresh(account,message);
+                setAndRefreshNote(account,message);
                 return;
             }
             message = "";
         }else {
             if(!StringUtils.isEmpty(account.getMemberPwd())){
                 message = "账号导入格式不正确";
-                tableRefresh(account,message);
+                setAndRefreshNote(account,message);
                 return;
             }
             message = "";
         }
-    }
-
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
-        insertLocalHistory(List.of(account));
     }
 }

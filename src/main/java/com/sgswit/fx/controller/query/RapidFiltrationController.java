@@ -62,17 +62,13 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     public void accountHandler(Account account) {
         account.setHasFinished(false);
         //step1 sign 登录
-        account.setNote("登录中");
-        accountTableView.refresh();
+        setAndRefreshNote(account,"登录中...");
         ThreadUtil.sleep(2000);
         HttpResponse step1Res = AppleIDUtil.signin(account);
 
         if(step1Res.getStatus()==503){
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 5){
-                account.setNote("操作频繁，请稍后重试！");
-                accountTableView.refresh();
-                insertLocalHistory(List.of(account));
                 account.setHasFinished(true);
                 throw new ServiceException("操作频繁，请稍后重试！！");
             }
@@ -95,12 +91,10 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
             String authType = (String) json.getByPath("authType");
             if ("sa".equals(authType)) {
-                account.setNote("正常账号");
-                accountTableView.refresh();
+                setAndRefreshNote(account,"正常账号");
                 insertLocalHistory(List.of(account));
             } else if ("hsa2".equals(authType)) {
-                account.setNote("此账号已开启双重认证");
-                accountTableView.refresh();
+                setAndRefreshNote(account,"此账号已开启双重认证");
                 insertLocalHistory(List.of(account));
             }
         }
@@ -119,7 +113,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         }else{
             account.setNote("Apple ID 未激活");
         }
-        accountTableView.refresh();
+        setAndRefreshNote(account,"");
         insertLocalHistory(List.of(account));
     }
 

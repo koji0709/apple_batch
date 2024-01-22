@@ -214,6 +214,18 @@ public class CommRightContextMenuView<T> extends CommonView {
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
+                    boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");
+                    if(securityCode){
+                        ReflectUtil.invoke(account,"setSecurityCode","");
+                    }
+                    boolean authCode = ReflectUtil.hasField(account.getClass(), "authCode");
+                    if(authCode){
+                        ReflectUtil.invoke(account,"setAuthCode","");
+                    }
+                    boolean step = ReflectUtil.hasField(account.getClass(), "step");
+                    if(step){
+                        ReflectUtil.invoke(account,"setStep","");
+                    }
                     accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
