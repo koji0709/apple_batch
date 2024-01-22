@@ -58,13 +58,24 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @FXML
     Button editOrImportAccountListBtn;
 
+    @FXML
+    CheckBox hidePwdCheckBox;
+
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     private static Integer processNum = 0;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM.getCode())));
         super.initialize(url, resourceBundle);
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM.getCode())));
+        hidePwdCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            // newValue true = 隐藏密码, false = 展示密码
+            accountTableView.getColumns().forEach(tableColumn -> {
+                if ("pwd".equals(tableColumn.getId())){
+                    tableColumn.setVisible(!newValue);
+                }
+            });
+        });
     }
     /**
      * 导入账号
@@ -227,12 +238,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     }
 
-
-
-
-
-
-
     /**
      * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
      * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
@@ -244,8 +249,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         giftCardRedeem.setExecTime(DateUtil.now());
         boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
-            setAndRefreshNote(giftCardRedeem,"输入的代码无效。");
-            return;
+            throw new ServiceException("输入的代码无效。");
         }
 
         // 登录并缓存
@@ -256,8 +260,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String body = redeemRsp.body();
         if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
             String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
-            setAndRefreshNote(giftCardRedeem,message);
-            return;
+            throw new ServiceException(message);
         }
 
         // 兑换
@@ -285,8 +288,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("兑换失败");
             }
-            setAndRefreshNote(giftCardRedeem,message);
-            return;
+            throw new ServiceException(message);
         }
         // 礼品卡兑换成功
         String message = "礼品卡[%s]兑换成功!";

@@ -175,7 +175,7 @@
                         <Label text="讯果礼品卡大数据" textFill="red" />
                         <CheckBox text="出现频繁重新执行" />
                         <CheckBox text="同账号以单线程工作" />
-                        <CheckBox text="隐藏导入密码" />
+                        <CheckBox fx:id="hidePwdCheckBox" text="隐藏导入密码" />
                         <CheckBox text="导入后滚动到最底行" />
                         <Button text="工作2窗口" />
                         <Button text="工作3窗口" />
