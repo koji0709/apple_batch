@@ -7,6 +7,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.javafaker.Faker;
 import com.sgswit.fx.model.Account;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -52,15 +53,16 @@ public class AccountImportUtil<T>{
 
     public List<T> parseAccount(Class<T> clz,String accountStr, List<String> formatList){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
+        if (accountStr.contains("{-}")){
+            accountStr = accountStr.replace("{-}",REPLACE_MENT);
+        }
+        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ");
+        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"----");
         accountStr = accountStr.replaceAll("----","-");
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
             return null;
-        }
-
-        if (accountStr.contains("{-}")){
-            accountStr = accountStr.replace("{-}",REPLACE_MENT);
         }
 
         String[] accList = accountStr.split("\n");

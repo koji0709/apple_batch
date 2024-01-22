@@ -9,10 +9,7 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.MapUtils;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,6 +56,8 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
+
+
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/virtualCard-input-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 300);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -81,6 +80,8 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
             boolean f=false;
             //判断是否符合正则表达式
             CreditCard creditCard = new CreditCard();
+            item=StringUtils.replacePattern(item, "-| ", " ");
+            item= CustomStringUtils.replaceMultipleSpaces(item,"----");
             String[] array=item.split("----");
             if(array.length==3){
                 creditCard.setSeq(accountList.size()+1);
