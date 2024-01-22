@@ -55,6 +55,11 @@ public class ICloudUtil {
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
+        headers.put("X-MMe-Country", ListUtil.toList("CN"));
+        headers.put("User-Agent", ListUtil.toList("Accounts/113 CFNetwork/711.2.23 Darwin/14.0.0"));
+        String auth= Base64.encode(appleId+":"+password);
+        headers.put("Authorization", ListUtil.toList("Basic " + auth));
+        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone4,1> <iPhone OS;8.4.1;12H321> <com.apple.AppleAccount/1.0 (com.apple.Preferences/1.0)>"));
 
         String body =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
