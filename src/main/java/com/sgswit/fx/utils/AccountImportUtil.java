@@ -57,8 +57,7 @@ public class AccountImportUtil<T>{
             accountStr = accountStr.replace("{-}",REPLACE_MENT);
         }
         accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
-        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"----");
-        accountStr = accountStr.replaceAll("----","-");
+        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"-");
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
