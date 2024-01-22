@@ -2,6 +2,9 @@ package com.sgswit.fx.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author DeZh
  * @title: CustomStringUtil
@@ -21,7 +24,6 @@ public class CustomStringUtils extends StringUtils {
     　* @date 2024/1/22 12:00
     */
     public static String replaceMultipleSpaces(String str,String str2){
-        return str.replaceAll("\\s+", str2);
+        return str.replaceAll("\\ +", str2);
     }
-
 }
