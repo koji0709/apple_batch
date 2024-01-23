@@ -10,25 +10,19 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
-import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -37,20 +31,13 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
-import org.seimicrawler.xpath.JXDocument;
-import org.seimicrawler.xpath.JXNode;
 
-import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.net.CookieStore;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -143,14 +130,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            loginAndInit();
-                        }catch (Exception e){
+                new Thread(() -> {
+                    try {
+                        loginAndInit();
+                    }catch (Exception e){
 
-                        }
                     }
                 }).start();
             }
@@ -160,6 +144,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
+        if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("信息");
+            alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+            alert.show();
+            return;
+        }
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/giftCard-input-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 300);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -177,10 +168,14 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(null == c.getData() || "".equals(c.getData())){
             return;
         }
+        String[] accountPwdArray= account_pwd.getText().split("----");
+
         String[] lineArray = c.getData().split("\n");
         for(String item : lineArray){
             GiftCard giftCard = new GiftCard();
             giftCard.setSeq(accountList.size()+1);
+            giftCard.setPwd(accountPwdArray[1]);
+            giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
             accountList.add(giftCard);
         }
@@ -201,10 +196,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }
         }).start();
     }
-
     @Override
-    @FXML
-        public void executeButtonAction(){
+    public void executeButtonAction(){
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
@@ -215,8 +208,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(accountList.size() < 1){
             return;
         }
-        AtomicInteger n=new AtomicInteger();
-        for(GiftCard giftCard:accountList){
+        for (int i = 0; i < accountList.size(); i++) {
+            GiftCard giftCard=accountList.get(i);
             //判断是否已执行或执行中,避免重复执行
             if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
                 continue;
@@ -227,17 +220,18 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 executeButton.setText("正在查询");
                 executeButton.setTextFill(Paint.valueOf("#FF0000"));
                 executeButton.setDisable(true);
+                if ((i +1) != accountList.size() && (i +1) % 5 == 0){
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 new Thread(new Runnable() {
                     @Override
                     public void run(){
                         try {
                             try {
-                                if(n.get()==4){
-                                    n.set(0);
-                                    Thread.sleep(1000);
-                                    loginAndInit();
-                                }
-                                n.addAndGet(1);
                                 checkBalance(giftCard, hashMap);
                             } catch (Exception e) {
                                 executeButton.setDisable(false);

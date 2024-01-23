@@ -11,6 +11,8 @@ import javafx.beans.property.SimpleStringProperty;
  * @date 2023/10/3121:37
  */
 public class GiftCard extends AuthData{
+    private final SimpleStringProperty account;
+    private final SimpleStringProperty pwd;
     private final SimpleIntegerProperty seq;
     private final SimpleStringProperty giftCardCode;
     private final SimpleStringProperty balance;
@@ -19,6 +21,8 @@ public class GiftCard extends AuthData{
     private final SimpleStringProperty logTime;
 
     public GiftCard() {
+        this.account = new SimpleStringProperty();
+        this.pwd = new SimpleStringProperty();
         this.seq = new SimpleIntegerProperty();
         this.giftCardCode = new SimpleStringProperty();
         this.balance = new SimpleStringProperty();
@@ -74,5 +78,22 @@ public class GiftCard extends AuthData{
 
     public void setLogTime(String logTime) {
         this.logTime.set(logTime);
+    }
+
+    public String getAccount() {
+        return account.get();
+    }
+
+
+    public void setAccount(String account) {
+        this.account.set(account);
+    }
+
+    public String getPwd() {
+        return pwd.get();
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd.set(pwd);
     }
 }

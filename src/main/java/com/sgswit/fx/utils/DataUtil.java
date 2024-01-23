@@ -11,6 +11,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
@@ -158,10 +159,6 @@ public class DataUtil {
                     writer.flush();
                     writer.close();
                 }
-
-
-
-
             }
         }catch (Exception e){
 
@@ -170,14 +167,12 @@ public class DataUtil {
     public static String getGuidByAppleId(String appleId){
         String guid=null;
         try {
-            guid= Db.use().queryString("SELECT guid FROM apple_id_base_info WHERE apple_id=?",appleId);
-            if(StringUtils.isEmpty(guid)){
+            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?appleId="+appleId);
+            JSON json=JSONUtil.parse(rsp.body());
+            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                guid= json.getByPath("id",String.class);
+            }else{
                 guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
-                Entity entity=new Entity();
-                entity.setTableName("apple_id_base_info");
-                entity.set("guid",guid);
-                entity.set("apple_id",appleId);
-                Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
             guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
@@ -189,14 +184,12 @@ public class DataUtil {
     public static String getClientIdByAppleId(String appleId){
         String clientId;
         try {
-            clientId= Db.use().queryString("SELECT client_id FROM apple_id_base_info WHERE apple_id=?",appleId);
-            if(StringUtils.isEmpty(clientId)){
+            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?cld="+appleId);
+            JSON json=JSONUtil.parse(rsp.body());
+            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                clientId= json.getByPath("id",String.class);
+            }else{
                 clientId = IdUtil.fastUUID().toUpperCase();
-                Entity entity=new Entity();
-                entity.setTableName("apple_id_base_info");
-                entity.set("apple_id",appleId);
-                entity.set("client_id",clientId);
-                Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
             clientId = IdUtil.fastUUID().toUpperCase();
@@ -207,14 +200,12 @@ public class DataUtil {
     public static String getWebClientIdByAppleId(String appleId){
         String clientId;
         try {
-            clientId= Db.use().queryString("SELECT web_client_id FROM apple_id_base_info WHERE apple_id=?",appleId);
-            if(StringUtils.isEmpty(clientId)){
+            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?cld="+appleId);
+            JSON json=JSONUtil.parse(rsp.body());
+            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                clientId= json.getByPath("id",String.class);
+            }else{
                 clientId = WebLoginUtil.createClientId();
-                Entity entity=new Entity();
-                entity.setTableName("apple_id_base_info");
-                entity.set("apple_id",appleId);
-                entity.set("web_client_id",clientId);
-                Db.use().insertOrUpdate(entity,"apple_id");
             }
         }catch (Exception e){
             clientId = WebLoginUtil.createClientId();

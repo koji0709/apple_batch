@@ -107,7 +107,7 @@ public class MainApplication extends Application {
         String latestVersionNum = versionData.getStr("versionNum");
         String currentVersionNum = PropertiesUtil.getConfig("softwareInfo.version");
         // 比较版本大小
-        if (compareVersion(latestVersionNum,currentVersionNum)<0){
+        if (compareVersion(latestVersionNum,currentVersionNum)<=0){
             return false;
         }
         Map<String,Object> userData=new HashMap<>();

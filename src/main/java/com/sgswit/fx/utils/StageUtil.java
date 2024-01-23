@@ -5,6 +5,7 @@ import com.sgswit.fx.enums.StageEnum;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -54,6 +55,7 @@ public class StageUtil {
         stage.setResizable(false);
         stage.setUserData(userData);
         stage.initStyle(stageEnum.getInitStyle());
+        stage.getIcons().add(new Image("/image/qrcode.jpeg") );
         if (isWait){
             stage.showAndWait();
         }else{

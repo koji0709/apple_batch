@@ -35,6 +35,12 @@ import java.util.*;
 
 public class PurchaseBillUtil {
 
+    public static void main(String[] args ) throws Exception {
+//        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
+//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
+        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
+
+    }
     ///网页版版
     public static Map<String,Object> webLoginAndAuth(String account,String pwd){
         Map<String,Object>  result=new HashMap<>();
