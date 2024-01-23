@@ -45,7 +45,7 @@
                                     <RowConstraints />
                                             </rowConstraints>
                                             <children>
-                                                <Button mnemonicParsing="false" onAction="#importAccountButtonAction" prefWidth="100" text="导入账号" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <Button mnemonicParsing="false" onAction="#importAccountButtonAction" prefWidth="100" text="导入礼品卡" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                                 <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                                 <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                                 <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -58,7 +58,7 @@
                         </TitledPane>
 
                         <!--配置信息-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="760" text="配置信息">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="650" text="配置信息">
                             <content>
                                 <VBox alignment="CENTER" spacing="14" style="-fx-font-size: 12">
                                     <children>
@@ -93,7 +93,7 @@
                         </TitledPane>
 
                         <!--执行结果-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="110" text="执行结果">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="120" text="执行结果">
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
                                     <children>
@@ -125,17 +125,18 @@
                 <!--账号列表-->
                 <TitledPane animated="false" collapsible="false" text="账号列表">
                     <content>
-                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="500" prefWidth="1160">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="500" prefWidth="1050">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="查询卡号" />
-                                <TableColumn fx:id="giftCardType" prefWidth="250" text="卡片类型" />
+                                <TableColumn fx:id="giftCardType" prefWidth="200" text="卡片类型" />
                                 <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态" />
                                 <TableColumn fx:id="execTime" prefWidth="130" text="查询时间" />
                                 <TableColumn fx:id="giftCardAmount" prefWidth="100" text="初始面值" />
                                 <TableColumn fx:id="recipientDsId" prefWidth="100" text="使用人Dsid" />
                                 <TableColumn fx:id="salesOrg" prefWidth="100" text="卡片国家" />
                                 <TableColumn fx:id="redeemLog" prefWidth="100" text="本平台兑换记录" />
+                                <TableColumn fx:id="note" prefWidth="100" text="执行记录" />
                             </columns>
                         </TableView>
                     </content>

@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -70,18 +71,45 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
         giftCardRedeem.setExecTime(DateUtil.now());
-
-        // 登录并缓存
-        itunesLogin(giftCardRedeem);
-
         boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
             throw new ServiceException("输入的代码无效。");
         }
-
         // X8HZ8Z7KT7DW8PML
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem,giftCardRedeem.getGiftCardCode());
-        System.err.println(codeInfoSrvRsp);
+        String body = codeInfoSrvRsp.body();
+        if (codeInfoSrvRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
+            throw new ServiceException("查询失败");
+        }
+        JSONObject bodyJSON = JSONUtil.parseObj(body);
+        if (bodyJSON.getInt("status") != 0){
+            throw new ServiceException("查询失败");
+        }
+
+        JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
+        giftCardRedeem.setGiftCardAmount(codeInfo.getStr("amount"));
+        giftCardRedeem.setRecipientDsId(codeInfo.getStr("recipientDsId"));
+        String productTypeDesc = codeInfo.getStr("productTypeDesc");
+        giftCardRedeem.setGiftCardType(productTypeDesc);
+
+        giftCardRedeem.setSalesOrg(codeInfo.getStr("salesOrg"));
+        if (!StrUtil.isEmpty(productTypeDesc) && productTypeDesc.contains("-")){
+            String countryCode = productTypeDesc.split("-")[1];
+            String countryName = DataUtil.getNameByCountryCode(countryCode);
+            if (!StrUtil.isEmpty(countryCode) && !StrUtil.isEmpty(countryName)){
+                giftCardRedeem.setSalesOrg(countryCode+"-"+countryName);
+            }
+        }
+
+        String status = codeInfo.getStr("status");
+        if ("2".equals(status)){
+            giftCardRedeem.setGiftCardStatus("未使用");
+        }else if ("4".equals(status)){
+            giftCardRedeem.setGiftCardStatus("已使用");
+        }else{
+            giftCardRedeem.setGiftCardStatus("未知");
+        }
+        setAndRefreshNote(giftCardRedeem,"查询成功");
     }
 
     /**
@@ -179,5 +207,13 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
         return matcher.matches();
+    }
+
+    public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        onContentMenuClick(contextMenuEvent, new ArrayList<>(new LinkedHashSet<>(){{
+            add(Constant.RightContextMenu.DELETE.getCode());
+            add(Constant.RightContextMenu.REEXECUTE.getCode());
+            add(Constant.RightContextMenu.COPY.getCode());
+        }}));
     }
 }
