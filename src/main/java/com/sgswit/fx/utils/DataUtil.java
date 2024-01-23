@@ -35,6 +35,10 @@ import java.util.stream.Collectors;
 public class DataUtil {
     private static List<BaseAreaInfo> baseAreaInfoList;
     private static List<Map> proxyModeList;
+    private static Map<String,Map<String,String>> ids=new HashMap<>();
+    private static String guid="guid";
+    private static String client_id="cld";
+    private static String web_client_id="wbCld";
     /**
     　* @description: 获取国家地区码表
       * @param
@@ -84,12 +88,6 @@ public class DataUtil {
         BaseAreaInfo areaInfo=getInfoByCountryCode(countryCode);
         return (null==areaInfo)?"":areaInfo.getNameZh();
     }
-    public static String getCodeByCountryName(String countryName){
-        getCountry();
-        List<BaseAreaInfo> list= baseAreaInfoList.stream().filter(n->n.getNameZh().equals(countryName)).collect(Collectors.toList());
-        return (list.size()==0)?null:list.get(0).getCode();
-    }
-
     public static String getAddressFormat(String countryCode){
         Map<String,Object> result= new HashMap<>();
         try {
@@ -165,53 +163,13 @@ public class DataUtil {
         }
     }
     public static String getGuidByAppleId(String appleId){
-        String guid=null;
-        try {
-            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?appleId="+appleId);
-            JSON json=JSONUtil.parse(rsp.body());
-            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                guid= json.getByPath("id",String.class);
-            }else{
-                guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
-            }
-        }catch (Exception e){
-            guid = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
-        }finally {
-
-        }
-        return guid;
+        return getId(guid,appleId);
     }
     public static String getClientIdByAppleId(String appleId){
-        String clientId;
-        try {
-            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?cld="+appleId);
-            JSON json=JSONUtil.parse(rsp.body());
-            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                clientId= json.getByPath("id",String.class);
-            }else{
-                clientId = IdUtil.fastUUID().toUpperCase();
-            }
-        }catch (Exception e){
-            clientId = IdUtil.fastUUID().toUpperCase();
-        }finally {
-        }
-        return clientId;
+        return getId(client_id,appleId);
     }
     public static String getWebClientIdByAppleId(String appleId){
-        String clientId;
-        try {
-            HttpResponse rsp = HttpUtil.get("/api/data/getId/guid?cld="+appleId);
-            JSON json=JSONUtil.parse(rsp.body());
-            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                clientId= json.getByPath("id",String.class);
-            }else{
-                clientId = WebLoginUtil.createClientId();
-            }
-        }catch (Exception e){
-            clientId = WebLoginUtil.createClientId();
-        }finally {
-        }
-        return clientId;
+        return getId(web_client_id,appleId);
     }
     public static List<String> getLanguageList(){
         return  getLanguageMap().keySet().stream().map(e -> e.toString()).collect(Collectors.toList());
@@ -264,10 +222,48 @@ public class DataUtil {
         }
         return resultList;
     }
+
+   private static String getId(String type,String appleId){
+        String id=null;
+        try {
+            boolean f=false;
+            if(null!=ids.get(type)){
+              id= ids.get(type).get(appleId);
+              if(StringUtils.isEmpty(id)){
+                f=true;
+              }
+            }else{
+                f=true;
+                ids.put(type,new HashMap<>());
+            }
+            if(f){
+                HttpResponse rsp = HttpUtil.get("/api/data/getId/"+type+"?appleId="+appleId);
+                JSON json=JSONUtil.parse(rsp.body());
+                if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                    id= json.getByPath("id",String.class);
+                }else{
+                    id=generateId(type);
+                }
+            }
+        }catch (Exception e){
+            id=generateId(type);
+        }
+        ids.get(type).put(appleId,id);
+        return id;
+   }
+   private static String generateId(String type){
+        String id="";
+        if(guid.equals(type)){
+            id=MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+        }else if(web_client_id.equals(type)){
+            id=WebLoginUtil.createClientId();
+        }else if(client_id.equals(type)){
+            id=IdUtil.fastUUID().toUpperCase();
+        }
+        return id;
+   }
+
     public static void main(String[] args) {
-//        getGuidByAppleId("djli0506@163.com");
-//        getClientIdByAppleId("djli0506@163.com");
-
-
+        HttpResponse rsp = HttpUtil.get("/api/data/getId/cld?appleId=1948401156@qq.com");
     }
 }
