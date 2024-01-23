@@ -253,6 +253,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }).start();
     }
+
+
+
     /**
      * 导入账号按钮点击
      * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
@@ -261,10 +264,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         String desc = "说明：\n" +
                 "    1.格式为: " + AccountImportUtil.buildNote(formats) + "\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountView(formats, desc);
+        openImportAccountView(formats,"导入账号", desc);
     }
 
-    public void openImportAccountView(List<String> formats, String desc) {
+    public void openImportAccountView(String titile,String desc) {
+        openImportAccountView(Collections.emptyList(),titile, desc);
+    }
+
+    public void openImportAccountView(List<String> formats,String title, String desc) {
         if (!CollUtil.isEmpty(formats)) {
             this.formats = formats;
         }
@@ -278,7 +285,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
         VBox vBox2 = new VBox();
         vBox2.setPadding(new Insets(0, 0, 0, 205));
-        Button button = new Button("导入账号");
+        Button button = new Button("导入");
         button.setTextFill(Paint.valueOf("#067019"));
         button.setPrefWidth(150);
         button.setPrefHeight(50);
@@ -300,7 +307,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         mainVbox.getChildren().addAll(descLabel, area, vBox2);
 
         Group root = new Group(mainVbox);
-        stage.setTitle("账号导入");
+        stage.setTitle(title);
         stage.setScene(new Scene(root, 600, 450));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);

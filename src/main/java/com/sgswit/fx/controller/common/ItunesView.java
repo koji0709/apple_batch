@@ -88,6 +88,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
         if (verify){
             setAndRefreshNote(accountModel,"登录成功。");
+            accountModel.setAuthCode("");
             accountModel.getAuthData().put("authRsp",loginRsp);
             accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
             accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));

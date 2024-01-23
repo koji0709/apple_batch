@@ -77,8 +77,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
-
-        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BATCH_REDEEM.getCode())));
         hidePwdCheckBox.setSelected(true);
         scrollToLastRowCheckBox.setSelected(true);
 
@@ -99,7 +97,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String desc = "说明：\n" +
                 "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountView(Collections.emptyList(),desc);
+        openImportAccountView("导入账号",desc);
         boolean selected = scrollToLastRowCheckBox.isSelected();
         if (selected){
             accountTableView.scrollTo(accountList.size()-1);
@@ -348,12 +346,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             try{
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
-                    checkAccountDescLabel.setText("请先输入账号信息");
+                    Platform.runLater(() -> checkAccountDescLabel.setText("请先输入账号信息"));
                     return;
                 }
                 String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
                 if (accountComboBoxValueArr.length != 2){
-                    checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码");
+                    Platform.runLater(() -> checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码"));
                     return;
                 }
 
@@ -378,9 +376,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     singleGiftCardRedeem.setPwd(pwd);
                     singleGiftCardRedeem.setGuid(guid);
                     singleGiftCardRedeem.setNote("");
-                    singleGiftCardRedeem.setIsLogin(false);
-                    itunesLogin(singleGiftCardRedeem);
                 }
+
+                itunesLogin(singleGiftCardRedeem);
+
 
                 HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
                 String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
@@ -398,19 +397,19 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 });
             }catch (ServiceException e){
                 Platform.runLater(() -> {
-                    checkAccountDescLabel.setText(singleGiftCardRedeem.getNote());
                     countryLabel.setText("国家：" + "");
                     blanceLabel.setText( "余额：" + "");
-                    statusLabel.setText( "状态：" + singleGiftCardRedeem.getNote());
+                    statusLabel.setText( "状态：" + e.getMessage());
+                    checkAccountDescLabel.setText(e.getMessage());
                 });
                 // 异常返回点数
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
             }catch (Exception e){
                 Platform.runLater(() -> {
-                    checkAccountDescLabel.setText("数据处理异常");
                     countryLabel.setText("国家：" + "");
                     blanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + "数据处理异常");
+                    checkAccountDescLabel.setText("数据处理异常");
                 });
                 // 异常返回点数
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
@@ -466,6 +465,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public void giftCardBlanceBtnAction(){
         StageUtil.show(StageEnum.GIFTCARD_BLANCE);
+    }
+
+    public void giftCardDetectionProfessionalEditionBtnAction(){
+        StageUtil.show(StageEnum.GIFTCARD_DETECTION_PROFESSIONAL_EDITION);
     }
 
     /**

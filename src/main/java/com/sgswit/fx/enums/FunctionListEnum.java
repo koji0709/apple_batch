@@ -20,6 +20,8 @@ public enum FunctionListEnum {
     GIFTCARD_BLANCE("1140",10,"礼品卡查余额"),
     GIFTCARD_BATCH_REDEEM("1150",30,"苹果批量兑换"),
     GIFTCARD_BATCH_REDEEM_QUERY("1151",5,"苹果批量兑换账号检测"),
+    GIFTCARD_BATCH_REDEEM_QUERY_PE("1152",30,"礼品卡检测专业版"),
+
     CHECK_AREA_BALANCE("1160",50,"国家区域余额"),
     CHECK_BALANCE_DISABLED_STATUS("1170",5,"查询余额/检测禁用"),
     APPSTORE_DOWNLOAD("1180",30,"批量下载APP"),

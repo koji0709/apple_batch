@@ -25,6 +25,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.LoginInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -370,19 +371,18 @@ public class ITunesUtil {
     　* @author DeZh
     　* @date 2024/1/23 14:29
     */
-    public static HttpResponse getCodeInfoSrv(Map<String,Object> paras){
+    public static HttpResponse getCodeInfoSrv(LoginInfo loginInfo, String giftCardCode){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Content-Type", ListUtil.toList("text/html"));
-        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Host", ListUtil.toList("p"+loginInfo.getItspod()+"-buy.itunes.apple.com"));
         headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
-        headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(loginInfo.getStoreFront()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
-        String cookies = MapUtil.getStr(paras,"cookies","");
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code=X8HZ8Z7KT7DW8PML")
+        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
                 .header(headers)
-                .cookie(cookies)
+                .cookie(loginInfo.getCookie())
                 .execute();
         return httpResponse;
     }
