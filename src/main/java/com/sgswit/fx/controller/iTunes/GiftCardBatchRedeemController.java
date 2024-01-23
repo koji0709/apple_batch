@@ -64,9 +64,16 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @FXML
     CheckBox scrollToLastRowCheckBox;
 
+    @FXML
+    CheckBox accountGroupCheckBox;
+
+    @FXML
+    CheckBox execAgainCheckBox;
+
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
-    private static Integer processNum = 0;
+    private Integer processNum = 0;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -172,11 +179,20 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     @Override
     public void executeButtonAction() {
+        // 如果没有选择同账号单线程工作就使用默认的执行方法
+        boolean selected = accountGroupCheckBox.isSelected();
+        if (!selected){
+            super.executeButtonAction();
+            return;
+        }
+
+        // 同账号单线程工作
         // 校验
         if (accountList.isEmpty()) {
             alert("请先导入账号！");
             return;
         }
+
         boolean isProcessed = true;
         for (GiftCardRedeem giftCardRedeem : accountList) {
             if (!isProcessed(giftCardRedeem)){
@@ -228,7 +244,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         accountHandlerExpand(giftCardRedeem);
 
                         if ((i+1) != accountList.size() && (i+1) % 5 == 0){
-
                             //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
                             for(GiftCardRedeem g:accountList){
                                 if(StringUtils.isEmpty(g.getNote())){
@@ -250,6 +265,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     }
 
+
     /**
      * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
      * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
@@ -259,17 +275,26 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
         giftCardRedeem.setExecTime(DateUtil.now());
+
+        // 登录并缓存
+        itunesLogin(giftCardRedeem);
+
         boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
             throw new ServiceException("输入的代码无效。");
         }
 
-        // 登录并缓存
-        itunesLogin(giftCardRedeem);
-
         String giftCardCode = giftCardRedeem.getGiftCardCode();
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
+
+        // 如果操作频繁，重新执行一次
+        if (execAgainCheckBox.isSelected() && (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body))){
+            setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中...");
+            redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
+            body      = redeemRsp.body();
+        }
+
         if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
             String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
             throw new ServiceException(message);

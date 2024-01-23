@@ -164,17 +164,17 @@
                 <!--功能区2-->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <children>
-                        <CheckBox text="开启循环模式" />
+                        <!--<CheckBox text="开启循环模式" />
                         <HBox alignment="CENTER" spacing="4">
                             <children>
                                 <Label text="间隔：" />
                                 <TextField prefWidth="40" />
                                 <Label text="秒" />
                             </children>
-                        </HBox>
+                        </HBox>-->
                         <Label text="讯果礼品卡大数据" textFill="red" />
-                        <CheckBox text="出现频繁重新执行" />
-                        <CheckBox text="同账号以单线程工作" />
+                        <CheckBox fx:id="execAgainCheckBox" text="出现频繁重新执行" />
+                        <CheckBox fx:id="accountGroupCheckBox" text="同账号以单线程工作" />
                         <CheckBox fx:id="hidePwdCheckBox" text="隐藏导入密码" />
                         <CheckBox fx:id="scrollToLastRowCheckBox" text="导入后滚动到最底行" />
                         <Button onAction="#show2WindowAction" text="工作2窗口" />
