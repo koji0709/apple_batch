@@ -2,6 +2,8 @@ package com.sgswit.fx.utils;
 
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,12 +11,14 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class StageUtil {
-
     private static Map<StageEnum, Stage> stageMap = new HashMap<>();
 
     public static void showAndWait(StageEnum stageEnum){
@@ -36,6 +40,8 @@ public class StageUtil {
     public static void show(StageEnum stageEnum,boolean isWait,Object userData){
         Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
+            //最小化之后，点击显示
+            StageToSystemTrayUtil.showWindow(stage);
             return;
         }
         stage = new Stage();
@@ -55,19 +61,25 @@ public class StageUtil {
         stage.setResizable(false);
         stage.setUserData(userData);
         stage.initStyle(stageEnum.getInitStyle());
-        stage.getIcons().add(new Image("/image/qrcode.jpeg") );
+        String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(logImg) );
+        // 创建系统托盘图标
+        if(stage==StageUtil.get(StageEnum.MAIN)){
+            StageToSystemTrayUtil.createTrayIcon(stage);
+        }
         if (isWait){
             stage.showAndWait();
         }else{
             stage.show();
         }
         //判断程序是否退出
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent arg0) {
-                if((Stage)arg0.getSource()==StageUtil.get(StageEnum.MAIN)){
-                    System.exit(0);
-                }
+        Stage finalStage = stage;
+        stage.setOnCloseRequest(event -> {
+            if((Stage)event.getSource()==StageUtil.get(StageEnum.MAIN)){
+                StageToSystemTrayUtil.hideWindow(finalStage);
+                event.consume();
+            }else if((Stage)event.getSource()==StageUtil.get(StageEnum.LOGIN) && null==StageUtil.get(StageEnum.MAIN)){
+                System.exit(0);
             }
         });
 

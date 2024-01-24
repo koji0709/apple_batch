@@ -9,7 +9,7 @@ public enum StageEnum {
     UPGRADER(PropertiesUtil.getConfig("softwareInfo.name")+"-自动更新","views/upgrader.fxml",400,600,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
     /********** MAIN区 ***********/
     LOGIN("APPLE批量处理程序 - 登录","views/login.fxml",400,400,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
-    MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
+    MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.UTILITY,Modality.NONE,""),
 
     /********** OPERATION区 ***********/
     ACCOUNT_INFO_MODIFY("官方修改资料","views/operation/account-info-modify.fxml",1260,650),

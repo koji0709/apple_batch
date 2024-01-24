@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -28,7 +29,10 @@ import java.util.Scanner;
 
 public class MainApplication extends Application {
 
-
+    static {
+        //隐式退出开关，设置关闭所有窗口后程序仍不退出
+        Platform.setImplicitExit(false);
+    }
     @Override
     public void start(Stage stage) throws IOException {
         HostServicesUtil.setHostServices(getHostServices());

@@ -1,6 +1,7 @@
 open module com.sgswit.fx {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.swing;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;

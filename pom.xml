@@ -40,6 +40,11 @@
             <version>11.0.2</version>
         </dependency>
         <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>11.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>11.1.0</version>
@@ -209,12 +214,17 @@
                             <bundleJre>true</bundleJre>
                             <!--是否绑自定义jre-->
                             <customizedJre>false</customizedJre>
-                            <generateInstaller>true</generateInstaller>
+                            <generateInstaller>false</generateInstaller>
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
 
                             <copyDependencies>false</copyDependencies>
                             <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
+                            <platform>windows</platform>
+<!--                            <winConfig>-->
+<!--                                &lt;!&ndash; 软件图标 &ndash;&gt;-->
+<!--                                <icoFile>C:\Users\DELL\Desktop\favicon.ico</icoFile>-->
+<!--                            </winConfig>-->
                             <!--                            <platform>mac</platform>-->
                             <!--                             <platform>mac</platform>-->
                             <!--                            <platform>mac|windows</platform>-->
