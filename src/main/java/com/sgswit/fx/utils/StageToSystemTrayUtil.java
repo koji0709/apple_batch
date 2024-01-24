@@ -35,24 +35,24 @@ public class StageToSystemTrayUtil {
             trayIcon = new TrayIcon(SwingFXUtils.fromFXImage(image, null), toolTip, popupMenu);
             trayIcon.setImageAutoSize(true);
             // 创建打开菜单项
-            MenuItem openMenuItem = new MenuItem("Open");
+
+            MenuItem openMenuItem = new MenuItem("显示主窗口");
             openMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println("Open测试");
                     Platform.runLater(() -> {
-                        System.out.println("Open测试2");
                         showWindow(primaryStage);
                     });
                 }
             });
             // 创建退出菜单项
-            MenuItem exitMenuItem = new MenuItem("Exit");
+            MenuItem exitMenuItem = new MenuItem("退出");
             exitMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.exit(0);
                     tray.remove(trayIcon);
+                    System.exit(0);
+//                    Platform.exit();
                 }
             });
             // 将菜单项添加到弹出菜单
@@ -95,7 +95,6 @@ public class StageToSystemTrayUtil {
                 primaryStage.toFront();
             });
         }
-        System.out.println("打开窗口");
     }
     //关闭窗口
     protected static void hideWindow(Stage primaryStage) {
