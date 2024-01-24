@@ -129,13 +129,13 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="查询卡号" />
-                                <TableColumn fx:id="giftCardType" prefWidth="200" text="卡片类型" />
-                                <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态" />
+                                <TableColumn fx:id="giftCardType" prefWidth="150" text="卡片类型" />
+                                <TableColumn fx:id="giftCardStatus" prefWidth="80" text="卡片状态" />
                                 <TableColumn fx:id="execTime" prefWidth="130" text="查询时间" />
-                                <TableColumn fx:id="giftCardAmount" prefWidth="100" text="初始面值" />
+                                <TableColumn fx:id="giftCardAmount" prefWidth="80" text="初始面值" />
                                 <TableColumn fx:id="recipientDsId" prefWidth="100" text="使用人Dsid" />
                                 <TableColumn fx:id="salesOrg" prefWidth="100" text="卡片国家" />
-                                <TableColumn fx:id="redeemLog" prefWidth="100" text="本平台兑换记录" />
+                                <TableColumn fx:id="redeemLog" prefWidth="200" text="本平台兑换记录" />
                                 <TableColumn fx:id="note" prefWidth="100" text="执行记录" />
                             </columns>
                         </TableView>

@@ -1,9 +1,12 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -71,12 +74,13 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
         giftCardRedeem.setExecTime(DateUtil.now());
-        boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
+        String giftCardCode = giftCardRedeem.getGiftCardCode();
+        boolean success = giftCardCodeVerify(giftCardCode);
         if (!success){
             throw new ServiceException("输入的代码无效。");
         }
         // X8HZ8Z7KT7DW8PML
-        HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem,giftCardRedeem.getGiftCardCode());
+        HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
         String body = codeInfoSrvRsp.body();
         if (codeInfoSrvRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
             throw new ServiceException("查询失败");
@@ -91,7 +95,6 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         giftCardRedeem.setRecipientDsId(codeInfo.getStr("recipientDsId"));
         String productTypeDesc = codeInfo.getStr("productTypeDesc");
         giftCardRedeem.setGiftCardType(productTypeDesc);
-
         giftCardRedeem.setSalesOrg(codeInfo.getStr("salesOrg"));
         if (!StrUtil.isEmpty(productTypeDesc) && productTypeDesc.contains("-")){
             String countryCode = productTypeDesc.split("-")[1];
@@ -106,10 +109,30 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
             giftCardRedeem.setGiftCardStatus("未使用");
         }else if ("4".equals(status)){
             giftCardRedeem.setGiftCardStatus("已使用");
+            setRedeemLog(giftCardRedeem);
         }else{
             giftCardRedeem.setGiftCardStatus("未知");
         }
         setAndRefreshNote(giftCardRedeem,"查询成功");
+    }
+
+    private void setRedeemLog(GiftCardRedeem giftCardRedeem){
+        Map<String,Object> params = new HashMap<>();
+        params.put("code",giftCardRedeem.getGiftCardCode());
+        HttpResponse giftcardRedeemLogRsp = HttpUtil.get("/giftcardRedeemLog",params);
+        boolean verify = HttpUtil.verifyRsp(giftcardRedeemLogRsp);
+        if (verify){
+            JSONArray dataList = HttpUtil.dataList(giftcardRedeemLogRsp);
+            if (!CollUtil.isEmpty(dataList)){
+                List<String> redeemList = new ArrayList<>();
+                String format = "此代码已被dsid[%s]在%s兑换";
+                for (Object o : dataList) {
+                    JSONObject json = (JSONObject) o;
+                    redeemList.add(String.format(format,json.getStr("recipientDsid"),json.getStr("redeemTime")));
+                }
+                giftCardRedeem.setRedeemLog(CollUtil.join(redeemList,";"));
+            }
+        }
     }
 
     /**

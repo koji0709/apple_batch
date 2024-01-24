@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -330,6 +331,23 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         giftCardRedeem.setGiftCardStatus("已兑换");
         message = String.format(message,giftCardCode);
         setAndRefreshNote(giftCardRedeem,message);
+
+        ThreadUtil.execute(()->{
+            Map<String,Object> params = new HashMap<>(){{
+                put("code",giftCardRedeem.getGiftCardCode());
+                put("user",PropertiesUtil.getOtherConfig("login.userName"));
+                put("recipientAccount",giftCardRedeem.getAccount());
+                put("recipientDsid",giftCardRedeem.getDsPersonId());
+                put("initBalance",giftCardRedeem.getGiftCardAmount());
+                put("redeemBalance",giftCardRedeem.getGiftCardAmount());
+                put("redeemTime",DateUtil.now());
+            }};
+            HttpResponse addGiftcardRedeemLogRsp = HttpUtil.post("/giftcardRedeemLog", params);
+            boolean addSuccess = HttpUtil.verifyRsp(addGiftcardRedeemLogRsp);
+            if (!addSuccess){
+                Console.log("礼品卡兑换记录兑换失败；{}",params);
+            }
+        });
     }
 
     @Override
