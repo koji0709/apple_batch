@@ -1,13 +1,5 @@
 package com.sgswit.fx.enums;
 
-import com.sgswit.fx.MainController;
-import com.sgswit.fx.utils.PropertiesUtil;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author DELL
  */
