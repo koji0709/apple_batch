@@ -65,7 +65,7 @@ public class StageUtil {
         String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(logImg) );
         //判断是否支持系统托盘
-        if (SystemTray.isSupported()) {
+        if (SystemUtils.isWindows() && SystemTray.isSupported()) {
             // 创建系统托盘图标
             if(stage==StageUtil.get(StageEnum.MAIN)){
                 StageToSystemTrayUtil.createTrayIcon(stage);

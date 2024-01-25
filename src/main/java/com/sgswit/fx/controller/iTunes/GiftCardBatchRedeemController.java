@@ -1,10 +1,12 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -18,13 +20,22 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -74,6 +85,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     private Integer processNum = 0;
+
+    Stage redeemLogStage;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -494,6 +507,134 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public void editOrImportAccountListBtnAction(){
         alert("功能开发中");
+    }
+
+    /**
+     * 兑换记录查询 X8HZ8Z7KT7DW8PML
+     */
+    public void redeemLogQueryAction(){
+        if (redeemLogStage != null && redeemLogStage.isShowing()){
+            return;
+        }
+
+        HBox box1 = new HBox();
+        Label label1 = new Label("输入礼品卡号");
+        TextField codeTextField = new TextField();
+
+        Button queryButton = new Button("查询");
+        queryButton.setPrefWidth(100);
+
+        Label empty = new Label("");
+        empty.setPrefWidth(120);
+
+        Label label2 = new Label("消耗点数:");
+
+        Label pointLabel = new Label(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode())));
+
+        pointLabel.setStyle("-fx-font-size: 16px");
+        pointLabel.setTextFill(Paint.valueOf("red"));
+        box1.getChildren().addAll(label1,codeTextField,queryButton,empty,label2,pointLabel);
+
+        box1.setAlignment(Pos.CENTER_LEFT);
+        box1.setSpacing(8);
+
+        HBox box2 = new HBox();
+        Label label3 = new Label("兑换历史记录:");
+        Label label4 = new Label("(至多显示最新500条兑换记录)");
+        label4.setTextFill(Paint.valueOf("#b2bed1"));
+        box2.getChildren().addAll(label3,label4);
+
+        TableView<GiftCardRedeem> tableView = new TableView();
+        TableColumn seqCol = new TableColumn("序号");
+        seqCol.setId("seq");
+        seqCol.setPrefWidth(60);
+        seqCol.setCellFactory(new Callback() {
+            @Override
+            public Object call(Object param) {
+                TableCell cell = new TableCell() {
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        this.setText(null);
+                        this.setGraphic(null);
+                        if (!empty) {
+                            int rowIndex = this.getIndex() + 1;
+                            this.setText(String.valueOf(rowIndex));
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        TableColumn redeemTimeCol = new TableColumn("兑换时间");
+        redeemTimeCol.setId("execTime");
+        redeemTimeCol.setPrefWidth(150);
+        redeemTimeCol.setCellValueFactory(new PropertyValueFactory(redeemTimeCol.getId()));
+
+        TableColumn noteCol = new TableColumn("执行信息");
+        noteCol.setId("note");
+        noteCol.setPrefWidth(360);
+        noteCol.setCellValueFactory(new PropertyValueFactory(noteCol.getId()));
+        tableView.getColumns().addAll(seqCol,redeemTimeCol,noteCol);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(20);
+        mainVbox.setPadding(new Insets(10));
+        mainVbox.getChildren().addAll(box1, box2,tableView);
+
+        queryButton.setOnAction(event -> {
+            String code = codeTextField.getText();
+            if (StrUtil.isEmpty(code)){
+                alert("请输入礼品卡号");
+                return;
+            }
+
+            // 扣除点数
+            Map<String,String> pointCost = PointUtil.pointCost(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode(),PointUtil.out,"");
+            if(!Constant.SUCCESS.equals(pointCost.get("code"))){
+                alert(pointCost.get("msg"));
+                return;
+            }
+
+            Map<String,Object> params = new HashMap<>();
+            params.put("code",code);
+            HttpResponse giftcardRedeemLogRsp = HttpUtil.get("/giftcardRedeemLog",params);
+            boolean verify = HttpUtil.verifyRsp(giftcardRedeemLogRsp);
+            if (!verify){
+                alert(HttpUtil.message(giftcardRedeemLogRsp));
+                PointUtil.pointCost(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode(),PointUtil.in,"");
+                return;
+            }
+
+            JSONArray dataList = HttpUtil.dataList(giftcardRedeemLogRsp);
+            ObservableList<GiftCardRedeem> items = tableView.getItems();
+            items.clear();
+
+            if (CollUtil.isEmpty(dataList)){
+                // 返回点数
+                PointUtil.pointCost(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode(),PointUtil.in,"");
+                return;
+            }
+
+            String format = "此代码已被dsid[%s]兑换";
+            dataList.forEach(o ->{
+                JSONObject json = (JSONObject) o;
+                GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                giftCardRedeem.setExecTime(json.getStr("redeemTime"));
+                giftCardRedeem.setNote(String.format(format,json.getStr("recipientDsid")));
+                items.add(giftCardRedeem);
+            });
+        });
+
+        Group root = new Group(mainVbox);
+        Stage stage = new Stage();
+        redeemLogStage = stage;
+        stage.setTitle("礼品卡大数据");
+        stage.setScene(new Scene(root, 600, 505));
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.showAndWait();
     }
 
     /**

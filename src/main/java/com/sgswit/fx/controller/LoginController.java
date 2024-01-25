@@ -119,7 +119,7 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         // 在线qq
-        if (!autoLogin){
+        if (!autoLogin && SystemUtils.isWindows()){
             ObservableList<String> qqList = FXCollections.observableArrayList();
             for(String qq:TencentQQUtil.getLoginQQList()){
                 qqList.add(qq);

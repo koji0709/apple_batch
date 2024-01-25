@@ -172,7 +172,7 @@
                                 <Label text="秒" />
                             </children>
                         </HBox>-->
-                        <Label text="讯果礼品卡大数据" textFill="red" />
+                        <Label onMouseClicked="#redeemLogQueryAction" text="讯果礼品卡大数据" textFill="red" />
                         <CheckBox fx:id="execAgainCheckBox" text="出现频繁重新执行" />
                         <CheckBox fx:id="accountGroupCheckBox" text="同账号以单线程工作" />
                         <CheckBox fx:id="hidePwdCheckBox" text="隐藏导入密码" />
