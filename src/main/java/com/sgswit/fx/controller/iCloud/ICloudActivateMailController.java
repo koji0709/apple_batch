@@ -16,12 +16,10 @@ import com.sgswit.fx.utils.ICloudUtil;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 
 public class ICloudActivateMailController extends ICloudView<Account> {
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);

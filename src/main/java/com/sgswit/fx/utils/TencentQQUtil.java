@@ -1,12 +1,11 @@
 package com.sgswit.fx.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.win32.StdCallLibrary;
+
+import java.util.ArrayList;
+import java.util.List;
 /**
  * @author DeZh
  * @title: 获取客户端在线QQ，目前只使用于window

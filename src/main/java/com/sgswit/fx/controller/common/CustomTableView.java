@@ -11,11 +11,9 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
-import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -508,7 +506,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         alert.setHeaderText("功能建设中，敬请期待");
         alert.show();
     }
-
     /**
      * 账号是否被处理过
      */

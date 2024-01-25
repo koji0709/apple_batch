@@ -1,40 +1,26 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
-import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
-import com.sgswit.fx.utils.*;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.sgswit.fx.utils.CustomStringUtils;
+import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.collections.ObservableMap;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 
@@ -144,7 +130,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
                 account.setAuthData(res);
             }else{
-                if(Constant.SUCCESS.equals(MapUtils.getStr(addCreditPaymentRes,"code"))){
+                if(Constant.SUCCESS.equals(MapUtil.getStr(addCreditPaymentRes,"code"))){
                     account.setDataStatus("1");
                 }else{
                     account.setDataStatus("0");
@@ -207,7 +193,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
     protected void twoFactorCodeExecute(CreditCard account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);

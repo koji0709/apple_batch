@@ -7,15 +7,15 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.MapUtils;
-import javafx.collections.ObservableMap;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class AppleIdView extends CustomTableView<Account> {
 

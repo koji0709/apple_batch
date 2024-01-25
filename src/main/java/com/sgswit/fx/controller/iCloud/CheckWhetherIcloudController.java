@@ -1,47 +1,28 @@
 package com.sgswit.fx.controller.iCloud;
 
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.dd.plist.NSObject;
-import com.dd.plist.XMLPropertyListParser;
-import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.CommRightContextMenuView;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.iTunes.AccountInputPopupController;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.ConsumptionBill;
-import com.sgswit.fx.model.CreditCard;
-import com.sgswit.fx.utils.*;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * @author DeZh
@@ -143,7 +124,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>{
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);

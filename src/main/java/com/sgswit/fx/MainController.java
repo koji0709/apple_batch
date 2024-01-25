@@ -2,12 +2,10 @@ package com.sgswit.fx;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.db.Db;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ProjectValues;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
@@ -33,8 +31,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -53,7 +49,6 @@ public class MainController implements Initializable {
     private VBox leftMenu;
     private Integer currentMenuIndex;
     private Integer tempIndex;
-
     private final List<Map> proxyModeList = DataUtil.getProxyModeList();
 
     /**
@@ -101,11 +96,11 @@ public class MainController implements Initializable {
     }
 
     private Node getLeftMenu() {
-        double leftWidth = ProjectValues.leftMenuWidth;
+        double leftWidth = StyleUtil.leftMenuWidth;
         VBox vbox = new VBox();
         vbox.setMinHeight(30);
         vbox.setMinWidth(leftWidth);
-        StyleUtil.setPaneBackground(vbox, Color.web(ProjectValues.COLOR_PRIMARY));
+        StyleUtil.setPaneBackground(vbox, Color.web(StyleUtil.COLOR_PRIMARY));
         // 增加菜单中的项目
         vbox.getChildren().addAll(getLeftMenuItemList(leftWidth));
         return vbox;
@@ -131,21 +126,21 @@ public class MainController implements Initializable {
             button.setMinHeight(buttonHeight);
             button.setId(keyValuePair.getKey());
             button.setUserData(buttonIndex);
-            StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+            StyleUtil.setButtonBackground(button, Color.web(StyleUtil.COLOR_PRIMARY), Color.WHITE);
             //增加鼠标移动到菜单上到hover效果
             button.setOnMouseMoved(event->{
                 if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
-                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.WHITE);
+                    StyleUtil.setButtonBackground(button, Color.web(StyleUtil.COLOR_HOVER), Color.WHITE);
                     StyleUtil.setFont(button, Color.WHITE, -1);
                 }else {
-                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_HOVER), Color.web(ProjectValues.COLOR_SELECTED));
+                    StyleUtil.setButtonBackground(button, Color.web(StyleUtil.COLOR_HOVER), Color.web(StyleUtil.COLOR_SELECTED));
                 }
             });
             button.setOnMouseExited(event->{
                 if(currentMenuIndex==null||!button.getId().equals(itemNameList.get(currentMenuIndex).getKey())) {
-                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+                    StyleUtil.setButtonBackground(button, Color.web(StyleUtil.COLOR_PRIMARY), Color.WHITE);
                 }else {
-                    StyleUtil.setButtonBackground(button, Color.web(ProjectValues.COLOR_PRIMARY), Color.web(ProjectValues.COLOR_SELECTED));
+                    StyleUtil.setButtonBackground(button, Color.web(StyleUtil.COLOR_PRIMARY), Color.web(StyleUtil.COLOR_SELECTED));
                 }
 
             });
@@ -170,17 +165,17 @@ public class MainController implements Initializable {
                         e.printStackTrace();
                     }
 
-                    StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                    StyleUtil.setFont(button, Color.web(StyleUtil.COLOR_SELECTED), -1);
                     //选中状态逻辑
                     if(tempIndex!=null) {
                         VBox vBox= (VBox) leftMenu.getChildren().get(0);
                         Button node = (Button) vBox.getChildren().get(tempIndex);
                         //清空选中状态样式
                         StyleUtil.setFont(node, Color.WHITE, -1);
-                        StyleUtil.setButtonBackground(node, Color.web(ProjectValues.COLOR_PRIMARY), Color.WHITE);
+                        StyleUtil.setButtonBackground(node, Color.web(StyleUtil.COLOR_PRIMARY), Color.WHITE);
                     }
                     //设置选中样式
-                    StyleUtil.setFont(button, Color.web(ProjectValues.COLOR_SELECTED), -1);
+                    StyleUtil.setFont(button, Color.web(StyleUtil.COLOR_SELECTED), -1);
                     tempIndex = currentMenuIndex;
                 }else{
                     try {

@@ -53,7 +53,8 @@ public class PurchaseBillUtil {
             return result;
         }
         String requestUrl = pre1Response.header("Location");
-        String clientId=UrlParasUtil.getQueryParamsByKey(requestUrl,"appIdKey");
+        Map<String,String> stringStringMap = HttpUtil.decodeParamMap(requestUrl, StandardCharsets.UTF_8);
+        String clientId=stringStringMap.get("appIdKey");
         HttpResponse pre2Response = shopPre2(pre1Response);
         Map<String,Object> jx=jXDocument(pre1Response);
         String a=jx.get("a").toString();
@@ -918,10 +919,10 @@ public class PurchaseBillUtil {
     }
     private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
         int num=0;
-        if(null==paras.get("num") || "".equals(MapUtils.getStr(paras,"num"))){
+        if(null==paras.get("num") || "".equals(MapUtil.getStr(paras,"num"))){
 
         }else{
-            num=MapUtils.getInt(paras,"num");
+            num=MapUtil.getInt(paras,"num");
         }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
@@ -950,7 +951,7 @@ public class PurchaseBillUtil {
             String authUrl=MapUtil.getStr(paras,"authUrl");
             HttpResponse res = HttpUtil.createPost(authUrl)
                     .header(headers)
-                    .cookie(MapUtils.getStr(paras,"cookies"))
+                    .cookie(MapUtil.getStr(paras,"cookies"))
                     .body(authBody, ContentType.FORM_URLENCODED.toString())
                     .execute();
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
@@ -961,7 +962,7 @@ public class PurchaseBillUtil {
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
-            String countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtil.getStr(paras,"storeFront"));
             String countryName="-";
             if(StringUtils.isEmpty(countryCode)){
 
@@ -1059,7 +1060,7 @@ public class PurchaseBillUtil {
             Element addressElement=element.getElementsByClass("address").get(0);
             String address=addressElement.html().replace("<br>",",");
             paras.put("address",address);
-            String countryCode=StoreFontsUtils.getCountryCodeFromStoreFront(MapUtils.getStr(paras,"storeFront"));
+            String countryCode=StoreFontsUtils.getCountryCodeFromStoreFront(MapUtil.getStr(paras,"storeFront"));
             String countryName =DataUtil.getNameByCountryCode(countryCode);
             //账号国家
             paras.put("countryName",countryName);

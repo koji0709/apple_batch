@@ -12,7 +12,6 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Paint;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -24,7 +23,6 @@ import java.util.ResourceBundle;
  *
  */
 public class CommonView implements Initializable {
-
     /**
      * 消息框
      */

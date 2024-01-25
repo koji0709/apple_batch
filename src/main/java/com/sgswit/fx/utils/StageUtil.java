@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -63,9 +64,12 @@ public class StageUtil {
         stage.initStyle(stageEnum.getInitStyle());
         String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(logImg) );
-        // 创建系统托盘图标
-        if(stage==StageUtil.get(StageEnum.MAIN)){
-            StageToSystemTrayUtil.createTrayIcon(stage);
+        //判断是否支持系统托盘
+        if (SystemTray.isSupported()) {
+            // 创建系统托盘图标
+            if(stage==StageUtil.get(StageEnum.MAIN)){
+                StageToSystemTrayUtil.createTrayIcon(stage);
+            }
         }
         if (isWait){
             stage.showAndWait();

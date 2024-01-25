@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -15,7 +16,6 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.model.Account;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -27,7 +27,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * @author DELL
@@ -45,7 +48,7 @@ public class WebLoginUtil {
     public static HttpResponse signin(Map<String,Object> signInMap){
 
         String frameId  = createFrameId();
-        String clientId = MapUtils.getStr(signInMap,"serviceKey");
+        String clientId = MapUtil.getStr(signInMap,"serviceKey");
 
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -85,12 +88,12 @@ public class WebLoginUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
         String redirectUri ="";
-        if(!StringUtils.isEmpty(MapUtils.getStr(signInMap,"callbackSignInUrl"))){
-            redirectUri=MapUtils.getStr(signInMap,"callbackSignInUrl");
+        if(!StringUtils.isEmpty(MapUtil.getStr(signInMap,"callbackSignInUrl"))){
+            redirectUri=MapUtil.getStr(signInMap,"callbackSignInUrl");
             redirectUri = redirectUri.substring(0,redirectUri.indexOf("shop"));
         }
-        String frameId=MapUtils.getStr(signInMap,"frameId");
-        String clientId=MapUtils.getStr(signInMap,"clientId");
+        String frameId=MapUtil.getStr(signInMap,"frameId");
+        String clientId=MapUtil.getStr(signInMap,"clientId");
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&skVersion=7" +
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
@@ -114,8 +117,8 @@ public class WebLoginUtil {
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
         headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtils.getStr(paras,"iframeId")));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtils.getStr(paras,"clientId")));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtil.getStr(paras,"iframeId")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
 
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
@@ -126,7 +129,7 @@ public class WebLoginUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
-        String body = "{\"a\":\""+MapUtils.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtils.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
+        String body = "{\"a\":\""+MapUtil.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtil.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
 
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
@@ -136,10 +139,10 @@ public class WebLoginUtil {
     }
 
     private static HttpResponse signinCompete(HttpResponse res1,HttpResponse res0,Map<String,Object> paras){
-        String a=MapUtils.getStr(paras,"a");
-        BigInteger g=new BigInteger(MapUtils.getStr(paras,"g"));
-        BigInteger n=new BigInteger(MapUtils.getStr(paras,"n"));
-        BigInteger ra=new BigInteger(MapUtils.getStr(paras,"ra"));
+        String a=MapUtil.getStr(paras,"a");
+        BigInteger g=new BigInteger(MapUtil.getStr(paras,"g"));
+        BigInteger n=new BigInteger(MapUtil.getStr(paras,"n"));
+        BigInteger ra=new BigInteger(MapUtil.getStr(paras,"ra"));
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
@@ -152,8 +155,8 @@ public class WebLoginUtil {
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
         headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtils.getStr(paras,"iframeId")));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtils.getStr(paras,"clientId")));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtil.getStr(paras,"iframeId")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -177,9 +180,9 @@ public class WebLoginUtil {
         String b = (String) json.getByPath("b");
         String c = (String)json.getByPath("c");
 
-        Map map = calM(MapUtils.getStr(paras,"account"), MapUtils.getStr(paras,"pwd"), a, iter, salt, b, g, n, ra);
+        Map map = calM(MapUtil.getStr(paras,"account"), MapUtil.getStr(paras,"pwd"), a, iter, salt, b, g, n, ra);
 
-        String body = "{\"accountName\":\""+MapUtils.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
+        String body = "{\"accountName\":\""+MapUtil.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
 
         HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)

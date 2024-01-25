@@ -2,24 +2,21 @@ package com.sgswit.fx;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpUtil;
-import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.utils.MapUtils;
-import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -88,8 +85,8 @@ public class UpgraderController implements Initializable {
                 @Override
                 protected Integer call() {
                     String filePath = System.getProperty("user.dir");
-                    String filename = filePath +"/"+ MapUtils.getStr(data,"name");
-                    String url = MapUtils.getStr(data,"url");
+                    String filename = filePath +"/"+ MapUtil.getStr(data,"name");
+                    String url = MapUtil.getStr(data,"url");
                     HttpUtil.downloadFile(url, FileUtil.file(filename), new StreamProgress() {
                         @Override
                         public void start() {}

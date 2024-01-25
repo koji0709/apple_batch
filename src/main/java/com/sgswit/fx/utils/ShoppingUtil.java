@@ -25,7 +25,7 @@ public class ShoppingUtil {
     static String goodsCode="MHJA3AM/A";
     // 获取产品
     public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
-        String code2=MapUtils.getStr(paras,"code2","");
+        String code2=MapUtil.getStr(paras,"code2","");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
@@ -192,7 +192,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
         String bagUrl;
-        String code2=MapUtils.getStr(paras,"code2");
+        String code2=MapUtil.getStr(paras,"code2");
         if(StringUtils.isEmpty(code2)){
             bagUrl="https://www.apple.com/shop/bag";
         }else{
@@ -264,7 +264,7 @@ public class ShoppingUtil {
         HttpResponse res = cn.hutool.http.HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .form(MapUtils.getStr(paras,"body"))
+                .form(MapUtil.getStr(paras,"body"))
                 .execute();
         if(res.getStatus() != 200){
             paras.put("code","1");
@@ -289,7 +289,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
-        HttpResponse res = cn.hutool.http.HttpUtil.createGet(MapUtils.getStr(paras,"url"))
+        HttpResponse res = cn.hutool.http.HttpUtil.createGet(MapUtil.getStr(paras,"url"))
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
@@ -334,10 +334,10 @@ public class ShoppingUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
-        headers.put("x-aos-model-page", ListUtil.toList(MapUtils.getStr(signInMap,"x-aos-model-page")));
-        headers.put("x-aos-stk",ListUtil.toList(MapUtils.getStr(signInMap,"x-aos-stk")));
-        headers.put("modelVersion",ListUtil.toList(MapUtils.getStr(signInMap,"modelVersion")));
-        headers.put("syntax",ListUtil.toList(MapUtils.getStr(signInMap,"syntax")));
+        headers.put("x-aos-model-page", ListUtil.toList(MapUtil.getStr(signInMap,"x-aos-model-page")));
+        headers.put("x-aos-stk",ListUtil.toList(MapUtil.getStr(signInMap,"x-aos-stk")));
+        headers.put("modelVersion",ListUtil.toList(MapUtil.getStr(signInMap,"modelVersion")));
+        headers.put("syntax",ListUtil.toList(MapUtil.getStr(signInMap,"syntax")));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -350,7 +350,7 @@ public class ShoppingUtil {
         paramMap.put("deviceID","");
         paramMap.put("grantCode","");
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(MapUtils.getStr(signInMap,"callbackSignInUrl"))
+        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(MapUtil.getStr(signInMap,"callbackSignInUrl"))
                 .header(headers)
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) signInMap.get("cookiesMap"),";","=",true))
@@ -510,7 +510,7 @@ public class ShoppingUtil {
 
         Map<String,Object> paramMap = new HashMap<>();
 
-        String countryCode=MapUtils.getStr(paras,"countryCode");
+        String countryCode=MapUtil.getStr(paras,"countryCode");
         //TODO: 需要根据appleid 所属国家， 调整如下相关地址
         if("USA".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");

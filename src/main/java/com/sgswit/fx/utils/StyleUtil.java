@@ -21,6 +21,15 @@ import javafx.scene.text.FontWeight;
  *
  */
 public class StyleUtil {
+	/**主题色**/
+	public static String COLOR_PRIMARY = "#33485E";
+	/**被选中颜色**/
+	public static String COLOR_SELECTED  = "#3FB180";
+	public static String COLOR_HOVER = "#2B3C4C";
+
+	public static String WHITE = "#FFFFFF";
+	/**左侧菜单宽度**/
+	public static double leftMenuWidth = 150;
 	public static boolean first=true;
 	public static void setPaneBackground(Pane pane, Color color) {
 		pane.setBackground(new Background(new BackgroundFill(color, null, null)));

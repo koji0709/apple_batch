@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.iCloud;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -118,7 +119,7 @@ public class DredgeFamilyController extends CustomTableView<Account> {
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);

@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
@@ -78,7 +79,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
     protected void twoFactorCodeExecute(ConsumptionBill account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);

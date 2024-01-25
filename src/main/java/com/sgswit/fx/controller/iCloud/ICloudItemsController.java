@@ -1,14 +1,8 @@
 package com.sgswit.fx.controller.iCloud;
 
-import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.StageUtil;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
 

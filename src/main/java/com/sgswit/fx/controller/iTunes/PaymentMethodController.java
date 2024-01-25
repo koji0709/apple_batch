@@ -9,7 +9,6 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.MapUtils;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.application.Platform;
@@ -96,10 +95,10 @@ public class PaymentMethodController extends CustomTableView<Account>{
             res=ITunesUtil.delPaymentInfos(res);
             if(res.get("code").equals(Constant.SUCCESS)){
                 account.setDataStatus("1");
-                tableRefreshAndInsertLocal(account, MapUtils.getStr(res,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(res,"msg"));
             }else{
                 account.setDataStatus("0");
-                tableRefreshAndInsertLocal(account, MapUtils.getStr(res,"msg"));
+                tableRefreshAndInsertLocal(account, MapUtil.getStr(res,"msg"));
             }
 
         }
@@ -110,7 +109,7 @@ public class PaymentMethodController extends CustomTableView<Account>{
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);

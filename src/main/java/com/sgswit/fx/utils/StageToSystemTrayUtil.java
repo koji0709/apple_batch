@@ -103,6 +103,5 @@ public class StageToSystemTrayUtil {
                 primaryStage.hide();
             });
         }
-        System.out.println("关闭窗口");
     }
 }

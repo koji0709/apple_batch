@@ -7,7 +7,6 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
-import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;

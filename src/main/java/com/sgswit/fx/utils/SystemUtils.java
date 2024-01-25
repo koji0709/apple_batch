@@ -1,7 +1,5 @@
 package com.sgswit.fx.utils;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @author DeZh
  * @title: SystemUtils
@@ -54,12 +52,5 @@ public class SystemUtils {
      */
     public static String getOsName() {
         return System.getProperty("os.name");
-    }
-    public static void main(String[] args) {
-        System.out.println("os.name : " + getOsName());
-
-        System.out.println("isWindows : " + isWindows());
-        System.out.println("isLinux : " + isLinux());
-        System.out.println("isMacOs : " + isMacOs());
     }
 }

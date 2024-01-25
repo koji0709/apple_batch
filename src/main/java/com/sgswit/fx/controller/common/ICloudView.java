@@ -1,20 +1,15 @@
 package com.sgswit.fx.controller.common;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.ICloudWeblogin;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.net.URL;
 import java.util.*;

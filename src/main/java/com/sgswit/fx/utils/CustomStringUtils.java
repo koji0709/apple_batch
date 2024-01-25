@@ -1,10 +1,6 @@
 package com.sgswit.fx.utils;
 
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author DeZh
  * @title: CustomStringUtil

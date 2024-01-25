@@ -1,7 +1,5 @@
 package com.sgswit.fx.controller;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.file.FileAppender;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -19,7 +17,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.paint.Paint;
@@ -27,7 +24,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.ExecutorService;

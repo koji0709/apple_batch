@@ -468,7 +468,7 @@ public class GiftCardUtil {
         String location=MapUtil.getStr(paras,"location");
         HttpResponse res4 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
                 .header(headers)
-                .cookie(MapUtils.getStr(paras,"cookies"))
+                .cookie(MapUtil.getStr(paras,"cookies"))
                 .form(data)
                 .execute();
         return res4;

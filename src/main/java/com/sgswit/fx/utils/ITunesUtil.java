@@ -429,7 +429,7 @@ public class ITunesUtil {
     　* @date 2023/12/24 21:03
      */
     public  static Map<String,Object> editBillingInfo(Map<String,Object> paras){
-        boolean hasInspectionFlag=MapUtils.getBool(paras,"hasInspectionFlag");
+        boolean hasInspectionFlag=MapUtil.getBool(paras,"hasInspectionFlag");
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-Store-Front", ListUtil.toList("application/json, text/plain, */*"));
@@ -447,7 +447,7 @@ public class ITunesUtil {
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/account/storefront/edit/billing-info"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         String guid=MapUtil.getStr(paras,"guid","");
-        String body=MapUtils.getStr(paras,"addressInfo");
+        String body=MapUtil.getStr(paras,"addressInfo");
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/editBillingInfoSrv?guid="+guid;
         HttpResponse response = HttpUtil.createRequest(Method.POST,url)
                 .header(headers)

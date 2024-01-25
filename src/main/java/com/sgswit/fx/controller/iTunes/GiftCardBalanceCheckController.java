@@ -331,7 +331,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 hashMap=new HashMap<>();
             }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            if(null!=hashMap.get("code") && MapUtils.getStr(hashMap,"code").equalsIgnoreCase("503")){
+            if(null!=hashMap.get("code") && MapUtil.getStr(hashMap,"code").equalsIgnoreCase("503")){
                 msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;

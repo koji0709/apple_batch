@@ -1,9 +1,6 @@
 package com.sgswit.fx.constant;
 
 import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.model.BaseAreaInfo;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.*;
 
 public class StoreFontsUtils {

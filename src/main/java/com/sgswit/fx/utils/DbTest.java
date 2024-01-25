@@ -1,15 +1,12 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.db.Db;
-import cn.hutool.db.Entity;
 import com.mifmif.common.regex.Generex;
-import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.Map;
+import  cn.hutool.http.HttpUtil;
 /**
  *
  */
@@ -22,9 +19,9 @@ public class DbTest {
 
         String regExp = "X[a-zA-Z0-9]{15}";
         Generex generex = new Generex(regExp);
-        for (int i=0;i<100;i++){
-            System.out.println(generex.random().toUpperCase());
-        }
+//        for (int i=0;i<100;i++){
+//            System.out.println(generex.random().toUpperCase());
+//        }
 
 
 //        String cCreditInfoRegex = ".+----.+";
@@ -32,7 +29,17 @@ public class DbTest {
 //            System.out.println("1");
 //        }
 
+        String url ="https://www.baidu.com?a=zhangsan&b=2&c=2&a=张三";
+        Map<String, List<String>> stringListMap = HttpUtil.decodeParams(url, "UTF-8");
+        System.out.println("decodeParams：" + stringListMap);
 
+// 获取单值map最后一个会覆盖上一个
+        Map<String,String> stringStringMap = HttpUtil.decodeParamMap(url, StandardCharsets.UTF_8);
+        System.out.println("decodeParamMap：" + stringStringMap);
+
+// map转URL params,中文会自动进行转码
+        String urlParams = HttpUtil.toParams(stringStringMap);
+        System.out.println("urlParams: "+urlParams);
 
     }
 

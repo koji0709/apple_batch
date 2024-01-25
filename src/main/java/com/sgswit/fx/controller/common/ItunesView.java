@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.DataUtil;
@@ -16,10 +15,11 @@ import com.sgswit.fx.utils.PListUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.helper.StringUtil;
-
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 

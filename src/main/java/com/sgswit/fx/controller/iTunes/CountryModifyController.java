@@ -176,7 +176,7 @@ public class CountryModifyController extends CustomTableView<Account>{
         }else{
             res=new HashMap<>();
         }
-        account.setOriginalCountry(MapUtils.getStr(res,"countryName"));
+        account.setOriginalCountry(MapUtil.getStr(res,"countryName"));
         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
             account.setNote(String.valueOf(res.get("msg")));
             account.setAuthData(res);
@@ -228,7 +228,7 @@ public class CountryModifyController extends CustomTableView<Account>{
 
             res.put("addressInfo",body);
             Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
-            if(Constant.SUCCESS.equals(MapUtils.getStr(editBillingInfoRes,"code"))){
+            if(Constant.SUCCESS.equals(MapUtil.getStr(editBillingInfoRes,"code"))){
                 account.setDataStatus("1");
             }else{
                 account.setDataStatus("0");
@@ -254,7 +254,7 @@ public class CountryModifyController extends CustomTableView<Account>{
     protected void twoFactorCodeExecute(Account account, String authCode){
         try{
             Map<String,Object> res=account.getAuthData();
-            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtils.getStr(res,"code"))){
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(MapUtil.getStr(res,"code"))){
                 account.setAuthCode(authCode);
                 account.setStep("00");
                 accountHandlerExpand(account);
