@@ -70,9 +70,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             if (step1Res.getStatus() != 409) {
                 account.setHasFinished(true);
                 queryFail(account,step1Res.body());
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
-                return ;
+
             }
 
             String step1Body = step1Res.body();
@@ -105,7 +103,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         }else{
             account.setNote("Apple ID 未激活");
         }
-        setAndRefreshNote(account,"");
+        setAndRefreshNote(account,account.getNote());
         insertLocalHistory(List.of(account));
     }
 
