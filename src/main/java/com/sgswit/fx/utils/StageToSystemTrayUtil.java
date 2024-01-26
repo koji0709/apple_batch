@@ -1,16 +1,16 @@
 package com.sgswit.fx.utils;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 /**
  * @author DeZh
  * @title: StageToSystemTrayCopy
@@ -66,16 +66,14 @@ public class StageToSystemTrayUtil {
             } catch (AWTException e) {
                 System.out.println("Failed to add tray icon.");
             }
-            // 设置托盘图标双击事件
-            trayIcon.addActionListener(new ActionListener() {
+            // 设置托盘图标鼠标左键事件
+            trayIcon.addMouseListener(new MouseAdapter() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            showWindow(primaryStage);
-                        }
-                    });
+                public void mouseClicked(MouseEvent e) {
+                    //鼠标左键
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        showWindow(primaryStage);
+                    }
                 }
             });
         } else {
