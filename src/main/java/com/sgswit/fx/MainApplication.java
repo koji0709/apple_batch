@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * @author DELL
+ */
 public class MainApplication extends Application {
 
     static {
@@ -31,9 +34,7 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         HostServicesUtil.setHostServices(getHostServices());
-        new Thread(() -> DataUtil.getCountry()).start();
-        new Thread(() -> DataUtil.getNews()).start();
-        new Thread(() -> PointUtil.getPointConfig()).start();
+        getData();
         //进程锁
         FileLock lock = FileChannel.open(
                 Paths.get(System.getProperty("user.dir"), "single_instance.lock"),
@@ -72,7 +73,7 @@ public class MainApplication extends Application {
                 StageUtil.show(StageEnum.LOGIN);
             }
         }catch (Exception e){
-
+            StageUtil.show(StageEnum.LOGIN);
         }
 
     }
@@ -169,6 +170,13 @@ public class MainApplication extends Application {
         }
     }
 
+
+    protected static void getData(){
+        new Thread(() -> DataUtil.getCountry()).start();
+        new Thread(() -> DataUtil.getNews()).start();
+        new Thread(() -> PointUtil.getPointConfig()).start();
+        new Thread(() -> DataUtil.getProxyConfig()).start();
+    }
     @Override
     public void init() throws Exception {
         super.init();

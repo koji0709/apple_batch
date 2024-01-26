@@ -4,8 +4,8 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.beans.value.ChangeListener;
@@ -49,7 +49,7 @@ public class MainController implements Initializable {
     private VBox leftMenu;
     private Integer currentMenuIndex;
     private Integer tempIndex;
-    private final List<Map> proxyModeList = DataUtil.getProxyModeList();
+    private final List<Map<String, Object>> proxyModeList = ProxyEnum.Mode.getProxyModeList();
 
     /**
     　* @description:初始化页面数据

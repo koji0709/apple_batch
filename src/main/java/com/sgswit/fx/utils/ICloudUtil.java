@@ -2,20 +2,20 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.log.Log;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author DeZh

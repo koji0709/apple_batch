@@ -1,11 +1,9 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.setting.Setting;
 
 import java.util.Map;
 
@@ -14,14 +12,12 @@ public class HttpUtil{
     public static HttpResponse get(String url){
         url = getServiceUrl() + url;
         HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).execute();
-        Console.log("[GET] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
     public static HttpResponse get(String url, Map<String,Object> paramMap){
         url = getServiceUrl() + url;
         HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).form(paramMap).execute();
-        Console.log("[GET] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 
@@ -31,7 +27,6 @@ public class HttpUtil{
                 .header("Content-Type", "application/json")
                 .body(JSONUtil.toJsonStr(paramMap))
                 .execute();
-        Console.log("[POST] {}  Rsp status:{}",url,rsp.getStatus());
         return rsp;
     }
 

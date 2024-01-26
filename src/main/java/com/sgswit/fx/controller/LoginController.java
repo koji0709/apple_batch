@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
@@ -18,12 +19,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 /**
@@ -140,9 +142,17 @@ public class LoginController extends CommonView implements Initializable {
             alert("用户名和密码不能为空！");
             return;
         }
-        String body = "{\"userName\":\"%s\",\"pwd\":\"%s\"}";
-        body = String.format(body,userName, MD5Util.encrypt(pwd));
-        String userInfo = "";
+        //利用hutool工具类中的封装方法获取本机mac地址
+        String macAddress ="";
+        try {
+            InetAddress inetAddress = InetAddress.getLocalHost();
+            macAddress= NetUtil.getMacAddress(inetAddress);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"macAddress\":\"%s\"}";
+        body = String.format(body,userName, MD5Util.encrypt(pwd),macAddress);
+        String userInfo;
         try{
             HttpResponse rsp = HttpUtil.post("/userInfo/login", body);
             boolean verify = HttpUtil.verifyRsp(rsp);
@@ -152,7 +162,7 @@ public class LoginController extends CommonView implements Initializable {
             }
             userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
         }catch (Exception e){
-            alert("登录失败，服务异常", Alert.AlertType.ERROR);
+            alert("服务异常，请联系管理员", Alert.AlertType.ERROR);
             return;
         }
 
@@ -166,11 +176,6 @@ public class LoginController extends CommonView implements Initializable {
         PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
 
         StageUtil.show(StageEnum.MAIN);
-        // 将登录页面设置为透明,然后关闭
-        Stage stage = StageUtil.get(StageEnum.LOGIN);
-        stage.setOpacity(0);
-        stage.setMaxWidth(0);
-        stage.setMinHeight(0);
         StageUtil.close(StageEnum.LOGIN);
     }
 

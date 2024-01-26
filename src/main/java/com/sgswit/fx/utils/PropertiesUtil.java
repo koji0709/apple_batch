@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 /**
  * @author DeZh
@@ -75,6 +74,16 @@ public class PropertiesUtil {
         }
         return res;
     }
+
+    public static String getOtherConfig(String key,String defaultValue) {
+        String res = null;
+        try {
+            res = StringUtils.isEmpty(getOtherConfig(key))?defaultValue:getOtherConfig(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
     /**
      * 获取Map指定key的值，并转换为Integer
      *
@@ -110,14 +119,5 @@ public class PropertiesUtil {
             e.printStackTrace();
         }
         return res;
-    }
-
-    public static void main(String[] args) {
-        try {
-            setOtherConfig("name2", "testError");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 }

@@ -29,29 +29,26 @@ import java.util.stream.Collectors;
  */
 public class DataUtil {
     private static List<BaseAreaInfo> baseAreaInfoList;
-    private static List<Map> proxyModeList;
     private static Map<String,Map<String,String>> ids=new HashMap<>();
     private static String guid="guid";
     private static String client_id="cld";
     private static String web_client_id="wbCld";
-    /**
-    　* @description: 获取国家地区码表
-      * @param
-    　* @return java.util.List<com.sgswit.fx.model.BaseAreaInfo>
-    　* @throws
-    　* @author DeZh
-    　* @date 2023/9/20 8:49
-    */
-    public static List<Map> getProxyModeList(){
+    //内置代理信息
+    private static List<Map<String,Object>> proxyConfigList;
+    public static List<Map<String,Object>> getProxyConfig(){
         try {
-            if(null==proxyModeList || proxyModeList.size()==0){
-                String jsonString = ResourceUtil.readUtf8Str("data/proxy_mode.json");
-                proxyModeList= JSONUtil.toList(jsonString, Map.class);
+            if(null==proxyConfigList || proxyConfigList.size()==0){
+                //调接口
+                HttpResponse rsp = HttpUtil.get("/api/data/getProxyConfig");
+                JSON json=JSONUtil.parse(rsp.body());
+                if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                    proxyConfigList=json.getByPath("data",List.class);
+                }
             }
         }catch (Exception e){
-            proxyModeList=new ArrayList<>();
+            proxyConfigList=new ArrayList<>();
         }
-        return proxyModeList;
+        return proxyConfigList;
     }
     public static List<BaseAreaInfo> getCountry(){
         try {
@@ -92,7 +89,6 @@ public class DataUtil {
             for(Object object:JSONUtil.parseArray(jsonString)){
                 JSON json= (JSON) object;
                 if(countryCode.equalsIgnoreCase(json.getByPath("code").toString())){
-
                     JSONObject addressFormat=JSONUtil.parseObj((json.getByPath("json")));
                     JSONObject fieldsJSONObject=addressFormat.getJSONObject("fields");
                     JSONObject sectionsJSONObject=addressFormat.getJSONObject("sections");
