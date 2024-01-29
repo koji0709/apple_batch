@@ -1,26 +1,18 @@
 package com.sgswit.fx.utils;
 
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.ZipUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
-import cn.hutool.http.useragent.OS;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.dd.plist.NSObject;
-import com.dd.plist.PropertyListFormatException;
-import com.dd.plist.XMLPropertyListParser;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
@@ -30,16 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -340,6 +324,84 @@ public class ITunesUtil {
         return result;
     }
 
+    /**
+    　* 判断账户是否需要实名认证
+      * @param
+     * @param paras
+    　* @return boolean
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/1/29 17:25
+    */
+    public static boolean redeemLandingPage(Map<String,Object> paras){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("Content-Type", ListUtil.toList("text/html"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        String cookies = MapUtil.getStr(paras,"cookies","");
+        //获取支付方式
+        String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemLandingPage?cc=cn";
+        HttpResponse response = HttpUtil.createRequest(Method.GET,url)
+                .header(headers)
+                .cookie(cookies)
+                .execute();
+        Document document= Jsoup.parse(response.body());
+        Element element=document.getElementById("nationalIdForm");
+        String collectNationalId=element.attr("collect-national-id");
+        return Boolean.valueOf(collectNationalId);
+    }
+
+    public static Map<String,Object> redeemValidateId(Map<String,Object> paras){
+        Map<String,Object> result=new HashMap<>();
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
+        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        String cookies = MapUtil.getStr(paras,"cookies","");
+        //获取支付方式
+        Map<String, String> source=new HashMap<>();
+        source.put("response-content-type", "application/json");
+        source.put("name", MapUtil.getStr(paras,"name"));
+        source.put("phone", MapUtil.getStr(paras,"phone"));
+        source.put("nationalId", MapUtil.getStr(paras,"nationalId"));
+        String body=MapUtil.join(source,"&","=",false);
+        String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemValidateId?"+body;
+        HttpResponse response = HttpUtil.createRequest(Method.POST,url)
+                .header(headers)
+                .cookie(cookies)
+                .execute();
+        System.out.println(response.getStatus());
+        System.out.println(response.body());
+        if(200!=response.getStatus()){
+            result.put("code","1");
+            result.put("msg","认证失败，未知错误");
+        }else{
+            JSON bodyJson= JSONUtil.parse(response.body());
+            int status=bodyJson.getByPath("status",int.class);
+            if(status!=0){
+                result.put("code","1");
+                result.put("msg",bodyJson.getByPath("userPresentableErrorMessage"));
+            }else {
+                result.put("code",Constant.SUCCESS);
+                result.put("msg","认证成功");
+            }
+        }
+        return result;
+    }
+
+
 
     public static Map<String,Object> appStoreOverCheck(Map<String,Object> paras){
         Map<String,Object> result=new HashMap<>();
@@ -365,7 +427,6 @@ public class ITunesUtil {
     /**
     　* 获取礼品卡信息
       * @param
-     * @param paras
     　* @return cn.hutool.http.HttpResponse
     　* @throws
     　* @author DeZh

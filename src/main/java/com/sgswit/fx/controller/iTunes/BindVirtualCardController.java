@@ -116,12 +116,12 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
             account.setAuthData(res);
         }else if(!Constant.SUCCESS.equals(res.get("code"))){
             account.setDataStatus("0");
-            tableRefreshAndInsertLocal(account, String.valueOf(res.get("msg")));
+            setAndRefreshNote(account, String.valueOf(res.get("msg")));
         }else{
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(!hasInspectionFlag){
                 account.setDataStatus("0");
-                tableRefreshAndInsertLocal(account, "此 Apple ID 尚未用于 App Store。");
+                setAndRefreshNote(account, "此 Apple ID 尚未用于 App Store。");
                 return;
             }
             setAndRefreshNote(account,"登录成功，正在验证银行卡信息...");
@@ -135,7 +135,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                 }else{
                     account.setDataStatus("0");
                 }
-                tableRefreshAndInsertLocal(account, MapUtil.getStr(addCreditPaymentRes,"message"));
+                setAndRefreshNote(account, MapUtil.getStr(addCreditPaymentRes,"message"));
             }
             account.setNote(MapUtil.getStr(addCreditPaymentRes,"message"));
         }

@@ -2,16 +2,16 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
-import cn.hutool.http.*;
+import cn.hutool.http.ContentType;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -27,18 +27,25 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PurchaseBillUtil {
 
     public static void main(String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
-        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
+        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
+        boolean f= ITunesUtil.redeemLandingPage(res);
+        if(f){
+            res.put("response-content-type", "application/json");
+            res.put("name","邓俊岭");
+            res.put("phone","13212345678");
+            res.put("nationalId", "412727219890418");
+            ITunesUtil.redeemValidateId(res);
+        }
 
     }
     ///网页版版
@@ -615,32 +622,6 @@ public class PurchaseBillUtil {
         }
         return searchResponse;
     }
-
-  private static void order(String weborder,String dsid,String token,String cookies){
-      HashMap<String, List<String>> headers =  new HashMap<>();
-      headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-      headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-      headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-      headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-      headers.put("dsid",ListUtil.toList(dsid));
-      headers.put("x-apple-xsrf-token",ListUtil.toList(token));
-      headers.put("x-apple-rap2-api",ListUtil.toList("3.0.0"));
-      headers.put("Host", ListUtil.toList("reportaproblem.apple.com"));
-      headers.put("Referer", ListUtil.toList("https://reportaproblem.apple.com/"));
-      headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
-      headers.put("Sec-Fetch-Mode", ListUtil.toList("cors"));
-      headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
-      headers.put("Te",ListUtil.toList("trailers"));
-      String url="https://reportaproblem.apple.com/api/order/"+weborder+"/invoice";
-      HttpResponse searchResponse = HttpUtil.createGet(url)
-              .header(headers)
-              .cookie(cookies)
-              .execute();
-      System.out.println(searchResponse.getStatus());
-      System.out.println(searchResponse.body());
-  }
-
-
     private static Map<String,String> calM(String accountName, String password, String a, Integer iter, String salt, String b, BigInteger g, BigInteger n, BigInteger ra) {
         // calculatek // k = h(n|g) 直接串联,并且按照位数对齐，不足的前面补0凑
         byte[] nb = n.toByteArray();
@@ -706,15 +687,6 @@ public class PurchaseBillUtil {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static char[] byteToChar(byte[] bytes) {
-        Charset charset = Charset.forName("UTF-8");
-        ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
-        byteBuffer.put(bytes);
-        byteBuffer.flip();
-        CharBuffer charBuffer = charset.decode(byteBuffer);
-        return charBuffer.array();
     }
 
     private static byte[] calculateM2(BigInteger bigA, byte[] m1, byte[] k){
@@ -831,40 +803,6 @@ public class PurchaseBillUtil {
         }
         String a2k = Base64.encode(aib);
         return  a2k;
-    }
-
-    private static String calCounter(int xAppleHcBits,String xAppleHcChallenge) {
-        String version = "1";
-        String date = DateUtil.format(new DateTime(TimeZone.getTimeZone("GMT")),"yyyyMMddHHmmss");
-
-        String hc = version + ":" + xAppleHcBits + ":" + date + ":" + xAppleHcChallenge + "::";
-
-        int bytes = (int) Math.ceil(xAppleHcBits / 8.0);
-
-        int counter = 0;
-        boolean isZero = false;
-        while(!isZero){
-            Digester digester = new Digester(DigestAlgorithm.SHA1);
-            byte[] d = digester.digest(hc+counter);
-            byte[] prefix = ArrayUtil.sub(d, 0, bytes);
-
-            String bitStr = "";
-            for (int i = 0; i < bytes; i++) {
-                bitStr += getBit(prefix[i]);
-            }
-
-            String zeroStr = "";
-            for(int k = 0; k < xAppleHcBits; k++){
-                zeroStr += "0";
-            }
-
-            if(bitStr.substring(0, xAppleHcBits).equals(zeroStr)){
-                isZero = true;
-                break;
-            }
-            counter++;
-        }
-        return hc + counter;
     }
 
 

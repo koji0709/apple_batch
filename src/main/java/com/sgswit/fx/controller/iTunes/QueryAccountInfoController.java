@@ -1,39 +1,22 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.db.Db;
-import cn.hutool.db.Entity;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
-import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
-import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.*;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -92,7 +75,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
     }
     @Override
     public void accountHandler(ConsumptionBill account){
-        account.setHasFinished(false);
+//        account.setHasFinished(false);
         setAndRefreshNote(account,"正在登录...");
         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
         Map<String,Object> accountInfoMap=account.getAuthData();

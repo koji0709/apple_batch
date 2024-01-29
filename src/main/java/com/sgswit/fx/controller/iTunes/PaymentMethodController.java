@@ -1,34 +1,16 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -82,13 +64,13 @@ public class PaymentMethodController extends CustomTableView<Account>{
         }else if(!res.get("code").equals(Constant.SUCCESS)){
             account.setDataStatus("0");
             account.setNote(res.get("msg").toString());
-            tableRefreshAndInsertLocal(account, res.get("msg").toString());
+            setAndRefreshNote(account, res.get("msg").toString());
         }else{
             boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
             if(!hasInspectionFlag){
                 account.setHasFinished(true);
                 account.setDataStatus("0");
-                tableRefreshAndInsertLocal(account,"此 Apple ID 尚未用于 App Store。");
+                setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
                 return;
             }
             setAndRefreshNote(account, "登录成功，数据删除中...");

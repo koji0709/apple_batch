@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.geometry.Insets?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.GiftCardBatchRedeemController">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距14px-->
@@ -97,7 +97,7 @@
                                                     <children>
                                                         <Button onAction="#giftCardBlanceBtnAction">礼品卡查询余额</Button>
                                                         <Button onAction="#giftCardDetectionProfessionalEditionBtnAction">礼品卡检测专业版</Button>
-                                                        <Button>中国账号身份认证</Button>
+                                                        <Button onAction="#chnAppleIdValidateBtnAction">中国账号身份认证</Button>
                                                     </children>
                                                 </VBox>
                                             </children>
@@ -143,7 +143,7 @@
                                                         <Insets top="5.0" />
                                                     </HBox.margin>
                                                 </Label>
-                                                <Label  fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                                <Label fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
                                                     <font>
                                                         <Font name="System Bold" size="16.0" />
                                                     </font>
@@ -189,7 +189,7 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="250" text="账号" />
-                                <TableColumn fx:id="pwd" visible="false" prefWidth="100" text="密码" />
+                                <TableColumn fx:id="pwd" prefWidth="100" text="密码" visible="false" />
                                 <TableColumn fx:id="giftCardCode" prefWidth="150" text="礼品卡" />
                                 <TableColumn fx:id="giftCardStatus" prefWidth="100" text="卡片状态" />
                                 <TableColumn fx:id="execTime" prefWidth="130" text="执行时间" />

@@ -81,7 +81,7 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>{
                         account.setDsid(rspJSON.getStr("dsid"));
                     }
                     account.setDataStatus("1");
-                    tableRefreshAndInsertLocal(account,message);
+                    setAndRefreshNote(account,message);
                 }else{
                     account.setDataStatus("0");
                     String message="";
@@ -92,16 +92,16 @@ public class CheckWhetherIcloudController extends CustomTableView<Account>{
                         }
                     }
                     if(!StringUtils.isEmpty(message)){
-                        tableRefreshAndInsertLocal(account,message);
+                        setAndRefreshNote(account,message);
                     }else{
-                        tableRefreshAndInsertLocal(account,rspJSON.getStr("status-message"));
+                        setAndRefreshNote(account,rspJSON.getStr("status-message"));
                     }
                 }
                 account.setHasFinished(true);
             }catch (Exception e){
                 account.setHasFinished(true);
                 account.setDataStatus("0");
-                tableRefreshAndInsertLocal(account,"Apple ID或密码错误。");
+                setAndRefreshNote(account,"Apple ID或密码错误。");
             }
         }else {
             account.setHasFinished(true);

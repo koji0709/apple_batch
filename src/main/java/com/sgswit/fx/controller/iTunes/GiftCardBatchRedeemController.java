@@ -21,6 +21,7 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -655,5 +656,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void show3WindowAction(){
         StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM3);
     }
-
+    @FXML
+    public void chnAppleIdValidateBtnAction(ActionEvent actionEvent) {
+        StageUtil.show(StageEnum.CHN_APPLE_ID_VALIDATE);
+    }
 }

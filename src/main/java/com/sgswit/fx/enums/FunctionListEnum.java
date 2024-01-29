@@ -14,6 +14,7 @@ public enum FunctionListEnum {
     GIFTCARD_BATCH_REDEEM_QUERY("1151",5,"苹果批量兑换账号检测"),
     GIFTCARD_BATCH_REDEEM_QUERY_PE("1152",30,"礼品卡检测专业版"),
     GIFTCARD_REDEEM_LOG_QUERY("1153",100,"礼品卡大数据"),
+    CHN_APPLE_ID_VALIDATE("1154",10,"中国区ID身份认证"),
 
 
     CHECK_AREA_BALANCE("1160",50,"国家区域余额"),

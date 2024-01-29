@@ -82,25 +82,25 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         ThreadUtil.sleep(2000);
         if (step1Res.getStatus() == 503){
             account.setHasFinished(true);
-            tableRefreshAndInsertLocal(account, "操作频繁，请稍后重试！");
+            setAndRefreshNote(account, "操作频繁，请稍后重试！");
             return ;
         }else if (step1Res.getStatus() != 409) {
             account.setHasFinished(true);
-            tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+            setAndRefreshNote(account, "Apple ID 或密码不正确");
             return ;
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
             account.setHasFinished(true);
-            tableRefreshAndInsertLocal(account, "Apple ID 或密码不正确");
+            setAndRefreshNote(account, "Apple ID 或密码不正确");
             return ;
         }
         //step2 auth 获取认证信息
         String authType = (String) json.getByPath("authType");
         if ("hsa2".equals(authType)) {
             account.setHasFinished(true);
-            tableRefreshAndInsertLocal(account, "此账号已开启双重认证");
+            setAndRefreshNote(account, "此账号已开启双重认证");
             return ;
         }
         int accountPurchasesLast90Count=0;

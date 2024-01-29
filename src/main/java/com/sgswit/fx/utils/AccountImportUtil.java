@@ -33,6 +33,9 @@ public class AccountImportUtil<T>{
         put("memberPwd","成员账号密码");
         put("cvv","安全码（CVV）");
         put("giftCardCode","礼品卡");
+        put("name","姓名");
+        put("nationalId","身份证号码");
+        put("phone","手机号码");
     }};
 
     public static String buildNote(List<String> formats){

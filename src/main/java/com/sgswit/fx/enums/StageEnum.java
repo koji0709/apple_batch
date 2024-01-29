@@ -45,7 +45,7 @@ public enum StageEnum {
     GIFTCARD_BATCH_REDEEM3("苹果批量兑换","views/iTunes/giftcard_batch_redeem.fxml"),
 
     GIFTCARD_DETECTION_PROFESSIONAL_EDITION("礼品卡检测专业版","views/iTunes/giftcard_detection_professional_edition.fxml"),
-
+    CHN_APPLE_ID_VALIDATE("中国区ID身份认证","views/iTunes/chn-appleId-validate.fxml"),
 
     /********** QUERY区 ***********/
     BIRTHDAY_COUNTRY_QUERY("查询生日国家","views/query/birthday-country.fxml",1100,650),
