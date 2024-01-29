@@ -234,7 +234,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     if (PointUtil.in.equals(type)){
                     }
                 }catch (UnavailableException e){
-                    setAndRefreshNote(account, "操作频繁");
+                    setAndRefreshNote(account, e.getMessage());
                     pointIncr(account);
                     setDataStatus(account,false);
                 } catch (Exception e) {// 程序异常

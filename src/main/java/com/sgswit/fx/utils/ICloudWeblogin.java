@@ -58,7 +58,7 @@ public class ICloudWeblogin {
         HttpResponse step1Res = federate(step0Res,signInMap,signInMap.get("account"));
         HttpResponse step2Res = signinInit(a,step0Res,step1Res,signInMap);
         if (step2Res.getStatus() == 503){
-            throw new UnavailableException("操作频繁");
+            throw new UnavailableException();
         }
         HttpResponse step3Res = signinCompete(a,g,n,ra,step2Res,step0Res,signInMap);
         return  step3Res;
