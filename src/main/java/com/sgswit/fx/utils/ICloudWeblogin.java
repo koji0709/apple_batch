@@ -14,6 +14,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.UnavailableException;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -56,6 +57,9 @@ public class ICloudWeblogin {
         HttpResponse step0Res = auth(signInMap);
         HttpResponse step1Res = federate(step0Res,signInMap,signInMap.get("account"));
         HttpResponse step2Res = signinInit(a,step0Res,step1Res,signInMap);
+        if (step2Res.getStatus() == 503){
+            throw new UnavailableException("操作频繁");
+        }
         HttpResponse step3Res = signinCompete(a,g,n,ra,step2Res,step0Res,signInMap);
         return  step3Res;
     }

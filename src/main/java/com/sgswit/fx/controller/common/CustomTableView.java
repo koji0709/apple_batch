@@ -233,6 +233,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     // todo 如果返回点数失败怎么处理
                     if (PointUtil.in.equals(type)){
                     }
+                }catch (UnavailableException e){
+                    setAndRefreshNote(account, "操作频繁");
+                    pointIncr(account);
+                    setDataStatus(account,false);
                 } catch (Exception e) {// 程序异常
                     setAndRefreshNote(account, "数据处理异常");
                     pointIncr(account);
