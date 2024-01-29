@@ -2,19 +2,14 @@ package com.sgswit.fx.utils;
 
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.StageStyle;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,12 +59,19 @@ public class StageUtil {
         stage.initStyle(stageEnum.getInitStyle());
         String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(logImg) );
-        //判断是否支持系统托盘
-        if (SystemUtils.isWindows() && SystemTray.isSupported()) {
-            // 创建系统托盘图标
-            if(stage==StageUtil.get(StageEnum.MAIN)){
+
+        if(stage==StageUtil.get(StageEnum.MAIN)){
+            //判断是否支持系统托盘
+            if (SystemTray.isSupported()) {
+                // 创建系统托盘图标
                 StageToSystemTrayUtil.createTrayIcon(stage);
+                stage.initModality(Modality.WINDOW_MODAL);
+                stage.initStyle(StageStyle.UTILITY);
+            }else{
+                stage.initModality(Modality.WINDOW_MODAL);
+                stage.initStyle(StageStyle.DECORATED);
             }
+
         }
         if (isWait){
             stage.showAndWait();
@@ -80,8 +82,12 @@ public class StageUtil {
         Stage finalStage = stage;
         stage.setOnCloseRequest(event -> {
             if((Stage)event.getSource()==StageUtil.get(StageEnum.MAIN)){
-                StageToSystemTrayUtil.hideWindow(finalStage);
-                event.consume();
+                if (SystemTray.isSupported()){
+                    StageToSystemTrayUtil.hideWindow(finalStage);
+                    event.consume();
+                }else {
+                    System.exit(0);
+                }
             }else if((Stage)event.getSource()==StageUtil.get(StageEnum.LOGIN) && null==StageUtil.get(StageEnum.MAIN)){
                 System.exit(0);
             }

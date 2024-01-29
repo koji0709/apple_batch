@@ -6,6 +6,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -231,9 +232,13 @@ public class ICloudUtil {
                 .execute();
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
-            System.out.println(JSONUtil.parse(rb).getByPath("status"));
-            if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
+            JSON jsonBody=JSONUtil.parse(rb);
+            if("0".equals(jsonBody.getByPath("status",String.class))){
                 res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
+                if(!jsonBody.getByPath("isMemberOfFamily",Boolean.class)){
+                    res.put("code","1");
+                    res.put("msg","未加入家庭共享");
+                }
             }
         }else if(response.getStatus()==401){
             res.put("code","1");

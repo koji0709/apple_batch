@@ -9,12 +9,12 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.*;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
 
 /**
  * <p>

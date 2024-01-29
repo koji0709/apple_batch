@@ -126,7 +126,7 @@
                                         <TableColumn fx:id="seq" prefWidth="70.0" text="序号" />
                                         <TableColumn fx:id="account" prefWidth="210.0" text="账号" />
                                         <TableColumn fx:id="pwd" prefWidth="210.0" text="密码" />
-                                        <TableColumn fx:id="note" prefWidth="240.0" text="执行信息" />
+                                        <TableColumn fx:id="note" prefWidth="513.0" text="执行信息" />
                                     </columns>
                                 </TableView>
                             </content>
