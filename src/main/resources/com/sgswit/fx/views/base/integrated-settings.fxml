@@ -5,7 +5,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.base.IntegratedSettingsController">
    <children>
-      <GridPane layoutX="6.0" prefHeight="410.0" prefWidth="740.0">
+      <GridPane fx:id="rootPane" layoutX="6.0" prefHeight="410.0" prefWidth="740.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="505.0" minWidth="10.0" prefWidth="504.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="364.0" minWidth="10.0" prefWidth="234.0" />
@@ -45,7 +45,7 @@
                            <children>
                               <ComboBox fx:id="proxyType" layoutX="22.0" layoutY="25.0" prefWidth="150.0" />
                               <Label layoutX="14.0" layoutY="66.0" lineSpacing="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="190.0" text="说明:根据自身·代理选择类型，使用内置代理请选择Http/Https.注意:保存设置后立即生效。" wrapText="true" />
-                              <Button layoutX="120.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="保存设置" textFill="WHITE" />
+                              <Button layoutX="120.0" layoutY="172.0" mnemonicParsing="false" onAction="#saveAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="保存设置" textFill="WHITE" />
                               <Button layoutX="14.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="快速过滤代理" textFill="WHITE" />
                            </children></Pane>
                      </content></TitledPane>
@@ -67,20 +67,20 @@
                               <Pane>
                                   <children>
                                       <Label layoutX="11.0" layoutY="10.0" prefHeight="25.0" style="-fx-background-color: #33485E;" text="API网址/本地路径" textFill="WHITE" />
-                                      <TextField layoutX="106.0" layoutY="10.0" prefHeight="25.0" prefWidth="365.0" />
+                                      <TextField fx:id="proxyApiUrl" layoutX="107.0" layoutY="10.0" prefHeight="25.0" prefWidth="365.0" />
                                   </children>
                               </Pane>
-                              <CheckBox layoutX="5.0" layoutY="48.0" mnemonicParsing="false" text="使用密码代理" />
+                              <CheckBox fx:id="proxyApiNeedPass" layoutX="5.0" layoutY="48.0" mnemonicParsing="false" text="使用密码代理" />
                               <Pane layoutX="80.0" layoutY="33.0">
                                  <children>
                                     <Label layoutX="21.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" style="-fx-background-color: #33485E;" text="代理用户名" textFill="WHITE" />
-                                    <TextField layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
+                                    <TextField fx:id="proxyApiUser" layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
                                  </children>
                               </Pane>
                               <Pane layoutX="272.0" layoutY="33.0">
                                  <children>
                                     <Label alignment="CENTER" layoutX="22.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="60.0" style="-fx-background-color: #33485E;" text="代理密码" textFill="WHITE" />
-                                    <TextField layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
+                                    <TextField fx:id="proxyApiPass" layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
                                  </children>
                               </Pane>
                               <Pane layoutX="100.0" layoutY="80.0" prefWidth="390.0">
@@ -104,23 +104,23 @@
                            <content>
                               <Pane>
                                  <children>
-                                    <Pane>
+                                    <Pane layoutY="31.0">
                                         <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道地址" textFill="WHITE" />
-                                        <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                        <TextField fx:id="proxyTunnelAddress" layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
                                     </Pane>
-                                    <Pane layoutY="40.0">
+                                    <Pane layoutY="71.0">
                                        <children>
                                           <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道用户" textFill="WHITE" />
-                                          <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                          <TextField fx:id="proxyTunnelUser" layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
                                        </children>
                                     </Pane>
-                                    <Pane layoutY="80.0">
+                                    <Pane layoutY="111.0">
                                        <children>
                                           <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道密码" textFill="WHITE" />
-                                          <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                          <TextField fx:id="proxyTunnelPass" layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
                                        </children>
                                     </Pane>
-                                    <Button layoutX="134.0" layoutY="127.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />
+                                    <Button layoutX="134.0" layoutY="158.0" mnemonicParsing="false" onAction="#proxyTunnelAddressCheckAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />
                                  </children>
                               </Pane>
                            </content>
@@ -130,7 +130,7 @@
                               <Pane prefHeight="130.0" prefWidth="218.0">
                                  <children>
                                     <Label layoutX="19.0" layoutY="42.0" text="访问延时(s)" />
-                                    <TextField layoutX="83.0" layoutY="38.0" prefHeight="23.0" prefWidth="120.0" />
+                                    <TextField fx:id="sendTimeOut" layoutX="83.0" layoutY="38.0" prefHeight="23.0" prefWidth="120.0" />
                                     <Label layoutX="15.0" layoutY="75.0" lineSpacing="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="190.0" text="说明:调节访问延时可提高工作效率:查询类的(如礼品卡查余额、过滤密正等功能)可以减小访问延时(推荐:10秒)，操作类访问延时建议大于20秒(如苹果批量兑换、修改资料等功能)保存设置后立即生效。" wrapText="true" />
                                  </children>
                               </Pane>
