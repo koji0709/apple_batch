@@ -1,13 +1,12 @@
 package com.sgswit.fx;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.KeyValuePair;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StyleUtil;
+import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -24,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -295,10 +295,16 @@ public class MainController implements Initializable {
     }
     @FXML
     public void refreshRemainingPoints() {
+        TranslateTransition translateTransition = new TranslateTransition(Duration.millis(100), remainingPoints);
+        translateTransition.setFromY(-1);
+        translateTransition.setToY(1);
+        translateTransition.setFromX(-1);
+        translateTransition.setToX(1);
+        translateTransition.setCycleCount(1);
+        translateTransition.play();
         //加载点数
-        String s = PropertiesUtil.getOtherConfig("login.info");
-        JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
-        String points= object.getByPath("remainingPoints",String.class);
+        Map<String, Object> userInfo = DataUtil.getUserInfo();
+        String points=MapUtil.getStr(userInfo,"remainingPoints");
         if(StringUtils.isEmpty(points)){
             remainingPoints.setText("0");
         }else{

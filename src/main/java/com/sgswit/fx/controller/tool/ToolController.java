@@ -1,14 +1,12 @@
 package com.sgswit.fx.controller.tool;
 
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.controller.common.CommonView;
-import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.DataUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
@@ -63,17 +61,16 @@ public class ToolController extends CommonView{
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            String s = PropertiesUtil.getOtherConfig("login.info");
-            JSONObject object = JSONUtil.parseObj(Base64.decodeStr(s));
-            zh.setText(object.get("userName").toString());
-            qq.setText(object.get("qq").toString());
+            Map<String, Object> userInfo = DataUtil.getUserInfo();
+            zh.setText(MapUtil.getStr(userInfo,"userName"));
+            qq.setText(MapUtil.getStr(userInfo,"qq"));
             SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-            Date  date = format1.parse(object.get("registerTime").toString());
+            Date  date = format1.parse(MapUtil.getStr(userInfo,"registerTime"));
             SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日  hh时mm分ss秒");
             String registerTime = format.format(date);
             sj.setText(registerTime);
-            dz.setText(object.get("lastLoginIp").toString());
-            kh.setText(object.get("cardNo").toString());
+            dz.setText(MapUtil.getStr(userInfo,"lastLoginIp"));
+            kh.setText(MapUtil.getStr(userInfo,"cardNo"));
         } catch (ParseException e) {
             e.printStackTrace();
         }

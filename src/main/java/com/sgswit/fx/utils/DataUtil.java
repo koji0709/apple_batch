@@ -33,6 +33,7 @@ public class DataUtil {
     private static String guid="guid";
     private static String client_id="cld";
     private static String web_client_id="wbCld";
+    private static Map<String,Object> userInfo=new HashMap<>();
     //内置代理信息
     private static List<Map<String,Object>> proxyConfigList;
     public static List<Map<String,Object>> getProxyConfig(){
@@ -122,7 +123,7 @@ public class DataUtil {
         }
         return JSONUtil.toJsonStr(result);
     }
-    public static void  getNews(){
+    public static void getNews(){
         try {
             HttpResponse rsp = HttpUtil.get("/noticeInfo/getNoticeInfo");
             boolean verify = HttpUtil.verifyRsp(rsp);
@@ -214,7 +215,7 @@ public class DataUtil {
         return resultList;
     }
 
-   private static String getId(String type,String appleId){
+    private static String getId(String type,String appleId){
         String id=null;
         try {
             boolean f=false;
@@ -253,8 +254,20 @@ public class DataUtil {
         }
         return id;
    }
+   /**
+   　* 设置用户信息
+   　* @return void
+   　* @date 2024/1/30 10:46
+   */
+   public static void setUserInfo(String key,String val){
+        userInfo.put(key,val);
+   }
+   public static void setUserInfo(String json){
+       Map<String, Object> map = JSONUtil.parseObj(json).toBean(HashMap.class);
+       userInfo=map;
+   }
+   public static Map<String,Object> getUserInfo(){
+       return userInfo;
+   }
 
-    public static void main(String[] args) {
-        HttpResponse rsp = HttpUtil.get("/api/data/getId/cld?appleId=1948401156@qq.com");
-    }
 }

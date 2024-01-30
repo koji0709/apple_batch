@@ -1,6 +1,5 @@
 package com.sgswit.fx.controller;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -173,8 +172,7 @@ public class LoginController extends CommonView implements Initializable {
         PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
         PropertiesUtil.setOtherConfig("login.userName",userName);
         PropertiesUtil.setOtherConfig("login.pwd",pwd);
-        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
-
+        DataUtil.setUserInfo(userInfo);
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }
@@ -201,7 +199,7 @@ public class LoginController extends CommonView implements Initializable {
             alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
         }
-        PropertiesUtil.setOtherConfig("login.info", Base64.encode(userInfo));
+        DataUtil.setUserInfo(userInfo);
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }

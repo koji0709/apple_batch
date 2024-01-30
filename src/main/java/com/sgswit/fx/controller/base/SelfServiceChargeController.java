@@ -1,14 +1,13 @@
 package com.sgswit.fx.controller.base;
 
-import cn.hutool.core.codec.Base64;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.HttpUtil;
 import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -63,11 +62,9 @@ public class SelfServiceChargeController implements Initializable {
                     alert.show();
                 }else{
                     //获取用户信息
-                    String s = PropertiesUtil.getOtherConfig("login.info");
-                    String decodeStr=Base64.decodeStr(s);
-                    JSONObject json = JSONUtil.parseObj(decodeStr);
+                    Map<String, Object> userInfo = DataUtil.getUserInfo();
                     Map<String,String> map=new HashMap<>();
-                    String userName=json.getByPath("userName",String.class);
+                    String userName= MapUtil.getStr(userInfo,"userName");
                     map.put("userName",userName);
                     map.put("cardNo",cardNo);
                     String body = JSONUtil.toJsonStr(map);
@@ -87,9 +84,8 @@ public class SelfServiceChargeController implements Initializable {
                         alert.show();
                         String carNo=responseBody.getByPath("data.carNo",String.class);
                         String remainingPoints=responseBody.getByPath("data.remainingPoints",String.class);
-                        json.putByPath("carNo",carNo);
-                        json.putByPath("remainingPoints",remainingPoints);
-                        PropertiesUtil.setOtherConfig("login.info", Base64.encode(s));
+                        DataUtil.setUserInfo("carNo",carNo);
+                        DataUtil.setUserInfo("remainingPoints",remainingPoints);
                         //刷新点数
                         PointUtil.refreshRemainingPoints(remainingPoints);
                     }
