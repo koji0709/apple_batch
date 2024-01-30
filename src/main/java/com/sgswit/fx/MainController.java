@@ -273,6 +273,16 @@ public class MainController implements Initializable {
     }
     @FXML
     protected void onIpProxyAndThreadSettingsBtnClick(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/integrated-settings.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 745, 450);
+        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Stage popupStage = new Stage();
+        popupStage.setTitle("综合设置");
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.setScene(scene);
+        popupStage.setResizable(false);
+        popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.show();
 
     }
     /**打开自助充值页面**/

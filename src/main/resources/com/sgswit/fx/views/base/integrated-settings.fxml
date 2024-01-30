@@ -1,14 +1,145 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.sgswit.fx.controller.base.IntegratedSettingsController"
-            prefHeight="455.0" prefWidth="745.0">
-
+<AnchorPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.base.IntegratedSettingsController">
+   <children>
+      <GridPane layoutX="6.0" prefHeight="410.0" prefWidth="740.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="505.0" minWidth="10.0" prefWidth="504.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="364.0" minWidth="10.0" prefWidth="234.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <GridPane GridPane.columnIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="223.0" minHeight="10.0" prefHeight="148.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="325.0" minHeight="10.0" prefHeight="307.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <TilePane prefHeight="200.0" prefWidth="200.0" />
+                  <TilePane layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <TitledPane animated="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="235.0" text="线程说明">
+                          <content>
+                            <AnchorPane minWidth="0.0" prefHeight="30.0">
+                                 <children>
+                                    <Label layoutX="5.0" layoutY="10.0" text="不使用代理：最大线程数：5" />
+                                    <Label layoutX="5.0" layoutY="30.0" text="使用API代理：最大线程数：600" />
+                                    <Label layoutX="5.0" layoutY="50.0" text="使用隧道代理：最大线程数：600" />
+                                    <Label layoutX="5.0" layoutY="70.0" text="使用内置代理：最大线程数：40" />
+                                 </children></AnchorPane>
+                          </content>
+                        </TitledPane>
+                     </children>
+                  </TilePane>
+                  <TitledPane prefHeight="300.0" text="全局代理类型选择" GridPane.rowIndex="1">
+                     <content>
+                        <Pane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox fx:id="proxyType" layoutX="22.0" layoutY="25.0" prefWidth="150.0" />
+                              <Label layoutX="14.0" layoutY="66.0" lineSpacing="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="190.0" text="说明:根据自身·代理选择类型，使用内置代理请选择Http/Https.注意:保存设置后立即生效。" wrapText="true" />
+                              <Button layoutX="120.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="保存设置" textFill="WHITE" />
+                              <Button layoutX="14.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="快速过滤代理" textFill="WHITE" />
+                           </children></Pane>
+                     </content></TitledPane>
+               </children>
+            </GridPane>
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="224.0" minHeight="10.0" prefHeight="173.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="282.0" minHeight="10.0" prefHeight="282.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <TitledPane prefHeight="200.0" prefWidth="200.0" text="API代理设置">
+                     <content>
+                        <Pane>
+                           <children>
+                              <Pane>
+                                  <children>
+                                      <Label layoutX="11.0" layoutY="10.0" prefHeight="25.0" style="-fx-background-color: #33485E;" text="API网址/本地路径" textFill="WHITE" />
+                                      <TextField layoutX="106.0" layoutY="10.0" prefHeight="25.0" prefWidth="365.0" />
+                                  </children>
+                              </Pane>
+                              <CheckBox layoutX="5.0" layoutY="48.0" mnemonicParsing="false" text="使用密码代理" />
+                              <Pane layoutX="80.0" layoutY="33.0">
+                                 <children>
+                                    <Label layoutX="21.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" style="-fx-background-color: #33485E;" text="代理用户名" textFill="WHITE" />
+                                    <TextField layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
+                                 </children>
+                              </Pane>
+                              <Pane layoutX="272.0" layoutY="33.0">
+                                 <children>
+                                    <Label alignment="CENTER" layoutX="22.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="60.0" style="-fx-background-color: #33485E;" text="代理密码" textFill="WHITE" />
+                                    <TextField layoutX="80.0" layoutY="10.0" prefHeight="25.0" prefWidth="120.0" />
+                                 </children>
+                              </Pane>
+                              <Pane layoutX="100.0" layoutY="80.0" prefWidth="390.0">
+                                 <children>
+                                    <Label lineSpacing="5.0" maxWidth="390.0" text="智能识别本地路径和Api地址，如果为本地的txt文件，请填写完整路径。如果代理需要用户名和密码，请填写用户名和密码并勾选使用密码代理。" wrapText="true" />
+                                 </children>
+                              </Pane>
+                           </children>
+                        </Pane>
+                     </content></TitledPane>
+                   <GridPane GridPane.rowIndex="1">
+                       <columnConstraints>
+                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="337.0" minWidth="10.0" prefWidth="282.0" />
+                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="247.0" minWidth="10.0" prefWidth="223.0" />
+                       </columnConstraints>
+                       <rowConstraints>
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                       </rowConstraints>
+                     <children>
+                        <TitledPane maxHeight="-Infinity" prefHeight="260.0" text="隧道代理设置">
+                           <content>
+                              <Pane>
+                                 <children>
+                                    <Pane>
+                                        <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道地址" textFill="WHITE" />
+                                        <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                    </Pane>
+                                    <Pane layoutY="40.0">
+                                       <children>
+                                          <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道用户" textFill="WHITE" />
+                                          <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                       </children>
+                                    </Pane>
+                                    <Pane layoutY="80.0">
+                                       <children>
+                                          <Label alignment="CENTER" layoutX="20.0" layoutY="10.0" maxHeight="25.0" prefHeight="25.0" prefWidth="65.0" style="-fx-background-color: #33485E;" text="隧道密码" textFill="WHITE" />
+                                          <TextField layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
+                                       </children>
+                                    </Pane>
+                                    <Button layoutX="134.0" layoutY="127.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />
+                                 </children>
+                              </Pane>
+                           </content>
+                        </TitledPane>
+                        <TitledPane maxHeight="-Infinity" prefHeight="260.0" text="全局访问延时设定(保存后生效)" GridPane.columnIndex="1">
+                           <content>
+                              <Pane prefHeight="130.0" prefWidth="218.0">
+                                 <children>
+                                    <Label layoutX="19.0" layoutY="42.0" text="访问延时(s)" />
+                                    <TextField layoutX="83.0" layoutY="38.0" prefHeight="23.0" prefWidth="120.0" />
+                                    <Label layoutX="15.0" layoutY="75.0" lineSpacing="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="190.0" text="说明:调节访问延时可提高工作效率:查询类的(如礼品卡查余额、过滤密正等功能)可以减小访问延时(推荐:10秒)，操作类访问延时建议大于20秒(如苹果批量兑换、修改资料等功能)保存设置后立即生效。" wrapText="true" />
+                                 </children>
+                              </Pane>
+                           </content></TitledPane>
+                     </children>
+                   </GridPane>
+               </children>
+            </GridPane>
+         </children>
+      </GridPane>
+   </children>
 </AnchorPane>

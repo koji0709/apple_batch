@@ -97,8 +97,8 @@ public class ProxyEnum{
                 this.value = value;
             }
 
-            public static List<Map<String,Object>> getProxyTypeList() {
-                List<Map<String,Object>> list=new ArrayList<>();
+            public static List<Map<String,String>> getProxyTypeList() {
+                List<Map<String,String>> list=new ArrayList<>();
                 for (Type proxyEnum : values()) {
                     list.add(new HashMap<>(){{
                         put("key",proxyEnum.key);
