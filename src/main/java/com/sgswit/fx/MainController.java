@@ -282,6 +282,7 @@ public class MainController implements Initializable {
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.setAlwaysOnTop(true);
         popupStage.show();
 
     }
@@ -289,18 +290,15 @@ public class MainController implements Initializable {
     @FXML
     protected void onSelfServiceTopUpBtnClick(ActionEvent actionEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/selfServiceCharge.fxml"));
-
         Scene scene = new Scene(fxmlLoader.load(), 385, 170);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
-
         Stage popupStage = new Stage();
-
         popupStage.setTitle("自助充值");
-
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageStyle.UTILITY);
+        popupStage.setAlwaysOnTop(true);
         popupStage.show();
     }
     @FXML

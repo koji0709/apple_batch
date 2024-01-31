@@ -4,7 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Constant {
+    public static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
 
+    public static final String BROWSER_CLIENT_INFO = "{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNAA1ckHmeHZ.QxQeLaD.SAuXjodUW1BNyhw.Tf5.EKWJ9Zb4JRJE_.z9Oyd7lY5BNleBBNlYCa1nkBMfs.5o8\"}";
+    public static final String CONFIGURATOR_USER_AGENT = "Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8";
+    public static final String MACAPPSTORE20_USER_AGENT ="MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41";
     public static final String 	SUCCESS     = "200";
     public static final String 	TWO_FACTOR_AUTHENTICATION     = "401";
     public static final String 	FailureTypeInvalidCredentials     = "-5000";
@@ -32,9 +36,6 @@ public class Constant {
     public static final String LOCAL_FILE_STORAGE_PATH = System.getProperty("user.dir") + "/fileSystem";
 
     public static final String LOCAL_FILE_EXTENSION = ".applebatch";
-
-    public static final String BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
-    public static final String BROWSER_CLIENT_INFO = "{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNAA1ckHmeHZ.QxQeLaD.SAuXjodUW1BNyhw.Tf5.EKWJ9Zb4JRJE_.z9Oyd7lY5BNleBBNlYCa1nkBMfs.5o8\"}";
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
         put(ACCOUNT_IS_DISABLED,"出于安全原因，你的账户已被锁定。");

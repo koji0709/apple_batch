@@ -71,7 +71,6 @@ public class StageUtil {
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.initStyle(StageStyle.DECORATED);
             }
-
         }
         if (isWait){
             stage.showAndWait();

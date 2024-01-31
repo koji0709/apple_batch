@@ -9,10 +9,7 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
-import cn.hutool.http.ContentType;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
+import cn.hutool.http.*;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -38,16 +35,29 @@ public class PurchaseBillUtil {
     public static void main(String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
-        Map<String,Object> res= iTunesAuth("1948401156@qq.com","B0527s0207!");
-        boolean f= ITunesUtil.redeemLandingPage(res);
-        if(f){
-            res.put("response-content-type", "application/json");
-            res.put("name","邓俊岭");
-            res.put("phone","13212345678");
-            res.put("nationalId", "412727219890418");
-            ITunesUtil.redeemValidateId(res);
-        }
+//        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
+//        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+//                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+//                "<plist version=\"1.0\">\n" +
+//                "<dict>\n" +
+//                "\t<key>sign-sap-setup-buffer</key>\n" +
+//                "\t<data>\n" +
+//                "\tAQhKdD/RkztjkFqunbzm27gmJu58NokfUn6ZGRV7KGnxA1uuT3UmOLzN25YfaV4L3ePR\n" +
+//                "\tLxMeQxdEtUgTQr3DQbzhjd5a63J5+cpljJQQUoBdxm4KD96noRcptMSK9/wZC62H7aBI\n" +
+//                "\t60p7V2e10qyeR0YussFJuMEYKUSD6w1pqK4/NCjvL0WcKeezInOzH89sda548/GLzRen\n" +
+//                "\tFFoOAiLSW3DBI9d+eB49duZTC065+1HW7S0ZNv6cZb6zRnMX743dLbvIqOWAKD3FHQ9h\n" +
+//                "\tEzSkTn/TpT99VsITJqYzitVfNWnBWog/HC8iXF+zz26J70+2RSwIFRFwK42/UCRyJNx8\n" +
+//                "\tOOuVUBRWqSnSVjvoUKH37Hr8J7zlJe9knaQsAAAAMDsu3WljmqxwZ7Kd5uP6mu501XFD\n" +
+//                "\tjwLFEwcqn93ScJ/jBjGNw0bhl3vZpl/31P6r2mVPA/G+ypWMv05wVcNXPYR6mgpy\n" +
+//                "\t</data>\n" +
+//                "</dict>\n" +
+//                "</plist>";
+//        HttpResponse step4Res = ProxyUtil.createRequest(Method.POST,url)
+//                .body(body)
+//                .execute();
 
+        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
+        ITunesUtil.getPaymentInfos(res);
     }
     ///网页版版
     public static Map<String,Object> webLoginAndAuth(String account,String pwd){
@@ -864,8 +874,9 @@ public class PurchaseBillUtil {
             num=MapUtil.getInt(paras,"num");
         }
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.toString()));
-        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
+//        headers.put("User-Agent", ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
                 "<plist version=\"1.0\">"+
@@ -891,7 +902,7 @@ public class PurchaseBillUtil {
             HttpResponse res = ProxyUtil.createPost(authUrl)
                     .header(headers)
                     .cookie(MapUtil.getStr(paras,"cookies"))
-                    .body(authBody, ContentType.FORM_URLENCODED.toString())
+                    .body(authBody)
                     .execute();
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("itspod",res.header(Constant.ITSPOD));
@@ -983,7 +994,7 @@ public class PurchaseBillUtil {
     public static Map<String,Object> accountSummary(Map<String, Object> paras) {
         String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/accountSummary?guid="+paras.get("guid");
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));

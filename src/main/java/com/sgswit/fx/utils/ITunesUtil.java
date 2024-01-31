@@ -7,7 +7,6 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
@@ -48,8 +47,7 @@ public class ITunesUtil {
         headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
 
-//        headers.put("User-Agent",ListUtil.toList("iTunes/12.12.10 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-        headers.put("User-Agent", ListUtil.toList("music/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent", ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("143465-19,32"));
         headers.put("X-Dsid",ListUtil.toList("8135448658"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
@@ -69,32 +67,32 @@ public class ITunesUtil {
     /**
      　* 统计购买记录
      * @param
-     * @param response
     　* @return java.util.List<java.util.Map<java.lang.String,java.lang.String>>
     　* @throws
     　* @author DeZh
     　* @date 2023/10/19 10:09
      */
-    public  static List<Map<String,String>> accountPurchasesCount(HttpResponse response){
+    public  static List<Map<String,String>> accountPurchasesCount(Map<String,Object> paras){
         List<Map<String,String>> result=new ArrayList<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
-        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
+        headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
         headers.put("Origin", ListUtil.toList("https://finance-app.itunes.apple.com"));
 
-        headers.put("User-Agent",ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-        headers.put("X-Dsid",ListUtil.toList("8135448658"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
+        headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZ1AAAAABlbuYKP7hYlRFLTKQGuqllgT8SVh9Ca0w="));
-        String cookie=CookieUtils.getCookiesFromHeader(response);
-        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1")
+        headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
+        String cookies = MapUtil.getStr(paras,"cookies","");
+        String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1";
+        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,url)
                 .header(headers)
-                .cookie(cookie)
+                .cookie(cookies)
                 .execute();
         if(step4Res.getStatus()==200){
             String years=JSONUtil.parseObj(step4Res.body()).getByPath("data.attributes.dates.years").toString();
@@ -120,7 +118,6 @@ public class ITunesUtil {
     　* @date 2023/12/10 10:57
      */
     public  static HttpResponse getPaymentInfos(Map<String,Object> paras){
-        Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Content-Type", ListUtil.toList("application/json; charset=UTF-8"));
@@ -343,7 +340,7 @@ public class ITunesUtil {
         headers.put("Content-Type", ListUtil.toList("text/html"));
         headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         String cookies = MapUtil.getStr(paras,"cookies","");
         //获取支付方式
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemLandingPage?cc=cn";
@@ -368,7 +365,7 @@ public class ITunesUtil {
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded; charset=UTF-8"));
         headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         String cookies = MapUtil.getStr(paras,"cookies","");
         //获取支付方式
         Map<String, String> source=new HashMap<>();
@@ -412,7 +409,7 @@ public class ITunesUtil {
         headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
         headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         String cookies = MapUtil.getStr(paras,"cookies","");
         String appStoreOverCheckUrl = MapUtil.getStr(paras,"appStoreOverCheckUrl","");
         //获取支付方式
@@ -440,7 +437,7 @@ public class ITunesUtil {
         headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
         headers.put("X-Apple-Store-Front",ListUtil.toList(loginInfo.getStoreFront()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         HttpResponse httpResponse = ProxyUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
                 .header(headers)
                 .cookie(loginInfo.getCookie())
@@ -451,7 +448,7 @@ public class ITunesUtil {
     public static Map<String,Object> editAccountFieldsSrv(Map<String, Object> paras) {
         String accountUrl = "https://p"+ paras.get("itspod") +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/?context=changeCountry";
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("Host", ListUtil.toList("p"+paras.get("itspod")+"-buy.itunes.apple.com"));
         headers.put("Origin",ListUtil.toList("https://finance-app.itunes.apple.com"));
@@ -572,7 +569,7 @@ public class ITunesUtil {
     public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
-        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
                 "<plist version=\"1.0\">" +
@@ -609,7 +606,7 @@ public class ITunesUtil {
      */
     public static HttpResponse appstoreSearch(String country,String term,int limit){
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         String params = "entity=software,iPadSoftware&media=software&country="+country+"&term="+term+"&limit="+limit;
         String searchUrl = "https://itunes.apple.com/search?" + params;
         HttpResponse searchRsp = ProxyUtil.createGet(searchUrl)
@@ -630,7 +627,7 @@ public class ITunesUtil {
         url = StrUtil.isEmpty(url) ? "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZBuy.woa/wa/buyProduct" : url;
 
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         headers.put("Content-Type", ListUtil.toList("application/x-apple-plist"));
 
         headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
@@ -696,7 +693,7 @@ public class ITunesUtil {
         String passwordToken = appstoreDownloadVo.getPasswordToken();
 
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         headers.put("Content-Type", ListUtil.toList("application/x-apple-plist"));
 
         headers.put("iCloud-DSID", ListUtil.toList(dsPersonId));
@@ -744,7 +741,7 @@ public class ITunesUtil {
             redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
         }
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
+        headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("Content-Type",ListUtil.toList("application/x-apple-plist"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("X-Dsid",ListUtil.toList(dsPersonId));
@@ -853,7 +850,7 @@ public class ITunesUtil {
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Origin",List.of("https://finance-app.itunes.apple.com"));
             headers.put("Referer",List.of("https://finance-app.itunes.apple.com"));
-            //headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
+            //headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
             headers.put("User-Agent", ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
             headers.put("Accept-Encoding",List.of("gzip, deflate"));
             headers.put("Connection",List.of("keep-alive"));
