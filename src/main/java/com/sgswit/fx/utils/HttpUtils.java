@@ -1,29 +1,30 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
 import java.util.Map;
 
-public class HttpUtil{
+public class HttpUtils {
 
     public static HttpResponse get(String url){
         url = getServiceUrl() + url;
-        HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).execute();
+        HttpResponse rsp = HttpUtil.createGet(url).execute();
         return rsp;
     }
 
     public static HttpResponse get(String url, Map<String,Object> paramMap){
         url = getServiceUrl() + url;
-        HttpResponse rsp = cn.hutool.http.HttpUtil.createGet(url).form(paramMap).execute();
+        HttpResponse rsp = HttpUtil.createGet(url).form(paramMap).execute();
         return rsp;
     }
 
     public static HttpResponse post(String url,Map<String,Object> paramMap){
         url = getServiceUrl() + url;
-        HttpResponse rsp = cn.hutool.http.HttpUtil.createPost(url)
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
                 .body(JSONUtil.toJsonStr(paramMap))
                 .execute();
@@ -32,7 +33,7 @@ public class HttpUtil{
 
     public static HttpResponse post(String url,String body){
         url = getServiceUrl() + url;
-        HttpResponse rsp = cn.hutool.http.HttpUtil.createPost(url)
+        HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
                 .body(body)
                 .execute();

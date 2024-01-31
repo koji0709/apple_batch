@@ -356,8 +356,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 put("redeemBalance",giftCardRedeem.getGiftCardAmount());
                 put("redeemTime",DateUtil.now());
             }};
-            HttpResponse addGiftcardRedeemLogRsp = HttpUtil.post("/giftcardRedeemLog", params);
-            boolean addSuccess = HttpUtil.verifyRsp(addGiftcardRedeemLogRsp);
+            HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params);
+            boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
             if (!addSuccess){
                 Console.log("礼品卡兑换记录兑换失败；{}",params);
             }
@@ -599,15 +599,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
             Map<String,Object> params = new HashMap<>();
             params.put("code",code);
-            HttpResponse giftcardRedeemLogRsp = HttpUtil.get("/giftcardRedeemLog",params);
-            boolean verify = HttpUtil.verifyRsp(giftcardRedeemLogRsp);
+            HttpResponse giftcardRedeemLogRsp = HttpUtils.get("/giftcardRedeemLog",params);
+            boolean verify = HttpUtils.verifyRsp(giftcardRedeemLogRsp);
             if (!verify){
-                alert(HttpUtil.message(giftcardRedeemLogRsp));
+                alert(HttpUtils.message(giftcardRedeemLogRsp));
                 PointUtil.pointCost(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode(),PointUtil.in,"");
                 return;
             }
 
-            JSONArray dataList = HttpUtil.dataList(giftcardRedeemLogRsp);
+            JSONArray dataList = HttpUtils.dataList(giftcardRedeemLogRsp);
             ObservableList<GiftCardRedeem> items = tableView.getItems();
             items.clear();
 

@@ -98,7 +98,7 @@ public class WebLoginUtil {
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -131,7 +131,7 @@ public class WebLoginUtil {
 
         String body = "{\"a\":\""+MapUtil.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtil.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -184,7 +184,7 @@ public class WebLoginUtil {
 
         String body = "{\"accountName\":\""+MapUtil.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();

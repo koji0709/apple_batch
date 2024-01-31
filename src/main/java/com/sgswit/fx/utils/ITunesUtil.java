@@ -57,7 +57,7 @@ public class ITunesUtil {
 
         String cookie=CookieUtils.getCookiesFromHeader(response);
 
-        HttpResponse step4Res = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases?isJsonApiFormat=true&page=1")
+        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases?isJsonApiFormat=true&page=1")
                 .header(headers)
 //                .body(body)
                 .cookie(cookie)
@@ -92,7 +92,7 @@ public class ITunesUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("X-Token",ListUtil.toList("AwIAAAECAAHZ1AAAAABlbuYKP7hYlRFLTKQGuqllgT8SVh9Ca0w="));
         String cookie=CookieUtils.getCookiesFromHeader(response);
-        HttpResponse step4Res = HttpUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1")
+        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1")
                 .header(headers)
                 .cookie(cookie)
                 .execute();
@@ -133,7 +133,7 @@ public class ITunesUtil {
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
 
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
+        HttpResponse httpResponse = ProxyUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
                 .header(headers)
                 .cookie(cookies)
                 .execute();
@@ -178,7 +178,7 @@ public class ITunesUtil {
                 if(!"None".equalsIgnoreCase(paymentMethodType)){
                     hasPayment=true;
                     String url= MessageFormat.format("https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos/{0}/delete",paymentId);
-                    HttpResponse delHttpResponse = HttpUtil.createRequest(Method.POST,url)
+                    HttpResponse delHttpResponse = ProxyUtil.createRequest(Method.POST,url)
                             .header(headers)
                             .cookie(cookies)
                             .execute();
@@ -269,7 +269,7 @@ public class ITunesUtil {
         //转为url参数格式的字符串
         String body=MapUtil.join(source,"&","=",false);
         String guid=MapUtil.getStr(paras,"guid","");
-        HttpResponse response = HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv?guid="+guid)
+        HttpResponse response = ProxyUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv?guid="+guid)
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies",""))
                 .body(body)
@@ -347,7 +347,7 @@ public class ITunesUtil {
         String cookies = MapUtil.getStr(paras,"cookies","");
         //获取支付方式
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemLandingPage?cc=cn";
-        HttpResponse response = HttpUtil.createRequest(Method.GET,url)
+        HttpResponse response = ProxyUtil.createRequest(Method.GET,url)
                 .header(headers)
                 .cookie(cookies)
                 .execute();
@@ -378,7 +378,7 @@ public class ITunesUtil {
         source.put("nationalId", MapUtil.getStr(paras,"nationalId"));
         String body=MapUtil.join(source,"&","=",false);
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemValidateId?"+body;
-        HttpResponse response = HttpUtil.createRequest(Method.POST,url)
+        HttpResponse response = ProxyUtil.createRequest(Method.POST,url)
                 .header(headers)
                 .cookie(cookies)
                 .execute();
@@ -416,7 +416,7 @@ public class ITunesUtil {
         String cookies = MapUtil.getStr(paras,"cookies","");
         String appStoreOverCheckUrl = MapUtil.getStr(paras,"appStoreOverCheckUrl","");
         //获取支付方式
-        HttpResponse response = HttpUtil.createRequest(Method.GET,appStoreOverCheckUrl)
+        HttpResponse response = ProxyUtil.createRequest(Method.GET,appStoreOverCheckUrl)
                 .header(headers)
                 .cookie(cookies)
                 .execute();
@@ -441,7 +441,7 @@ public class ITunesUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(loginInfo.getStoreFront()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("User-Agent",ListUtil.toList("MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41"));
-        HttpResponse httpResponse = HttpUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
+        HttpResponse httpResponse = ProxyUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
                 .header(headers)
                 .cookie(loginInfo.getCookie())
                 .execute();
@@ -463,7 +463,7 @@ public class ITunesUtil {
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {
-            HttpResponse res = HttpUtil.createGet(accountUrl)
+            HttpResponse res = ProxyUtil.createGet(accountUrl)
                     .header(headers)
                     .cookie(cookies)
                     .execute();
@@ -510,7 +510,7 @@ public class ITunesUtil {
         String guid=MapUtil.getStr(paras,"guid","");
         String body=MapUtil.getStr(paras,"addressInfo");
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/editBillingInfoSrv?guid="+guid;
-        HttpResponse response = HttpUtil.createRequest(Method.POST,url)
+        HttpResponse response = ProxyUtil.createRequest(Method.POST,url)
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies",""))
                 .body(body)
@@ -594,7 +594,7 @@ public class ITunesUtil {
                 "    </dict>" +
                 "</plist>";
         authBody = String.format(authBody,account,guid,pwd,authCode);
-        HttpResponse authRsp = HttpUtil.createPost(authUrl)
+        HttpResponse authRsp = ProxyUtil.createPost(authUrl)
                 .header(headers)
                 .body(authBody, ContentType.FORM_URLENCODED.getValue())
                 .execute();
@@ -612,7 +612,7 @@ public class ITunesUtil {
         headers.put("User-Agent", ListUtil.toList("Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8"));
         String params = "entity=software,iPadSoftware&media=software&country="+country+"&term="+term+"&limit="+limit;
         String searchUrl = "https://itunes.apple.com/search?" + params;
-        HttpResponse searchRsp = HttpUtil.createGet(searchUrl)
+        HttpResponse searchRsp = ProxyUtil.createGet(searchUrl)
                 .header(headers)
                 .execute();
         return searchRsp;
@@ -669,7 +669,7 @@ public class ITunesUtil {
                 "    </dict>\n" +
                 "</plist>";
         body = String.format(body,appstoreDownloadVo.getGuid(),trackId,trackId);
-        HttpResponse purchaseRsp = HttpUtil.createPost(url)
+        HttpResponse purchaseRsp = ProxyUtil.createPost(url)
                 .header(headers)
                 .cookie(appstoreDownloadVo.getCookie())
                 .body(body)
@@ -717,7 +717,7 @@ public class ITunesUtil {
                 "    </dict>\n" +
                 "</plist>";
         body = String.format(body,appstoreDownloadVo.getGuid(),trackId);
-        HttpResponse downloadRsp = HttpUtil.createPost(downloadUrl)
+        HttpResponse downloadRsp = ProxyUtil.createPost(downloadUrl)
                 .header(headers)
                 .cookie(appstoreDownloadVo.getCookie())
                 .body(body)
@@ -780,7 +780,7 @@ public class ITunesUtil {
                 "\t</dict>\n" +
                 "</plist>";
 
-            HttpResponse redeemRsp = HttpUtil.createPost(redeemUrl)
+            HttpResponse redeemRsp = ProxyUtil.createPost(redeemUrl)
                     .header(headers)
                     .cookie(giftCardRedeem.getCookie())
                     .body(redeemBody)
@@ -866,7 +866,7 @@ public class ITunesUtil {
             headers.put("X-Token",ListUtil.toList(passwordToken));
             headers.put("Cookie",List.of(getCookie(authRsp)));
 
-            HttpResponse subscriptionsRsp = HttpUtil.createGet(url)
+            HttpResponse subscriptionsRsp = ProxyUtil.createGet(url)
                     .header(headers)
 //                    .cookie(getCookie(authRsp))
                     .execute();

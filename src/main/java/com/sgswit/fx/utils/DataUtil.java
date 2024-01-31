@@ -40,7 +40,7 @@ public class DataUtil {
         try {
             if(null==proxyConfigList || proxyConfigList.size()==0){
                 //调接口
-                HttpResponse rsp = HttpUtil.get("/api/data/getProxyConfig");
+                HttpResponse rsp = HttpUtils.get("/api/data/getProxyConfig");
                 JSON json=JSONUtil.parse(rsp.body());
                 if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
                     proxyConfigList=json.getByPath("data",List.class);
@@ -125,8 +125,8 @@ public class DataUtil {
     }
     public static void getNews(){
         try {
-            HttpResponse rsp = HttpUtil.get("/noticeInfo/getNoticeInfo");
-            boolean verify = HttpUtil.verifyRsp(rsp);
+            HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo");
+            boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
             }else {
                 String fileName="news.ini";
@@ -229,7 +229,7 @@ public class DataUtil {
                 ids.put(type,new HashMap<>());
             }
             if(f){
-                HttpResponse rsp = HttpUtil.get("/api/data/getId/"+type+"?appleId="+appleId);
+                HttpResponse rsp = HttpUtils.get("/api/data/getId/"+type+"?appleId="+appleId);
                 JSON json=JSONUtil.parse(rsp.body());
                 if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
                     id= json.getByPath("id",String.class);

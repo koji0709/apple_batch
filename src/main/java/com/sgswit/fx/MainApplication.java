@@ -95,12 +95,12 @@ public class MainApplication extends Application {
         String softwareInfoName=PropertiesUtil.getConfig("softwareInfo.name");
 
         // 查询最新发布的版本信息
-        HttpResponse rsp = HttpUtil.get("/api/version/getLastInfo/"+platform);
-        boolean success = HttpUtil.verifyRsp(rsp);
+        HttpResponse rsp = HttpUtils.get("/api/version/getLastInfo/"+platform);
+        boolean success = HttpUtils.verifyRsp(rsp);
         if (!success){
             return false;
         }
-        JSONObject versionData = HttpUtil.data(rsp);
+        JSONObject versionData = HttpUtils.data(rsp);
         if (versionData == null){
             return false;
         }

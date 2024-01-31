@@ -4,7 +4,6 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -35,7 +34,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
         String accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
-        HttpResponse accRes = HttpUtil.createGet(accessoriesUrl)
+        HttpResponse accRes = ProxyUtil.createGet(accessoriesUrl)
                 .header(headers).execute();
         if(accRes.getStatus() != 200){
             paras.put("msg","商品信息加载失败！");
@@ -60,7 +59,7 @@ public class ShoppingUtil {
 
         String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
 
-        HttpResponse prodRes = HttpUtil.createGet(productUrl)
+        HttpResponse prodRes = ProxyUtil.createGet(productUrl)
                 .header(headers).execute();
 
         if(prodRes.getStatus() != 200){
@@ -109,7 +108,7 @@ public class ShoppingUtil {
         }else{
             atbUrl = "https://www.apple.com/"+code2+"/shop/beacon/atb";
         }
-        HttpResponse atbRes = cn.hutool.http.HttpUtil.createGet(atbUrl)
+        HttpResponse atbRes = ProxyUtil.createGet(atbUrl)
                 .header(headers).execute();
         if(atbRes.getStatus() != 200){
             paras.put("msg","商品信息加载失败！");
@@ -157,7 +156,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
-        HttpResponse res = HttpUtil.createPost(paras.get("url").toString())
+        HttpResponse res = ProxyUtil.createPost(paras.get("url").toString())
                 .header(headers)
                 .form((Map<String,Object>)paras.get("body"))
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
@@ -199,7 +198,7 @@ public class ShoppingUtil {
             bagUrl="https://www.apple.com/"+code2+"/shop/bag";
         }
 
-        HttpResponse res = HttpUtil.createGet(bagUrl)
+        HttpResponse res = ProxyUtil.createGet(bagUrl)
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
@@ -261,7 +260,7 @@ public class ShoppingUtil {
         headers.put("modelVersion",ListUtil.toList(header.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(header.get("syntax").toString()));
 
-        HttpResponse res = cn.hutool.http.HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
+        HttpResponse res = ProxyUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .form(MapUtil.getStr(paras,"body"))
@@ -289,7 +288,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
-        HttpResponse res = cn.hutool.http.HttpUtil.createGet(MapUtil.getStr(paras,"url"))
+        HttpResponse res = ProxyUtil.createGet(MapUtil.getStr(paras,"url"))
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
@@ -350,7 +349,7 @@ public class ShoppingUtil {
         paramMap.put("deviceID","");
         paramMap.put("grantCode","");
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(MapUtil.getStr(signInMap,"callbackSignInUrl"))
+        HttpResponse resp = ProxyUtil.createPost(MapUtil.getStr(signInMap,"callbackSignInUrl"))
                 .header(headers)
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) signInMap.get("cookiesMap"),";","=",true))
@@ -391,7 +390,7 @@ public class ShoppingUtil {
 
         paramMap.put("pltn",checkoutStartMap.get("pltn"));
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(checkoutStartMap.get("url").toString())
+        HttpResponse resp = ProxyUtil.createPost(checkoutStartMap.get("url").toString())
                 .header(headers)
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) checkoutStartMap.get("cookiesMap"),";","=",true))
@@ -416,7 +415,7 @@ public class ShoppingUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createGet(checkoutUrl)
+        HttpResponse resp = ProxyUtil.createGet(checkoutUrl)
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
@@ -472,7 +471,7 @@ public class ShoppingUtil {
 
         String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
 
-        HttpResponse resp = cn.hutool.http.HttpUtil.createPost(url)
+        HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
@@ -599,7 +598,7 @@ public class ShoppingUtil {
 
         String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
 
-        HttpResponse resp = HttpUtil.createPost(url)
+        HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
@@ -636,7 +635,7 @@ public class ShoppingUtil {
 
         String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
 
-        HttpResponse resp = HttpUtil.createPost(url)
+        HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();

@@ -54,7 +54,7 @@ public class PointUtil {
             map.put("num",num);
             map.put("flag",flag);
             String body = JSONUtil.toJsonStr(map);
-            HttpResponse rsp = HttpUtil.post("/api/data/pointCost",body);
+            HttpResponse rsp = HttpUtils.post("/api/data/pointCost",body);
             JSON json=JSONUtil.parse(rsp.body());
             if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
                 res.put("code", Constant.SUCCESS);
@@ -105,7 +105,7 @@ public class PointUtil {
     public static void getPointConfig() {
         try {
             if(null==pointConfigList || pointConfigList.size()==0){
-                HttpResponse rsp = HttpUtil.get("/api/data/getPointConfig");
+                HttpResponse rsp = HttpUtils.get("/api/data/getPointConfig");
                 JSON json=JSONUtil.parse(rsp.body());
                 if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
                     pointConfigList= JSONUtil.toList(json.getByPath("data",String.class), Map.class);

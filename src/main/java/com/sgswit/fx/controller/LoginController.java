@@ -153,13 +153,13 @@ public class LoginController extends CommonView implements Initializable {
         body = String.format(body,userName, MD5Util.encrypt(pwd),macAddress);
         String userInfo;
         try{
-            HttpResponse rsp = HttpUtil.post("/userInfo/login", body);
-            boolean verify = HttpUtil.verifyRsp(rsp);
+            HttpResponse rsp = HttpUtils.post("/userInfo/login", body);
+            boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
-                alert(HttpUtil.message(rsp));
+                alert(HttpUtils.message(rsp));
                 return;
             }
-            userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
+            userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
         }catch (Exception e){
             alert("服务异常，请联系管理员", Alert.AlertType.ERROR);
             return;
@@ -188,13 +188,13 @@ public class LoginController extends CommonView implements Initializable {
         body = String.format(body,qq);
         String userInfo ="";
         try {
-            HttpResponse rsp = HttpUtil.post("/userInfo/qqLogin", body);
-            boolean verify = HttpUtil.verifyRsp(rsp);
+            HttpResponse rsp = HttpUtils.post("/userInfo/qqLogin", body);
+            boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
-                alert(HttpUtil.message(rsp));
+                alert(HttpUtils.message(rsp));
                 return;
             }
-            userInfo = JSONUtil.toJsonStr(HttpUtil.data(rsp));
+            userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
         }catch (Exception e){
             alert("登录失败，服务异常", Alert.AlertType.ERROR);
             return;
@@ -229,8 +229,8 @@ public class LoginController extends CommonView implements Initializable {
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
         body = String.format(body,userName,MD5Util.encrypt(pwd),email,qq,cardNo);
-        HttpResponse rsp = HttpUtil.post("/userInfo/register", body);
-        alert(HttpUtil.message(rsp));
+        HttpResponse rsp = HttpUtils.post("/userInfo/register", body);
+        alert(HttpUtils.message(rsp));
     }
 
     public void sendVerifyCode(){
@@ -241,8 +241,8 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\"}";
         body = String.format(body,userName);
-        HttpResponse rsp = HttpUtil.post("/userInfo/updatePwd/verifyCode", body);
-        alert(HttpUtil.message(rsp));
+        HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd/verifyCode", body);
+        alert(HttpUtils.message(rsp));
     }
 
     public void updatePwd(){
@@ -264,8 +264,8 @@ public class LoginController extends CommonView implements Initializable {
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
         body = String.format(body,userName,MD5Util.encrypt(newPwd),verifyCode);
-        HttpResponse rsp = HttpUtil.post("/userInfo/updatePwd", body);
-        alert(HttpUtil.message(rsp));
+        HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd", body);
+        alert(HttpUtils.message(rsp));
     }
 
     public void showDocument() throws IOException {

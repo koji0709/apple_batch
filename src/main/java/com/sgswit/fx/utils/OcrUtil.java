@@ -27,7 +27,7 @@ public class OcrUtil {
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-        HttpResponse execute = HttpUtil.createGet(url)
+        HttpResponse execute = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         String body = execute.body();
@@ -39,7 +39,7 @@ public class OcrUtil {
         JSONObject object1 = JSONUtil.parseObj(JSONUtil.parseObj(body).get("payload").toString());
         Object content = object1.get("content");
         String bodys = "{\"id\":\"" + "qewqeq@2980.com" + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + "111" + "\",\"token\":\"" + capToken + "\"}}\n";
-        HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+        HttpResponse execute1 = ProxyUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                 .body(bodys)
                 .header(headers)
                 .execute();

@@ -14,7 +14,7 @@ import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.HttpUtil;
+import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.ITunesUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -117,10 +117,10 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     private void setRedeemLog(GiftCardRedeem giftCardRedeem){
         Map<String,Object> params = new HashMap<>();
         params.put("code",giftCardRedeem.getGiftCardCode());
-        HttpResponse giftcardRedeemLogRsp = HttpUtil.get("/giftcardRedeemLog",params);
-        boolean verify = HttpUtil.verifyRsp(giftcardRedeemLogRsp);
+        HttpResponse giftcardRedeemLogRsp = HttpUtils.get("/giftcardRedeemLog",params);
+        boolean verify = HttpUtils.verifyRsp(giftcardRedeemLogRsp);
         if (verify){
-            JSONArray dataList = HttpUtil.dataList(giftcardRedeemLogRsp);
+            JSONArray dataList = HttpUtils.dataList(giftcardRedeemLogRsp);
             if (!CollUtil.isEmpty(dataList)){
                 List<String> redeemList = new ArrayList<>();
                 String format = "此代码已被dsid[%s]在%s兑换";

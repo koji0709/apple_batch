@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -13,6 +12,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.ProxyUtil;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,7 +60,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
             headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
             String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-            HttpResponse execute = HttpUtil.createGet(url)
+            HttpResponse execute = ProxyUtil.createGet(url)
                     .header(headers)
                     .execute();
             if(execute.getStatus()==503){
@@ -84,7 +84,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 String content = payloadJson.getStr("content");
                 String predict = OcrUtil.recognize(content);
                 String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-                HttpResponse execute1 = HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+                HttpResponse execute1 = ProxyUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                         .body(bodys)
                         .header(headers)
                         .execute();
@@ -126,7 +126,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                         insertLocalHistory(List.of(account));
                     }
                 } else {
-                    HttpResponse location = HttpUtil.createGet("https://iforgot.apple.com" + execute1.header("Location"))
+                    HttpResponse location = ProxyUtil.createGet("https://iforgot.apple.com" + execute1.header("Location"))
                             .header(headers)
                             .execute();
                     if (StringUtils.isEmpty(location.body())) {

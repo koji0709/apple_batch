@@ -91,7 +91,7 @@ public class ICloudWeblogin {
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
 
@@ -144,7 +144,7 @@ public class ICloudWeblogin {
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -199,7 +199,7 @@ public class ICloudWeblogin {
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+ signInMap.get("account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -265,7 +265,7 @@ public class ICloudWeblogin {
 
         String body = "{\"accountName\":\""+signInMap.get("account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();

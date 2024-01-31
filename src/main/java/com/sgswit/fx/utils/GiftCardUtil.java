@@ -95,7 +95,7 @@ public class GiftCardUtil {
         if(!countryCode.equalsIgnoreCase("us")){
             url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
         }
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -108,7 +108,7 @@ public class GiftCardUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = HttpUtil.createGet(pre1.header("Location"))
+        HttpResponse res = ProxyUtil.createGet(pre1.header("Location"))
                 .header(headers)
                 .cookie(getCookies(pre1))
                 .execute();
@@ -122,7 +122,7 @@ public class GiftCardUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = HttpUtil.createGet(pre2.header("Location"))
+        HttpResponse res = ProxyUtil.createGet(pre2.header("Location"))
                 .header(headers)
                 .cookie(getCookies(pre1))
                 .execute();
@@ -205,7 +205,7 @@ public class GiftCardUtil {
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -247,7 +247,7 @@ public class GiftCardUtil {
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -292,7 +292,7 @@ public class GiftCardUtil {
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -371,7 +371,7 @@ public class GiftCardUtil {
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
         String cookies= MapUtil.join(cookiesMap,";","=",true);
         cookies=cookies+";"+as_sfa_cookie;
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(JSONUtil.toJsonStr(bodyParas))
                 .cookie(cookies)
@@ -429,7 +429,7 @@ public class GiftCardUtil {
         paramMap.put("grantCode","");
 
 
-        HttpResponse res3 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) +
+        HttpResponse res3 = ProxyUtil.createPost(location.substring(0,location.indexOf("shop")) +
                 "shop/signIn/idms/authx" +
                 location.substring(location.indexOf("?")))
                 .header(headers)
@@ -466,7 +466,7 @@ public class GiftCardUtil {
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
         String location=MapUtil.getStr(paras,"location");
-        HttpResponse res4 = HttpUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
+        HttpResponse res4 = ProxyUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies"))
                 .form(data)

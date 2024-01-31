@@ -6,7 +6,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.HttpUtil;
+import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.PointUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -68,7 +68,7 @@ public class SelfServiceChargeController implements Initializable {
                     map.put("userName",userName);
                     map.put("cardNo",cardNo);
                     String body = JSONUtil.toJsonStr(map);
-                    HttpResponse rsp = HttpUtil.post("/api/data/chargeToAccount",body);
+                    HttpResponse rsp = HttpUtils.post("/api/data/chargeToAccount",body);
                     JSON responseBody=JSONUtil.parse(rsp.body());
                     if (!responseBody.getByPath("code",String.class).equals(Constant.SUCCESS)){
                         String msg=responseBody.getByPath("msg",String.class);

@@ -2,6 +2,7 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
@@ -155,7 +156,7 @@ public class PurchaseBillUtil {
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         String url="https://reportaproblem.apple.com/";
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -168,7 +169,7 @@ public class PurchaseBillUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = HttpUtil.createGet(pre1.header("Location"))
+        HttpResponse res = ProxyUtil.createGet(pre1.header("Location"))
                 .header(headers)
                 .execute();
         return res;
@@ -187,7 +188,7 @@ public class PurchaseBillUtil {
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = HttpUtil.createGet(url)
+        HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
         return res;
@@ -226,7 +227,7 @@ public class PurchaseBillUtil {
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -268,7 +269,7 @@ public class PurchaseBillUtil {
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
                 .body(body)
                 .execute();
@@ -339,7 +340,7 @@ public class PurchaseBillUtil {
         }
 
 
-        HttpResponse res = HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(JSONUtil.toJsonStr(paras))
                 .cookie(cookieBuilder.toString())
@@ -360,7 +361,7 @@ public class PurchaseBillUtil {
         headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
         headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0"));
         String location = res1.header("Location");
-        HttpResponse res2 = HttpUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
+        HttpResponse res2 = ProxyUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
                 .header(headers)
                 .execute();
 
@@ -387,7 +388,7 @@ public class PurchaseBillUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Connection",ListUtil.toList("keep-alive"));
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        HttpResponse res2 = ProxyUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -414,7 +415,7 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        HttpResponse res2 = ProxyUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -441,7 +442,7 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        HttpResponse res2 = ProxyUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -470,7 +471,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
 
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = HttpUtil.createGet(scUrl)
+        HttpResponse res2 = ProxyUtil.createGet(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -511,7 +512,7 @@ public class PurchaseBillUtil {
 
 
         String scUrl = "https://idmsa.apple.com/appleauth/auth/repair/complete";
-        HttpResponse res2 = HttpUtil.createPost(scUrl)
+        HttpResponse res2 = ProxyUtil.createPost(scUrl)
                 .header(headers)
                 .execute();
         return res2;
@@ -551,7 +552,7 @@ public class PurchaseBillUtil {
         }
         String loginCookies = cookieBuilder.substring(1);
         String loginUrl="https://reportaproblem.apple.com/api/login";
-        HttpResponse loginResponse = HttpUtil.createGet(loginUrl)
+        HttpResponse loginResponse = ProxyUtil.createGet(loginUrl)
                 .header(headers)
                 .cookie(loginCookies)
                 .execute();
@@ -607,7 +608,7 @@ public class PurchaseBillUtil {
         String body="{\"batchId\":\"%s\",\"dsid\":\"%s\",\"purchaseAmount\":\"\"}";
 
         body = String.format(body,nextBatchId,dsid);
-        HttpResponse searchResponse = HttpUtil.createPost(searchUrl)
+        HttpResponse searchResponse = ProxyUtil.createPost(searchUrl)
                 .header(headers)
                 .cookie(searchCookies)
                 .body(body)
@@ -887,7 +888,7 @@ public class PurchaseBillUtil {
                 "</plist>";
         try {
             String authUrl=MapUtil.getStr(paras,"authUrl");
-            HttpResponse res = HttpUtil.createPost(authUrl)
+            HttpResponse res = ProxyUtil.createPost(authUrl)
                     .header(headers)
                     .cookie(MapUtil.getStr(paras,"cookies"))
                     .body(authBody, ContentType.FORM_URLENCODED.toString())
@@ -970,6 +971,9 @@ public class PurchaseBillUtil {
             paras.put("creditDisplay",StringUtils.isEmpty(rspJSON.getStr("creditDisplay"))?"0":rspJSON.getStr("creditDisplay"));
             paras.put("dsPersonId",rspJSON.getStr("dsPersonId"));
             paras.put("passwordToken",rspJSON.getStr("passwordToken"));
+        } catch (IORuntimeException e) {
+            paras.put("msg","连接异常，请检查网络");
+            paras.put("code","-1");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -988,7 +992,7 @@ public class PurchaseBillUtil {
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {
-            HttpResponse res = HttpUtil.createGet(accountUrl)
+            HttpResponse res = ProxyUtil.createGet(accountUrl)
                     .header(headers)
                     .cookie(cookies)
                     .execute();
@@ -1005,6 +1009,9 @@ public class PurchaseBillUtil {
             //寄送地址
             String paymentMethod=addressElement.parent().parent().previousElementSibling().getElementsByClass("info").text();
             paras.put("paymentMethod",paymentMethod);
+        } catch (IORuntimeException e) {
+            paras.put("msg","连接异常，请检查网络");
+            paras.put("code","-1");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1037,7 +1044,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
 
-        HttpResponse response = HttpUtil.createRequest(Method.GET,url)
+        HttpResponse response = ProxyUtil.createRequest(Method.GET,url)
                 .header(headers)
                 .cookie(cookies)
                 .execute();
