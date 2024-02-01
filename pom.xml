@@ -132,6 +132,13 @@
             <version>3.44.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -220,11 +227,11 @@
 
                             <copyDependencies>false</copyDependencies>
                             <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
-                            <platform>windows</platform>
-<!--                            <winConfig>-->
-<!--                                &lt;!&ndash; 软件图标 &ndash;&gt;-->
-<!--                                <icoFile>C:\Users\DELL\Desktop\favicon.ico</icoFile>-->
-<!--                            </winConfig>-->
+                                                        <platform>windows</platform>
+                            <!--                            <winConfig>-->
+                            <!--                                &lt;!&ndash; 软件图标 &ndash;&gt;-->
+                            <!--                                <icoFile>C:\Users\DELL\Desktop\favicon.ico</icoFile>-->
+                            <!--                            </winConfig>-->
                             <!--                            <platform>mac</platform>-->
                             <!--                             <platform>mac</platform>-->
                             <!--                            <platform>mac|windows</platform>-->
