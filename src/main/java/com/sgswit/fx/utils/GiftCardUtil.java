@@ -11,7 +11,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
@@ -63,7 +62,7 @@ public class GiftCardUtil {
 //
 //        HttpResponse step1Res = signinInit("djli0506@163.com",a,step0Res,paras);
 //
-//        HttpResponse step2Res = signinCompete("djli0506@163.com","!!B0527s0207!!",paras,step1Res,pre1,pre3);
+//        HttpResponse step2Res = signinCompete("djli0506@163.com","##B0527s0207",paras,step1Res,pre1,pre3);
 //        if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
 //            JSON json = JSONUtil.parse(step2Res.body());
 //            String error=json.getByPath("serviceErrors.message").toString();

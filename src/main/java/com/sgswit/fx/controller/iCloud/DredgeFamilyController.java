@@ -1,9 +1,6 @@
 package com.sgswit.fx.controller.iCloud;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
@@ -12,30 +9,19 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.PointUtil;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.sgswit.fx.utils.ICloudUtil.checkCloudAccount;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * <p>
@@ -132,5 +118,8 @@ public class DredgeFamilyController extends CustomTableView<Account> {
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
+        List<String> items=new ArrayList<>(super.menuItem) ;
+        items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
 }

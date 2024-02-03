@@ -23,7 +23,7 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
 
     /**
      * 账号处理
-     * djli0506@163.com----!!B0527s0207!!
+     * djli0506@163.com----##B0527s0207
      */
     @Override
     public void accountHandler(Account account) {

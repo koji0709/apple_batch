@@ -5,7 +5,6 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -28,12 +27,12 @@ import java.util.Map;
 public class ICloudUtil {
     public static void main(String[] args) throws Exception {
         //HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.2121" );
-        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","!!B0527s0207!!" );
-//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","!!B0527s0207!!" );
+        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","##B0527s0207" );
+//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","##B0527s0207" );
 //        getiTunesAccountPaymentInfo(getAuthByHttResponse(response),"djli0506@163.com","8135448658");
-//        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
+        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
 //        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
-//        createFamily(getAuthByHttResponse(response),"djli0506@163.com","!!B0527s0207!!","djli0506@163.com","!!B0527s0207!!");
+//        createFamily(getAuthByHttResponse(response),"djli0506@163.com","##B0527s0207","djli0506@163.com","##B0527s0207");
 //        leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
 //        accountLoginDemo();
 
@@ -41,9 +40,6 @@ public class ICloudUtil {
 //        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207" );
 //
 //        HttpResponse response2= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207123456" );
-
-        System.out.println(response.getStatus());
-        System.out.println(response.body());
 
 
     }
@@ -274,12 +270,16 @@ public class ICloudUtil {
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
         headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
+
+        String format="{\"organizerDSID\":\"%s\",\"userAction\":\"ADDING_FAMILY_MEMBER\",\"sendSMS\":true}";
+        String body=String.format(format,organizerDsid);
+
         HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/mac/family/getiTunesAccountPaymentInfo")
                 .header(headers)
+                .body(body)
                 .execute();
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
-            System.out.println(JSONUtil.parse(rb).getByPath("status"));
             if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
                 res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
             }

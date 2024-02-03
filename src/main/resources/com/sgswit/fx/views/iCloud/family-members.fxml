@@ -128,7 +128,7 @@
                                         <TableColumn fx:id="pwd" prefWidth="180.0" text="密码" />
                                         <TableColumn fx:id="memberAccount" prefWidth="180.0" text="成员账号或成员Dsid" />
                                         <TableColumn fx:id="memberPwd" prefWidth="180.0" text="成员密码" />
-                                        <TableColumn fx:id="cvv" prefWidth="180.0" text="安全吗（CVV）" />
+                                        <TableColumn fx:id="cvv" prefWidth="180.0" text="安全码（CVV）" />
                                         <TableColumn fx:id="note" prefWidth="180.0" text="执行信息" />
                                     </columns>
                                 </TableView>

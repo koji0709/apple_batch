@@ -34,7 +34,7 @@ public class PurchaseBillUtil {
 
     public static void main(String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","!!B0527s0207!!");
+//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","##B0527s0207");
 //        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
 //        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 //                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
@@ -56,7 +56,7 @@ public class PurchaseBillUtil {
 //                .body(body)
 //                .execute();
 
-        Map<String,Object> res= iTunesAuth("djli0506@163.com","!!B0527s0207!!");
+        Map<String,Object> res= iTunesAuth("djli0506@163.com","##B0527s0207");
         ITunesUtil.getPaymentInfos(res);
     }
     ///网页版版

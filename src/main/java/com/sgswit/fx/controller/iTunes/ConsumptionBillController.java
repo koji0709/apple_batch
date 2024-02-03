@@ -10,6 +10,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
@@ -81,27 +83,19 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         HttpResponse step1Res = AppleIDUtil.signin(a);
         ThreadUtil.sleep(2000);
         if (step1Res.getStatus() == 503){
-            account.setHasFinished(true);
-            setAndRefreshNote(account, "操作频繁，请稍后重试！");
-            return ;
+            throw new UnavailableException();
         }else if (step1Res.getStatus() != 409) {
-            account.setHasFinished(true);
-            setAndRefreshNote(account, "Apple ID 或密码不正确");
-            return ;
+            throw new ServiceException("Apple ID 或密码不正确");
         }
         String step1Body = step1Res.body();
         JSON json = JSONUtil.parse(step1Body);
         if (json == null) {
-            account.setHasFinished(true);
-            setAndRefreshNote(account, "Apple ID 或密码不正确");
-            return ;
+            throw new ServiceException("Apple ID 或密码不正确");
         }
         //step2 auth 获取认证信息
         String authType = (String) json.getByPath("authType");
         if ("hsa2".equals(authType)) {
-            account.setHasFinished(true);
-            setAndRefreshNote(account, "此账号已开启双重认证");
-            return ;
+            throw new ServiceException("此 Apple ID已开启双重验证，请输入双重验证码");
         }
         int accountPurchasesLast90Count=0;
         Map<String,Object> accountInfoMap=PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
@@ -112,9 +106,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         }else{
             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
             if(!hasInspectionFlag){
-                account.setHasFinished(true);
-                setAndRefreshNote(account,"此 Apple ID 尚未用于 App Store。");
-                return;
+                throw new ServiceException("此 Apple ID 尚未用于 App Store。");
             }
             accountInfoMap=PurchaseBillUtil.accountSummary(accountInfoMap);
             account.setStatus(Boolean.valueOf(accountInfoMap.get("isDisabledAccount").toString())?"禁用":"正常");
@@ -221,9 +213,9 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         }
     }
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-//        List<String> items=new ArrayList<>(super.menuItem) ;
+        List<String> items=new ArrayList<>(super.menuItem) ;
 //        items.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
-//        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
+        super.onContentMenuClick(contextMenuEvent,accountTableView,items);
 
     }
     @Override

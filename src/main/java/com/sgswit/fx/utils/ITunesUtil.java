@@ -823,7 +823,7 @@ public class ITunesUtil {
     private static void subscriptionDemo(){
         Account account = new Account();
 //        account.setAccount("djli0506@163.com");
-//        account.setPwd("!!B0527s0207!!");
+//        account.setPwd("##B0527s0207");
         account.setAccount("qewqeq@2980.com");
         account.setPwd("dPFb6cSD41");
 

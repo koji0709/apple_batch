@@ -46,7 +46,7 @@
                               <ComboBox fx:id="proxyType" layoutX="22.0" layoutY="25.0" prefWidth="150.0" />
                               <Label layoutX="14.0" layoutY="66.0" lineSpacing="10.0" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="190.0" text="说明:根据自身·代理选择类型，使用内置代理请选择Http/Https.注意:保存设置后立即生效。" wrapText="true" />
                               <Button layoutX="120.0" layoutY="172.0" mnemonicParsing="false" onAction="#saveAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="保存设置" textFill="WHITE" />
-                              <Button layoutX="14.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="快速过滤代理" textFill="WHITE" />
+<!--                              <Button layoutX="14.0" layoutY="172.0" mnemonicParsing="false" prefWidth="100.0" style="-fx-background-color: #33485E;" text="快速过滤代理" textFill="WHITE" />-->
                            </children></Pane>
                      </content></TitledPane>
                </children>
@@ -120,7 +120,7 @@
                                           <TextField fx:id="proxyTunnelPass" layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
                                        </children>
                                     </Pane>
-                                    <Button layoutX="134.0" layoutY="158.0" mnemonicParsing="false" onAction="#proxyTunnelAddressCheckAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />
+<!--                                    <Button layoutX="134.0" layoutY="158.0" mnemonicParsing="false" onAction="#proxyTunnelAddressCheckAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />-->
                                  </children>
                               </Pane>
                            </content>

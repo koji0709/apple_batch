@@ -612,6 +612,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             items.clear();
 
             if (CollUtil.isEmpty(dataList)){
+                alert("暂无相关记录");
                 // 返回点数
                 PointUtil.pointCost(FunctionListEnum.GIFTCARD_REDEEM_LOG_QUERY.getCode(),PointUtil.in,"");
                 return;
