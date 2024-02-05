@@ -13,6 +13,7 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -39,6 +40,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -71,6 +73,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
+
+    protected ExecutorService executorService = ThreadUtil.newExecutor(Integer.valueOf(PropertiesUtil.getConfig("ThreadCount","3")));
 
     protected ReentrantLock reentrantLock = new ReentrantLock();
 
@@ -197,7 +201,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 if (i != 0 && i % 3 == 0) {
                     ThreadUtil.sleep(1000);
                 }
-                ThreadUtil.sleep(1500);
+
+                ThreadUtil.sleep(1000);
                 accountHandlerExpand(account);
                 if (i == accountList.size() - 1) {
                     // 任务执行结束, 恢复执行按钮状态
@@ -209,51 +214,54 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     @Override
     public void accountHandlerExpand(T account){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
-                try {
-                    // 扣除点数
-                    pointDedu(account);
-                    if (hasField){
-                        ReflectUtil.invoke(account,"setHasFinished",false);
-                    }
-                    setAndRefreshNote(account, "执行中");
-                    accountHandler(account);
-                    setDataStatus(account,true);
-                } catch (ServiceException e) {// 业务异常
-                    setAndRefreshNote(account,e.getMessage());
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                }catch (PointCostException e){
-                    setAndRefreshNote(account,e.getMessage());
-                    setDataStatus(account,false);
-                    String type = e.getType();
-                    // todo 如果返回点数失败怎么处理
-                    if (PointUtil.in.equals(type)){
-                    }
-                }catch (UnavailableException e){
-                    setAndRefreshNote(account, e.getMessage());
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                } catch (Exception e) {// 程序异常
-                    setAndRefreshNote(account, "数据处理异常");
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                    e.printStackTrace();
-                } finally {
-                    ReflectUtil.invoke(account,"setFailCount",0);
-                    setAccountNumLabel();
-                    if (hasField){
-                        ReflectUtil.invoke(account,"setHasFinished",true);
-                    }
-                    ThreadUtil.execute(() -> {
-                        insertLocalHistory(List.of(account));
-                    });
+        executorService.execute(() -> {
+            boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
+            try {
+                // 扣除点数
+                pointDedu(account);
+                if (hasField){
+                    ReflectUtil.invoke(account,"setHasFinished",false);
                 }
+                setAndRefreshNote(account, "执行中");
+                accountHandler(account);
+                setDataStatus(account,true);
+            } catch (ServiceException e) {// 业务异常
+                setAndRefreshNote(account,e.getMessage());
+                pointIncr(account);
+                setDataStatus(account,false);
+            }catch (PointCostException e){
+                setAndRefreshNote(account,e.getMessage());
+                setDataStatus(account,false);
+                String type = e.getType();
+                // todo 如果返回点数失败怎么处理
+                if (PointUtil.in.equals(type)){
+                }
+            }catch (UnavailableException e){
+                setAndRefreshNote(account, e.getMessage());
+                pointIncr(account);
+                setDataStatus(account,false);
+            } catch (Exception e) {// 程序异常
+                setAndRefreshNote(account, "数据处理异常");
+                pointIncr(account);
+                setDataStatus(account,false);
+                e.printStackTrace();
+            } finally {
+                ReflectUtil.invoke(account,"setFailCount",0);
+                setAccountNumLabel();
+                if (hasField){
+                    ReflectUtil.invoke(account,"setHasFinished",true);
+                }
+                ThreadUtil.execute(() -> {
+                    insertLocalHistory(List.of(account));
+                });
             }
-        }).start();
+        });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }).start();
     }
 
 
