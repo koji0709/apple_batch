@@ -84,8 +84,10 @@ public class LoginController extends CommonView implements Initializable {
         // 记住我
         Boolean rememberMe = PropertiesUtil.getOtherBool("login.rememberMe",false);
         if (rememberMe){
-            loginUserNameTextField.setText(PropertiesUtil.getOtherConfig("login.userName"));
-            loginPwdTextField.setText(PropertiesUtil.getOtherConfig("login.pwd"));
+            String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
+            String base64Pwd=PropertiesUtil.getOtherConfig("login.pwd");
+            loginUserNameTextField.setText(SM4Util.decryptBase64(base64UserName));
+            loginPwdTextField.setText(SM4Util.decryptBase64(base64Pwd));
             rememberMeCheckBox.setSelected(true);
         }
 
@@ -136,11 +138,16 @@ public class LoginController extends CommonView implements Initializable {
     public void login(){
         String userName = loginUserNameTextField.getText();
         String pwd = loginPwdTextField.getText();
-
         if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
             alert("用户名和密码不能为空！");
             return;
         }
+        Boolean rememberMe = rememberMeCheckBox.isSelected();
+        Boolean autoLogin= autoLoginCheckBox.isSelected();
+        PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
+        PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
+        PropertiesUtil.setOtherConfig("login.userName",SM4Util.encryptBase64(userName));
+        PropertiesUtil.setOtherConfig("login.pwd",SM4Util.encryptBase64(pwd));
         //利用hutool工具类中的封装方法获取本机mac地址
         String macAddress ="";
         try {
@@ -150,7 +157,7 @@ public class LoginController extends CommonView implements Initializable {
             e.printStackTrace();
         }
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"macAddress\":\"%s\"}";
-        body = String.format(body,userName, MD5Util.encrypt(pwd),macAddress);
+        body = String.format(body,userName, pwd,macAddress);
         String userInfo;
         try{
             HttpResponse rsp = HttpUtils.post("/userInfo/login", body);
@@ -165,13 +172,7 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
 
-        Boolean rememberMe = rememberMeCheckBox.isSelected();
-        Boolean autoLogin= autoLoginCheckBox.isSelected();
-//
-        PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
-        PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
-        PropertiesUtil.setOtherConfig("login.userName",userName);
-        PropertiesUtil.setOtherConfig("login.pwd",pwd);
+
         DataUtil.setUserInfo(userInfo);
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
@@ -228,7 +229,7 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
-        body = String.format(body,userName,MD5Util.encrypt(pwd),email,qq,cardNo);
+        body = String.format(body,userName,SM4Util.encryptBase64(pwd),email,qq,cardNo);
         HttpResponse rsp = HttpUtils.post("/userInfo/register", body);
         alert(HttpUtils.message(rsp));
     }
@@ -263,7 +264,7 @@ public class LoginController extends CommonView implements Initializable {
             return;
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
-        body = String.format(body,userName,MD5Util.encrypt(newPwd),verifyCode);
+        body = String.format(body,userName,SM4Util.encryptBase64(newPwd),verifyCode);
         HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd", body);
         alert(HttpUtils.message(rsp));
     }

@@ -1,7 +1,5 @@
 package com.sgswit.fx.utils;
 
-import com.mifmif.common.regex.Generex;
-
 import java.sql.SQLException;
 /**
  *
@@ -13,8 +11,8 @@ public class DbTest {
 //        System.err.println(entityList);
 
 
-        String regExp = "X[a-zA-Z0-9]{15}";
-        Generex generex = new Generex(regExp);
+//        String regExp = "X[a-zA-Z0-9]{15}";
+//        Generex generex = new Generex(regExp);
 //        for (int i=0;i<100;i++){
 //            System.out.println(generex.random().toUpperCase());
 //        }

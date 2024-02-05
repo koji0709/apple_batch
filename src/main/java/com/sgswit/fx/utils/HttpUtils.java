@@ -23,15 +23,18 @@ public class HttpUtils {
     }
 
     public static HttpResponse post(String url,Map<String,Object> paramMap){
+        String body=JSONUtil.toJsonStr(paramMap);
+//        body=SM4Util.encryptBase64(body);
         url = getServiceUrl() + url;
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
-                .body(JSONUtil.toJsonStr(paramMap))
+                .body(body)
                 .execute();
         return rsp;
     }
 
     public static HttpResponse post(String url,String body){
+//        body=SM4Util.encryptBase64(body);
         url = getServiceUrl() + url;
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")

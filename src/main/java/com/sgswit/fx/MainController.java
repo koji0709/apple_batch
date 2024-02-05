@@ -237,7 +237,7 @@ public class MainController implements Initializable {
    /**在线购买**/
     @FXML
     protected void onLineBuyBtnClick(ActionEvent actionEvent) throws IOException, URISyntaxException {
-        String url = "https://www.baidu.com";
+        String url = PropertiesUtil.getConfig("online.buyUrl");
         browse(url);
     }
     private static void browse(String url) {

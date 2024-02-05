@@ -349,7 +349,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         ThreadUtil.execute(()->{
             Map<String,Object> params = new HashMap<>(){{
                 put("code",giftCardRedeem.getGiftCardCode());
-                put("user",PropertiesUtil.getOtherConfig("login.userName"));
+                put("user",SM4Util.decryptBase64(PropertiesUtil.getOtherConfig("login.userName")));
                 put("recipientAccount",giftCardRedeem.getAccount());
                 put("recipientDsid",giftCardRedeem.getDsPersonId());
                 put("initBalance",giftCardRedeem.getGiftCardAmount());
