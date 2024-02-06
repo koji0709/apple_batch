@@ -120,6 +120,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
 
         Map<String,Object> res= PurchaseBillUtil.webLoginAndAuth(account.getAccount(),account.getPwd());
         if(res.get("code").equals(Constant.SUCCESS)){
+            account.setHasFinished(true);
             accountTableView.refresh();
             Map<String,Object> loginResult= (Map<String, Object>) res.get("loginResult");
             String token=loginResult.get("token").toString();
@@ -141,7 +142,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         }else{
             setAndRefreshNote(account,String.valueOf(res.get("msg")));
         }
-        account.setHasFinished(true);
     }
 
     @FXML
@@ -178,37 +178,37 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
                         Db.use().insert(entity);
                     }
                 }
-            }
-            //最近记录
-            Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  desc LIMIT 1;");
-            nowDate.setTime(entityLast.getLong("purchase_date"));
-            consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
-            //最早记录
-            Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  ASC LIMIT 1;");
-            nowDate.setTime(entityEarliest.getLong("purchase_date"));
-            consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
-            //消费总额
-            String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record  where apple_id='"+appleId+"';");
-            consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
-            String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record where apple_id='"+appleId+"' GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
-            List<Entity> countInfo=Db.use().query(countSql);
-            List<Map<String,String>> purchaseRecord=new ArrayList<>(countInfo.size());
-            List<String> sList=new ArrayList<>(countInfo.size());
-            for(Entity entity:countInfo){
-                String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
-                purchaseRecord.add(new HashMap<>(){{
-                    put("yyyy",entity.getStr("yyyy"));
-                    put("count",entity.getStr("count"));
-                }});
-            }
-            Collections.sort(purchaseRecord, (o1, o2) -> (Long.valueOf(o2.get("yyyy")).compareTo(Long.valueOf(o1.get("yyyy")))));
-            for(Map<String,String> map:purchaseRecord){
-                String s=String.format("%s[%s]",map.get("yyyy"),map.get("count"));
-                sList.add(s);
-            }
+                //最近记录
+                Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  desc LIMIT 1;");
+                nowDate.setTime(entityLast.getLong("purchase_date"));
+                consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
+                //最早记录
+                Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  ASC LIMIT 1;");
+                nowDate.setTime(entityEarliest.getLong("purchase_date"));
+                consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
+                //消费总额
+                String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record  where apple_id='"+appleId+"';");
+                consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
+                String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record where apple_id='"+appleId+"' GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
+                List<Entity> countInfo=Db.use().query(countSql);
+                List<Map<String,String>> purchaseRecord=new ArrayList<>(countInfo.size());
+                List<String> sList=new ArrayList<>(countInfo.size());
+                for(Entity entity:countInfo){
+                    String s=String.format("%s[%s]",entity.getStr("yyyy"),entity.getStr("count"));
+                    purchaseRecord.add(new HashMap<>(){{
+                        put("yyyy",entity.getStr("yyyy"));
+                        put("count",entity.getStr("count"));
+                    }});
+                }
+                Collections.sort(purchaseRecord, (o1, o2) -> (Long.valueOf(o2.get("yyyy")).compareTo(Long.valueOf(o1.get("yyyy")))));
+                for(Map<String,String> map:purchaseRecord){
+                    String s=String.format("%s[%s]",map.get("yyyy"),map.get("count"));
+                    sList.add(s);
+                }
 
-            String accountPurchasesLast90CountStr=String.format("%s[%s]","90天内",accountPurchasesLast90Count);
-            consumptionBill.setPurchaseRecord(accountPurchasesLast90CountStr+"|"+String.join("|",sList));
+                String accountPurchasesLast90CountStr=String.format("%s[%s]","90天内",accountPurchasesLast90Count);
+                consumptionBill.setPurchaseRecord(accountPurchasesLast90CountStr+"|"+String.join("|",sList));
+            }
         }catch (Exception e){
         }
     }

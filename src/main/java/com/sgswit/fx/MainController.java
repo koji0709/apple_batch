@@ -1,6 +1,7 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
+import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
@@ -203,8 +204,40 @@ public class MainController implements Initializable {
         proxyMode.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
+                String oldV=o.toString();
+                String v=t1.toString();
+                if(ProxyEnum.Mode.API.getKey().equals(v)){
+                   String proxyApiUrl= PropertiesUtil.getOtherConfig("proxyApiUrl");
+                   String proxyApiUser= PropertiesUtil.getOtherConfig("proxyApiUser");
+                   String proxyApiPass= PropertiesUtil.getOtherConfig("proxyApiPass");
+                   boolean proxyApiNeedPass= PropertiesUtil.getOtherBool("proxyApiNeedPass",false);
+                    if(StringUtils.isEmpty(proxyApiUrl)){
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("提示");
+                        alert.setHeaderText(ProxyEnum.Mode.API.getAlertMessage());
+                        alert.show();
+                        proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
+                    }else if( !proxyApiNeedPass&& (StringUtils.isEmpty(proxyApiUser) ||StringUtils.isEmpty(proxyApiPass))){
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("提示");
+                        alert.setHeaderText(ProxyEnum.Mode.API.getAlertMessage());
+                        alert.show();
+                        proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
+                    }
+                }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(v)){
+                    String proxyTunnelAddress= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
+                    String proxyTunnelUser= PropertiesUtil.getOtherConfig("proxyTunnelUser");
+                    String proxyTunnelPass= PropertiesUtil.getOtherConfig("proxyTunnelPass");
+                    if(StringUtils.isEmpty(proxyTunnelAddress) || StringUtils.isEmpty(proxyTunnelUser) ||StringUtils.isEmpty(proxyTunnelPass)){
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("提示");
+                        alert.setHeaderText(ProxyEnum.Mode.TUNNEL.getAlertMessage());
+                        alert.show();
+                        proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
+                    }
+                }
                 //修改本地配置文件
-                PropertiesUtil.setOtherConfig("proxyMode",t1.toString());
+                PropertiesUtil.setOtherConfig("proxyMode",v);
             }
         });
 

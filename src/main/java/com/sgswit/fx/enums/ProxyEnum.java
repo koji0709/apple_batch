@@ -23,19 +23,21 @@ public class ProxyEnum{
     　* @date 2024/1/25 21:36
     */
     public enum Mode{
-            NONE("0","不使用代理",5),
-            API("1","API或导入代理",600),
-            TUNNEL("2","使用隧道代理",600),
-            DEFAULT("3","使用内置代理",40),
+            NONE("0","不使用代理",5,""),
+            API("1","API或导入代理",600,"未填写代理API地址，请在代理参数设置中设置代理Api地址!"),
+            TUNNEL("2","使用隧道代理",600,"未填写隧道代理信息，请在代理参数设置中设置!"),
+            DEFAULT("3","使用内置代理",40,""),
                     ;
             private String  key;
             private String  value;
             private Integer maxThreadCount;
+            private String alertMessage;
 
-            Mode(String key, String value, Integer maxThreadCount) {
+            Mode(String key, String value, Integer maxThreadCount,String alertMessage) {
                 this.key = key;
                 this.value = value;
                 this.maxThreadCount = maxThreadCount;
+                this.alertMessage = alertMessage;
             }
 
             public static List<Map<String,Object>> getProxyModeList() {
@@ -72,6 +74,14 @@ public class ProxyEnum{
 
         public void setMaxThreadCount(Integer maxThreadCount) {
             this.maxThreadCount = maxThreadCount;
+        }
+
+        public String getAlertMessage() {
+            return alertMessage;
+        }
+
+        public void setAlertMessage(String alertMessage) {
+            this.alertMessage = alertMessage;
         }
     }
     /**
