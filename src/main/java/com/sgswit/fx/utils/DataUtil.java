@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
+import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,7 @@ public class DataUtil {
     private static Map<String,Object> userInfo=new HashMap<>();
     //内置代理信息
     private static List<Map<String,Object>> proxyConfigList;
+    private static List<Map<String,Object>> proxyModeList;
     public static List<Map<String,Object>> getProxyConfig(){
         try {
             if(null==proxyConfigList || proxyConfigList.size()==0){
@@ -50,6 +52,20 @@ public class DataUtil {
             proxyConfigList=new ArrayList<>();
         }
         return proxyConfigList;
+    }
+    public static List<Map<String,Object>> getProxyModeList(){
+        List<Map<String, Object>> proxyModeList = ProxyEnum.Mode.getProxyModeList();
+        if(null==proxyConfigList || proxyConfigList.size()==0){
+            // 移除属性值为"Male"的对象
+            Iterator<Map<String, Object>> iterator = proxyModeList.iterator();
+            while (iterator.hasNext()) {
+                Map<String, Object> map = iterator.next();
+                if (ProxyEnum.Mode.DEFAULT.getKey().equals(map.get("key"))) {
+                    iterator.remove();
+                }
+            }
+        }
+        return proxyModeList;
     }
     public static List<BaseAreaInfo> getCountry(){
         try {

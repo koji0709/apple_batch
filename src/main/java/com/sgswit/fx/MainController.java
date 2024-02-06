@@ -1,7 +1,6 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
-import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
@@ -49,7 +48,7 @@ public class MainController implements Initializable {
     private VBox leftMenu;
     private Integer currentMenuIndex;
     private Integer tempIndex;
-    private final List<Map<String, Object>> proxyModeList = ProxyEnum.Mode.getProxyModeList();
+    private final List<Map<String, Object>> proxyModeList = DataUtil.getProxyModeList();
 
     /**
     　* @description:初始化页面数据
