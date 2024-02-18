@@ -106,8 +106,13 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         if ("2".equals(status)){
             giftCardRedeem.setGiftCardStatus("未使用");
         }else if ("4".equals(status)){
-            giftCardRedeem.setGiftCardStatus("已使用");
-            setRedeemLog(giftCardRedeem);
+            if(!StringUtils.isEmpty(codeInfo.getStr("recipientDsId"))){
+                giftCardRedeem.setGiftCardStatus("旧卡(bad)");
+                setRedeemLog(giftCardRedeem);
+            }else{
+                giftCardRedeem.setGiftCardStatus("已使用");
+                setRedeemLog(giftCardRedeem);
+            }
         }else{
             giftCardRedeem.setGiftCardStatus("未知");
         }
