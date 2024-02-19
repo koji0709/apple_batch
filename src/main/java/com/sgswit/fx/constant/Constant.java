@@ -35,6 +35,8 @@ public class Constant {
 
     public static final String LOCAL_FILE_STORAGE_PATH = System.getProperty("user.dir") + "/fileSystem";
 
+    public static final String EXCEL_EXPORT_PATH = System.getProperty("user.dir") + "/导出";
+
     public static final String LOCAL_FILE_EXTENSION = ".applebatch";
 
     public static final Map<String,String> errorMap = new HashMap<>(){{

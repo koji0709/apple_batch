@@ -1,12 +1,18 @@
 package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import cn.hutool.poi.excel.StyleSet;
+import cn.hutool.system.SystemUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -510,10 +516,31 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 导出Excel按钮点击
      */
     public void exportExcelButtonAction() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("友情提示");
-        alert.setHeaderText("功能建设中，敬请期待");
-        alert.show();
+        if (this.accountList.size() == 0){
+            alert("请至少有一条导出数据");
+            return;
+        }
+        String branch = stage != null ? stage.getTitle() : "";
+        String filePath = Constant.EXCEL_EXPORT_PATH + "/" + branch + "-" + DateUtil.format(new Date(),"yyyyMMddHHmmss")+".xlsx";
+        ExcelWriter writer = ExcelUtil.getWriter(filePath);
+        for (int i = 1; i < this.accountTableView.getColumns().size(); i++) {
+            TableColumn<T, ?> tableColumn = this.accountTableView.getColumns().get(i);
+            String id = tableColumn.getId();
+            String text = tableColumn.getText();
+            Double prefWidth = tableColumn.getPrefWidth();
+            writer.addHeaderAlias(id,text);
+            if ("note".equals(id)){
+                writer.setColumnWidth(i-1,80);
+            }else{
+                writer.setColumnWidth(i-1,"note".equals(id) ? 80 : (prefWidth.intValue() / 10) + 5);
+            }
+        }
+
+        writer.getStyleSet().setWrapText();
+        writer.setOnlyAlias(true);
+        writer.write(this.accountList);
+        writer.close();
+        alert("导出成功");
     }
     /**
      * 账号是否被处理过
