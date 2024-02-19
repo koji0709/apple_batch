@@ -105,6 +105,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         String status = codeInfo.getStr("status");
         if ("2".equals(status)){
             giftCardRedeem.setGiftCardStatus("未使用");
+            setRedeemLog(giftCardRedeem);
         }else if ("4".equals(status)){
             if(!StringUtils.isEmpty(codeInfo.getStr("recipientDsId"))){
                 giftCardRedeem.setGiftCardStatus("旧卡(bad)");
@@ -114,7 +115,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                 setRedeemLog(giftCardRedeem);
             }
         }else{
-            giftCardRedeem.setGiftCardStatus("未知");
+            giftCardRedeem.setGiftCardStatus("无效卡");
         }
         setAndRefreshNote(giftCardRedeem,"查询成功");
     }
@@ -134,7 +135,11 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     redeemList.add(String.format(format,json.getStr("recipientDsid"),json.getStr("redeemTime")));
                 }
                 giftCardRedeem.setRedeemLog(CollUtil.join(redeemList,";"));
+            }else{
+                giftCardRedeem.setRedeemLog("在本平台暂无兑换记录。");
             }
+        }else{
+            giftCardRedeem.setRedeemLog("-");
         }
     }
 

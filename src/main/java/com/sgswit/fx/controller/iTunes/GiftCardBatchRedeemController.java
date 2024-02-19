@@ -334,9 +334,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 giftCardRedeem.setGiftCardStatus("僵尸卡");
                 message = String.format(message,"此凭证已停用，所以无法兑换");
             } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登录
-                message = String.format(message,"登录信息失效");
+                //message = String.format(message,"登录信息失效");
                 giftCardRedeem.setIsLogin(false);
                 loginSuccessMap.remove(giftCardRedeem.getAccount());
+                accountHandler(giftCardRedeem);//重新执行一次登陆操作
+                return;
             }else{
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("兑换失败");

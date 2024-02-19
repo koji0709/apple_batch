@@ -23,11 +23,11 @@ import java.util.ResourceBundle;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
-    // 登录成功的账号缓存(缓存一个小时,能刷新)
+    // 登录成功的账号缓存(缓存半个小时,能刷新)
     protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(3600000);
 
     static {
-        loginSuccessMap.schedulePrune(3600000);
+        loginSuccessMap.schedulePrune(1800000);
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -37,8 +37,9 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
     public void itunesLogin(T accountModel){
         String appleId = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
+        String pwd = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
 
-        LoginInfo loginInfo = loginSuccessMap.get(appleId);
+        LoginInfo loginInfo = loginSuccessMap.get(appleId+pwd);
         if (loginInfo != null) {
             accountModel.setIsLogin(loginInfo.isLogin());
             accountModel.setItspod(loginInfo.getItspod());
@@ -49,6 +50,8 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setAuthData(loginInfo.getAuthData());
             accountModel.setCookieMap(loginInfo.getCookieMap());
             setAndRefreshNote(accountModel,"成功获取登录信息。");
+        }else{
+            accountModel.setIsLogin(false);
         }
 
         if (accountModel.isLogin()){
@@ -96,7 +99,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setPasswordToken(json.getStr("passwordToken",""));
             CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
             accountModel.setIsLogin(true);
-            loginSuccessMap.put(appleId,accountModel);
+            loginSuccessMap.put(appleId+pwd,accountModel);
             return;
         }
 
