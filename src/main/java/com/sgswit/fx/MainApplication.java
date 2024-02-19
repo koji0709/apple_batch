@@ -46,7 +46,8 @@ public class MainApplication extends Application {
         if (lock == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("提示信息");
-            alert.setHeaderText("对不起，本程序仅允许运行1个");
+            alert.setHeaderText(null);
+            alert.setContentText("对不起，本程序仅允许运行1个!");
             alert.show();
             return;
         }

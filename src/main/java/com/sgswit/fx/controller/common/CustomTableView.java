@@ -1,18 +1,12 @@
 package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
-import cn.hutool.poi.excel.StyleSet;
-import cn.hutool.system.SystemUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -34,6 +28,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -46,7 +42,6 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -516,31 +511,49 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 导出Excel按钮点击
      */
     public void exportExcelButtonAction() {
-        if (this.accountList.size() == 0){
-            alert("请至少有一条导出数据");
-            return;
-        }
-        String branch = stage != null ? stage.getTitle() : "";
-        String filePath = Constant.EXCEL_EXPORT_PATH + "/" + branch + "-" + DateUtil.format(new Date(),"yyyyMMddHHmmss")+".xlsx";
-        ExcelWriter writer = ExcelUtil.getWriter(filePath);
-        for (int i = 1; i < this.accountTableView.getColumns().size(); i++) {
-            TableColumn<T, ?> tableColumn = this.accountTableView.getColumns().get(i);
-            String id = tableColumn.getId();
+        TableView tableView = this.accountTableView;
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        StringBuilder clipboardString = new StringBuilder();
+        // 输出表头标题
+        for (Object column : tableView.getColumns()) {
+            TableColumn tableColumn = (TableColumn) column;
             String text = tableColumn.getText();
-            Double prefWidth = tableColumn.getPrefWidth();
-            writer.addHeaderAlias(id,text);
-            if ("note".equals(id)){
-                writer.setColumnWidth(i-1,80);
-            }else{
-                writer.setColumnWidth(i-1,"note".equals(id) ? 80 : (prefWidth.intValue() / 10) + 5);
-            }
+            clipboardString.append(text);
+            clipboardString.append('\t');
         }
+        clipboardString.append('\n');
 
-        writer.getStyleSet().setWrapText();
-        writer.setOnlyAlias(true);
-        writer.write(this.accountList);
-        writer.close();
-        alert("导出成功");
+        ObservableList<T> rowList = (ObservableList) tableView.getItems();
+        int index=1;
+        for (T selectModel:rowList){
+            for (Object column : accountTableView.getColumns()) {
+                TableColumn tableColumn = (TableColumn) column;
+                String id = tableColumn.getId();
+                String text = "";
+                if (!"seq".equals(id)) {
+                    if (ReflectUtil.hasField(selectModel.getClass(), id)) {
+                        Object value = ReflectUtil.invoke(
+                                selectModel
+                                , "get" + id.substring(0, 1).toUpperCase() + id.substring(1));
+                        if (value != null && StrUtil.isNotEmpty(value.toString())) {
+                            text = value.toString();
+                        }
+                    }
+
+                }else{
+                    text=String.valueOf(index);
+                }
+                clipboardString.append(text);
+                clipboardString.append('\t');
+            }
+            clipboardString.append('\n');
+            index++;
+        }
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(clipboardString.toString());
+        Clipboard.getSystemClipboard().setContent(content);
+        alert("表格中所有数据已复制到剪辑版，并且已经适应Excel。\n" +
+                "直接按Ctrl+V粘贴到Excel中!\n", Alert.AlertType.INFORMATION);
     }
     /**
      * 账号是否被处理过

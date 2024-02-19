@@ -191,7 +191,8 @@ public class CustomCountryDetPopupController implements Initializable {
             if(StringUtils.isEmpty(name.getText())){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("提示");
-                alert.setHeaderText("请检查必填项");
+                alert.setHeaderText(null);
+                alert.setContentText("请检查必填项");
                 alert.show();
                 return;
             }
@@ -219,7 +220,8 @@ public class CustomCountryDetPopupController implements Initializable {
                         if(StringUtils.isEmpty(value) && fieldModelList.get(0).isRequired()){
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("提示");
-                            alert.setHeaderText("请检查必填项");
+                            alert.setHeaderText(null);
+                            alert.setContentText("请检查必填项");
                             alert.show();
                             return;
                         }
@@ -232,7 +234,8 @@ public class CustomCountryDetPopupController implements Initializable {
                         if(null==keyValuePair && fieldModelList.get(0).isRequired()){
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("提示");
-                            alert.setHeaderText("请检查必填项");
+                            alert.setHeaderText(null);
+                            alert.setContentText("请检查必填项");
                             alert.show();
                             return;
                         }

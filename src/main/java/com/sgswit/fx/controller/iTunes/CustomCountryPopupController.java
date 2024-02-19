@@ -101,12 +101,14 @@ public class CustomCountryPopupController implements Initializable {
         if(length==0){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("提示");
-            alert.setHeaderText("请选中需要删除的资料");
+            alert.setHeaderText(null);
+            alert.setContentText("请选中需要删除的资料");
             alert.show();
         }else{
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("提示");
-            alert.setHeaderText("删除选中资料？");
+            alert.setHeaderText(null);
+            alert.setContentText("删除选中资料？");
             Optional<ButtonType> option = alert.showAndWait();
             if (option.get() == null) {
                 return;

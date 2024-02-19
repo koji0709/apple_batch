@@ -5,6 +5,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.PointUtil;
@@ -25,7 +26,7 @@ import java.util.ResourceBundle;
 /**
  * @author DELL
  */
-public class SelfServiceChargeController implements Initializable {
+public class SelfServiceChargeController extends CommonView implements Initializable {
     @FXML
     public Button cancelBtn;
     @FXML
@@ -50,16 +51,10 @@ public class SelfServiceChargeController implements Initializable {
         }
         try {
             if("".equals(cardNo)){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("充值提示");
-                alert.setHeaderText("充值卡号不能为空！");
-                alert.show();
+                alert("充值卡号不能为空", Alert.AlertType.ERROR);
             }else{
                 if(cardNo.length()<10){
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("充值提示");
-                    alert.setHeaderText("充值卡号不正确！");
-                    alert.show();
+                    alert("充值卡号不正确!", Alert.AlertType.ERROR);
                 }else{
                     //获取用户信息
                     Map<String, Object> userInfo = DataUtil.getUserInfo();
@@ -72,16 +67,10 @@ public class SelfServiceChargeController implements Initializable {
                     JSON responseBody=JSONUtil.parse(rsp.body());
                     if (!responseBody.getByPath("code",String.class).equals(Constant.SUCCESS)){
                         String msg=responseBody.getByPath("msg",String.class);
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("充值提示");
-                        alert.setHeaderText(msg);
-                        alert.show();
+                        alert(msg, Alert.AlertType.ERROR);
                         return;
                     }else{
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("充值提示");
-                        alert.setHeaderText("充值成功！");
-                        alert.show();
+                        alert("充值成功!", Alert.AlertType.INFORMATION);
                         String carNo=responseBody.getByPath("data.carNo",String.class);
                         String remainingPoints=responseBody.getByPath("data.remainingPoints",String.class);
                         DataUtil.setUserInfo("carNo",carNo);
@@ -95,10 +84,7 @@ public class SelfServiceChargeController implements Initializable {
 
             }
         }catch (Exception e){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("充值提示");
-            alert.setHeaderText("系统异常，请稍后重试！");
-            alert.show();
+            alert("系统异常，请稍后重试!", Alert.AlertType.ERROR);
         }
     }
 }

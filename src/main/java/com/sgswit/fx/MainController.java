@@ -2,9 +2,11 @@ package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
 import com.sgswit.fx.enums.ProxyEnum;
+import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.StageUtil;
 import com.sgswit.fx.utils.StyleUtil;
 import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
@@ -214,13 +216,15 @@ public class MainController implements Initializable {
                     if(StringUtils.isEmpty(proxyApiUrl)){
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("提示");
-                        alert.setHeaderText(ProxyEnum.Mode.API.getAlertMessage());
+                        alert.setHeaderText(null);
+                        alert.setContentText(ProxyEnum.Mode.API.getAlertMessage());
                         alert.show();
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }else if( !proxyApiNeedPass&& (StringUtils.isEmpty(proxyApiUser) ||StringUtils.isEmpty(proxyApiPass))){
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("提示");
-                        alert.setHeaderText(ProxyEnum.Mode.API.getAlertMessage());
+                        alert.setHeaderText(null);
+                        alert.setContentText(ProxyEnum.Mode.API.getAlertMessage());
                         alert.show();
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }
@@ -231,7 +235,8 @@ public class MainController implements Initializable {
                     if(StringUtils.isEmpty(proxyTunnelAddress) || StringUtils.isEmpty(proxyTunnelUser) ||StringUtils.isEmpty(proxyTunnelPass)){
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("提示");
-                        alert.setHeaderText(ProxyEnum.Mode.TUNNEL.getAlertMessage());
+                        alert.setHeaderText(null);
+                        alert.setContentText(ProxyEnum.Mode.TUNNEL.getAlertMessage());
                         alert.show();
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }
@@ -255,7 +260,8 @@ public class MainController implements Initializable {
                 }else{
                     msg= "已关闭自动登录模式，下次登录时将执行手动登录！";
                 }
-                alert.setHeaderText(msg);
+                alert.setHeaderText(null);
+                alert.setContentText(msg);
                 alert.show();
                 // 修改本地配置文件
                 PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
@@ -321,17 +327,7 @@ public class MainController implements Initializable {
     /**打开自助充值页面**/
     @FXML
     protected void onSelfServiceTopUpBtnClick(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/selfServiceCharge.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 385, 170);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
-        Stage popupStage = new Stage();
-        popupStage.setTitle("自助充值");
-        popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setScene(scene);
-        popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
-        popupStage.setAlwaysOnTop(true);
-        popupStage.show();
+        StageUtil.show(StageEnum.SELF_SERVICE_CHARGE);
     }
     @FXML
     public void refreshRemainingPoints() {

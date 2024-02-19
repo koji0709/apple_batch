@@ -1012,9 +1012,6 @@ public class PurchaseBillUtil {
             //解析HTML
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
-
-            // document.getElementById("apple-id-account").getElementsByClass("row").get(0).getElementsByClass("info").get(0).text()
-
             paras.put("balance","0");
             Element appleIdAccountEle = document.getElementById("apple-id-account");
             if (appleIdAccountEle != null){

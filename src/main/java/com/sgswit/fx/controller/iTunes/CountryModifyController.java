@@ -152,10 +152,7 @@ public class CountryModifyController extends CustomTableView<Account>{
     @Override
     public boolean executeButtonActionBefore() {
         if(StringUtils.isEmpty(fromType)){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("提示");
-            alert.setHeaderText("请设置要修改的国家！");
-            alert.show();
+            alert("请设置要修改的国家!");
             return false;
         }else{
             return true;

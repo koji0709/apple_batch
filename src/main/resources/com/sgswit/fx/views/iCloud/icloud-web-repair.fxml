@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.geometry.Insets?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iCloud.ICloudWebRepairController">
     <children>
         <!--上下布局。上面功能区，下面表格，设置内边距14px-->
@@ -22,7 +22,6 @@
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="35" minHeight="10" prefHeight="20" vgrow="SOMETIMES" />
                                         <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
@@ -35,14 +34,14 @@
 <!--                                        </HBox>-->
 
                                         <!--开始执行-->
-                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0">
                                             <font>
                                                 <Font name="System Bold" size="15" />
                                             </font>
                                         </Button>
 
                                         <!--操作按钮-->
-                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1">
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
                                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />

@@ -10,6 +10,7 @@ public enum StageEnum {
     /********** MAIN区 ***********/
     LOGIN("APPLE批量处理程序 - 登录","views/login.fxml",400,400,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
     MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.UTILITY,Modality.NONE,""),
+    SELF_SERVICE_CHARGE("自助充值","views/base/selfServiceCharge.fxml",385,170,StageStyle.UTILITY,Modality.WINDOW_MODAL,""),
 
     /********** OPERATION区 ***********/
     ACCOUNT_INFO_MODIFY("官方修改资料","views/operation/account-info-modify.fxml",1260,650),

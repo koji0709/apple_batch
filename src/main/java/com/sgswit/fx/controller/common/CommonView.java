@@ -29,14 +29,16 @@ public class CommonView implements Initializable {
     public void alert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("提示信息");
-        alert.setHeaderText(message);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.show();
     }
 
     public void alert(String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle("提示信息");
-        alert.setHeaderText(message);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.show();
     }
     public void alertUI(String message, Alert.AlertType alertType) {

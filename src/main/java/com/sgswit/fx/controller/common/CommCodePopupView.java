@@ -31,7 +31,8 @@ public class CommCodePopupView {
         securityCode=smsTextField.getText();
         if(StringUtils.isEmpty(securityCode)){
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText("验证码不能为空");
+            alert.setHeaderText(null);
+            alert.setContentText("验证码不能为空");
             alert.show();
             return;
         }

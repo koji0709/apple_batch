@@ -13,7 +13,10 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.GiftCardUtil;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -39,7 +42,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -147,7 +149,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
-            alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+            alert.setHeaderText(null);
+            alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
             alert.show();
             return;
         }
@@ -201,7 +204,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("信息");
-            alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+            alert.setHeaderText(null);
+            alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
             alert.show();
             return;
         }
@@ -285,7 +289,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                     protected Integer call() {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("信息");
-                        alert.setHeaderText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
+                        alert.setHeaderText(null);
+                        alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
                         alert.show();
                         return 1;
                     }
