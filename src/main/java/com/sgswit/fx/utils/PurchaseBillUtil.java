@@ -1,6 +1,7 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
@@ -23,6 +24,7 @@ import org.bouncycastle.crypto.util.DigestFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -1010,6 +1012,21 @@ public class PurchaseBillUtil {
             //解析HTML
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
+
+            // document.getElementById("apple-id-account").getElementsByClass("row").get(0).getElementsByClass("info").get(0).text()
+
+            paras.put("balance","0");
+            Element appleIdAccountEle = document.getElementById("apple-id-account");
+            if (appleIdAccountEle != null){
+                Elements info = appleIdAccountEle.getElementsByClass("info");
+                if (!CollUtil.isEmpty(info)){
+                    String text = info.get(0).text();
+                    if (text.matches(".*[0-9].*")){
+                        paras.put("balance", text);
+                    }
+                }
+            }
+
             Element addressElement=element.getElementsByClass("address").get(0);
             String address=addressElement.html().replace("<br>",",");
             paras.put("address",address);

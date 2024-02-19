@@ -346,13 +346,23 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             throw new ServiceException(message);
         }
         // 礼品卡兑换成功
-        String message = "礼品卡[%s]兑换成功!";
+        String message = "兑换成功,加载金额: %s,ID总金额: %s";
         giftCardRedeem.setGiftCardStatus("已兑换");
-        message = String.format(message,giftCardCode);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("itspod",singleGiftCardRedeem.getItspod());
+        params.put("dsPersonId",singleGiftCardRedeem.getDsPersonId());
+        params.put("storeFront",singleGiftCardRedeem.getStoreFront());
+        params.put("passwordToken",singleGiftCardRedeem.getPasswordToken());
+        params.put("cookies",singleGiftCardRedeem.getCookie());
+        PurchaseBillUtil.accountSummary(params);
+        String balance = params.get("balance").toString();
+
+        message = String.format(message,giftCardRedeem.getGiftCardAmount(),balance);
         setAndRefreshNote(giftCardRedeem,message);
 
         ThreadUtil.execute(()->{
-            Map<String,Object> params = new HashMap<>(){{
+            Map<String,Object> params1 = new HashMap<>(){{
                 put("code",giftCardRedeem.getGiftCardCode());
                 put("user",SM4Util.decryptBase64(PropertiesUtil.getOtherConfig("login.userName")));
                 put("recipientAccount",giftCardRedeem.getAccount());
@@ -361,10 +371,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 put("redeemBalance",giftCardRedeem.getGiftCardAmount());
                 put("redeemTime",DateUtil.now());
             }};
-            HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params);
+            HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
             if (!addSuccess){
-                Console.log("礼品卡兑换记录兑换失败；{}",params);
+                Console.log("礼品卡兑换记录兑换失败；{}",params1);
             }
         });
     }
@@ -417,16 +427,25 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
                 itunesLogin(singleGiftCardRedeem);
 
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("itspod",singleGiftCardRedeem.getItspod());
+                params.put("dsPersonId",singleGiftCardRedeem.getDsPersonId());
+                params.put("storeFront",singleGiftCardRedeem.getStoreFront());
+                params.put("passwordToken",singleGiftCardRedeem.getPasswordToken());
+                params.put("cookies",singleGiftCardRedeem.getCookie());
+                PurchaseBillUtil.accountSummary(params);
 
                 HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
                 String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
                 String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
                 country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
                 JSONObject rspJSON = PListUtil.parse(authRsp.body());
-                String  balance           = rspJSON.getStr("creditDisplay","0");
+//                String  balance           = rspJSON.getStr("creditDisplay","0");
                 Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
                 String  status            = !isDisabledAccount ? "正常" : "禁用";
                 String finalCountry = country;
+
+                String balance = params.get("balance").toString();
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + finalCountry);
                     blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
