@@ -668,7 +668,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     }
 
     /**
-     * 设置账号的执行信息,以及刷新列表保存本地记录
+     * 设置账号的执行信息,以及刷新列表
      */
     public void setAndRefreshNote(T account, String note) {
         Platform.runLater(new Task<Integer>() {

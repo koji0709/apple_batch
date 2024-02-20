@@ -145,7 +145,7 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
                 account.setFamilyDetails("-");
                 account.setDataStatus("0");
             }
-            tableRefreshAndInsertLocal(account, "查询完成");
+            setAndRefreshNote(account, "查询完成");
             accountTableView.refresh();
         }
         account.setHasFinished(true);
