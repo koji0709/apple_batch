@@ -212,7 +212,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     itunesLogin(singleGiftCardRedeem);
 
                     Platform.runLater(() -> {
-                        checkAccountDescLabel.setTextFill(Paint.valueOf("#8fce00"));
+                        checkAccountDescLabel.setTextFill(Paint.valueOf("#169bd5"));
                         checkAccountDescLabel.setText("登陆成功[dsid:"+singleGiftCardRedeem.getDsPersonId()+"],已开启自动登陆");
                         PropertiesUtil.setOtherConfig("giftCardProAccount",accountTextFieldValue);
                     });

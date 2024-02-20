@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -331,6 +330,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("旧卡");
                 //获取兑换人的dsid信息
+                ThreadUtil.sleep(5000);
                 HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
                 JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
                 if (bodyJSON.getInt("status") != 0){
@@ -359,6 +359,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
 
         //获取礼品卡初始金额
+        ThreadUtil.sleep(5000);
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         if (bodyJSON.getInt("status") != 0){
@@ -397,7 +398,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
             if (!addSuccess){
-                Console.log("礼品卡兑换记录兑换失败；{}",params1);
+
             }
         });
     }
