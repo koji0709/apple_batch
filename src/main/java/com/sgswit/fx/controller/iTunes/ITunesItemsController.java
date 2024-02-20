@@ -21,8 +21,8 @@ public class ITunesItemsController {
         StageUtil.show(StageEnum.DELETE_PAYMENT);
     }
 
-    public void onGiftCardBlanceCheck(ActionEvent actionEvent){
-        StageUtil.show(StageEnum.GIFTCARD_BLANCE);
+    public void onGiftCardBalanceCheck(ActionEvent actionEvent){
+        StageUtil.show(StageEnum.GIFTCARD_BALANCE);
     }
 
     public void onCheckAreaBalanceBtnClick(ActionEvent actionEvent){

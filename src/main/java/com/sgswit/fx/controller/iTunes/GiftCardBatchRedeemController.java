@@ -54,7 +54,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     Label countryLabel;
 
     @FXML
-    Label blanceLabel;
+    Label balanceLabel;
 
     @FXML
     Label statusLabel;
@@ -280,10 +280,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
 
     /**
-     * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
-     * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
+     * shabagga222@tutanota.com----dPFb6cSD411----XMPC3HRMNM6K5FXP
      * cncots@gmail.com----Xx97595031.----XMPC3HRMNM6K5FXP
-     *
      */
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
@@ -297,7 +295,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             throw new ServiceException("输入的代码无效。");
         }
 
-        String giftCardCode = giftCardRedeem.getGiftCardCode();
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
 
@@ -419,6 +416,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         || !account.equals(singleGiftCardRedeem.getAccount())
                         || !pwd.equals(singleGiftCardRedeem.getAccount())
                         || !singleGiftCardRedeem.isLogin()){
+                    singleGiftCardRedeem = new GiftCardRedeem();
                     singleGiftCardRedeem.setAccount(account);
                     singleGiftCardRedeem.setPwd(pwd);
                     singleGiftCardRedeem.setGuid(guid);
@@ -448,13 +446,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String balance = params.get("balance").toString();
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + finalCountry);
-                    blanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
+                    balanceLabel.setText( "余额：" + (StrUtil.isEmpty(balance) ? "0" : balance));
                     statusLabel.setText( "状态：" + status);
                 });
             }catch (ServiceException e){
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
-                    blanceLabel.setText( "余额：" + "");
+                    balanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + e.getMessage());
                     checkAccountDescLabel.setText(e.getMessage());
                 });
@@ -463,7 +461,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }catch (Exception e){
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
-                    blanceLabel.setText( "余额：" + "");
+                    balanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + "数据处理异常");
                     checkAccountDescLabel.setText("数据处理异常");
                 });
@@ -519,8 +517,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     /**
      * 礼品卡查询余额按钮点击
      */
-    public void giftCardBlanceBtnAction(){
-        StageUtil.show(StageEnum.GIFTCARD_BLANCE);
+    public void giftCardBalanceBtnAction(){
+        StageUtil.show(StageEnum.GIFTCARD_BALANCE);
     }
 
     public void giftCardDetectionProfessionalEditionBtnAction(){

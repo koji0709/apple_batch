@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author DeZh
- * @title: GiftCardBlanceCheckController
+ * @title: GiftCardBalanceCheckController
  * @projectName appleBatch
  * @description: TODO
  * @date 2023/10/2714:40
@@ -89,7 +89,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     private static ExecutorService executor = ThreadUtil.newExecutor(1);
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BLANCE.getCode())));
+        pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
         getCountry();
         String cardAccount= PropertiesUtil.getOtherConfig("cardAccount");
         account_pwd.setText(cardAccount);

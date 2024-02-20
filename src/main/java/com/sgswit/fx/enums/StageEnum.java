@@ -34,7 +34,7 @@ public enum StageEnum {
     COUNTRY_MODIFY("账号修改国家","views/iTunes/country-modify.fxml",1100,650),
     DELETE_PAYMENT("删除付款方式","views/iTunes/payment-method.fxml",1100,650),
     BIND_VIRTUAL_CARD("绑定虚拟卡","views/iTunes/bind-virtual-card.fxml",1100,650),
-    GIFTCARD_BLANCE("礼品卡查余额","views/iTunes/giftCard-balance-check.fxml",1100,650),
+    GIFTCARD_BALANCE("礼品卡查余额","views/iTunes/giftCard-balance-check.fxml",1100,650),
     CHECK_AREA_BALANCE("国家区域余额","views/iTunes/check_area_balance.fxml",1100,650),
     CHECK_BALANCE_DISABLEDSTATUS("查询余额/检测禁用","views/iTunes/check_balance_disabledstatus.fxml",1100,650),
     CONSUMPTION_BILL("查询消费账单","views/iTunes/consumption-bill.fxml",1150,700),

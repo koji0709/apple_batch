@@ -9,7 +9,7 @@ public enum FunctionListEnum {
     COUNTRY_MODIFY("1110",80,"账号修改国家"),
     CONSUMPTION_BILL("1120",30,"查询消费账单"),
     QUERY_ACCOUNT_INFO("1130",15,"查询账号信息"),
-    GIFTCARD_BLANCE("1140",10,"礼品卡查余额"),
+    GIFTCARD_BALANCE("1140",10,"礼品卡查余额"),
     GIFTCARD_BATCH_REDEEM("1150",30,"苹果批量兑换"),
     GIFTCARD_BATCH_REDEEM_QUERY("1151",5,"苹果批量兑换账号检测"),
     GIFTCARD_BATCH_REDEEM_QUERY_PE("1152",30,"礼品卡检测专业版"),

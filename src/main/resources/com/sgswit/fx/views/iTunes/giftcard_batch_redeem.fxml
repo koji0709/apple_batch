@@ -88,14 +88,14 @@
                                                     <children>
                                                         <Label>检测需要消耗点数：5</Label>
                                                         <Label fx:id="countryLabel" prefWidth="100" wrapText="true">国家：</Label>
-                                                        <Label fx:id="blanceLabel" prefWidth="100" wrapText="true">余额：</Label>
+                                                        <Label fx:id="balanceLabel" prefWidth="100" wrapText="true">余额：</Label>
                                                         <Label fx:id="statusLabel" prefWidth="120" wrapText="true">状态：</Label>
                                                     </children>
                                                 </VBox>
 
                                                 <VBox alignment="CENTER" spacing="5">
                                                     <children>
-                                                        <Button onAction="#giftCardBlanceBtnAction">礼品卡查询余额</Button>
+                                                        <Button onAction="#giftCardBalanceBtnAction">礼品卡查询余额</Button>
                                                         <Button onAction="#giftCardDetectionProfessionalEditionBtnAction">礼品卡检测专业版</Button>
                                                         <Button onAction="#chnAppleIdValidateBtnAction">中国账号身份认证</Button>
                                                     </children>
