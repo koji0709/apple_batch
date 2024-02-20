@@ -280,8 +280,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
 
     /**
-     * shabagga222@tutanota.com----dPFb6cSD411----XMPC3HRMNM6K5FXP
+     * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
+     * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
      * cncots@gmail.com----Xx97595031.----XMPC3HRMNM6K5FXP
+     *
      */
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
@@ -295,6 +297,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             throw new ServiceException("输入的代码无效。");
         }
 
+        String giftCardCode = giftCardRedeem.getGiftCardCode();
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
 
@@ -324,17 +327,29 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             if ("MZFreeProductCode.NoSuch".equals(messageKey)){
                 giftCardRedeem.setGiftCardStatus("无效卡");
                 message = String.format(message,"该礼品卡无效");
-            } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){// 礼品卡已兑换
-                giftCardRedeem.setGiftCardStatus("已兑换");
-                message = String.format(message,"该礼品卡已被他人兑换");
-            } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){// 僵尸卡
+            } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
+                // 礼品卡已兑换
+                giftCardRedeem.setGiftCardStatus("旧卡");
+                //获取兑换人的dsid信息
+                HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
+                JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
+                if (bodyJSON.getInt("status") != 0){
+                    message = String.format(message,"此代码已被兑换");
+                }else{
+                    JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
+                    String recipientDsId=codeInfo.getStr("recipientDsId");
+                    message = String.format(message,"此代码已被[dsid:"+recipientDsId+"]兑换");
+                }
+            } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){
+                // 僵尸卡
                 giftCardRedeem.setGiftCardStatus("僵尸卡");
                 message = String.format(message,"此凭证已停用，所以无法兑换");
-            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){// 需要重新登录
-                //message = String.format(message,"登录信息失效");
+            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){
+                // 需要重新登录
                 giftCardRedeem.setIsLogin(false);
                 loginSuccessMap.remove(giftCardRedeem.getAccount());
-                accountHandler(giftCardRedeem);//重新执行一次登陆操作
+                //重新执行一次登陆操作
+                accountHandler(giftCardRedeem);
                 return;
             }else{
                 message = String.format(message,userPresentableErrorMessage);
@@ -342,6 +357,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
             throw new ServiceException(message);
         }
+
+        //获取礼品卡初始金额
+        HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
+        JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
+        if (bodyJSON.getInt("status") != 0){
+            giftCardRedeem.setAccount("0");
+        }else{
+            JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
+            giftCardRedeem.setAccount(codeInfo.getStr("amount"));
+        }
+
         // 礼品卡兑换成功
         String message = "兑换成功,加载金额: %s,ID总金额: %s";
         giftCardRedeem.setGiftCardStatus("已兑换");

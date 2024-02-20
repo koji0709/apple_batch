@@ -90,7 +90,13 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
 
         JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
         giftCardRedeem.setGiftCardAmount(codeInfo.getStr("amount"));
-        giftCardRedeem.setRecipientDsId(codeInfo.getStr("recipientDsId"));
+        String recipientDsId=codeInfo.getStr("recipientDsId");
+        if(StringUtils.isEmpty(recipientDsId) || "0".equals(recipientDsId)){
+            giftCardRedeem.setRecipientDsId("无(None)");
+        }else{
+            giftCardRedeem.setRecipientDsId(codeInfo.getStr("recipientDsId"));
+        }
+
         String productTypeDesc = codeInfo.getStr("productTypeDesc");
         giftCardRedeem.setGiftCardType(productTypeDesc);
         giftCardRedeem.setSalesOrg(codeInfo.getStr("salesOrg"));
@@ -107,7 +113,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
             giftCardRedeem.setGiftCardStatus("未使用");
             setRedeemLog(giftCardRedeem);
         }else if ("4".equals(status)){
-            if(!StringUtils.isEmpty(codeInfo.getStr("recipientDsId"))){
+            if(!StringUtils.isEmpty(recipientDsId) && !"0".equals(recipientDsId)){
                 giftCardRedeem.setGiftCardStatus("旧卡(bad)");
                 setRedeemLog(giftCardRedeem);
             }else{
@@ -240,6 +246,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         return matcher.matches();
     }
 
+    @Override
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         onContentMenuClick(contextMenuEvent, new ArrayList<>(new LinkedHashSet<>(){{
             add(Constant.RightContextMenu.DELETE.getCode());
