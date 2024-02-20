@@ -331,7 +331,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("旧卡");
                 //获取兑换人的dsid信息
-                HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
+                HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
                 JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
                 if (bodyJSON.getInt("status") != 0){
                     message = String.format(message,"此代码已被兑换");
@@ -359,13 +359,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
 
         //获取礼品卡初始金额
-        HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
+        HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         if (bodyJSON.getInt("status") != 0){
             giftCardRedeem.setAccount("0");
         }else{
             JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
-            giftCardRedeem.setAccount(codeInfo.getStr("amount"));
+            giftCardRedeem.setGiftCardAmount(codeInfo.getStr("amount"));
         }
 
         // 礼品卡兑换成功
@@ -373,11 +373,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         giftCardRedeem.setGiftCardStatus("已兑换");
 
         HashMap<String, Object> params = new HashMap<>();
-        params.put("itspod",singleGiftCardRedeem.getItspod());
-        params.put("dsPersonId",singleGiftCardRedeem.getDsPersonId());
-        params.put("storeFront",singleGiftCardRedeem.getStoreFront());
-        params.put("passwordToken",singleGiftCardRedeem.getPasswordToken());
-        params.put("cookies",singleGiftCardRedeem.getCookie());
+        params.put("itspod",giftCardRedeem.getItspod());
+        params.put("dsPersonId",giftCardRedeem.getDsPersonId());
+        params.put("storeFront",giftCardRedeem.getStoreFront());
+        params.put("passwordToken",giftCardRedeem.getPasswordToken());
+        params.put("cookies",giftCardRedeem.getCookie());
         PurchaseBillUtil.accountSummary(params);
         String balance = params.get("balance").toString();
 
