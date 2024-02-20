@@ -17,6 +17,7 @@ import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -64,6 +66,13 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                 // todo
                 //column.setCellFactory(col -> new ColorTableCell("#FF0000"));
             }
+        }
+
+        // 初始化登陆账号密码
+        String accountText = PropertiesUtil.getOtherConfig("giftCardProAccount");
+        if (!StrUtil.isEmpty(accountText)){
+            accountTextField.setText(accountText);
+            loginBtnAction();
         }
 
     }
@@ -201,12 +210,23 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     singleGiftCardRedeem.setGuid(guid);
                     singleGiftCardRedeem.setNote("");
                     itunesLogin(singleGiftCardRedeem);
-                    Platform.runLater(() -> checkAccountDescLabel.setText("登陆成功..."));
+
+                    Platform.runLater(() -> {
+                        checkAccountDescLabel.setTextFill(Paint.valueOf("#8fce00"));
+                        checkAccountDescLabel.setText("登陆成功[dsid:"+singleGiftCardRedeem.getDsPersonId()+"],已开启自动登陆");
+                        PropertiesUtil.setOtherConfig("giftCardProAccount",accountTextFieldValue);
+                    });
                 }
             }catch (ServiceException e){
-                Platform.runLater(() -> checkAccountDescLabel.setText(e.getMessage()));
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));
+                    checkAccountDescLabel.setText(e.getMessage());
+                });
             }catch (Exception e){
-                Platform.runLater(() -> checkAccountDescLabel.setText("数据处理异常"));
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));
+                    checkAccountDescLabel.setText("数据处理异常");
+                });
             } finally {
                 Platform.runLater(() -> {
                     loginBtn.setDisable(false);
