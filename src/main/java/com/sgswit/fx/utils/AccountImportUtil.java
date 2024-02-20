@@ -105,4 +105,16 @@ public class AccountImportUtil<T>{
         }
         return accountList;
     }
+    public static String[] parseAccountAndPwd(String accountStr){
+        if (accountStr.contains("{-}")){
+            accountStr = accountStr.replace("{-}",REPLACE_MENT);
+        }
+        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
+        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"-");
+        String [] arr=accountStr.split("-");
+        for(int i=0;i<arr.length;i++){
+            arr[i]=arr[i].replace(REPLACE_MENT,"-");
+        }
+        return arr;
+    }
 }

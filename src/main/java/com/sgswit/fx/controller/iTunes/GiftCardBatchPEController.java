@@ -13,6 +13,7 @@ import com.sgswit.fx.controller.common.CommCodePopupView;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
+import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.ITunesUtil;
@@ -160,7 +161,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     Platform.runLater(() -> checkAccountDescLabel.setText("请先输入账号信息"));
                     return;
                 }
-                String[] accountTextFieldValueArr = accountTextFieldValue.split("----");
+                String[] accountTextFieldValueArr = AccountImportUtil.parseAccountAndPwd(accountTextFieldValue);
                 if (accountTextFieldValueArr.length != 2){
                     Platform.runLater(() -> checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码"));
                     return;
