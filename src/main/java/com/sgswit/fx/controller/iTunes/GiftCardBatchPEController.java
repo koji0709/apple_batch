@@ -14,6 +14,7 @@ import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.utils.AccountImportUtil;
+import com.sgswit.fx.model.ColorTableCell;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.ITunesUtil;
@@ -50,6 +51,20 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     Button open2FAViewBtn;
 
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url,resourceBundle);
+        ObservableList<TableColumn<GiftCardRedeem, ?>> columns = accountTableView.getColumns();
+        for (TableColumn<GiftCardRedeem, ?> column : columns) {
+            String id = column.getId();
+            if ("giftCardType".equals(id)){
+                // todo
+                //column.setCellFactory(col -> new ColorTableCell("#FF0000"));
+            }
+        }
+
+    }
 
     /**
      * 导入账号
@@ -99,7 +114,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         }
 
         String productTypeDesc = codeInfo.getStr("productTypeDesc");
-        giftCardRedeem.setGiftCardType(productTypeDesc);
+        giftCardRedeem.setGiftCardType(StrUtil.isEmpty(productTypeDesc) ? "无效卡" : productTypeDesc);
         giftCardRedeem.setSalesOrg(codeInfo.getStr("salesOrg"));
         if (!StrUtil.isEmpty(productTypeDesc) && productTypeDesc.contains("-")){
             String countryCode = productTypeDesc.split("-")[1];
