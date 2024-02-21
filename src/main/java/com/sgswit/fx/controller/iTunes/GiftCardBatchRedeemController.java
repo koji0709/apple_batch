@@ -344,7 +344,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){
                 // 需要重新登录
                 giftCardRedeem.setIsLogin(false);
-                loginSuccessMap.remove(giftCardRedeem.getAccount());
+                loginSuccessMap.remove(giftCardRedeem.getAccount()+giftCardRedeem.getPwd());
                 //重新执行一次登陆操作
                 accountHandler(giftCardRedeem);
                 return;
