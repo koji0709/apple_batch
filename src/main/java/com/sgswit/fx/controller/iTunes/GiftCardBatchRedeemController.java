@@ -121,11 +121,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @Override
     public List<GiftCardRedeem> parseAccount(String accountStr){
         List<GiftCardRedeem> accountList1 = new ArrayList<>();
-        accountStr = accountStr.replaceAll("----","-");
         if (accountStr.contains("{-}")){
             accountStr = accountStr.replace("{-}",AccountImportUtil.REPLACE_MENT);
         }
-
         String[] accList = accountStr.split("\n");
 
         for (int i = 0; i < accList.length; i++) {
@@ -133,18 +131,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             if (StrUtil.isEmpty(acc)){
                 continue;
             }
-            List<String> valList = Arrays.asList(acc.split("-"));
             // 单礼品卡模式
-            if (valList.size()==1){
+            if (!acc.contains("-")){
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
                     continue;
                 }
-                String[] accountComboBoxValueArr = accountComboBoxValue.split("----");
+                String[] accountComboBoxValueArr = AccountImportUtil.parseAccountAndPwd(accountComboBoxValue);
                 if (accountComboBoxValueArr.length != 2){
                     continue;
                 }
-                String giftCardCode = valList.get(0);
+                String giftCardCode = acc;
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
                 pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
@@ -155,11 +152,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
                 boolean success = giftCardCodeVerify(giftCardCode);
                 if (!success){
-                    giftCardRedeem.setGiftCardStatus("无效");
+                    giftCardRedeem.setGiftCardStatus("无效卡");
                 }
-
                 accountList1.add(giftCardRedeem);
-            }else{// 账号礼品卡模式
+            }else{
+                acc= StringUtils.replacePattern(acc, "-", "`").trim();
+                acc=acc.replaceAll("\\`+", "-");
+                List<String> valList = Arrays.asList(acc.split("-"));
+                // 账号礼品卡模式
                 if (valList.size() >= 3){
                     String account = valList.get(0);
                     String pwd     = valList.get(1);
@@ -173,7 +173,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
                         boolean success = giftCardCodeVerify(giftCardCode);
                         if (!success){
-                            giftCardRedeem.setGiftCardStatus("无效");
+                            giftCardRedeem.setGiftCardStatus("无效卡");
                         }
 
                         accountList1.add(giftCardRedeem);
@@ -323,10 +323,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             String messageKey = redeemBody.getStr("errorMessageKey","");
             String message = "兑换失败! %s";
             // 礼品卡无效
-            if ("MZFreeProductCode.NoSuch".equals(messageKey)){
-                giftCardRedeem.setGiftCardStatus("无效卡");
-                message = String.format(message,"该礼品卡无效");
-            } else if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
+            if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
                 // 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("旧卡");
                 //获取兑换人的dsid信息
@@ -351,6 +348,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 //重新执行一次登陆操作
                 accountHandler(giftCardRedeem);
                 return;
+            }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
+                message = String.format(message,userPresentableErrorMessage);
+                giftCardRedeem.setGiftCardStatus("有效卡");
+            }else if("MZFreeProductCode.NoBalance".equals(messageKey) || "MZFreeProductCode.NoSuch".equals(messageKey)){
+                message = String.format(message,userPresentableErrorMessage);
+                giftCardRedeem.setGiftCardStatus("无效卡");
             }else{
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("兑换失败");
@@ -693,6 +696,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public boolean giftCardCodeVerify(String giftCardCode){
         //判断礼品卡的格式是否正确
+        giftCardCode=StringUtils.deleteWhitespace(giftCardCode);
         String regex = "X[a-zA-Z0-9]{15}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
