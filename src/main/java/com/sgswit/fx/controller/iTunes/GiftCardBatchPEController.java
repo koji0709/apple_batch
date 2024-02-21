@@ -104,6 +104,9 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         if (!success){
             throw new ServiceException("输入的代码无效。");
         }
+
+        itunesLogin(singleGiftCardRedeem);
+
         // X8HZ8Z7KT7DW8PML
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(singleGiftCardRedeem, giftCardCode);
         String body = codeInfoSrvRsp.body();

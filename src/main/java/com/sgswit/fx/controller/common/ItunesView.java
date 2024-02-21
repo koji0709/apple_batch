@@ -23,11 +23,11 @@ import java.util.ResourceBundle;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
-    // 登录成功的账号缓存(缓存半个小时,能刷新)
-    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(3600000);
+    // 登录成功的账号缓存(缓存5分钟,能刷新)
+    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(300000);
 
     static {
-        loginSuccessMap.schedulePrune(1800000);
+        loginSuccessMap.schedulePrune(300000);
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

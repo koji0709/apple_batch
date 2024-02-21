@@ -282,7 +282,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
      * shabagga222@tutanota.com----dPFb6cSD411-XMPC3HRMNM6K5FXP
      * cncots@gmail.com----Xx97595031.----XMPC3HRMNM6K5FXP
-     *
      */
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
