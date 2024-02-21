@@ -17,6 +17,6 @@ public class ICloudWebRepairController extends ICloudView<Account> {
     @Override
     public void accountHandler(Account account) {
         iCloudLogin(account);
-        setAndRefreshNote(account,"iCloud网页登陆修复成功");
+        setAndRefreshNote(account,"iCloud网页登录修复成功");
     }
 }

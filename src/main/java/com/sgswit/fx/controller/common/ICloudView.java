@@ -49,7 +49,7 @@ public class ICloudView<T> extends CustomTableView<T> {
 
             iCloudLoginHandler(account, signInMap);
         } else {
-            // 双重认证登陆
+            // 双重认证登录
             Map<String, Object> authData = loginInfo.getAuthData();
             HttpResponse signInRsp = (HttpResponse) authData.get("signInRsp");
             HttpResponse authRsp = (HttpResponse) authData.get("authRsp");
@@ -58,20 +58,20 @@ public class ICloudView<T> extends CustomTableView<T> {
             signInMap.put("securityCode", loginInfo.getSecurityCode());
             signInMap.put("cookie", loginInfo.getCookie());
             if (authRsp.getStatus() != 200) {
-                throw new ServiceException("登陆失败");
+                throw new ServiceException("登录失败");
             }
 
             HttpResponse securityCodeRsp = ICloudUtil.securityCode(signInMap, authRsp);
             String body = securityCodeRsp.body();
             if (securityCodeRsp.getStatus() != 200 && securityCodeRsp.getStatus() != 204) {
-                throw new ServiceException(serviceErrorMessages(body),"登陆失败");
+                throw new ServiceException(serviceErrorMessages(body),"登录失败");
             }
 
             HttpResponse trustRsp = ICloudUtil.trust(signInMap,securityCodeRsp);
             HttpResponse accountLoginRsp = ICloudUtil.accountLogin(trustRsp, signInMap.get("domain"));
             loginInfo.getAuthData().put("accountLoginRsp",accountLoginRsp);
             ((LoginInfo) account).setIsLogin(true);
-            setAndRefreshNote(account,"登陆成功");
+            setAndRefreshNote(account,"登录成功");
         }
     }
 
@@ -143,7 +143,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         loginInfo.getAuthData().put("accountLoginRsp", accountLoginRsp);
         if (status == 412) {
             loginInfo.setIsLogin(true);
-            setAndRefreshNote(account, "登陆成功");
+            setAndRefreshNote(account, "登录成功");
         }
         return accountLoginRsp;
     }
@@ -156,7 +156,7 @@ public class ICloudView<T> extends CustomTableView<T> {
             HttpResponse repairDoneRsp = ICloudUtil.repairWebICloud(accountLoginRsp, domain);
             Boolean success = JSONUtil.parseObj(repairDoneRsp.body()).getBool("success");
             if (!success) {
-                throw new ServiceException("iCloud网页登陆修复失败");
+                throw new ServiceException("iCloud网页登录修复失败");
             }
         }
     }

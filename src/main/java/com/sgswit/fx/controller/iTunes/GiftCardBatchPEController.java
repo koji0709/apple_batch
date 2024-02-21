@@ -68,7 +68,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
             }
         }
 
-        // 初始化登陆账号密码
+        // 初始化登录账号密码
         String accountText = PropertiesUtil.getOtherConfig("giftCardProAccount");
         if (!StrUtil.isEmpty(accountText)){
             accountTextField.setText(accountText);
@@ -90,7 +90,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     @Override
     public boolean executeButtonActionBefore() {
         if (!singleGiftCardRedeem.isLogin()){
-            alert("请先登陆");
+            alert("请先登录");
             return false;
         }
         return true;
@@ -177,7 +177,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     }
 
     /**
-     * 登陆按钮点击
+     * 登录按钮点击
      */
     public void loginBtnAction(){
         new Thread(() -> {
@@ -194,7 +194,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                 }
 
                 Platform.runLater(() -> {
-                    checkAccountDescLabel.setText("");
+                    checkAccountDescLabel.setText("正在登录...");
                     loginBtn.setDisable(true);
                     open2FAViewBtn.setDisable(true);
                 });
@@ -213,7 +213,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
 
                     Platform.runLater(() -> {
                         checkAccountDescLabel.setTextFill(Paint.valueOf("#169bd5"));
-                        checkAccountDescLabel.setText("登陆成功[dsid:"+singleGiftCardRedeem.getDsPersonId()+"],已开启自动登陆");
+                        checkAccountDescLabel.setText("登录成功[dsid："+singleGiftCardRedeem.getDsPersonId()+"],已开启自动登录");
                         PropertiesUtil.setOtherConfig("giftCardProAccount",accountTextFieldValue);
                     });
                 }
@@ -241,7 +241,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
      */
     public void open2FAViewBtnAction(){
         if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())){
-            alert("请先登陆账号");
+            alert("请先登录账号");
             return;
         }
 
