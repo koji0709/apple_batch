@@ -31,6 +31,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -102,7 +103,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 }
             });
         });
-
+        // 设置表格cell样式
+        setCellStyle();
     }
     /**
      * 导入账号
@@ -117,7 +119,38 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountTableView.scrollTo(accountList.size()-1);
         }
     }
-
+    /**
+     * 设置表格样式
+     */
+    public void setCellStyle() {
+        ObservableList<TableColumn<GiftCardRedeem, ?>> columns = accountTableView.getColumns();
+        for (TableColumn<GiftCardRedeem, ?> column : columns) {
+            String id = column.getId();
+            column.setCellFactory(col -> new TableCell() {
+                @Override
+                protected void updateItem(Object item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setText(item.toString());
+                        GiftCardRedeem row = (GiftCardRedeem) getTableRow().getItem();
+                        if (row != null) {
+                            if ("giftCardStatus".equals(id)) {
+                                if("无效卡".equals(row.getGiftCardStatus()) || "僵尸卡".equals(row.getGiftCardStatus())
+                                        || "旧卡".equals(row.getGiftCardStatus()) || "兑换失败".equals(row.getGiftCardStatus())){
+                                    setTextFill(Color.RED);
+                                }else{
+                                    setTextFill(Color.BLACK);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
     @Override
     public List<GiftCardRedeem> parseAccount(String accountStr){
         List<GiftCardRedeem> accountList1 = new ArrayList<>();
@@ -326,7 +359,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("旧卡");
                 //获取兑换人的dsid信息
-                ThreadUtil.sleep(5000);
+                ThreadUtil.sleep(3000);
                 HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
                 JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
                 if (bodyJSON.getInt("status") != 0){
