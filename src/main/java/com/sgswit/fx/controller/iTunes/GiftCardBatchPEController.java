@@ -126,6 +126,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         String giftCardCode = giftCardRedeem.getGiftCardCode();
         boolean success = giftCardCodeVerify(giftCardCode);
         if (!success) {
+            giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
         }
 

@@ -332,6 +332,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
+            giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
         }
 
@@ -414,7 +415,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 //重新执行一次登录操作
                 accountHandler(giftCardRedeem);
                 return;
-            }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){//卡正常, 但是和账号商城不匹配
+            }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
+                //卡正常, 但是和账号商城不匹配
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("有效卡");
             }else if("MZFreeProductCode.NoBalance".equals(messageKey) || "MZFreeProductCode.NoSuch".equals(messageKey)){
