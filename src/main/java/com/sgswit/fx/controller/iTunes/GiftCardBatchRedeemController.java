@@ -99,6 +99,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         super.initialize(url, resourceBundle);
         hidePwdCheckBox.setSelected(true);
         scrollToLastRowCheckBox.setSelected(true);
+        accountGroupCheckBox.setSelected(true);
 
         hidePwdCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             // newValue true = 隐藏密码, false = 展示密码
@@ -292,8 +293,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         if (reentrantLock.isLocked()) {
                             return;
                         }
+
+                        accountHandlerExpand(giftCardRedeem,false);
                         ThreadUtil.sleep(1000);
-                        accountHandlerExpand(giftCardRedeem);
 
                         if ((i+1) != accountList.size() && (i+1) % 5 == 0){
                             //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
@@ -310,13 +312,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             Platform.runLater(() -> setExecuteButtonStatus(false));
                         }
                     }
+
                 });
 
             }
         });
 
     }
-
 
     /**
      * qewqeq@2980.com----dPFb6cSD414----XMPC3HRMNM6K5FXP
@@ -342,9 +344,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String giftCardCode = giftCardRedeem.getGiftCardCode();
 
         // 获取礼品卡信息
+        setAndRefreshNote(giftCardRedeem,"查询礼品卡信息中");
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
+        setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功");
 
         if (codeInfo != null){
             String amount = codeInfo.getStr("amount", "0");
@@ -368,12 +372,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
         }
 
+        setAndRefreshNote(giftCardRedeem,"开始兑换");
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
 
         // 如果操作频繁，重新执行一次
         if (execAgainCheckBox.isSelected() && (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body))){
-            ThreadUtil.sleep(1000L);
+            ThreadUtil.sleep(2000L);
             setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中...");
             redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
             body      = redeemRsp.body();
@@ -394,6 +399,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
             String messageKey = redeemBody.getStr("errorMessageKey","");
             String message = "兑换失败! %s";
+            System.err.println(userPresentableErrorMessage);
             // 礼品卡无效
             if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
                 // 礼品卡已兑换

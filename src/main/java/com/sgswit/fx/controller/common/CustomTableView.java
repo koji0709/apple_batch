@@ -218,50 +218,60 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     @Override
     public void accountHandlerExpand(T account){
-            new Thread(() -> {
-                boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
-                try {
-                    // 扣除点数
-                    pointDedu(account);
-                    if (hasField){
-                        ReflectUtil.invoke(account,"setHasFinished",false);
-                    }
-                    setAndRefreshNote(account, "执行中");
-                    accountHandler(account);
-                    setDataStatus(account,true);
-                } catch (ServiceException e) {// 业务异常
-                    setAndRefreshNote(account,e.getMessage());
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                }catch (PointCostException e){
-                    setAndRefreshNote(account,e.getMessage());
-                    setDataStatus(account,false);
-                    String type = e.getType();
-                    // todo 如果返回点数失败怎么处理
-                    if (PointUtil.in.equals(type)){
-                    }
-                }catch (UnavailableException e){
-                    setAndRefreshNote(account, e.getMessage());
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                } catch (Exception e) {// 程序异常
-                    setAndRefreshNote(account, "数据处理异常");
-                    pointIncr(account);
-                    setDataStatus(account,false);
-                    e.printStackTrace();
-                } finally {
-                    ReflectUtil.invoke(account,"setFailCount",0);
-                    setAccountNumLabel();
-                    if (hasField){
-                        ReflectUtil.invoke(account,"setHasFinished",true);
-                    }
-                    ThreadUtil.execute(() -> {
-                        insertLocalHistory(List.of(account));
-                    });
-                    atomicInteger.decrementAndGet();
-                    System.err.println(atomicInteger.get());
-                }
-            }).start();
+        accountHandlerExpand(account,true);
+    }
+
+    public void accountHandlerExpand(T account,boolean isAsyn){
+        if (isAsyn){
+            new Thread(() -> accountHandlerExpandX(account)).start();
+        }else{
+            accountHandlerExpandX(account);
+        }
+    }
+
+    public void accountHandlerExpandX(T account){
+        boolean hasField = ReflectUtil.hasField(account.getClass(), "hasFinished");
+        try {
+            // 扣除点数
+            pointDedu(account);
+            if (hasField){
+                ReflectUtil.invoke(account,"setHasFinished",false);
+            }
+            setAndRefreshNote(account, "执行中");
+            accountHandler(account);
+            setDataStatus(account,true);
+        } catch (ServiceException e) {// 业务异常
+            setAndRefreshNote(account,e.getMessage());
+            pointIncr(account);
+            setDataStatus(account,false);
+        }catch (PointCostException e){
+            setAndRefreshNote(account,e.getMessage());
+            setDataStatus(account,false);
+            String type = e.getType();
+            // todo 如果返回点数失败怎么处理
+            if (PointUtil.in.equals(type)){
+            }
+        }catch (UnavailableException e){
+            setAndRefreshNote(account, e.getMessage());
+            pointIncr(account);
+            setDataStatus(account,false);
+        } catch (Exception e) {// 程序异常
+            setAndRefreshNote(account, "数据处理异常");
+            pointIncr(account);
+            setDataStatus(account,false);
+            e.printStackTrace();
+        } finally {
+            ReflectUtil.invoke(account,"setFailCount",0);
+            setAccountNumLabel();
+            if (hasField){
+                ReflectUtil.invoke(account,"setHasFinished",true);
+            }
+            ThreadUtil.execute(() -> {
+                insertLocalHistory(List.of(account));
+            });
+            atomicInteger.decrementAndGet();
+            System.err.println(atomicInteger.get());
+        }
     }
 
     /**
