@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -360,8 +361,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 params.put("passwordToken",giftCardRedeem.getPasswordToken());
                 params.put("cookies",giftCardRedeem.getCookie());
                 PurchaseBillUtil.accountSummary(params);
-                String balance1 = params.get("balance").toString();
-                balanceReference = new AtomicReference<>(new BigDecimal(balance1));
+                String balanceStr = params.get("balance").toString();
+                balanceReference = new AtomicReference<>(getBalance(balanceStr));
                 atomicBalanceMap.put(account,balanceReference);
             }
         }
@@ -449,6 +450,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         balanceReference.set(new BigDecimal(giftCardRedeem.getGiftCardAmount()).add(balanceReference.get()));
         message = String.format(message,giftCardRedeem.getGiftCardAmount(),balanceReference.get());
         setAndRefreshNote(giftCardRedeem,message);
+    }
+
+    private static BigDecimal getBalance(String balance){
+        for (int i = 0; i < balance.length(); i++) {
+            char c = balance.charAt(i);
+            boolean isNumber = NumberUtil.isNumber(String.valueOf(c));
+            if (isNumber){
+                return new BigDecimal(balance.substring(i));
+            }
+        }
+        return BigDecimal.ZERO;
     }
 
     @Override
