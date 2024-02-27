@@ -348,11 +348,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String giftCardCode = giftCardRedeem.getGiftCardCode();
 
         // 获取礼品卡信息
-        setAndRefreshNote(giftCardRedeem,"查询礼品卡信息中");
+        setAndRefreshNote(giftCardRedeem,"查询礼品卡信息中...");
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
-        setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功");
+        setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功，兑换中...");
 
         if (codeInfo != null){
             String amount = codeInfo.getStr("amount", "0");
@@ -377,7 +377,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
         }
 
-        setAndRefreshNote(giftCardRedeem,"开始兑换");
+        setAndRefreshNote(giftCardRedeem,"兑换中...");
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
 

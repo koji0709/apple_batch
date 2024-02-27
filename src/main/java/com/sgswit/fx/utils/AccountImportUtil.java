@@ -59,12 +59,12 @@ public class AccountImportUtil<T>{
 
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
-            return null;
+            return new ArrayList<>();
         }
 
         String[] accList = accountStr.split("\n");
         if (accList.length == 0){
-            return null;
+            return new ArrayList<>();
         }
 
         List<T> accountList = new ArrayList<>();
@@ -83,6 +83,7 @@ public class AccountImportUtil<T>{
                     );
 
             int maxKey = Collections.max(formatMap.keySet());
+            int minKey = Collections.min(formatMap.keySet());
             List<String> fieldList = formatMap.get(maxKey);
             T account;
             try {
@@ -90,6 +91,9 @@ public class AccountImportUtil<T>{
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
+            }
+            if(fieldValueList.size()<minKey){
+                return new ArrayList<>();
             }
             int limit=fieldValueList.size()>maxKey?maxKey:fieldValueList.size();
             for (int j = 0; j < limit; j++) {
