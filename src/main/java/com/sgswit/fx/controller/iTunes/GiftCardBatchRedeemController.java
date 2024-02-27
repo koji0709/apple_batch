@@ -94,6 +94,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     private Map<String, AtomicReference<BigDecimal>> atomicBalanceMap = new HashMap<>();
 
+
+    private Map<String, String> currencyMap = new HashMap<>();
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -369,6 +373,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String balanceStr = params.get("balance").toString();
                 balanceReference = new AtomicReference<>(getBalance(balanceStr));
                 atomicBalanceMap.put(account,balanceReference);
+                currencyMap.put(account,getCurrency(balanceStr));
             }
         }
 
@@ -453,19 +458,32 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         });
 
         // 礼品卡兑换成功
-        String message = "兑换成功,加载金额: %s,ID总金额: %s";
+        String message = "兑换成功,加载金额:%s%s, ID总金额: %s%s";
         giftCardRedeem.setGiftCardStatus("已兑换");
         balanceReference.set(new BigDecimal(giftCardRedeem.getGiftCardAmount()).add(balanceReference.get()));
-        message = String.format(message,giftCardRedeem.getGiftCardAmount(),balanceReference.get());
+        message = String.format(message
+                , currencyMap.get(account), giftCardRedeem.getGiftCardAmount()
+                , currencyMap.get(account), balanceReference.get());
         setAndRefreshNote(giftCardRedeem,message);
     }
 
-    private static BigDecimal getBalance(String balance){
-        for (int i = 0; i < balance.length(); i++) {
-            char c = balance.charAt(i);
+    private static String getCurrency(String balanceStr){
+        for (int i = 0; i < balanceStr.length(); i++) {
+            char c = balanceStr.charAt(i);
             boolean isNumber = NumberUtil.isNumber(String.valueOf(c));
             if (isNumber){
-                return new BigDecimal(balance.substring(i));
+                return balanceStr.substring(0,i);
+            }
+        }
+        return "";
+    }
+
+    private static BigDecimal getBalance(String balanceStr){
+        for (int i = 0; i < balanceStr.length(); i++) {
+            char c = balanceStr.charAt(i);
+            boolean isNumber = NumberUtil.isNumber(String.valueOf(c));
+            if (isNumber){
+                return new BigDecimal(balanceStr.substring(i));
             }
         }
         return BigDecimal.ZERO;
