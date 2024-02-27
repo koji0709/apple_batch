@@ -74,28 +74,30 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         ObservableList<TableColumn<GiftCardRedeem, ?>> columns = accountTableView.getColumns();
         for (TableColumn<GiftCardRedeem, ?> column : columns) {
             String id = column.getId();
-            column.setCellFactory(col -> new TableCell() {
-                @Override
-                protected void updateItem(Object item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        setText(item.toString());
-                        GiftCardRedeem row = (GiftCardRedeem) getTableRow().getItem();
-                        if (row != null) {
-                            if ("giftCardType".equals(id)) {
-                                setTextFill("无效卡".equals(row.getGiftCardType()) ? Color.RED : Color.BLUE);
-                            } else if ("giftCardStatus".equals(id) || "giftCardAmount".equals(id)) {
-                                setTextFill("未使用".equals(row.getGiftCardStatus()) ? Color.GREEN : Color.RED);
-                            } else if ("salesOrg".equals(id)) {
-                                setTextFill(Color.BLUE);
+            if (!"seq".equals(id)){
+                column.setCellFactory(col -> new TableCell() {
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            setText(item.toString());
+                            GiftCardRedeem row = (GiftCardRedeem) getTableRow().getItem();
+                            if (row != null) {
+                                if ("giftCardType".equals(id)) {
+                                    setTextFill("无效卡".equals(row.getGiftCardType()) ? Color.RED : Color.BLUE);
+                                } else if ("giftCardStatus".equals(id) || "giftCardAmount".equals(id)) {
+                                    setTextFill("未使用".equals(row.getGiftCardStatus()) ? Color.GREEN : Color.RED);
+                                } else if ("salesOrg".equals(id)) {
+                                    setTextFill(Color.BLUE);
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
