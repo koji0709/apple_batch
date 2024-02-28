@@ -299,7 +299,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         }
 
                         accountHandlerExpand(giftCardRedeem,false);
-                        ThreadUtil.sleep(1000);
+                        ThreadUtil.sleep(2000);
 
                         if ((i+1) != accountList.size() && (i+1) % 5 == 0){
                             //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
