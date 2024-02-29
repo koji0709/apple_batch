@@ -46,6 +46,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     @Override
     public void accountHandler(Account account) {
         String newPassword = pwdTextField.getText();
+        setAndRefreshNote(account,"解锁改密中...");
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
         if (verifyAppleIdRsp.getStatus() == 503){
