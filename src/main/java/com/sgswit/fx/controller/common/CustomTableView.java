@@ -409,13 +409,16 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
 
         // 按钮绑定事件
-        HashMap<Object, Object> params = new HashMap<>();
-        params.put("clz_name", ClassUtil.getClassName(this, false));
+
 
         Class finalClz = clz;
         searchBtn.setOnAction(actionEvent -> {
+            HashMap<Object, Object> params = new HashMap<>();
+            params.put("clz_name", ClassUtil.getClassName(this, false));
             if (!StrUtil.isEmpty(keywordsTextField.getText())) {
                 params.put("row_json", keywordsTextField.getText());
+            }else{
+                params.remove("row_json");
             }
             List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
@@ -424,6 +427,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         });
 
         search100Btn.setOnAction(actionEvent -> {
+            HashMap<Object, Object> params = new HashMap<>();
+            params.put("clz_name", ClassUtil.getClassName(this, false));
             if (!StrUtil.isEmpty(keywordsTextField.getText())) {
                 params.put("row_json", keywordsTextField.getText());
             }
