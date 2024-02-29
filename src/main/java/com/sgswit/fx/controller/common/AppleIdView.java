@@ -142,11 +142,26 @@ public class AppleIdView extends CustomTableView<Account> {
     }
 
     public String getValidationErrors(String body){
-        List errorMessageList = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
+        List errorMessageList = new ArrayList();
+        List errorMessageList1 = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
+        List errorMessageList2 = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
+        List errorMessageList3 = JSONUtil.parseObj(body).getByPath("service_errors.message", List.class);
+
+        if (!CollUtil.isEmpty(errorMessageList1)){
+            errorMessageList.addAll(errorMessageList1);
+        }
+        if (!CollUtil.isEmpty(errorMessageList2)){
+            errorMessageList.addAll(errorMessageList2);
+        }
+        if (!CollUtil.isEmpty(errorMessageList3)){
+            errorMessageList.addAll(errorMessageList3);
+        }
         if (CollUtil.isEmpty(errorMessageList)){
             return "";
         }
         return String.join(";",errorMessageList);
     }
+
+
 
 }

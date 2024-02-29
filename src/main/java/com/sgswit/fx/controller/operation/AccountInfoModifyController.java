@@ -116,6 +116,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         return true;
     }
 
+    /**
+     * qewqeq@2980.com----Ac223388-宠物-工作-父母
+     * shabagga222@tutanota.com----Ac223388-宠物-工作-父母
+     */
     @Override
     public void accountHandler(Account account) {
         boolean updatePwdCheckBoxSelected = updatePwdCheckBox.isSelected();
@@ -126,10 +130,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
-        // 登录账号
-        login(account);
         // 清空之前的信息
         setAndRefreshNote(account,"");
+        // 登录账号
+        login(account);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
