@@ -199,7 +199,7 @@
             </plugin>
 
 
-            <!-- javapackager  -->
+            <!-- javapackager mac打包关掉代理  -->
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
@@ -220,13 +220,12 @@
                             <bundleJre>true</bundleJre>
                             <!--是否绑自定义jre-->
                             <customizedJre>false</customizedJre>
-                            <generateInstaller>false</generateInstaller>
+                            <generateInstaller>true</generateInstaller>
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
-
                             <copyDependencies>false</copyDependencies>
                             <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
-                                                        <platform>windows</platform>
+<!--                                                        <platform>windows</platform>-->
                             <!--                            <winConfig>-->
                             <!--                                &lt;!&ndash; 软件图标 &ndash;&gt;-->
                             <!--                                <icoFile>C:\Users\DELL\Desktop\favicon.ico</icoFile>-->

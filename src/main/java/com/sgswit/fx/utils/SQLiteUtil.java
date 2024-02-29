@@ -2,30 +2,52 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.model.Account;
-import javafx.scene.control.TableColumn;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class SQLiteUtil {
+
+    public static void init() throws Exception {
+        File file = new File("xg.sqlite");
+        if (!file.exists()){
+            String sql = "create table local_history\n" +
+                    "(\n" +
+                    "    id          integer not null\n" +
+                    "        constraint exec_history_pk\n" +
+                    "            primary key autoincrement,\n" +
+                    "    clz_name    text,\n" +
+                    "    row_json    text,\n" +
+                    "    create_time integer\n" +
+                    ");\n" +
+                    "\n";
+            String sql2 = "create table purchase_record\n" +
+                    "(\n" +
+                    "    apple_id               text    not null,\n" +
+                    "    purchase_id            text    not null,\n" +
+                    "    weborder               text    not null,\n" +
+                    "    purchase_date          integer not null,\n" +
+                    "    estimated_total_amount text,\n" +
+                    "    plis                   text\n" +
+                    ");\n" +
+                    "\n";
+            Db.use().executeBatch(sql,sql2);
+        }
+    }
+
     /**
      * 查询本地历史记录
      * @return
      */
-
     public static List selectLocalHistoryList(HashMap params,Class clz){
         List<Entity> localHistoryList;
         String sql = "SELECT * FROM local_history WHERE 1 = 1";

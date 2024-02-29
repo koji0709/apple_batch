@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
@@ -50,6 +51,13 @@ public class MainApplication extends Application {
             alert.setContentText("对不起，本程序仅允许运行1个!");
             alert.show();
             return;
+        }
+
+        // 初始化数据库
+        try {
+            SQLiteUtil.init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
 //        ProcessBuilder processBuilder = new ProcessBuilder("tasklist.exe");
