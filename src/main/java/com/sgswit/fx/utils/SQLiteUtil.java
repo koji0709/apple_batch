@@ -2,7 +2,6 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
@@ -10,7 +9,10 @@ import cn.hutool.db.Entity;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,11 +23,17 @@ public class SQLiteUtil {
     public static void init() throws Exception {
         File file = new File("xg.sqlite");
         if (!file.exists()){
-            List<String> lines = FileUtil.readUtf8Lines("sql/xg.sql");
+            // 获取当前类加载器对象
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            // 通过类加载器获取指定路径下的输入流
+            InputStream inputStream = loader.getResourceAsStream("sql/xg.sql");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
             StringBuffer sqlText=new StringBuffer();
-            for (String line : lines) {
+            while ((line = reader.readLine()) != null) {
                 sqlText.append(line);
             }
+            reader.close();
             Db.use().executeBatch(sqlText.toString().split(";"));
         }
     }
