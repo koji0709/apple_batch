@@ -7,7 +7,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
@@ -45,7 +44,7 @@ public class AppleIDUtil {
 
         String body = "{\"accountName\":\"%s\",\"password\":\"%s\",\"rememberMe\":false,\"trustTokens\":[]}";
         String scBogy = String.format(body, account.getAccount(), account.getPwd());
-        String url = "https://idmsa.apple.com/appleauth/auth/signin?isRememberMeEnabled=false&isRememberMeEnabled=false";
+        String url = "https://idmsa.apple.com/appleauth/auth/signin?isRememberMeEnabled=false";
         HttpResponse rsp = ProxyUtil.createPost(url)
                 .header(headers)
                 .body(scBogy)

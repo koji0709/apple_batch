@@ -190,6 +190,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
                 pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
+                account = account.replace(AccountImportUtil.REPLACE_MENT,"-");
                 GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                 giftCardRedeem.setAccount(account);
                 giftCardRedeem.setPwd(pwd);
@@ -209,6 +210,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     String account = valList.get(0);
                     String pwd     = valList.get(1);
                     pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
+                    account = account.replace(AccountImportUtil.REPLACE_MENT,"-");
                     for (int j = 2; j < valList.size(); j++) {
                         String giftCardCode = valList.get(j);
                         GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
