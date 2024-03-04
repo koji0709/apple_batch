@@ -6,6 +6,8 @@ import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -13,7 +15,10 @@ import java.util.stream.Collectors;
  */
 public class AccountImportUtil<T>{
 
-    public static final String REPLACE_MENT = "####.##";
+    public static final String SPLIT_STRING = "\\{`}";
+    public static final String REPLACE_MENT = "\\{*}";
+    //邮箱格式
+    public static final String regex = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
 
     private static final Map<String,String> kvMap = new HashMap<>(){{
         put("account","账号");
@@ -51,17 +56,10 @@ public class AccountImportUtil<T>{
 
     public List<T> parseAccount(Class<T> clz,String accountStr, List<String> formatList){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
-        if (accountStr.contains("{-}")){
-            accountStr = accountStr.replace("{-}",REPLACE_MENT);
-        }
-        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
-        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"-");
-
         if (StrUtil.isEmpty(accountStr)){
             Console.log("导入账号为空");
             return new ArrayList<>();
         }
-
         String[] accList = accountStr.split("\n");
         if (accList.length == 0){
             return new ArrayList<>();
@@ -71,7 +69,7 @@ public class AccountImportUtil<T>{
 
         for (int i = 0; i < accList.length; i++) {
             String acc = accList[i];
-            List<String> fieldValueList = Arrays.asList(acc.split("-"));
+            List<String> fieldValueList = Arrays.asList(parseAccountAndPwd(acc));
 
             Map<Integer, List<String>> formatMap = formatList
                     .stream()
@@ -99,7 +97,6 @@ public class AccountImportUtil<T>{
             for (int j = 0; j < limit; j++) {
                 String field = fieldList.get(j);
                 String fieldValue = fieldValueList.get(j);
-                fieldValue = fieldValue.replace(REPLACE_MENT,"-");
                 ReflectUtil.invoke(
                         account
                         , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
@@ -110,15 +107,51 @@ public class AccountImportUtil<T>{
         return accountList;
     }
     public static String[] parseAccountAndPwd(String accountStr){
-        if (accountStr.contains("{-}")){
-            accountStr = accountStr.replace("{-}",REPLACE_MENT);
+        String account="";
+        String pwd="";
+        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
+        String[]  array=accountStr.split(SPLIT_STRING);
+        if(array.length>=2){
+            account=array[0];
+            pwd=array[1].replace("{-}",REPLACE_MENT);
+        }else{
+            boolean isEmailStarted=checkIfEmailStarted(accountStr);
+            if(isEmailStarted){
+                account=getEmailByStr(accountStr);
+                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length()).replace("{-}",REPLACE_MENT);
+            }
         }
-        accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
-        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,"-");
-        String [] arr=accountStr.split("-");
-        for(int i=0;i<arr.length;i++){
-            arr[i]=arr[i].replace(REPLACE_MENT,"-");
+        pwd= StringUtils.replacePattern(pwd, "-| ", " ").trim();
+        pwd= CustomStringUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MENT,"-");
+        List<String> list=new ArrayList<>();
+        list.add(account);
+        if(!StringUtils.isEmpty(pwd)){
+            String[] a=pwd.split(SPLIT_STRING);
+            for(int i=0;i<a.length;i++){
+                list.add(a[i]);
+            }
         }
-        return arr;
+        return list.stream().toArray(String[]::new);
     }
+
+    private static boolean checkIfEmailStarted(String inputStr) {
+        // 定义邮箱格式的正则表达式
+        Pattern pattern = Pattern.compile("^["+regex+"]+@");
+        Matcher matcher = pattern.matcher(inputStr);
+        // 返回true表示输入字符串以邮箱格式开头，false表示不是
+        return matcher.find();
+    }
+
+    private static String getEmailByStr(String text) {
+        // 定义电子邮件地址的正则表达式模式
+        Pattern pattern = Pattern.compile("["+regex+"]+@["+regex+"]+\\.[a-zA-Z]{2,}");
+        Matcher matcher = pattern.matcher(text);
+        String firstEmail=null;
+        while (matcher.find() && StringUtils.isEmpty(firstEmail)) {
+            firstEmail =matcher.group();
+        }
+        return firstEmail;
+    }
+
+
 }

@@ -166,9 +166,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @Override
     public List<GiftCardRedeem> parseAccount(String accountStr){
         List<GiftCardRedeem> accountList1 = new ArrayList<>();
-        if (accountStr.contains("{-}")){
-            accountStr = accountStr.replace("{-}",AccountImportUtil.REPLACE_MENT);
-        }
         String[] accList = accountStr.split("\n");
 
         for (int i = 0; i < accList.length; i++) {
@@ -176,8 +173,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             if (StrUtil.isEmpty(acc)){
                 continue;
             }
+            String[] accountAndPwdArr=AccountImportUtil.parseAccountAndPwd(acc);
             // 单礼品卡模式
-            if (!acc.contains("-")){
+            if (accountAndPwdArr.length==1){
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
                     continue;
@@ -189,8 +187,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String giftCardCode = acc;
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
-                pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
-                account = account.replace(AccountImportUtil.REPLACE_MENT,"-");
                 GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                 giftCardRedeem.setAccount(account);
                 giftCardRedeem.setPwd(pwd);
@@ -202,17 +198,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 }
                 accountList1.add(giftCardRedeem);
             }else{
-                acc= StringUtils.replacePattern(acc, "-", "`").trim();
-                acc=acc.replaceAll("\\`+", "-");
-                List<String> valList = Arrays.asList(acc.split("-"));
                 // 账号礼品卡模式
-                if (valList.size() >= 3){
-                    String account = valList.get(0);
-                    String pwd     = valList.get(1);
-                    pwd = pwd.replace(AccountImportUtil.REPLACE_MENT,"-");
-                    account = account.replace(AccountImportUtil.REPLACE_MENT,"-");
-                    for (int j = 2; j < valList.size(); j++) {
-                        String giftCardCode = valList.get(j);
+                if (accountAndPwdArr.length >= 3){
+                    String account =accountAndPwdArr[0];
+                    String pwd     = accountAndPwdArr[1];
+                    for (int j = 2; j < accountAndPwdArr.length; j++) {
+                        String giftCardCode = accountAndPwdArr[j];
                         GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                         giftCardRedeem.setAccount(account);
                         giftCardRedeem.setPwd(pwd);

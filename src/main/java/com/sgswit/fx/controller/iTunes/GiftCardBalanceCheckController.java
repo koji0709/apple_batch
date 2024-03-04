@@ -13,10 +13,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
-import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.GiftCardUtil;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -272,15 +269,19 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     protected void loginAndInit(){
         String msg="初始化成功，下次启动将自动执行初始化";
         String color = "#238142";
+        String account=null;
+        String pwd=null;
         try {
             boolean f=false;
             //校验账号格式是否正确
             if(StringUtils.isEmpty(account_pwd.getText())){
 
             }else{
-                String regex = ".+----.+";
-                if(account_pwd.getText().matches(regex)){
+                String[] its=AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+                if(its.length==2){
                     f=true;
+                    account=its[0];
+                    pwd=its[1];
                 }
             }
             if(!f){
@@ -298,9 +299,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 return;
             }
             updateNodeStatus(true);
-            String[] its =account_pwd.getText().split("----");
-            String account=its[0];
-            String pwd=its[1];
             String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
             Platform.runLater(new Task<Integer>() {
                 @Override
