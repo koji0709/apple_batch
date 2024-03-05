@@ -19,7 +19,7 @@ public class AccountImportUtil<T>{
     /**替换字符串**/
     public static final String REPLACE_MEANT = "\\{*}";
     /**邮箱格式**/
-    public static final String REGEX = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
+    public static final String regex = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
 
     private static final Map<String,String> kvMap = new HashMap<>(){{
         put("account","账号");
@@ -135,17 +135,17 @@ public class AccountImportUtil<T>{
         return list.stream().toArray(String[]::new);
     }
 
-    private static boolean checkIfEmailStarted(String inputStr) {
+    public static boolean checkIfEmailStarted(String inputStr) {
         // 定义邮箱格式的正则表达式
-        Pattern pattern = Pattern.compile("^["+REGEX+"]+@");
+        Pattern pattern = Pattern.compile("^["+regex+"]+@");
         Matcher matcher = pattern.matcher(inputStr);
         // 返回true表示输入字符串以邮箱格式开头，false表示不是
         return matcher.find();
     }
 
-    private static String getEmailByStr(String text) {
+    public static String getEmailByStr(String text) {
         // 定义电子邮件地址的正则表达式模式
-        Pattern pattern = Pattern.compile("["+REGEX+"]+@["+REGEX+"]+\\.[a-zA-Z]{2,}");
+        Pattern pattern = Pattern.compile("["+regex+"]+@["+regex+"]+\\.[a-zA-Z]{2,}");
         Matcher matcher = pattern.matcher(text);
         String firstEmail=null;
         while (matcher.find() && StringUtils.isEmpty(firstEmail)) {

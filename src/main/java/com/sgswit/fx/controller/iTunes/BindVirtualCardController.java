@@ -6,10 +6,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.CreditCard;
-import com.sgswit.fx.utils.CustomStringUtils;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.utils.*;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -42,8 +39,6 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
 
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
-
-
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/virtualCard-input-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 300);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -62,29 +57,49 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
             return;
         }
         String[] lineArray = c.getData().split("\n");
+        String account="";
+        String pwd="";
         for(String item : lineArray){
             boolean f=false;
             //判断是否符合正则表达式
             CreditCard creditCard = new CreditCard();
-            item=StringUtils.replacePattern(item, "-| ", " ").trim();
-            item= CustomStringUtils.replaceMultipleSpaces(item,"----");
-            String[] array=item.split("----");
-            if(array.length==3){
-                creditCard.setSeq(accountList.size()+1);
-                creditCard.setAccount(array[0]);
-                creditCard.setPwd(array[1]);
-                creditCard.setCreditInfo(array[2]);
-                String cCreditInfoRegex = "\\w{1,40}/\\d{6}/\\w{3}";
-                if(array[2].matches(cCreditInfoRegex)){
-                    f=true;
-                    String[] creditInfoArr=array[2].split("/");
-                    creditCard.setCreditCardNumber(creditInfoArr[0]);
-                    creditCard.setCreditVerificationNumber(creditInfoArr[2]);
-                    String monthAndYear=creditInfoArr[1];
-                    creditCard.setCreditCardExpirationMonth(Integer.valueOf(monthAndYear.substring(0,2)).toString());
-                    creditCard.setCreditCardExpirationYear(monthAndYear.substring(2));
+            item= CustomStringUtils.replaceMultipleSpaces(item, AccountImportUtil.SPLIT_STRING);
+            String[]  array=item.split(AccountImportUtil.SPLIT_STRING);
+            if(array.length==2){
+                account=array[0];
+                pwd=array[1].replace("{-}", AccountImportUtil.REPLACE_MEANT);
+            }else if(array.length>2){
+                account=array[0];
+                pwd=array[1].replace("{-}", AccountImportUtil.REPLACE_MEANT)+" "+array[2].replace("{-}", AccountImportUtil.REPLACE_MEANT);
+            }else{
+                boolean isEmailStarted=AccountImportUtil.checkIfEmailStarted(item);
+                if(isEmailStarted){
+                    account=AccountImportUtil.getEmailByStr(item);
+                    pwd= item.substring(item.lastIndexOf(account)+account.length()).replace("{-}", AccountImportUtil.REPLACE_MEANT);
                 }
             }
+            pwd=StringUtils.replacePattern(pwd, "-| ", " ").trim();
+            pwd= CustomStringUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
+            if(!StringUtils.isEmpty(pwd)){
+                String[] a=pwd.split(AccountImportUtil.SPLIT_STRING);
+                if(a.length==2){
+                    creditCard.setSeq(accountList.size()+1);
+                    creditCard.setAccount(account);
+                    creditCard.setPwd(a[0]);
+                    creditCard.setCreditInfo(a[1]);
+                    String cCreditInfoRegex = "\\w{1,40}/\\d{6}/\\w{3}";
+                    if(a[1].matches(cCreditInfoRegex)){
+                        f=true;
+                        String[] creditInfoArr=a[1].split("/");
+                        creditCard.setCreditCardNumber(creditInfoArr[0]);
+                        creditCard.setCreditVerificationNumber(creditInfoArr[2]);
+                        String monthAndYear=creditInfoArr[1];
+                        creditCard.setCreditCardExpirationMonth(Integer.valueOf(monthAndYear.substring(0,2)).toString());
+                        creditCard.setCreditCardExpirationYear(monthAndYear.substring(2));
+                    }
+                }
+            }
+
             if(f){
                 accountList.add(creditCard);
             }
