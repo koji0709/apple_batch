@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
  * 账号导入工具
  */
 public class AccountImportUtil<T>{
-
+    /**分割字符串**/
     public static final String SPLIT_STRING = "\\{`}";
-    public static final String REPLACE_MENT = "\\{*}";
-    //邮箱格式
-    public static final String regex = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
+    /**替换字符串**/
+    public static final String REPLACE_MEANT = "\\{*}";
+    /**邮箱格式**/
+    public static final String REGEX = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
 
     private static final Map<String,String> kvMap = new HashMap<>(){{
         put("account","账号");
@@ -113,16 +114,16 @@ public class AccountImportUtil<T>{
         String[]  array=accountStr.split(SPLIT_STRING);
         if(array.length>=2){
             account=array[0];
-            pwd=array[1].replace("{-}",REPLACE_MENT);
+            pwd=array[1].replace("{-}", REPLACE_MEANT);
         }else{
             boolean isEmailStarted=checkIfEmailStarted(accountStr);
             if(isEmailStarted){
                 account=getEmailByStr(accountStr);
-                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length()).replace("{-}",REPLACE_MENT);
+                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length()).replace("{-}", REPLACE_MEANT);
             }
         }
         pwd= StringUtils.replacePattern(pwd, "-| ", " ").trim();
-        pwd= CustomStringUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MENT,"-");
+        pwd= CustomStringUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
         list.add(account);
         if(!StringUtils.isEmpty(pwd)){
@@ -136,7 +137,7 @@ public class AccountImportUtil<T>{
 
     private static boolean checkIfEmailStarted(String inputStr) {
         // 定义邮箱格式的正则表达式
-        Pattern pattern = Pattern.compile("^["+regex+"]+@");
+        Pattern pattern = Pattern.compile("^["+REGEX+"]+@");
         Matcher matcher = pattern.matcher(inputStr);
         // 返回true表示输入字符串以邮箱格式开头，false表示不是
         return matcher.find();
@@ -144,7 +145,7 @@ public class AccountImportUtil<T>{
 
     private static String getEmailByStr(String text) {
         // 定义电子邮件地址的正则表达式模式
-        Pattern pattern = Pattern.compile("["+regex+"]+@["+regex+"]+\\.[a-zA-Z]{2,}");
+        Pattern pattern = Pattern.compile("["+REGEX+"]+@["+REGEX+"]+\\.[a-zA-Z]{2,}");
         Matcher matcher = pattern.matcher(text);
         String firstEmail=null;
         while (matcher.find() && StringUtils.isEmpty(firstEmail)) {
