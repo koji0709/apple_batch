@@ -15,6 +15,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -107,9 +108,14 @@ public class UpgraderController implements Initializable {
                                     Optional<ButtonType> type = confirm.showAndWait();
                                     if (type.get()==ButtonType.OK){
                                         if(SystemUtils.isWindows()){
-
+                                            autoStartWindowsApp(clientPath);
+                                        }else if (SystemUtils.isMacOs()){
+                                            try {
+                                                Desktop.getDesktop().open(new File(clientPath));
+                                            } catch (IOException e) {
+                                                throw new RuntimeException(e);
+                                            }
                                         }
-                                        autoStartWindowsApp(clientPath);
                                     }else{
 
                                     }
