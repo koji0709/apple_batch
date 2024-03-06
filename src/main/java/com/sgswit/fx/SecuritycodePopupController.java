@@ -1,5 +1,6 @@
 package com.sgswit.fx;
 
+import com.sgswit.fx.controller.common.CommonView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -44,10 +45,7 @@ public class SecuritycodePopupController {
         }
 
         if("".equals(securityCode)){
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText(null);
-            alert.setContentText("验证码不能为空");
-            alert.show();
+            CommonView.alert("验证码不能为空",Alert.AlertType.WARNING);
         }else{
             // get a handle to the stage
             Stage stage = (Stage) securityBtn.getScene().getWindow();

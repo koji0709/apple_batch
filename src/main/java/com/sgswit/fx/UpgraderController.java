@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -14,6 +15,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.File;
@@ -105,6 +108,9 @@ public class UpgraderController implements Initializable {
                                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
                                     confirm.setHeaderText("");
                                     confirm.setContentText("下载完成，是否立即运行程序");
+                                    Stage stage = (Stage) confirm.getDialogPane().getScene().getWindow();
+                                    String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+                                    stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
                                     Optional<ButtonType> type = confirm.showAndWait();
                                     if (type.get()==ButtonType.OK){
                                         if(SystemUtils.isWindows()){

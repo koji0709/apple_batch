@@ -1,6 +1,7 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
@@ -214,18 +215,10 @@ public class MainController implements Initializable {
                    String proxyApiPass= PropertiesUtil.getOtherConfig("proxyApiPass");
                    boolean proxyApiNeedPass= PropertiesUtil.getOtherBool("proxyApiNeedPass",false);
                     if(StringUtils.isEmpty(proxyApiUrl)){
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("提示");
-                        alert.setHeaderText(null);
-                        alert.setContentText(ProxyEnum.Mode.API.getAlertMessage());
-                        alert.show();
+                        CommonView.alert(ProxyEnum.Mode.API.getAlertMessage());
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }else if( !proxyApiNeedPass&& (StringUtils.isEmpty(proxyApiUser) ||StringUtils.isEmpty(proxyApiPass))){
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("提示");
-                        alert.setHeaderText(null);
-                        alert.setContentText(ProxyEnum.Mode.API.getAlertMessage());
-                        alert.show();
+                        CommonView.alert(ProxyEnum.Mode.API.getAlertMessage());
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }
                 }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(v)){
@@ -233,11 +226,7 @@ public class MainController implements Initializable {
                     String proxyTunnelUser= PropertiesUtil.getOtherConfig("proxyTunnelUser");
                     String proxyTunnelPass= PropertiesUtil.getOtherConfig("proxyTunnelPass");
                     if(StringUtils.isEmpty(proxyTunnelAddress) || StringUtils.isEmpty(proxyTunnelUser) ||StringUtils.isEmpty(proxyTunnelPass)){
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("提示");
-                        alert.setHeaderText(null);
-                        alert.setContentText(ProxyEnum.Mode.TUNNEL.getAlertMessage());
-                        alert.show();
+                        CommonView.alert(ProxyEnum.Mode.TUNNEL.getAlertMessage());
                         proxyMode.getSelectionModel().select(Integer.valueOf(oldV));
                     }
                 }
@@ -252,17 +241,13 @@ public class MainController implements Initializable {
         isAutoLogin.selectedProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object autoLogin) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("提示");
                 String msg="";
                 if((boolean)autoLogin){
                     msg= "已开启自动登录模式，下次登录时将自动登录软件！";
                 }else{
                     msg= "已关闭自动登录模式，下次登录时将执行手动登录！";
                 }
-                alert.setHeaderText(null);
-                alert.setContentText(msg);
-                alert.show();
+                CommonView.alert(msg);
                 // 修改本地配置文件
                 PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
                 if ((boolean)autoLogin){

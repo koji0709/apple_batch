@@ -144,11 +144,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     @FXML
     protected void onAccountInputBtnClick() throws IOException {
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("信息");
-            alert.setHeaderText(null);
-            alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
-            alert.show();
+            alert("请输入一个AppleID作为初始化，账号格式为：账号----密码",Alert.AlertType.ERROR);
             return;
         }
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/giftCard-input-popup.fxml"));
@@ -199,11 +195,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     @Override
     public void executeButtonAction(){
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("信息");
-            alert.setHeaderText(null);
-            alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
-            alert.show();
+            alert("请输入一个AppleID作为初始化，账号格式为：账号----密码",Alert.AlertType.ERROR);
             return;
         }
         if(accountList.size() < 1){
@@ -288,11 +280,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 Platform.runLater(new Task<Integer>() {
                     @Override
                     protected Integer call() {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("信息");
-                        alert.setHeaderText(null);
-                        alert.setContentText("请输入一个AppleID作为初始化，账号格式为：账号----密码");
-                        alert.show();
+                        alert("请输入一个AppleID作为初始化，账号格式为：账号----密码",Alert.AlertType.ERROR);
                         return 1;
                     }
                 });

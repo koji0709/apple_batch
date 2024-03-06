@@ -80,14 +80,15 @@ public class StageUtil {
         //判断程序是否退出
         Stage finalStage = stage;
         stage.setOnCloseRequest(event -> {
-            if((Stage)event.getSource()==StageUtil.get(StageEnum.MAIN)){
+            Stage source=(Stage)event.getSource();
+            if(source==StageUtil.get(StageEnum.MAIN)){
                 if (SystemTray.isSupported()){
                     StageToSystemTrayUtil.hideWindow(finalStage);
                     event.consume();
                 }else {
                     System.exit(0);
                 }
-            }else if((Stage)event.getSource()==StageUtil.get(StageEnum.LOGIN) && null==StageUtil.get(StageEnum.MAIN)){
+            }else if((source==StageUtil.get(StageEnum.LOGIN)) && null==StageUtil.get(StageEnum.MAIN)){
                 System.exit(0);
             }
         });

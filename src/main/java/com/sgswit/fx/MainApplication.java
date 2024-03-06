@@ -2,6 +2,7 @@ package com.sgswit.fx;
 
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Application;
@@ -9,6 +10,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -44,11 +46,7 @@ public class MainApplication extends Application {
 
         // 如果获取锁失败，说明程序已经在运行
         if (lock == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("提示信息");
-            alert.setHeaderText(null);
-            alert.setContentText("对不起，本程序仅允许运行1个!");
-            alert.show();
+            CommonView.alert("对不起，本程序仅允许运行1个!",Alert.AlertType.ERROR);
             return;
         }
 
@@ -124,7 +122,6 @@ public class MainApplication extends Application {
         userData.put("url",versionData.getStr("url"));
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(StageEnum.UPGRADER.getView()));
-
         Scene scene = null;
         try {
             scene = new Scene(fxmlLoader.load(), StageEnum.UPGRADER.getHight(), StageEnum.UPGRADER.getWidth());
@@ -138,6 +135,12 @@ public class MainApplication extends Application {
         popupStage.setScene(scene);
         popupStage.setResizable(false);
         popupStage.initStyle(StageEnum.UPGRADER.getInitStyle());
+        String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
+        popupStage.getIcons().add(new Image(logImg) );
+        popupStage.setOnCloseRequest(event -> {
+            Platform.exit();
+            System.exit(0);
+        });
         UpgraderController upgraderController = fxmlLoader.getController();
         upgraderController.setData(userData);
         upgraderController.startDownload();

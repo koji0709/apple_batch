@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
@@ -12,6 +13,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -26,22 +28,28 @@ public class CommonView implements Initializable {
     /**
      * 消息框
      */
-    public void alert(String message) {
+    public static void alert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("提示信息");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(CommonView.class.getResource(logImg).toString()));
         alert.show();
     }
 
-    public void alert(String message, Alert.AlertType alertType) {
+    public static void alert(String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle("提示信息");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(CommonView.class.getResource(logImg).toString()));
         alert.show();
     }
-    public void alertUI(String message, Alert.AlertType alertType) {
+    public static void alertUI(String message, Alert.AlertType alertType) {
         Platform.runLater(new Task<Integer>() {
             @Override
             protected Integer call() {

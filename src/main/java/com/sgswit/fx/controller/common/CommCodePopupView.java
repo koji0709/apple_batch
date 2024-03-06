@@ -30,10 +30,7 @@ public class CommCodePopupView {
     private void onConfirmBtnClick(ActionEvent actionEvent) throws Exception{
         securityCode=smsTextField.getText();
         if(StringUtils.isEmpty(securityCode)){
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText(null);
-            alert.setContentText("验证码不能为空");
-            alert.show();
+            CommonView.alert("验证码不能为空",Alert.AlertType.WARNING);
             return;
         }
         Button button= (Button) actionEvent.getSource();
