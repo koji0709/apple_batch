@@ -11,7 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
@@ -120,7 +119,7 @@ public class MainApplication extends Application {
             return false;
         }
         Map<String,Object> userData=new HashMap<>();
-        String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"),platform.equals("1")?"exe":"dgm"});
+        String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"),platform.equals("1")?"exe":"dmg"});
         userData.put("name",name);
         userData.put("url",versionData.getStr("url"));
 
