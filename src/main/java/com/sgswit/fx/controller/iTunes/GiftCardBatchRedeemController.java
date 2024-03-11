@@ -402,10 +402,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
                 // 礼品卡已兑换
                 giftCardRedeem.setGiftCardStatus("旧卡");
-                if (bodyJSON.getInt("status") != 0){
+                String recipientDsId = codeInfo.getStr("recipientDsId");
+                if (bodyJSON.getInt("status") != 0 || StrUtil.isEmpty(recipientDsId)){
                     message = String.format(message,"此代码已被兑换");
                 }else{
-                    String recipientDsId=codeInfo.getStr("recipientDsId");
                     message = String.format(message,"此代码已被[dsid:"+recipientDsId+"]兑换");
                 }
             } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){
