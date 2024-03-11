@@ -250,7 +250,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
         }
         if (isProcessed) {
-            alert("账号都已处理！");
+            //alert("账号都已处理！");
             return;
         }
 
@@ -413,11 +413,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 giftCardRedeem.setGiftCardStatus("僵尸卡");
                 message = String.format(message,"此凭证已停用，所以无法兑换");
             } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){
-                // 需要重新登录
-                giftCardRedeem.setIsLogin(false);
-                loginSuccessMap.remove(giftCardRedeem.getAccount()+giftCardRedeem.getPwd());
                 //重新执行一次登录操作
-                accountHandler(giftCardRedeem);
+                if (giftCardRedeem.getFailCount() == 0){
+                    // 需要重新登录
+                    giftCardRedeem.setIsLogin(false);
+                    loginSuccessMap.remove(giftCardRedeem.getAccount()+giftCardRedeem.getPwd());
+                    giftCardRedeem.setFailCount(1);
+                    accountHandler(giftCardRedeem);
+                }
                 return;
             }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
                 //卡正常, 但是和账号商城不匹配

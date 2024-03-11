@@ -167,7 +167,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
         // 检测最后一个是否被处理过,如果被处理过说明整个列表都被处理过,无需再次处理
         if (isProcessed(accountList.get(accountList.size() - 1))) {
-            alert("账号都已处理！");
+            //alert("账号都已处理！");
             return;
         }
 
