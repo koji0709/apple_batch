@@ -323,10 +323,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 setAccountNumLabel();
             }
             if(null!=parentStage){
-                if (parentStage != null && parentStage.isShowing()){
-                    //最小化之后，点击显示
-                    StageToSystemTrayUtil.showWindow(parentStage);
-                }
+                StageToSystemTrayUtil.showWindow(parentStage);
             }
             stage.close();
         });
