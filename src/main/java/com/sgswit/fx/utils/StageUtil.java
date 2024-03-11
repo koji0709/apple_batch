@@ -55,6 +55,8 @@ public class StageUtil {
         stage.initModality(stageEnum.getInitModality());
         stage.setScene(scene);
         stage.setResizable(false);
+
+
         stage.setUserData(userData);
         stage.initStyle(stageEnum.getInitStyle());
         String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
@@ -71,6 +73,8 @@ public class StageUtil {
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.initStyle(StageStyle.DECORATED);
             }
+        }else if(stage==StageUtil.get(StageEnum.LOGIN)){
+            stage.setAlwaysOnTop(true);
         }
         if (isWait){
             stage.showAndWait();

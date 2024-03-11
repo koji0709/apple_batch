@@ -11,16 +11,14 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AccountImportUtil;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.SQLiteUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -278,18 +276,27 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 导入账号按钮点击
      * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
      */
-    public void openImportAccountView(List<String> formats) {
+    public void openImportAccountView(List<String> formats, ActionEvent actionEvent) {
         String desc = "说明：\n" +
                 "    1.格式为: " + AccountImportUtil.buildNote(formats) + "\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountView(formats,"导入账号", desc);
+        Button button = (Button) actionEvent.getSource();
+        // 获取按钮所在的场景
+        Scene scene = button.getScene();
+        // 获取场景所属的舞台
+        Stage stage = (Stage) scene.getWindow();
+        openImportAccountView(formats,"导入账号", desc,stage);
+    }
+    public void openImportAccountView(List<String> formats) {
+
+        openImportAccountView(formats,null);
     }
 
     public void openImportAccountView(String titile,String desc) {
-        openImportAccountView(Collections.emptyList(),titile, desc);
+        openImportAccountView(Collections.emptyList(),titile, desc,null);
     }
 
-    public void openImportAccountView(List<String> formats,String title, String desc) {
+    public  void  openImportAccountView(List<String> formats,String title, String desc,Stage parentStage) {
         if (!CollUtil.isEmpty(formats)) {
             this.formats = formats;
         }
@@ -314,6 +321,12 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
                 setAccountNumLabel();
+            }
+            if(null!=parentStage){
+                if (parentStage != null && parentStage.isShowing()){
+                    //最小化之后，点击显示
+                    StageToSystemTrayUtil.showWindow(parentStage);
+                }
             }
             stage.close();
         });
@@ -726,6 +739,4 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         accountTableView.refresh();
     }
-
-
 }

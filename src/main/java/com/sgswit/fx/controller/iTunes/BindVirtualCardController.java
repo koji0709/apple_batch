@@ -8,9 +8,11 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.*;
 import javafx.collections.ObservableMap;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -20,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-
 
 /**
 　* iTunes付款方式管理
@@ -38,7 +39,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
 
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/virtualCard-input-popup.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 300);
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
@@ -106,6 +107,12 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
         }
         accountTableView.setItems(accountList);
         setAccountNumLabel();
+        Button button = (Button) actionEvent.getSource();
+        // 获取按钮所在的场景
+        Scene parentScene = button.getScene();
+        // 获取场景所属的舞台
+        Stage stage = (Stage) parentScene.getWindow();
+        stage.show();
     }
 
     @Override

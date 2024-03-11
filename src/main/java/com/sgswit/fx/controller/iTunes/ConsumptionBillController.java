@@ -68,8 +68,8 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
     }
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(List.of("account----pwd"));
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        super.openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override
@@ -144,10 +144,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         }
     }
 
-    @FXML
-    protected void stopTaskButtonAction(ActionEvent actionEvent) {
-
-    }
     private  void integratedData(Map<String,Object> queryParas,int accountPurchasesLast90Count,ConsumptionBill consumptionBill,List<String> datas) {
         Date nowDate= new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSXXX");

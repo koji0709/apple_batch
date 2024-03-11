@@ -12,6 +12,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -19,7 +20,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-
 /**
  * <p>
  *  急速过滤密正
@@ -45,8 +45,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     }
 
     @FXML
-    public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd"));
+    public void onAccountInputBtnClick(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
 

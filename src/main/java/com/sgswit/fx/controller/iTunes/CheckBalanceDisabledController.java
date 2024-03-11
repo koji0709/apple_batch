@@ -8,6 +8,7 @@ import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
+import javafx.event.ActionEvent;
 
 import java.util.List;
 
@@ -17,8 +18,8 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
     /**
      * 导入账号按钮点击
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     /**

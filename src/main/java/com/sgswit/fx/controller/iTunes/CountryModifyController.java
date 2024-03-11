@@ -11,13 +11,17 @@ import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PurchaseBillUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -33,7 +37,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 /**
  　* iTunes账号修改
@@ -145,8 +148,8 @@ public class CountryModifyController extends CustomTableView<Account>{
 
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(List.of("account----pwd"));
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        super.openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override

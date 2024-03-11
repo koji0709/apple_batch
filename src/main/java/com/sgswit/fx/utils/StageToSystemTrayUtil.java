@@ -81,7 +81,7 @@ public class StageToSystemTrayUtil {
         }
     }
     //打开窗口
-    protected static void showWindow(Stage primaryStage) {
+    public static void showWindow(Stage primaryStage) {
         if (primaryStage != null) {
             Platform.runLater(() -> {
                 if (primaryStage.isIconified()) {

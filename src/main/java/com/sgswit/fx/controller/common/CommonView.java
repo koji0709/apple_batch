@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 
 /**
  *
+ * @author DELL
  */
 public class CommonView implements Initializable {
     /**

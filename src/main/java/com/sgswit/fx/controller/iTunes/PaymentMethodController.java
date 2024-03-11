@@ -34,10 +34,8 @@ public class PaymentMethodController extends CustomTableView<Account>{
 
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        openImportAccountView(List.of("account----pwd"));
-    }
-    public void stopTaskButtonAction(ActionEvent actionEvent) {
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

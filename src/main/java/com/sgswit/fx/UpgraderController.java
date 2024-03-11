@@ -152,7 +152,7 @@ public class UpgraderController implements Initializable {
 
             }
             //删除文件
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

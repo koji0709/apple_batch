@@ -119,11 +119,16 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     /**
      * 导入账号
      */
-    public void importAccountButtonAction() {
+    public void importAccountButtonAction(ActionEvent actionEvent) {
         String desc = "说明：\n" +
                 "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
-        openImportAccountView("导入账号",desc);
+        Button button = (Button) actionEvent.getSource();
+        // 获取按钮所在的场景
+        Scene scene = button.getScene();
+        // 获取场景所属的舞台
+        Stage stage = (Stage) scene.getWindow();
+        openImportAccountView(Collections.emptyList(),"导入账号",desc,stage);
         boolean selected = scrollToLastRowCheckBox.isSelected();
         if (selected){
             accountTableView.scrollTo(accountList.size()-1);

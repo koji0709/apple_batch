@@ -9,6 +9,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -29,8 +30,8 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     /**
      * 导入账号按钮点击
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----answer1-answer2-answer3-birthday"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----answer1-answer2-answer3-birthday"),actionEvent);
     }
 
     @Override

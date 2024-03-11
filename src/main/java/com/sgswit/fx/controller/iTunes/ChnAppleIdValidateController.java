@@ -32,14 +32,10 @@ public class ChnAppleIdValidateController extends CustomTableView<UserInfo>{
     }
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(List.of("account----pwd----name----nationalId----phone"));
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        super.openImportAccountView(List.of("account----pwd----name----nationalId----phone"),actionEvent);
     }
 
-    @FXML
-    protected void stopTaskButtonAction(ActionEvent actionEvent) {
-
-    }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;

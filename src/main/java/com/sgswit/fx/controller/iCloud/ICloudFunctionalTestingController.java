@@ -11,6 +11,7 @@ import com.sgswit.fx.model.ICloudFunctionalTesting;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
+import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
@@ -29,8 +30,8 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
     /**
      * 导入账号
      */
-    public void importAccountButtonAction(){
-        openImportAccountView(List.of("account----pwd"));
+    public void importAccountButtonAction(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override

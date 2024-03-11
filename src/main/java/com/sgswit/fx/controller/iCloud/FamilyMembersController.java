@@ -4,6 +4,7 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import org.apache.commons.lang3.StringUtils;
@@ -60,8 +61,8 @@ public class FamilyMembersController extends CustomTableView<Account> {
     }
 
 
-    public void openImportAccountView(){
-        openImportAccountView(List.of("account----pwd----memberAccount----memberPwd----cvv","account----pwd----memberAccount"));
+    public void openImportAccountView(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd----memberAccount----memberPwd----cvv","account----pwd----memberAccount"),actionEvent);
     }
 
     @Override

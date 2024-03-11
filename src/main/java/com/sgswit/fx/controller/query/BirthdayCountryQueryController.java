@@ -11,11 +11,11 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-
 /**
  * <p>
  * 查询生日国家
@@ -32,8 +32,8 @@ public class BirthdayCountryQueryController extends AppleIdView {
         menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
     }
 
-    public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"));
+    public void onAccountInputBtnClick(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"),actionEvent);
     }
 
     @Override

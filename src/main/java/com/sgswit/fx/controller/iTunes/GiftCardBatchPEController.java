@@ -20,6 +20,7 @@ import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -104,11 +105,16 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     /**
      * 导入账号
      */
-    public void importAccountButtonAction() {
+    public void importAccountButtonAction(ActionEvent actionEvent) {
         String desc = "说明：\n" +
                 "    1.格式为: 单礼品卡\n" +
                 "    2.一次可以输入多条礼品卡信息，每个礼品卡单独一行。";
-        openImportAccountView(List.of("giftCardCode"), "导入礼品卡", desc);
+        Button button = (Button) actionEvent.getSource();
+        // 获取按钮所在的场景
+        Scene scene = button.getScene();
+        // 获取场景所属的舞台
+        Stage stage = (Stage) scene.getWindow();
+        openImportAccountView(List.of("giftCardCode"), "导入礼品卡", desc,stage);
     }
 
     @Override

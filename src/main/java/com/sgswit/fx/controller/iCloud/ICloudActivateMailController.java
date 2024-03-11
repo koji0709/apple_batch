@@ -12,6 +12,7 @@ import com.sgswit.fx.controller.common.ICloudView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.ICloudUtil;
+import javafx.event.ActionEvent;
 
 import java.net.URL;
 import java.util.List;
@@ -29,8 +30,8 @@ public class ICloudActivateMailController extends ICloudView<Account> {
     /**
      * 导入账号
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd", "account----pwd----email"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----pwd", "account----pwd----email"),actionEvent);
     }
 
     @Override

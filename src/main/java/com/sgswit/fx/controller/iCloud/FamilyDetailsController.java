@@ -13,6 +13,7 @@ import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
 /**
  * @author DeZh
  * @title: FamilyDetailsController
@@ -38,8 +38,8 @@ public class FamilyDetailsController extends CustomTableView<Account> {
         super.initialize(url, resourceBundle);
     }
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(List.of("account----pwd"));
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        super.openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     protected void checkCloudAcc(Account account) {

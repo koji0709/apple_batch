@@ -7,6 +7,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
 /**
  * <p>
  *  检测是否过检
@@ -41,8 +41,8 @@ public class WhetherInspectionController extends CustomTableView<Account> {
     }
 
 
-    public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd"));
+    public void onAccountInputBtnClick(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override

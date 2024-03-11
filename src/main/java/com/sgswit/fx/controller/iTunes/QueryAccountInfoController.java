@@ -34,14 +34,10 @@ public class QueryAccountInfoController extends CustomTableView<ConsumptionBill>
     }
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
-        super.openImportAccountView(List.of("account----pwd"));
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
+        super.openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
-    @FXML
-    protected void stopTaskButtonAction(ActionEvent actionEvent) {
-
-    }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;

@@ -9,6 +9,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -31,8 +32,8 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
     /**
      * 导入账号按钮点击
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd-email","account----pwd-answer1-answer2-answer3-email"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----pwd-email","account----pwd-answer1-answer2-answer3-email"),actionEvent);
     }
 
     @Override

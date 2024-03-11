@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.*;
-
 /**
  * <p>
  *  检测灰余额
@@ -42,7 +41,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
     }
 
     public void openImportAccountView(ActionEvent actionEvent) {
-        openImportAccountView(List.of("account----pwd"));
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override

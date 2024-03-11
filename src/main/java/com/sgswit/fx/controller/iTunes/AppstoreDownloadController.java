@@ -20,6 +20,7 @@ import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -102,8 +103,8 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
     /**
      * 导入账号按钮点击
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
     @Override

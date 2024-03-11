@@ -41,7 +41,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 /**
  * @author DeZh
  * @title: GiftCardBalanceCheckController
@@ -142,7 +141,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
 
     @FXML
-    protected void onAccountInputBtnClick() throws IOException {
+    protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码",Alert.AlertType.ERROR);
             return;
@@ -455,9 +454,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         accountTableView.refresh();
     }
 
-    public void stopTaskButtonAction(ActionEvent actionEvent) {
-
-    }
     protected void updateNodeStatus(boolean status){
         countryBox.setDisable(status);
         account_pwd.setDisable(status);

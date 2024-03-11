@@ -14,6 +14,7 @@ import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,7 +24,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-
 /**
  * <p>
  * 查询密保问题
@@ -50,8 +50,8 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
 
-    public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd"));
+    public void onAccountInputBtnClick(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
 

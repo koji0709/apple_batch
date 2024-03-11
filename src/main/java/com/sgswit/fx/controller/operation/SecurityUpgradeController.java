@@ -15,6 +15,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
@@ -54,8 +55,8 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     /**
      * 导入账号按钮点击
      */
-    public void importAccountButtonAction() {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-phone"));
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-phone"),actionEvent);
     }
 
     /**

@@ -90,7 +90,18 @@ public class LoginController extends CommonView implements Initializable {
             loginPwdTextField.setText(SM4Util.decryptBase64(base64Pwd));
             rememberMeCheckBox.setSelected(true);
         }
+        Task<Void> loadChartTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // 模拟加载过程
+                for (int i = 0; i <= 100; i++) {
+                    updateProgress(i, 100);
+                    Thread.sleep(50);
+                }
 
+                return null;
+            }
+        };
         // 自动登录
         Boolean autoLogin = PropertiesUtil.getOtherBool("login.auto",false);
         if (autoLogin){

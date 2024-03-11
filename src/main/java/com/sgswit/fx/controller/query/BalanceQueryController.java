@@ -7,11 +7,14 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 /**
  * <p>
  *  密保查询余额
@@ -37,8 +40,8 @@ public class BalanceQueryController extends CustomTableView<Account> {
     }
 
 
-    public void onAccountInputBtnClick(){
-        openImportAccountView(List.of("account----pwd"));
+    public void onAccountInputBtnClick(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
 

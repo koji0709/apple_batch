@@ -13,6 +13,7 @@ import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.PointUtil;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
 /**
  * <p>
  *  开通家庭共享
@@ -37,8 +37,8 @@ public class DredgeFamilyController extends CustomTableView<Account> {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.DREDGE_FAMILY.getCode())));
         super.initialize(url, resourceBundle);
     }
-    public void openImportAccountView(){
-        openImportAccountView(List.of("account----pwd----paymentAccount----paymentPwd"));
+    public void openImportAccountView(ActionEvent actionEvent){
+        openImportAccountView(List.of("account----pwd----paymentAccount----paymentPwd"),actionEvent);
     }
 
     @Override

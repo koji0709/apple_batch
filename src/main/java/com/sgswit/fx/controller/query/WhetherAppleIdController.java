@@ -13,6 +13,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.ProxyUtil;
+import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,8 +46,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
-    public void openImportAccountView(){
-        openImportAccountView(List.of("account"));
+    public void openImportAccountView(ActionEvent actionEvent){
+        openImportAccountView(List.of("account"),actionEvent);
     }
 
     @Override
