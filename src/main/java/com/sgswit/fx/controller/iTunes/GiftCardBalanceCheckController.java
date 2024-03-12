@@ -163,7 +163,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(null == c.getData() || "".equals(c.getData())){
             return;
         }
-        String[] accountPwdArray= account_pwd.getText().split("----");
+        String[] accountPwdArray= AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
 
         String[] lineArray = c.getData().split("\n");
         for(String item : lineArray){
