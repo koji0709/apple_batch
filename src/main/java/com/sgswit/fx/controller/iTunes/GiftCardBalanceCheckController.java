@@ -167,6 +167,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
         String[] lineArray = c.getData().split("\n");
         for(String item : lineArray){
+            if(StringUtils.isEmpty(item)){
+                continue;
+            }
             GiftCard giftCard = new GiftCard();
             giftCard.setSeq(accountList.size()+1);
             giftCard.setPwd(accountPwdArray[1]);

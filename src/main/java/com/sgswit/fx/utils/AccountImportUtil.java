@@ -70,6 +70,9 @@ public class AccountImportUtil<T>{
 
         for (int i = 0; i < accList.length; i++) {
             String acc = accList[i];
+            if(StringUtils.isEmpty(acc)){
+                continue;
+            }
             List<String> fieldValueList = Arrays.asList(parseAccountAndPwd(acc));
 
             Map<Integer, List<String>> formatMap = formatList
