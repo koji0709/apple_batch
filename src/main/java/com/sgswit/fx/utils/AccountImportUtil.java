@@ -123,12 +123,23 @@ public class AccountImportUtil<T>{
             if(isEmailStarted){
                 account=getEmailByStr(accountStr);
                 pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length()).replace("{-}", REPLACE_MEANT);
+            }else{
+                accountStr=accountStr.replace("{-}", REPLACE_MEANT);
+                accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
+                accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
+                String []accountArr=accountStr.split(SPLIT_STRING,2);
+                account=accountArr[0];
+                if(accountArr.length>1){
+                    pwd=accountArr[1];
+                }
             }
         }
         pwd= StringUtils.replacePattern(pwd, "-| ", " ").trim();
         pwd= CustomStringUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
-        list.add(account);
+        if(!StringUtils.isEmpty(account)){
+            list.add(account);
+        }
         if(!StringUtils.isEmpty(pwd)){
             String[] a=pwd.split(SPLIT_STRING);
             for(int i=0;i<a.length;i++){
@@ -140,7 +151,7 @@ public class AccountImportUtil<T>{
 
     public static boolean checkIfEmailStarted(String inputStr) {
         // 定义邮箱格式的正则表达式
-        Pattern pattern = Pattern.compile("^["+regex+"]+@");
+        Pattern pattern = Pattern.compile("^["+regex+"]+@["+regex+"]+\\.[a-zA-Z]{2,}");
         Matcher matcher = pattern.matcher(inputStr);
         // 返回true表示输入字符串以邮箱格式开头，false表示不是
         return matcher.find();
@@ -156,6 +167,4 @@ public class AccountImportUtil<T>{
         }
         return firstEmail;
     }
-
-
 }

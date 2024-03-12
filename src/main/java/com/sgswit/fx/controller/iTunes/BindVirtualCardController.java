@@ -77,6 +77,17 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                 if(isEmailStarted){
                     account=AccountImportUtil.getEmailByStr(item);
                     pwd= item.substring(item.lastIndexOf(account)+account.length()).replace("{-}", AccountImportUtil.REPLACE_MEANT);
+                    pwd=StringUtils.replacePattern(pwd, "-| ", " ").trim();
+                    pwd= CustomStringUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
+                }else{
+                    item=item.replace("{-}", AccountImportUtil.REPLACE_MEANT);
+                    item= StringUtils.replacePattern(item, "-| ", " ").trim();
+                    item= CustomStringUtils.replaceMultipleSpaces(item,AccountImportUtil.SPLIT_STRING);
+                    String []accountArr=item.split(AccountImportUtil.SPLIT_STRING,2);
+                    account=accountArr[0];
+                    if(accountArr.length>1){
+                        pwd=accountArr[1];
+                    }
                 }
             }
             pwd=StringUtils.replacePattern(pwd, "-| ", " ").trim();
