@@ -137,6 +137,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         login(account);
 
         HttpResponse accountRsp = AppleIDUtil.account(account);
+        checkAndThrowUnavailableException(accountRsp);
+
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
         account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
@@ -223,6 +225,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 移除设备
         if (removeDeviceCheckBoxSelected){
             HttpResponse deviceListRsp = AppleIDUtil.getDeviceList(account);
+            checkAndThrowUnavailableException(deviceListRsp);
+
             String body = deviceListRsp.body();
             JSONObject bodyJSON = JSONUtil.parseObj(body);
             List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);

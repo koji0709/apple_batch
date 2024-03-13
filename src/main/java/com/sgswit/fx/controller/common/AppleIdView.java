@@ -77,6 +77,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 throw new ServiceException("请先执行程序;");
             }
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
+            checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
         }else{
             setAndRefreshNote(account,"正在验证账号密码...");
             HttpResponse signInRsp = signIn(account);
@@ -85,6 +86,8 @@ public class AppleIdView extends CustomTableView<Account> {
             }
             // Auth
             HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
+            checkAndThrowUnavailableException(authRsp);
+
             String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
 
             // 双重认证
@@ -105,6 +108,8 @@ public class AppleIdView extends CustomTableView<Account> {
                 ThreadUtil.sleep(500);
                 setAndRefreshNote(account,"正在阅读协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
+                checkAndThrowUnavailableException(authRsp);
+
                 String XAppleIDSessionId = "";
                 String scnt = accountRepairRsp.header("scnt");
 
@@ -115,14 +120,25 @@ public class AppleIdView extends CustomTableView<Account> {
                 }
                 setAndRefreshNote(account,"正在同意协议...");
                 HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(account, questionRsp, accountRepairRsp);
+                checkAndThrowUnavailableException(repareOptionsRsp);
+
                 HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,repareOptionsRsp,XAppleIDSessionId,scnt);
+                checkAndThrowUnavailableException(securityUpgradeRsp);
+
                 HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(account,securityUpgradeRsp,XAppleIDSessionId,scnt);
+                checkAndThrowUnavailableException(securityUpgradeSetuplaterRsp);
+
                 HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(account,securityUpgradeSetuplaterRsp,XAppleIDSessionId,scnt);
+                checkAndThrowUnavailableException(repareOptionsSecondRsp);
+
                 securityCodeOrReparCompleteRsp =  AppleIDUtil.repareComplete(account,repareOptionsSecondRsp,questionRsp);
+                checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
             }
         }
 
         HttpResponse tokenRsp = AppleIDUtil.token(account,securityCodeOrReparCompleteRsp);
+        checkAndThrowUnavailableException(tokenRsp);
+
         account.setScnt(tokenRsp.header("scnt"));
         account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
 

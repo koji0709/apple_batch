@@ -6,6 +6,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
@@ -735,5 +736,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
+    }
+
+    public void checkAndThrowUnavailableException(HttpResponse response){
+        if (response != null && response.getStatus() == 503){
+            throw new UnavailableException();
+        }
     }
 }
