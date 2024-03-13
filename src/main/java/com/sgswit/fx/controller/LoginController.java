@@ -174,12 +174,12 @@ public class LoginController extends CommonView implements Initializable {
             HttpResponse rsp = HttpUtils.post("/userInfo/login", body);
             boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
-                alert(HttpUtils.message(rsp));
+                alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
                 return;
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
         }catch (Exception e){
-            alert("服务异常，请联系管理员", Alert.AlertType.ERROR);
+            alert("服务异常，请联系管理员", Alert.AlertType.ERROR,true);
             return;
         }
 
@@ -192,7 +192,7 @@ public class LoginController extends CommonView implements Initializable {
     public void qqLogin(){
         String qq = qqChiceBox.getValue();
         if (StrUtil.isEmpty(qq)){
-            alert("选中QQ不能为空！");
+            alert("选中QQ不能为空！",Alert.AlertType.INFORMATION,true);
             return;
         }
 
@@ -203,12 +203,12 @@ public class LoginController extends CommonView implements Initializable {
             HttpResponse rsp = HttpUtils.post("/userInfo/qqLogin", body);
             boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
-                alert(HttpUtils.message(rsp));
+                alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
                 return;
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
         }catch (Exception e){
-            alert("登录失败，服务异常", Alert.AlertType.ERROR);
+            alert("登录失败，服务异常", Alert.AlertType.ERROR,true);
             return;
         }
         DataUtil.setUserInfo(userInfo);
@@ -223,38 +223,38 @@ public class LoginController extends CommonView implements Initializable {
         String qq = registerQQTextField.getText();
         String cardNo = registerCardNoTextField.getText();
         if (StrUtil.isEmpty(userName)){
-            alert("注册账号不能为空！");
+            alert("注册账号不能为空！",Alert.AlertType.INFORMATION,true);
             return;
         }
         if (StrUtil.isEmpty(pwd)){
-            alert("注册密码不能为空！");
+            alert("注册密码不能为空！",Alert.AlertType.INFORMATION,true);
             return;
         }
         if (StrUtil.isEmpty(email)){
-            alert("安全邮箱不能为空！");
+            alert("安全邮箱不能为空！",Alert.AlertType.INFORMATION,true);
             return;
         }
         if (StrUtil.isEmpty(qq)){
-            alert("绑定QQ不能为空！");
+            alert("绑定QQ不能为空！",Alert.AlertType.INFORMATION,true);
             return;
         }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
         body = String.format(body,userName,SM4Util.encryptBase64(pwd),email,qq,cardNo);
         HttpResponse rsp = HttpUtils.post("/userInfo/register", body);
-        alert(HttpUtils.message(rsp));
+        alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
     }
 
     public void sendVerifyCode(){
         String userName = editUserNameTextField.getText();
         if (StrUtil.isEmpty(userName)){
-            alert("账号不能为空");
+            alert("账号不能为空",Alert.AlertType.INFORMATION,true);
             return;
         }
         String body = "{\"userName\":\"%s\"}";
         body = String.format(body,userName);
         HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd/verifyCode", body);
-        alert(HttpUtils.message(rsp));
+        alert(HttpUtils.message(rsp),Alert.AlertType.ERROR,true);
     }
 
     public void updatePwd(){
@@ -263,21 +263,21 @@ public class LoginController extends CommonView implements Initializable {
         String newPwd = newPwdTextField.getText();
 
         if (StrUtil.isEmpty(userName)){
-            alert("账号不能为空");
+            alert("账号不能为空",Alert.AlertType.INFORMATION,true);
             return;
         }
         if (StrUtil.isEmpty(verifyCode)){
-            alert("验证码不能为空");
+            alert("验证码不能为空",Alert.AlertType.INFORMATION,true);
             return;
         }
         if (StrUtil.isEmpty(newPwd)){
-            alert("新密码不能为空");
+            alert("新密码不能为空",Alert.AlertType.INFORMATION,true);
             return;
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
         body = String.format(body,userName,SM4Util.encryptBase64(newPwd),verifyCode);
         HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd", body);
-        alert(HttpUtils.message(rsp));
+        alert(HttpUtils.message(rsp),Alert.AlertType.ERROR,true);
     }
 
     public void showDocument() throws IOException {

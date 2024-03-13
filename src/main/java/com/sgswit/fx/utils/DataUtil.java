@@ -141,7 +141,8 @@ public class DataUtil {
     }
     public static void getNews(){
         try {
-            HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo");
+            String platform=PropertiesUtil.getConfig("softwareInfo.platform");
+            HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo/"+platform);
             boolean verify = HttpUtils.verifyRsp(rsp);
             if (!verify){
             }else {

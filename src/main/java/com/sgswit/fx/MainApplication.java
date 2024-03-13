@@ -14,7 +14,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Paths;
@@ -22,7 +21,6 @@ import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * @author DELL
@@ -56,12 +54,6 @@ public class MainApplication extends Application {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-//        ProcessBuilder processBuilder = new ProcessBuilder("tasklist.exe");
-//        Process process = processBuilder.start();
-//        String tasksList = toString(process.getInputStream());
-////
-//        System.out.println(tasksList);
         // 添加守护线程，程序退出时释放锁
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -81,20 +73,7 @@ public class MainApplication extends Application {
         }catch (Exception e){
             StageUtil.show(StageEnum.LOGIN);
         }
-
     }
-
-
-    private static String toString(InputStream inputStream)
-    {
-        Scanner scanner = new Scanner(inputStream, "UTF-8").useDelimiter("\\A");
-        String string = scanner.hasNext() ? scanner.next() : "";
-        scanner.close();
-
-        return string;
-    }
-
-
     public boolean checkAndUpdateVersion(){
         //1-windows,2-mac
         String platform=PropertiesUtil.getConfig("softwareInfo.platform");
@@ -198,7 +177,6 @@ public class MainApplication extends Application {
         StageUtil.clearAll();
         super.stop();
     }
-
     public static void main(String[] args) {
         launch();
     }

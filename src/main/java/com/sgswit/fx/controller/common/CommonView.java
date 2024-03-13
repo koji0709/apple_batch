@@ -30,17 +30,12 @@ public class CommonView implements Initializable {
      * 消息框
      */
     public static void alert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("提示信息");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
-        stage.getIcons().add(new Image(CommonView.class.getResource(logImg).toString()));
-        alert.show();
+        alert(message, Alert.AlertType.INFORMATION,false);
     }
-
     public static void alert(String message, Alert.AlertType alertType) {
+        alert(message, alertType,false);
+    }
+    public static void alert(String message, Alert.AlertType alertType,boolean alwaysOnTop) {
         Alert alert = new Alert(alertType);
         alert.setTitle("提示信息");
         alert.setHeaderText(null);
@@ -48,6 +43,9 @@ public class CommonView implements Initializable {
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(CommonView.class.getResource(logImg).toString()));
+        if(alwaysOnTop){
+            stage.setAlwaysOnTop(true);
+        }
         alert.show();
     }
     public static void alertUI(String message, Alert.AlertType alertType) {
