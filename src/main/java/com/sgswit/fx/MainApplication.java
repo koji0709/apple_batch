@@ -177,7 +177,7 @@ public class MainApplication extends Application {
         StageUtil.clearAll();
         super.stop();
     }
-    public static void main(String[] args) {
+    public static void main(String[] args){
         launch();
     }
 }
