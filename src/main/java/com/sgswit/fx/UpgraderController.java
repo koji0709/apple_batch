@@ -92,8 +92,7 @@ public class UpgraderController implements Initializable {
                     String filePath = System.getProperty("user.dir");
                     String filename = filePath +"/"+ MapUtil.getStr(data,"name");
                     File file=new File(filename);
-//                    String url = MapUtil.getStr(data,"url");
-                    String url = "https://i-220.wwentua.com:446/03140900167742212bb/2024/03/09/e61f7f25eb6c9364a29571abbb354c57.exe?st=-Fe2IUkwvctHXcz4XE671g&e=1710380593&b=Bb8OsQOGAONQm16UC3sBKAJ3XkNXJgZwBjkLY1S1VN8D6A3kV9ACiAOzVKYC1le0AMUB2wIjUwNRIgk3BSxRZQV5Dj4DLQBgUH1ebQ_c_c&fi=167742212&pid=223-91-60-62&up=2&mp=0&co=0";
+                    String url = MapUtil.getStr(data,"url");
                     HttpUtil.downloadFile(url, file, new StreamProgress() {
                         @Override
                         public void start() {}
