@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -90,8 +91,10 @@ public class UpgraderController implements Initializable {
                 protected Integer call() {
                     String filePath = System.getProperty("user.dir");
                     String filename = filePath +"/"+ MapUtil.getStr(data,"name");
-                    String url = MapUtil.getStr(data,"url");
-                    HttpUtil.downloadFile(url, FileUtil.file(filename), new StreamProgress() {
+                    File file=new File(filename);
+//                    String url = MapUtil.getStr(data,"url");
+                    String url = "https://i-220.wwentua.com:446/03140900167742212bb/2024/03/09/e61f7f25eb6c9364a29571abbb354c57.exe?st=-Fe2IUkwvctHXcz4XE671g&e=1710380593&b=Bb8OsQOGAONQm16UC3sBKAJ3XkNXJgZwBjkLY1S1VN8D6A3kV9ACiAOzVKYC1le0AMUB2wIjUwNRIgk3BSxRZQV5Dj4DLQBgUH1ebQ_c_c&fi=167742212&pid=223-91-60-62&up=2&mp=0&co=0";
+                    HttpUtil.downloadFile(url, file, new StreamProgress() {
                         @Override
                         public void start() {}
 
@@ -102,7 +105,7 @@ public class UpgraderController implements Initializable {
 
                         @Override
                         public void finish() {
-                            String clientPath=filename;
+                            String clientPath=file.getPath();
                             try {
                                 Platform.runLater(()->{
                                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -114,7 +117,11 @@ public class UpgraderController implements Initializable {
                                     Optional<ButtonType> type = confirm.showAndWait();
                                     if (type.get()==ButtonType.OK){
                                         if(SystemUtils.isWindows()){
-                                            autoStartWindowsApp(clientPath);
+                                            try {
+                                                delete(true,clientPath);
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
                                         }else if (SystemUtils.isMacOs()){
                                             try {
                                                 Desktop.getDesktop().open(new File(clientPath));
@@ -123,7 +130,13 @@ public class UpgraderController implements Initializable {
                                             }
                                         }
                                     }else{
-
+                                        if(SystemUtils.isWindows()){
+                                            try {
+                                                delete(false,null);
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
                                     }
                                     //关闭应用程序
                                     Platform.exit();
@@ -139,21 +152,41 @@ public class UpgraderController implements Initializable {
             };
         }
     };
-    private void  autoStartWindowsApp(String clientPath){
-        try {
-            // 设置需要启动的客户端路径及参数（根据实际情况修改）
-            ProcessBuilder processBuilder = new ProcessBuilder(clientPath);
-            // 启动进程并等待其结束
-            Process process = processBuilder.start();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-
-            } else {
-
+    private void delete(boolean isStart,String clientPath) throws IOException {
+        //删除文件
+        FileWriter fw= new FileWriter("delSelf.bat", Charset.forName("GBK"),true);
+        try{
+            String rootPath=System.getProperty("user.dir");
+            File file=new File(rootPath);
+            fw.write("@echo off");
+            fw.write("\r\n");
+            fw.write("%1 mshta vbscript:CreateObject(\"WScript.Shell\").Run(\"%~n0 ::\",0,FALSE)(window.close)&&exit");
+            //杀死当前进程
+            File[] files = new File(file.getAbsolutePath()).listFiles();
+            for (File f : files) {
+                if (f.isFile() && f.getName().endsWith(".exe") && !f.getName().equalsIgnoreCase(MapUtil.getStr(data,"name"))) {
+                    fw.write("\r\n");
+                    fw.write("taskkill /f /im \""+f.getName()+"\"");
+                    //文件
+                    fw.write("\r\n");
+                    fw.write("del \""+rootPath+"\\"+f.getName()+"\"");
+                }
             }
-            //删除文件
+            if (isStart){
+                //开启新程序
+                fw.write("\r\n");
+                //杀死当前进程
+                fw.write("start "+clientPath);
+            }
+            //删除bat文件
+            fw.write("\r\n");
+            fw.write("del %0");
+            fw.flush();
+            fw.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            Runtime.getRuntime().exec("delSelf.bat");
         }
     }
 }
