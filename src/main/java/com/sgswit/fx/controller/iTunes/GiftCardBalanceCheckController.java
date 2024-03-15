@@ -93,7 +93,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         // 注册粘贴事件的监听器
         account_pwd.setOnContextMenuRequested(event -> event.consume());
         account_pwd.setOnKeyReleased(event -> {
-            if (KeyCombination.valueOf("ctrl + v").match(event)) {
+            if (event.isShortcutDown()) {
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 String content = clipboard.getString().replaceAll("\t"," ");
                 account_pwd.setText(content);

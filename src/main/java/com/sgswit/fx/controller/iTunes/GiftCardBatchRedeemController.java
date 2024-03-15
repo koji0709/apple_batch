@@ -119,7 +119,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         setCellStyle();
         // 注册粘贴事件的监听器
         accountComboBox.setOnKeyReleased(event -> {
-            if (KeyCombination.valueOf("ctrl + v").match(event)) {
+            if (event.isShortcutDown()){
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 String content = clipboard.getString().replaceAll("\t", " ");
                 if (content != null) {
