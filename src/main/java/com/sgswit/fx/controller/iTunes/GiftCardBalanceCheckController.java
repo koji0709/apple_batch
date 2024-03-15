@@ -26,7 +26,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -88,6 +90,15 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
         getCountry();
         String cardAccount= PropertiesUtil.getOtherConfig("cardAccount");
+        // 注册粘贴事件的监听器
+        account_pwd.setOnContextMenuRequested(event -> event.consume());
+        account_pwd.setOnKeyReleased(event -> {
+            if (KeyCombination.valueOf("ctrl + v").match(event)) {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                String content = clipboard.getString().replaceAll("\t"," ");
+                account_pwd.setText(content);
+            }
+        });
         account_pwd.setText(cardAccount);
         if(StringUtils.isEmpty(account_pwd.getText())){
             alertMessage.setLabelFor(loginBtn);

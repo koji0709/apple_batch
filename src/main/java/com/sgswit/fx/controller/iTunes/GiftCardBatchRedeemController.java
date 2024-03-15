@@ -30,6 +30,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -108,13 +110,23 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         hidePwdCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             // newValue true = 隐藏密码, false = 展示密码
             accountTableView.getColumns().forEach(tableColumn -> {
-                if ("pwd".equals(tableColumn.getId())){
+                if ("pwd".equals(tableColumn.getId())) {
                     tableColumn.setVisible(!newValue);
                 }
             });
         });
         // 设置表格cell样式
         setCellStyle();
+        // 注册粘贴事件的监听器
+        accountComboBox.setOnKeyReleased(event -> {
+            if (KeyCombination.valueOf("ctrl + v").match(event)) {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                String content = clipboard.getString().replaceAll("\t", " ");
+                if (content != null) {
+                    accountComboBox.getSelectionModel().select(content);
+                }
+            }
+        });
     }
     /**
      * 导入账号
