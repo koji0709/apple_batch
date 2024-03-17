@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -31,7 +32,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -380,7 +380,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 params.put("passwordToken",giftCardRedeem.getPasswordToken());
                 params.put("cookies",giftCardRedeem.getCookie());
                 PurchaseBillUtil.accountSummary(params);
-                String balanceStr = params.get("balance").toString();
+                String balanceStr;
+                if(null!=params.get("balance")){
+                    balanceStr = MapUtil.getStr(params, "balance");
+                }else{
+                    balanceStr="";
+                }
                 balanceReference = new AtomicReference<>(getBalance(balanceStr));
                 atomicBalanceMap.put(account,balanceReference);
                 currencyMap.put(account,getCurrency(balanceStr));
@@ -392,10 +397,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String body = redeemRsp.body();
 
         // 如果操作频繁，重新执行一次
-        if (execAgainCheckBox.isSelected() && (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body))){
+        if (giftCardRedeem.getMaxTryNumber()<5 && execAgainCheckBox.isSelected() && (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body))){
+            int i=giftCardRedeem.getMaxTryNumber()+1;
             ThreadUtil.sleep(2000L);
-            setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中...");
+            setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中"+i+"...");
             redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
+            giftCardRedeem.setMaxTryNumber(i);
             body      = redeemRsp.body();
         }
 
