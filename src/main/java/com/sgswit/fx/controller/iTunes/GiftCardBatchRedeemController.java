@@ -414,7 +414,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
             String messageKey = redeemBody.getStr("errorMessageKey","");
             String message = "兑换失败! %s";
-            System.err.println(userPresentableErrorMessage);
             // 礼品卡无效
             if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
                 // 礼品卡已兑换

@@ -366,7 +366,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }else if(200==step2Res.getStatus()){
                 hasInit=true;
             } else{
-                System.out.println(step2Res.body());
                 if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
                     msg=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message",String.class);
                     color="red";

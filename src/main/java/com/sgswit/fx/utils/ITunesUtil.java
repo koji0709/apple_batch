@@ -61,7 +61,6 @@ public class ITunesUtil {
                 .cookie(cookie)
                 .execute();
 
-        System.out.println(step4Res.body());
         return step4Res;
     }
     /**
@@ -379,8 +378,6 @@ public class ITunesUtil {
                 .header(headers)
                 .cookie(cookies)
                 .execute();
-        System.out.println(response.getStatus());
-        System.out.println(response.body());
         if(200!=response.getStatus()){
             result.put("code","1");
             result.put("msg","认证失败，未知错误");
@@ -417,8 +414,6 @@ public class ITunesUtil {
                 .header(headers)
                 .cookie(cookies)
                 .execute();
-        System.out.println(response.getStatus());
-        System.out.println(response.body());
         return result;
     }
     /**
@@ -464,11 +459,6 @@ public class ITunesUtil {
                     .header(headers)
                     .cookie(cookies)
                     .execute();
-            System.out.println(res.body());
-
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -522,7 +512,6 @@ public class ITunesUtil {
                 StringBuffer stringBuffer=new StringBuffer();
                 String validationResults= bodyJson.getByPath("result.validationResults",String.class);
                 if(!StringUtils.isEmpty(validationResults)){
-                    System.out.println(validationResults);
                     JSONArray jsonArray=JSONUtil.parseArray(validationResults);
                     for(Object jsonObject:jsonArray){
                         JSON json=JSONUtil.parse(jsonObject);
@@ -785,41 +774,6 @@ public class ITunesUtil {
             return redeemRsp;
     }
 
-
-    public static void main(String[] args) throws Exception {
-//        accountPurchasesCount(null);
-        //getPurchases(null);
-//        getPaymentInfos(null);
-        // addOrEditBillingInfoSrv(null);
-//        Faker faker = new Faker(Locale.CHINA);
-//
-//        Address address = faker.address();
-//        System.out.println(address.streetAddress());
-//        System.out.println(address.streetName());
-//        System.out.println(address.secondaryAddress());
-//        System.out.println(address.streetAddressNumber());
-//        System.out.println(address.buildingNumber());
-//        System.out.println(address.citySuffix());
-//        System.out.println(address.stateAbbr());
-//        String ZipCode=address.zipCode();
-//        System.out.println(address.countyByZipCode(ZipCode));
-//        System.out.println(faker.phoneNumber().subscriberNumber());
-
-
-//        String jsonString = ResourceUtil.readUtf8Str("json/global-mobile-phone-regular.json");
-//////
-//        JSONArray jsonArray= JSONUtil.parseArray(JSONUtil.parseObj(jsonString).getStr("data"));
-//        for (Object o:jsonArray){
-//            JSONObject jsonObject= (JSONObject) o;
-//            System.out.println(jsonObject.getStr("locale"));
-//        }
-//        Generex generex = new Generex("1[35789]\\d{9}");
-//            System.out.println(generex.random());
-
-        //downloadDemo();
-//        subscriptionDemo();
-    }
-
     private static void subscriptionDemo(){
         Account account = new Account();
 //        account.setAccount("djli0506@163.com");
@@ -867,7 +821,6 @@ public class ITunesUtil {
                     .header(headers)
 //                    .cookie(getCookie(authRsp))
                     .execute();
-            System.err.println(subscriptionsRsp);
         }
     }
 

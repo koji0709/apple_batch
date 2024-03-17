@@ -10,7 +10,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -51,7 +50,6 @@ public class ICloudWeblogin {
 
         byte[] rb = RandomUtil.randomBytes(32);
         BigInteger ra = new BigInteger(1,rb);
-        System.out.println("生成的随机数为：" + ra);
 
         String a = calA(ra,n);
         HttpResponse step0Res = auth(signInMap);
@@ -94,11 +92,6 @@ public class ICloudWeblogin {
         HttpResponse res = ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
-
-        System.out.println("------------------auth---------init--------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println("------------------auth----------init-------------------------------------");
 
         return res;
     }
@@ -149,12 +142,6 @@ public class ICloudWeblogin {
                 .body(body)
                 .execute();
 
-        System.out.println("------------------federate---------init--------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println(res.body());
-        System.out.println("------------------federate----------init-------------------------------------");
-
         return res;
     }
     private static HttpResponse signinInit(String a ,HttpResponse resp0,HttpResponse resp1,Map<String,String> signInMap){
@@ -203,12 +190,6 @@ public class ICloudWeblogin {
                 .header(headers)
                 .body(body)
                 .execute();
-
-        System.out.println("------------------sigin---------init--------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println(res.body());
-        System.out.println("------------------sigin----------init-------------------------------------");
 
         return res;
     }
@@ -270,16 +251,7 @@ public class ICloudWeblogin {
                 .body(body)
                 .execute();
 
-        System.out.println("------------------sigin---------compelte--------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println("------------------sigin---------cookies--------------------------------------");
-
         CookieUtils.getCookiesFromHeader(res);
-        System.out.println("------------------sigin---------cookies--------------------------------------");
-        System.out.println(res.body());
-        System.out.println("------------------sigin----------compelte-------------------------------------");
-
         return res;
     }
 
@@ -357,18 +329,10 @@ public class ICloudWeblogin {
         BigInteger ai = g.modPow(a,n);
 
         byte[] aib = ai.toByteArray();
-
-        System.out.println("---------------a-----------");
-        System.out.println(ai);
-        System.out.println(aib.length );
         if(aib.length > 256){
             aib = ArrayUtil.remove(aib,0);
         }
-        System.out.println(Arrays.toString(aib));
         String a2k = Base64.encode(aib);
-
-        System.out.println(a2k);
-
         return  a2k;
     }
 
@@ -383,17 +347,12 @@ public class ICloudWeblogin {
 
         //SRPPassword 计算srp P 字段，
         byte[] p = SRPPassword(password, salt, iter);
-        System.out.println(p.length);
-        System.out.println("p--------" + Base64.encode(p));
-
         //String baseP = "4qe4gqcoIIA9sXACDeG3bYu5EOsoTsC5I6CyQUz6HXU=";
 //        String baseP = "bkBf9xk1bpzvfKQhikGYs7UfgIURH0oz8DWpXlWynRw=";
 //        byte[] p =Base64.decode(baseP);
 
         // calculateX // x = SHA(s | SHA(U | ":" | p))
         BigInteger X = calculateX(salt, p);
-        System.out.println("X-----------"+ X);
-
         BigInteger bigB = new BigInteger(1,Base64.decode(b));
         BigInteger bigA = new BigInteger(HexUtil.encodeHexStr(Base64.decode(a)),16);
 
@@ -410,7 +369,6 @@ public class ICloudWeblogin {
         BigInteger u= calculateU(ab,bb);
 
         BigInteger k = calculatek(nb, gb);
-        System.out.println("k-----------"+ k);
 
         //calculateS
         BigInteger S = calculateS(k,X, ra,bigB,u, n, g);
@@ -420,15 +378,9 @@ public class ICloudWeblogin {
 
         //calculateM1
         byte[] m1 = calculateM1(accountName, salt,ab,bb,K, nb, gb);
-        System.out.println(m1.length);
-        System.out.println("m1----------" + Base64.encode(m1));
 
         //calculateM2
         byte[] m2 = calculateM2(bigA,m1,K);
-
-        System.out.println(m2.length);
-        System.out.println("m2----------" + Base64.encode(m2));
-
         Map<String,String> map = new HashMap<>();
         map.put("m1",Base64.encode(m1));
         map.put("m2",Base64.encode(m2));
@@ -450,8 +402,6 @@ public class ICloudWeblogin {
             generator.init(p, sb, iter);
             KeyParameter params = (KeyParameter)generator.generateDerivedParameters(keyLength);
             byte[] key = params.getKey();
-            System.out.println(Base64.encode(key));
-
             return key;
 
         }catch (Exception e){

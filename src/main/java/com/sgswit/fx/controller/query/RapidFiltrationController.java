@@ -92,7 +92,6 @@ public class RapidFiltrationController extends CustomTableView<Account> {
     }
 
     private void queryFail(Account account,Object body) {
-        System.out.println(body);
         JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
         String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
         if(message.contains("锁定")){

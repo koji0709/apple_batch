@@ -328,7 +328,6 @@ public class ICloudUtil {
                 .execute();
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
-            System.out.println(JSONUtil.parse(rb).getByPath("status"));
             if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
                 res.put("msg",JSONUtil.parse(rb).getByPath("status-message"));
             }
@@ -365,13 +364,6 @@ public class ICloudUtil {
         HttpResponse res =  ProxyUtil.createGet(signInRes.header("Location"))
                 .header(headers)
                 .execute();
-
-        System.out.println("------------------appleIDrepair-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
-        System.out.println("------------------appleIDrepair----------------------------------------------");
-
         return res;
     }
     public static HttpResponse appleIDrepairOptions(HttpResponse signInRes,HttpResponse repairRes,String clientId,String sessionId){
@@ -408,14 +400,6 @@ public class ICloudUtil {
                 .header(headers)
                 .disableCookie()
                 .execute();
-
-        System.out.println("------------------appleIDrepairOptions-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println(res.body());
-
-        System.out.println("------------------appleIDrepairOptions----------------------------------------------");
-
         return res;
     }
     public static HttpResponse appleIDUpgrade(HttpResponse signInRes,HttpResponse optionsRes,String clientId,String sessionId){
@@ -451,13 +435,6 @@ public class ICloudUtil {
         HttpResponse res =  ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
-
-        System.out.println("------------------account/security/upgrade-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
-        System.out.println("------------------account/security/upgrade----------------------------------------------");
-
         return res;
     }
     public static HttpResponse appleIDSetuplater(HttpResponse signInRes,HttpResponse optionsRes,HttpResponse upgradeRes,String clientId,String sessionId){
@@ -493,13 +470,6 @@ public class ICloudUtil {
         HttpResponse res =  ProxyUtil.createGet(url)
                 .header(headers)
                 .execute();
-
-        System.out.println("-----------------/account/security/upgrade/setuplater----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
-        System.out.println("------------------/account/security/upgrade/setuplater--------------------------------------------");
-
         return res;
     }
     public static HttpResponse appleIDrepairOptions2(HttpResponse signInRes,HttpResponse optionsRes, HttpResponse setuplaterRes,String clientId,String sessionId){
@@ -536,14 +506,6 @@ public class ICloudUtil {
                 .header(headers)
                 .disableCookie()
                 .execute();
-
-        System.out.println("------------------appleIDrepairOptions 22222222-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println(res.body());
-
-        System.out.println("------------------appleIDrepairOptions 222222222----------------------------------------------");
-
         return res;
     }
     public static HttpResponse appleIDrepairComplete(HttpResponse signInRes,HttpResponse options2Res,String clientId,String sessionId){
@@ -587,14 +549,6 @@ public class ICloudUtil {
         HttpResponse res =  ProxyUtil.createPost(url)
                 .header(headers)
                 .execute();
-
-        System.out.println("------------------appleIDrepairComplete-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-        System.out.println(res.body());
-
-        System.out.println("------------------appleIDrepairComplete----------------------------------------------");
-
         return res;
     }
 
@@ -644,13 +598,6 @@ public class ICloudUtil {
 //                .disableCookie()
                 .cookie(CookieUtils.getCookiesFromHeader(signInRes))
                 .execute();
-
-        System.out.println("------------------auth-----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
-        System.out.println("------------------auth----------------------------------------------");
-
         return res;
     }
 
@@ -699,7 +646,6 @@ public class ICloudUtil {
         headers.put("Scnt",List.of(authRsp.header("scnt")));
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(authRsp.header("X-Apple-ID-Session-Id")));
 
-        System.err.println(headers);
         String scDeviceBody = "{\"securityCode\":{\"code\":\"%s\"}}";
         String scPhoneBody = "{\"phoneNumber\":{\"id\":1},\"securityCode\":{\"code\":\"%s\"},\"mode\":\"sms\"}";
 
@@ -808,11 +754,6 @@ public class ICloudUtil {
                 .header(headers)
                 .body(body)
                 .execute();
-
-        System.out.println("------------------accountLogin-----------------------------------------------");
-        System.out.println(loginRsp.getStatus());
-//        System.out.println(loginRsp.headers());
-//        System.out.println(loginRsp.body());
         return loginRsp;
     }
 

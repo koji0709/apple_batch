@@ -2,7 +2,6 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.dd.plist.Base64;
@@ -45,7 +44,6 @@ public class OcrUtil {
                 .execute();
         System.out.println(content);
         String predict = recognize(content.toString());
-        System.err.println(predict);
     }
 
     public static String recognize(String base64Str){

@@ -64,7 +64,6 @@ public class StageToSystemTrayUtil {
             try {
                 tray.add(trayIcon);
             } catch (AWTException e) {
-                System.out.println("Failed to add tray icon.");
             }
             // 设置托盘图标鼠标左键事件
             trayIcon.addMouseListener(new MouseAdapter() {

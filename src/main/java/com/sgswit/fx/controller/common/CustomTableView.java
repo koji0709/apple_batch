@@ -269,7 +269,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 insertLocalHistory(List.of(account));
             });
             atomicInteger.decrementAndGet();
-            System.err.println(atomicInteger.get());
         }
     }
 

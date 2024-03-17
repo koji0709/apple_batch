@@ -32,57 +32,6 @@ import java.util.TimeZone;
 
 public class GiftCardUtil {
 
-    public static void main( String[] args ){
-        String metaXml="<script>dciddstr = '43988b7d72ff1e372da4000addd7cdc19dccfc992c4c4fe9531a097dc867bb72c5cde7e6a27dad027b5929205ad1bdca12bf47a8f3717b24019aef5640fb408c508a00017d3a9d296909590570a6fe3cf21cbdc0ae758bc8723a713ef384a41d1b49a2b74c82c32e0bab1807cc96b4236b6daeb2635008b4841ae5d7a0bbd1c2eb55476448a6ccd9621344c93746314e9eaba3036a943b619c843e36319bb1d23f060590328c116fcae78cb1a6fcb644f2116b1c2cbf3317610032b72131f7df4130615b1dba734a757f295f97f3da5766cf86eb892e30c05431d9591fddb8578b5dc6bbe4448ae5135ccd831686d9274c9e8ffbdff05a39c980bcf58aa7319cf573023571aa66fda58f7f0c57332b96906093b2b7980559629355bdbb48174bd3adf3a4472f3a5083c3c1c97a370fee6187d7e7015540a9e661d9a726560027c5c6e06f5a17eb8a2d4478bddffe6ee79cefcd04eff6a496af6136ba5e2d2caccf9355564af3f9c0e101acf0cb8c1cf641a6a27de8dc7dc49ea68796da9f30cc14ae2e7734de8b123b00c7ba36d9e4d8f550fd066b629fa0051ab75022e33912ba97e759b2b30c64328478afc0029efdb751f98d26e813f76d583da244c83de5b4ae8c6a2e4ff29af7b415300415f57ac35412e178c638acd2bc27fda497f0cfd95d495fc1f7d0148e9555b8fd8b49dafe801904548d9dd874915ef0a9b29bbc4d36ec1d645f260675282aba5be86255cc57bdec24bbc645cd8043c63b5971d450ff55cd94a4e11016be1bbfc1bf20d1c619c9059d9ebe4a8dbf3302e4ebcf5c22fa10c15afce3229e5a70f973159d769c3d013cd9a5c5390275abdfcd4dba34beefdb87ab90e370943374cd063a38e7afde905e73025cc9706611214e70bf1108e30428b03b7ab2582b95f2dde3f61463bbf0668a546ab79d9e9cc5076c89239d3a5daa15b3c33b9d31e939131487dedc92f8676ae61d42924f2987912ef8e85c96f38e047d7d8166b5e76fea98958e7253bf86e5789b2f9631b183876e45d95c2fe149a08a1548877bee242ac7ae579edad0fad4bc0fdb2c12028456d46f53e74fdac4d95a9d9c7fda40fa815b9d24c87575c750f9a926069bf5d844f15d6a31a5f7f97267e2b51911778f40';</script>";
-
-
-
-
-        String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
-//        //https://secure.store.apple.com/shop/giftcard/balance
-//        HttpResponse pre1 = shopPre1("us");
-//        if(pre1.getStatus() != 303){
-//            System.out.println("网络错误");
-//            return;
-//        }
-//
-//        //https://secure4.store.apple.com/shop/giftcard/balance
-//        HttpResponse pre2 = shopPre2(pre1);
-//        if(pre2.getStatus() != 302){
-//            return;
-//        }
-//
-//        //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-//        HttpResponse pre3 = shopPre3(pre1,pre2);
-//        Map<String,Object> paras=new HashMap<>();
-//
-//        Map<String,Object> jx=jXDocument(pre2, pre3,paras);
-//        String a=jx.get("a").toString();
-//        HttpResponse step0Res = federate("djli0506@163.com",paras);
-//
-//        HttpResponse step1Res = signinInit("djli0506@163.com",a,step0Res,paras);
-//
-//        HttpResponse step2Res = signinCompete("djli0506@163.com","##B0527s0207",paras,step1Res,pre1,pre3);
-//        if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
-//            JSON json = JSONUtil.parse(step2Res.body());
-//            String error=json.getByPath("serviceErrors.message").toString();
-//            System.out.println(error);
-//            return ;
-//        }
-//        //step3 shop signin
-//        HttpResponse step3Res = shopSignin(step2Res,pre1,paras);
-//
-//
-//        HttpResponse step4Res = checkBalance(paras,"XGXR W4FG WD3L 4LZJ");
-//        if(step4Res.getStatus()!=200){
-//            System.out.println("网络错误");
-//        }else{
-//        }
-//
-//        System.out.println(step4Res.getStatus());
-//        System.out.println(step4Res.body());
-
-    }
     public static HttpResponse shopPre1(String countryCode){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
