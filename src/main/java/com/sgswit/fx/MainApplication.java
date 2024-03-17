@@ -26,13 +26,13 @@ import java.util.Map;
  * @author DELL
  */
 public class MainApplication extends Application {
-
     static {
         //隐式退出开关，设置关闭所有窗口后程序仍不退出
         Platform.setImplicitExit(false);
     }
     @Override
     public void start(Stage stage) throws IOException {
+        LoggerManger.info("启动软件...");
         HostServicesUtil.setHostServices(getHostServices());
         getData();
         //进程锁
@@ -177,6 +177,7 @@ public class MainApplication extends Application {
         StageUtil.clearAll();
         super.stop();
     }
+
     public static void main(String[] args){
         launch();
     }

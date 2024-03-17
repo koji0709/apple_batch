@@ -8,6 +8,8 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -50,7 +52,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
-
+    private static final Log logger = LogFactory.get();
     public Set<String> menuItem =new LinkedHashSet<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());
@@ -84,7 +86,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     private List<String> formats;
 
     protected String funCode="0";
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -243,6 +244,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setAndRefreshNote(account,e.getMessage());
             pointIncr(account);
             setDataStatus(account,false);
+            LoggerManger.info(e.getMessage());
         }catch (PointCostException e){
             setAndRefreshNote(account,e.getMessage());
             setDataStatus(account,false);
@@ -254,11 +256,13 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setAndRefreshNote(account, e.getMessage());
             pointIncr(account);
             setDataStatus(account,false);
+            LoggerManger.info("UnavailableException",e);
         } catch (Exception e) {// 程序异常
             setAndRefreshNote(account, "数据处理异常");
             pointIncr(account);
             setDataStatus(account,false);
             e.printStackTrace();
+            LoggerManger.info("数据处理异常",e);
         } finally {
             ReflectUtil.invoke(account,"setFailCount",0);
             setAccountNumLabel();
