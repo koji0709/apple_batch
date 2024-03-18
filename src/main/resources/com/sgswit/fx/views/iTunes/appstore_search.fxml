@@ -32,9 +32,9 @@
                                                     <children>
                                                         <Label text="项目类型"/>
                                                         <RadioButton toggleGroup="$itemTypeToggleGroup" text="APP应用" selected="true"/>
-                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐单曲"/>
-                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐专辑"/>
-                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="电子书"/>
+<!--                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐单曲"/>-->
+<!--                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="音乐专辑"/>-->
+<!--                                                        <RadioButton toggleGroup="$itemTypeToggleGroup" text="电子书"/>-->
                                                     </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" spacing="5">
