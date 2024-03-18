@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -587,6 +588,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     balanceLabel.setText( "余额：" + "");
                     statusLabel.setText( "状态：" + e.getMessage());
                     checkAccountDescLabel.setText(e.getMessage());
+                });
+                // 异常返回点数
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+            } catch (IORuntimeException e) {
+                Platform.runLater(() -> {
+                    countryLabel.setText("国家：" + "");
+                    balanceLabel.setText( "余额：" + "");
+                    statusLabel.setText( "状态：" + "连接异常，请检查网络");
+                    checkAccountDescLabel.setText("连接异常，请检查网络");
                 });
                 // 异常返回点数
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());

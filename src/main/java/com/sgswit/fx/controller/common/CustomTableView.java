@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
@@ -257,11 +258,15 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);
+        } catch (IORuntimeException e) {
+            setAndRefreshNote(account, "连接异常，请检查网络");
+            pointIncr(account);
+            setDataStatus(account,false);
+            LoggerManger.info("连接异常，请检查网络",e);
         } catch (Exception e) {// 程序异常
             setAndRefreshNote(account, "数据处理异常");
             pointIncr(account);
             setDataStatus(account,false);
-            e.printStackTrace();
             LoggerManger.info("数据处理异常",e);
         } finally {
             ReflectUtil.invoke(account,"setFailCount",0);

@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -13,11 +14,7 @@ import com.sgswit.fx.controller.common.CommCodePopupView;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
-import com.sgswit.fx.utils.AccountImportUtil;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.HttpUtils;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -251,6 +248,11 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                         PropertiesUtil.setOtherConfig("giftCardProAccount", accountTextFieldValue);
                     });
                 }
+            }catch (IORuntimeException e) {
+                Platform.runLater(() -> {
+                    checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));
+                    checkAccountDescLabel.setText("连接异常，请检查网络");
+                });
             } catch (ServiceException e) {
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));

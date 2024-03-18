@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.iTunes;
 
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
@@ -28,7 +29,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -390,6 +390,10 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
             PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
             hasInit=true;
+            updateUI(msg,color);
+        } catch (IORuntimeException e) {
+            msg="连接异常，请检查网络";
+            color="red";
             updateUI(msg,color);
         }catch (Exception e){
             msg="登录失败";
