@@ -233,6 +233,13 @@
                             <!--                            <platform>mac</platform>-->
                             <!--                             <platform>mac</platform>-->
                             <!--                            <platform>mac|windows</platform>-->
+                            <macConfig>
+                                <icnsFile>src/main/resources/image/Apple批处理程序.icns</icnsFile>
+                                <generatePkg>false</generatePkg>
+                            </macConfig>
+                            <winConfig>
+                                <icoFile>src/main/resources/image/Apple批处理程序.ico</icoFile>
+                            </winConfig>
                         </configuration>
                     </execution>
                 </executions>
