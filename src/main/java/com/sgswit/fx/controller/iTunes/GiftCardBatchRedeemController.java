@@ -499,6 +499,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private static BigDecimal getBalance(String balanceStr){
+        balanceStr=balanceStr.replace(",","");
         for (int i = 0; i < balanceStr.length(); i++) {
             char c = balanceStr.charAt(i);
             boolean isNumber = NumberUtil.isNumber(String.valueOf(c));
