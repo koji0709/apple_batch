@@ -2,7 +2,6 @@ package com.sgswit.fx.utils;
 
 
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.ContentType;
@@ -15,7 +14,6 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
-import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -774,56 +772,6 @@ public class ITunesUtil {
             return redeemRsp;
     }
 
-    private static void subscriptionDemo(){
-        Account account = new Account();
-//        account.setAccount("djli0506@163.com");
-//        account.setPwd("##B0527s0207");
-        account.setAccount("qewqeq@2980.com");
-        account.setPwd("dPFb6cSD41");
-
-        String guid = DataUtil.getGuidByAppleId(account.getAccount());
-        HttpResponse authRsp = null;
-        String storeFront = "";
-
-        // 鉴权
-        if (authRsp != null && authRsp.getStatus() == 200){
-            JSONObject authBody = PListUtil.parse(authRsp.body());
-            String firstName = authBody.getByPath("accountInfo.address.firstName",String.class);
-            String lastName  = authBody.getByPath("accountInfo.address.lastName",String.class);
-            String creditDisplay  = authBody.getByPath("creditDisplay",String.class);
-            Boolean isDisabledAccount  = authBody.getByPath("accountFlags.isDisabledAccount",Boolean.class);
-
-            Console.log("Account firstName: {}, lastName:{}, creditDisplay:{}, isDisabledAccount:{}",firstName,lastName,creditDisplay,isDisabledAccount);
-            storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-
-            String itspod = authRsp.header(Constant.ITSPOD);
-            String dsPersonId = authBody.getStr("dsPersonId","");
-            String passwordToken = authBody.getStr("passwordToken","");
-
-            String url = "https://p"+itspod+"-buy.itunes.apple.com/commerce/account/subscriptions?prevpage=accountsettings&version=2.0";
-            HashMap<String, List<String>> headers = new HashMap<>();
-            headers.put("Origin",List.of("https://finance-app.itunes.apple.com"));
-            headers.put("Referer",List.of("https://finance-app.itunes.apple.com"));
-            //headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
-            headers.put("User-Agent", ListUtil.toList("iTunes/12.13 (Windows; Microsoft Windows 10 x64 (Build 19045); x64) AppleWebKit/7613.2007.1014.14 (dt:2)"));
-            headers.put("Accept-Encoding",List.of("gzip, deflate"));
-            headers.put("Connection",List.of("keep-alive"));
-            headers.put("X-Apple-Tz",ListUtil.toList("28800"));
-            headers.put("Accept",List.of("*/*"));
-            headers.put("Accept-Language",List.of("zh-cn"));
-
-            headers.put("X-Dsid",ListUtil.toList(dsPersonId));
-            headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));
-            headers.put("X-Token",ListUtil.toList(passwordToken));
-            headers.put("Cookie",List.of(getCookie(authRsp)));
-
-            HttpResponse subscriptionsRsp = ProxyUtil.createGet(url)
-                    .header(headers)
-//                    .cookie(getCookie(authRsp))
-                    .execute();
-        }
-    }
-
     private static String getCookie(HttpResponse rsp) {
         StringBuilder cookieBuilder = new StringBuilder();
         List<String> res1Cookies = rsp.headers().get("Set-Cookie");
@@ -845,5 +793,4 @@ public class ITunesUtil {
         }
         return cookies;
     }
-
 }

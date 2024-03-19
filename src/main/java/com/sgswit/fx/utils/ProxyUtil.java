@@ -76,16 +76,6 @@ public class ProxyUtil{
                        }
                     }
                 }
-
-                //判断是否为url
-
-
-//                Validator.isUrl();
-
-
-
-
-
                 return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
             }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)){
                 String address= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
@@ -111,9 +101,8 @@ public class ProxyUtil{
                 return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
             }
         }catch (Exception e){
-
+            throw e;
         }
-        return null;
     }
    private static HttpRequest proxyRequest(Method method,String url,String host,Integer port,String authUser,String authPassword,Integer sendTimeOut){
        Authenticator.setDefault(

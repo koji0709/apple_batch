@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -15,11 +14,13 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
-
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.StageUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -27,9 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -45,8 +43,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
@@ -144,7 +144,6 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                 int i = previewUrl.indexOf("/id");
                 if (i <= 0){
                     appstoreDownloadVo.setNote("URL格式不正确！");
-                    Console.log("地址格式不正确！ previewUrl:{}",previewUrl);
                     continue;
                 }
                 String trackId = previewUrl.substring(previewUrl.indexOf("/id")+3);
@@ -161,7 +160,6 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                 String trackId = appstoreItemVo.getTrackJson().getStr("trackId");
                 if (Double.valueOf(appstoreItemVo.getPrice()) > 0){
                     failNum+=1;
-                    Console.log("暂只支持免费应用！[{}] 价格:{}", trackName,appstoreItemVo.getPrice());
                     continue;
                 }
                 boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackName);
@@ -194,13 +192,11 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
             if(!"purchaseSuccess".equals(purchaseJdt) || !"0".equals(purchaseStatus)){
                 String failureType = purchaseJSON.getStr("failureType");
                 String customerMessage = purchaseJSON.getStr("customerMessage");
-                Console.log("[{}] 购买失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
                 appstoreDownloadVo.setNote(String.format("[%s] 购买失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
                 return false;
             }
         }
 
-        Console.log("[{}] 购买成功", trackName);
         appstoreDownloadVo.setNote(String.format("[%s] 购买成功",trackName));
 
         HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl( appstoreDownloadVo, trackId.toString(), "");
@@ -210,14 +206,12 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         if(!"purchaseSuccess".equals(appstoreDownloadUrlJdt) || !"0".equals(appstoreDownloadUrlStatus)){
             String failureType = appstoreDownloadUrlBody.getStr("failureType");
             String customerMessage = appstoreDownloadUrlBody.getStr("customerMessage");
-            Console.log("[{}] 获取下载链接失败！ failureType:{}, customerMessage:{}",trackName,failureType,customerMessage);
             appstoreDownloadVo.setNote(String.format("[%s] 获取下载链接失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
             return false;
         }
 
         JSONArray songList = appstoreDownloadUrlBody.getJSONArray("songList");
         if (songList.isEmpty()){
-            Console.log("songList is empty");
             appstoreDownloadVo.setNote(String.format("[%s] 下载失败！songList is empty",trackName));
             return false;
         }
@@ -232,7 +226,6 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                 ,metadata.getStr("artistId")
                 ,metadata.getStr("bundleShortVersionString"));
 
-        Console.log("[{}] 获取下载链接成功; fileName:{}, url:{}",trackName,fileName,url);
         appstoreDownloadVo.setNote(String.format("[%s] 获取下载链接成功!",trackName));
 
         // 下载

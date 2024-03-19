@@ -1,6 +1,5 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +57,6 @@ public class AccountImportUtil<T>{
     public List<T> parseAccount(Class<T> clz,String accountStr, List<String> formatList){
         formatList = formatList.stream().map(format -> format.replaceAll("----","-")).collect(Collectors.toList());
         if (StrUtil.isEmpty(accountStr)){
-            Console.log("导入账号为空");
             return new ArrayList<>();
         }
         String[] accList = accountStr.split("\n");

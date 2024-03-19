@@ -2,7 +2,6 @@ package com.sgswit.fx.controller.common;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IORuntimeException;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
@@ -360,7 +359,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public List<T> parseAccount(String accountStr) {
         if (this.clz == null || this.formats.isEmpty()) {
-            Console.log("需要先确定TableView上的泛型,以及初始化导入账号格式");
             return Collections.emptyList();
         }
         return new AccountImportUtil().parseAccount(clz, accountStr, formats);
@@ -537,7 +535,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         try {
             DbUtil.use().insert(insertList);
         } catch (SQLException e) {
-            Console.log("SQLite保存失败！ saveList: {}", insertList);
         }
     }
 

@@ -4,7 +4,6 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
@@ -12,6 +11,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
@@ -91,7 +91,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         getCountry();
         String cardAccount= PropertiesUtil.getOtherConfig("cardAccount");
         // 注册粘贴事件的监听器
-        account_pwd.setOnContextMenuRequested(event -> event.consume());
+        account_pwd.setOnContextMenuRequested((ContextMenuEvent event) -> {
+        });
         account_pwd.setOnKeyReleased(event -> {
             if (event.isShortcutDown()) {
                 Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -205,64 +206,17 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }
         }).start();
     }
+
     @Override
-    public void executeButtonAction(){
+    public boolean executeButtonActionBefore() {
         if(StringUtils.isEmpty(account_pwd.getText()) ||  !hasInit){
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码",Alert.AlertType.ERROR);
-            return;
-        }
-        if(accountList.size() < 1){
-            return;
-        }
-        for (int i = 0; i < accountList.size(); i++) {
-            GiftCard giftCard=accountList.get(i);
-            //判断是否已执行或执行中,避免重复执行
-            if(!StrUtil.isEmptyIfStr(giftCard.getNote())){
-                continue;
-            }else{
-                if(null==hashMap || hashMap.size()==0){
-                    loginAndInit();
-                }
-                executeButton.setText("正在查询");
-                executeButton.setTextFill(Paint.valueOf("#FF0000"));
-                executeButton.setDisable(true);
-                if ((i +1) != accountList.size() && (i +1) % 5 == 0){
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run(){
-                        try {
-                            try {
-                                checkBalance(giftCard, hashMap);
-                            } catch (Exception e) {
-                                executeButton.setDisable(false);
-                                executeButton.setText("开始执行");
-                                executeButton.setTextFill(Paint.valueOf("#238142"));
-                                e.printStackTrace();
-                            }
-                        }finally {
-                            //JavaFX Application Thread会逐个阻塞的执行这些任务
-                            Platform.runLater(new Task<Integer>() {
-                                @Override
-                                protected Integer call() {
-                                    setAccountNumLabel();
-                                    executeButton.setDisable(false);
-                                    executeButton.setText("开始执行");
-                                    executeButton.setTextFill(Paint.valueOf("#238142"));
-                                    return 1;
-                                }
-                            });
-                        }
-                    }
-                }).start();
-            }
+            return false;
+        }else {
+            return true;
         }
     }
+
     /**
      　* 登录并初始化
      * @param
@@ -426,33 +380,32 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             return;
         }
         giftCard.setHasFinished(false);
-        tableRefresh(giftCard,"正在查询...");
-        ThreadUtil.sleep(1000);
+        setAndRefreshNote(giftCard,"正在查询...");
+        ThreadUtil.sleep(2000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(503==step4Res.getStatus()){
-            giftCard.setDataStatus("0");
-            tableRefreshAndInsertLocal(giftCard,"当前服务不可用，请稍后重试");
+            giftCard.setNote("操作频繁，请稍后重试！");
+            throw new ServiceException("操作频繁，请稍后重试！");
         }else if(step4Res.getStatus()!=200){
-            giftCard.setDataStatus("0");
-            tableRefreshAndInsertLocal(giftCard,"余额查询失败");
+            giftCard.setNote("余额查询失败");
+            throw new ServiceException("余额查询失败");
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             String status=bodyJson.getByPath("head.status").toString();
             if(!Constant.SUCCESS.equals(status)){
-                giftCard.setDataStatus("0");
-                tableRefreshAndInsertLocal(giftCard,"余额查询失败");
-                return;
+                giftCard.setNote("余额查询失败");
+                throw new ServiceException("余额查询失败");
             }
             String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
             String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
             if(null==balance){
                 giftCard.setDataStatus("0");
-                tableRefreshAndInsertLocal(giftCard,"这不是有效的礼品(或已兑换)");
+                giftCard.setNote("这不是有效的礼品(或已兑换)");
+                throw new ServiceException("这不是有效的礼品(或已兑换)");
             }else{
                 giftCard.setDataStatus("1");
                 giftCard.setBalance(balance);
                 giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
-                tableRefreshAndInsertLocal(giftCard,"查询成功");
             }
         }
         giftCard.setHasFinished(true);
@@ -465,10 +418,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         logTime.setCellValueFactory(new PropertyValueFactory<GiftCard,String>("logTime"));
         giftCardNumber.setCellValueFactory(new PropertyValueFactory<GiftCard,String>("giftCardNumber"));
         note.setCellValueFactory(new PropertyValueFactory<GiftCard,String>("note"));
-    }
-    private void tableRefresh(GiftCard giftCard,String message){
-        giftCard.setNote(message);
-        accountTableView.refresh();
     }
 
     protected void updateNodeStatus(boolean status){

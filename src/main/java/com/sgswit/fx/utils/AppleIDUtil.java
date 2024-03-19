@@ -512,7 +512,6 @@ public class AppleIDUtil {
 
 
         if(status == 302){
-            Console.log("未设置救援电子邮件");
             return rsp;
         }
 
@@ -1237,7 +1236,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
 
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
-        Console.log("recoveryOptions:", recoveryOptions);
 
         HttpResponse options2Rsp = ProxyUtil.createGet(host + "/recovery/options")
                 .header(header)
@@ -1261,7 +1259,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
-        Console.log("authMethodOptions:", authMethodOptions);
 
         HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
                 .header(authMethod1Rsp.headers())
@@ -1361,7 +1358,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
-        Console.log("authMethodOptions:", authMethodOptions);
 
         HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
                 .header(header)
@@ -1422,7 +1418,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(options1Rsp.header("sstt")));
 
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("types", List.class);
-        Console.log("types:", recoveryOptions);
 
         HttpResponse options2Rsp = ProxyUtil.createPost(host + "/password/reset/options")
                 .header(header)
