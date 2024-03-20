@@ -33,6 +33,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -127,6 +128,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     accountComboBox.getSelectionModel().select(content);
                 }
             }
+        });
+        accountComboBox.getEditor().setOnContextMenuRequested((ContextMenuEvent event) -> {
         });
     }
     /**
