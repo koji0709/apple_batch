@@ -89,12 +89,13 @@ public class ICloudView<T> extends CustomTableView<T> {
         // 双重认证账号，登录成功后， http code = 409；
         //        但此时返回的header中包含 X-Apple-Session-Token，可直接使用获取icloud账户信息
         int status = signInRsp.getStatus();
+        if(status==503){
+            throw new UnavailableException();
+        }
         if (status != 412 && status != 409) {
             String errorMessages = serviceErrorMessages(signInRsp.body());
             throw new ServiceException(errorMessages,"登录失败; status=" + status);
         }
-//        setAndRefreshNote(account, "签名结束");
-
         // 412普通登录, 409双重登录
         if (status == 412) {
             HttpResponse repairRes = ICloudUtil.appleIDrepair(signInRsp);
