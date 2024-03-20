@@ -81,7 +81,7 @@ public class ICloudView<T> extends CustomTableView<T> {
         String domain = signInMap.get("domain");
 
         //登录 通用 www.icloud.com
-        setAndRefreshNote(account, "开始签名");
+        setAndRefreshNote(account, "正在登录...");
         HttpResponse signInRsp = ICloudWeblogin.signin(signInMap);
         //非双重认证账号，登录后，http code = 412；
         //        此时返回的header中 有 X-Apple-Repair-Session-Token ，无 X-Apple-Session-Token，
@@ -91,9 +91,9 @@ public class ICloudView<T> extends CustomTableView<T> {
         int status = signInRsp.getStatus();
         if (status != 412 && status != 409) {
             String errorMessages = serviceErrorMessages(signInRsp.body());
-            throw new ServiceException(errorMessages,"签名失败; status=" + status);
+            throw new ServiceException(errorMessages,"登录失败; status=" + status);
         }
-        setAndRefreshNote(account, "签名结束");
+//        setAndRefreshNote(account, "签名结束");
 
         // 412普通登录, 409双重登录
         if (status == 412) {
@@ -165,7 +165,13 @@ public class ICloudView<T> extends CustomTableView<T> {
         if (StrUtil.isEmpty(body)) {
             return null;
         }
-        List messageList = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
+        List messageList;
+        try{
+            JSONObject jsonObject=JSONUtil.parseObj(body);
+            messageList = jsonObject.getByPath("serviceErrors.message", List.class);
+        }catch (Exception e){
+            return null;
+        }
         if (messageList == null) {
             return null;
         }
