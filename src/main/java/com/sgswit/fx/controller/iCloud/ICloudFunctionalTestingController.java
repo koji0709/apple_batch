@@ -64,6 +64,7 @@ public class ICloudFunctionalTestingController extends ICloudView<ICloudFunction
     }
 
     public void checkICloudStatus(ICloudFunctionalTesting account){
+        setAndRefreshNote(account,"正在登录...");
         HttpResponse checkCloudAccountRsp= ICloudUtil.checkCloudAccount(DataUtil.getClientIdByAppleId(account.getAccount()),account.getAccount(),account.getPwd() );
         String body = checkCloudAccountRsp.charset("UTF-8").body();
         if(checkCloudAccountRsp.getStatus()==200){

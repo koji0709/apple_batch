@@ -595,7 +595,6 @@ public class ICloudUtil {
         String url = "https://idmsa.apple.com/appleauth/auth";
         HttpResponse res =  ProxyUtil.createGet(url)
                 .header(headers)
-//                .disableCookie()
                 .cookie(CookieUtils.getCookiesFromHeader(signInRes))
                 .execute();
         return res;
@@ -890,7 +889,6 @@ public class ICloudUtil {
                 if (item.length < 2) {
                     continue;
                 }
-                System.out.println("-------cookies--------" + aidsp);
                 if("aidsp".equals(item[0])) {
                     sessionId = aidsp.substring(aidsp.indexOf("=")+1);
                 }
@@ -921,19 +919,11 @@ public class ICloudUtil {
         HttpResponse res =  ProxyUtil.createPost(url)
                 .header(headers)
                 .execute();
-
-        System.out.println("------------------getclient id -----------------------------------------------");
-        System.out.println(res.getStatus());
-        System.out.println(res.headers());
-
         JSONObject jo = JSONUtil.parseObj(res.body());
         String aui = (String)jo.getByPath("configBag.urls.accountAuthorizeUI");
         if(StrUtil.isNotEmpty(aui)){
             clientId = aui.split("=")[1];
         }
-        System.out.println("==========clientid==========" + clientId);
-        System.out.println("------------------getclient id ----------------------------------------------");
-
         return clientId;
     }
 

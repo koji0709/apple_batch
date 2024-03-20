@@ -30,7 +30,7 @@ public class AppleIdView extends CustomTableView<Account> {
         HttpResponse signInRsp = AppleIDUtil.signin(account);
 
         if(signInRsp.getStatus()==503){
-            throw new ServiceException("操作频繁，请稍后重试！");
+            throw new UnavailableException();
         }
 
         String status = "正常";
