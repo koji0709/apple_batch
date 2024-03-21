@@ -13,8 +13,7 @@ import java.util.Map;
 
 public class LoginInfo extends AuthData{
     private String domainId = "1";
-//    private String clientId = "af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3";
-    private String clientId = "6f59402f11d3e2234be5b88bf1c96e1e453a875aec205272add55157582a9f61";
+    private String clientId = "af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3";
     private String frameId = createFrameId();
 
     // ----------------- AppleID
