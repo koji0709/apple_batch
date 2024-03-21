@@ -220,25 +220,19 @@
                             <bundleJre>true</bundleJre>
                             <!--是否绑自定义jre-->
                             <customizedJre>false</customizedJre>
+<!--                            <generateInstaller>false</generateInstaller>-->
                             <generateInstaller>true</generateInstaller>
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
                             <copyDependencies>false</copyDependencies>
                             <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
-<!--                                                        <platform>windows</platform>-->
-                            <!--                            <winConfig>-->
-                            <!--                                &lt;!&ndash; 软件图标 &ndash;&gt;-->
-                            <!--                                <icoFile>C:\Users\DELL\Desktop\favicon.ico</icoFile>-->
-                            <!--                            </winConfig>-->
-                            <!--                            <platform>mac</platform>-->
-                            <!--                             <platform>mac</platform>-->
-                            <!--                            <platform>mac|windows</platform>-->
+<!--                            <platform>windows</platform>-->
                             <macConfig>
-                                <icnsFile>src/main/resources/image/Apple批处理程序.icns</icnsFile>
+                                <icnsFile>src/main/resources/image/icon.icns</icnsFile>
                                 <generatePkg>false</generatePkg>
                             </macConfig>
                             <winConfig>
-                                <icoFile>src/main/resources/image/Apple批处理程序.ico</icoFile>
+                                <icoFile>src/main/resources/image/icon.ico</icoFile>
                             </winConfig>
                         </configuration>
                     </execution>
