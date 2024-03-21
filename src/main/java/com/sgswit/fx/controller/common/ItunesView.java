@@ -84,7 +84,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         if (!loginRsp.body().startsWith("<?xml")){
             LoggerManger.info("接口响应异常; " + loginRsp.body());
-            throw new ServiceException("接口响应异常");
+            throw new UnavailableException();
         }
 
         JSONObject json = PListUtil.parse(loginRsp.body());
