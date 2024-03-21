@@ -4,14 +4,12 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.XmlUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
-import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -82,6 +80,11 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         if (loginRsp == null || StrUtil.isEmpty(loginRsp.body())){
             throw new ServiceException("AppleID或密码错误。");
+        }
+
+        if (!loginRsp.body().startsWith("<?xml")){
+            LoggerManger.info("接口响应异常; " + loginRsp.body());
+            throw new ServiceException("接口响应异常");
         }
 
         JSONObject json = PListUtil.parse(loginRsp.body());
