@@ -8,8 +8,8 @@ public enum StageEnum {
     /********** 升级 ***********/
     UPGRADER(PropertiesUtil.getConfig("softwareInfo.name")+"-自动更新","views/upgrader.fxml",400,600,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
     /********** MAIN区 ***********/
-    LOGIN("APPLE批量处理程序 - 登录","views/login.fxml",400,400,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
-    MAIN("欢迎使用APPLE批量处理程序","views/main-view.fxml",400,520,StageStyle.UTILITY,Modality.NONE,""),
+    LOGIN(PropertiesUtil.getConfig("softwareInfo.name")+" APPLE批量处理 - 登录","views/login.fxml",400,400,StageStyle.DECORATED,Modality.APPLICATION_MODAL,""),
+    MAIN(PropertiesUtil.getConfig("softwareInfo.name")+" - APPLE批量处理 V"+PropertiesUtil.getConfig("softwareInfo.version"),"views/main-view.fxml",400,520,StageStyle.UTILITY,Modality.NONE,""),
     SELF_SERVICE_CHARGE("自助充值","views/base/selfServiceCharge.fxml",385,170,StageStyle.UTILITY,Modality.WINDOW_MODAL,""),
 
     /********** OPERATION区 ***********/
