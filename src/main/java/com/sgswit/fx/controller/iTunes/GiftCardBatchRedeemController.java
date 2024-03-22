@@ -2,9 +2,11 @@ package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -32,6 +34,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.HBox;
@@ -44,6 +47,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -734,11 +738,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 FileUtil.del(file1);
             }
             if (StrUtil.isNotEmpty(content)){
-                content = content.replaceAll("\t"," ");
-                String[] split = content.split("\n");
-                accountComboBox.setValue(split[0]);
+                String[] arrayWithEmpty = content.split("\n");
+                accountComboBox.setValue(arrayWithEmpty[0]);
                 accountComboBox.getItems().clear();
-                accountComboBox.getItems().addAll(split);
+                // 使用Hutool的ArrayUtil.removeEmpty方法删除数组中的空值
+                String[] resultArray = ArrayUtil.removeEmpty(arrayWithEmpty);
+                accountComboBox.getItems().addAll(resultArray);
             }else{
                 accountComboBox.setValue("");
                 accountComboBox.getItems().clear();
@@ -760,7 +765,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         stage.setScene(new Scene(root, 600, 380));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
-        stage.initStyle(StageStyle.UTILITY);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
+        stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
     }
 
