@@ -477,7 +477,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }};
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
-            //if (!addSuccess){}
+            if (!addSuccess){
+                LoggerManger.info("同步兑换记录失败："+JSONUtil.toJsonStr(params1));
+            }
         });
 
         // 礼品卡兑换成功
