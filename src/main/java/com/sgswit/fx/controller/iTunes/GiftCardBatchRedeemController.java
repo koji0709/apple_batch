@@ -581,10 +581,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
                 String guid = DataUtil.getGuidByAppleId(account);
-                if (StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
+                if ((StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
                         || !account.equals(singleGiftCardRedeem.getAccount())
                         || !pwd.equals(singleGiftCardRedeem.getAccount())
-                        || !singleGiftCardRedeem.isLogin()){
+                        || !singleGiftCardRedeem.isLogin()
+                    )  && StrUtil.isEmpty(singleGiftCardRedeem.getAuthCode())
+                    ) {
                     singleGiftCardRedeem = new GiftCardRedeem();
                     singleGiftCardRedeem.setAccount(account);
                     singleGiftCardRedeem.setPwd(pwd);
