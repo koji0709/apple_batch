@@ -230,6 +230,7 @@ public class CountryModifyController extends CustomTableView<Account>{
             Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
             if(Constant.SUCCESS.equals(MapUtil.getStr(editBillingInfoRes,"code"))){
                 account.setDataStatus("1");
+                loginSuccessMap.remove(account.getAccount()+account.getPwd());
             }else{
                 account.setDataStatus("0");
             }

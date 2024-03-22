@@ -1,10 +1,7 @@
 package com.sgswit.fx.controller.common;
 
-import cn.hutool.cache.CacheUtil;
-import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
@@ -13,6 +10,7 @@ import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +19,7 @@ import java.util.ResourceBundle;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
-    // 登录成功的账号缓存(缓存5分钟,能刷新)
-    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(300000);
 
-    static {
-        loginSuccessMap.schedulePrune(300000);
-    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);

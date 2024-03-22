@@ -1,5 +1,7 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.thread.ThreadUtil;
@@ -14,6 +16,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -52,6 +55,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
+    // 登录成功的账号缓存(缓存5分钟,能刷新)
+    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(5*60*1000);
+    static {
+        loginSuccessMap.schedulePrune(300000);
+    }
     private static final Log logger = LogFactory.get();
     public Set<String> menuItem =new LinkedHashSet<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
