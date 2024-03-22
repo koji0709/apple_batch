@@ -32,6 +32,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
@@ -355,7 +356,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         stage.setScene(new Scene(root, 600, 450));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setResizable(false);
-        stage.initStyle(StageStyle.UTILITY);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
+        stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
     }
 
@@ -482,6 +485,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setResizable(false);
         stage.initStyle(StageStyle.DECORATED);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
         stage.showAndWait();
     }
 
@@ -506,6 +511,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setHeaderText("");
         confirm.setContentText("确认删除列表数据？");
+        Stage stage = (Stage) confirm.getDialogPane().getScene().getWindow();
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
         Optional<ButtonType> type = confirm.showAndWait();
         if (type.get()==ButtonType.OK){
         }else{

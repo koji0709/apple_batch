@@ -1,8 +1,10 @@
 package com.sgswit.fx.controller.tool;
 
 import com.sgswit.fx.MainApplication;
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -47,7 +49,9 @@ public class ToolboxltemsController {
         popupStage.initModality(Modality.WINDOW_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        popupStage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
+        popupStage.initStyle(StageStyle.DECORATED);
         popupStage.show();
     }
 

@@ -19,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -304,8 +305,10 @@ public class MainController implements Initializable {
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setScene(scene);
         popupStage.setResizable(false);
-        popupStage.initStyle(StageStyle.UTILITY);
         popupStage.setAlwaysOnTop(true);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        popupStage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
+        popupStage.initStyle(StageStyle.DECORATED);
         popupStage.show();
 
     }

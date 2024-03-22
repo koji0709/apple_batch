@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -90,6 +91,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
         getCountry();
         String cardAccount= PropertiesUtil.getOtherConfig("cardAccount");
+        account_pwd.setText(cardAccount);
         // 注册粘贴事件的监听器
         account_pwd.setOnContextMenuRequested((ContextMenuEvent event) -> {
         });
@@ -100,7 +102,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 account_pwd.setText(content);
             }
         });
-        account_pwd.setText(cardAccount);
         if(StringUtils.isEmpty(account_pwd.getText())){
             alertMessage.setLabelFor(loginBtn);
             alertMessage.setText("等待初始化....");
@@ -385,17 +386,20 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(503==step4Res.getStatus()){
             giftCard.setFailCount(giftCard.getFailCount()+1);
+            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
+            setAndRefreshNote(giftCard, message);
             loginAndInit();
             checkBalance(giftCard,paras);
-            if(giftCard.getFailCount()>5){
+            if(giftCard.getFailCount()>3){
                 giftCard.setNote("操作频繁，请稍后重试！");
                 throw new ServiceException("操作频繁，请稍后重试！");
             }
         }else if(step4Res.getStatus()!=200){
             giftCard.setFailCount(giftCard.getFailCount()+1);
+            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
             loginAndInit();
             checkBalance(giftCard,paras);
-            if(giftCard.getFailCount()>5){
+            if(giftCard.getFailCount()>3){
                 giftCard.setNote("余额查询失败");
                 throw new ServiceException("余额查询失败");
             }
