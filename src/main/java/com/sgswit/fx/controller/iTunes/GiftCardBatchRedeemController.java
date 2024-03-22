@@ -710,6 +710,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         TextArea area = new TextArea();
         area.setPrefHeight(250);
         area.setPrefWidth(560);
+        String path = Constant.LOCAL_FILE_STORAGE_PATH + "/兑换账号列表/account.txt";
+        File file = new File(path);
+        if (file.exists()){
+            String content = FileUtil.readUtf8String(file);
+            area.setText(content);
+        }
 
         VBox vBox2 = new VBox();
         vBox2.setPadding(new Insets(0, 0, 0, 205));
@@ -721,10 +727,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         button.setOnAction(event -> {
             String content = area.getText();
-            String path = Constant.LOCAL_FILE_STORAGE_PATH + "/兑换账号列表/account.txt";
-            File file = new File(path);
-            if (file.exists()){
-                FileUtil.del(file);
+            File file1 = new File(path);
+            if (file1.exists()){
+                FileUtil.del(file1);
             }
             if (StrUtil.isNotEmpty(content)){
                 content = content.replaceAll("\t"," ");
@@ -736,8 +741,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 accountComboBox.setValue("");
                 accountComboBox.getItems().clear();
             }
-            file = FileUtil.newFile(path);
-            FileUtil.appendUtf8String(content,file);
+            file1 = FileUtil.newFile(path);
+            FileUtil.appendUtf8String(content,file1);
             stage.close();
         });
 
