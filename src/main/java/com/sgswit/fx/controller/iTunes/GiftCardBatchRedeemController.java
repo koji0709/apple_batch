@@ -144,12 +144,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         if (file.exists()){
             String content = FileUtil.readUtf8String(file);
             if (StrUtil.isNotEmpty(content)){
-                content = content.replaceAll("\t"," ");
-                String[] split = content.split("\n");
-                accountComboBox.setValue(split[0]);
+                String[] arrayWithEmpty = content.split("\n");
+                accountComboBox.setValue(arrayWithEmpty[0]);
                 accountComboBox.getItems().clear();
-                accountComboBox.getItems().addAll(split);
-                accountComboxSelectLabel.setText("1/" + split.length);
+                // 使用Hutool的ArrayUtil.removeEmpty方法删除数组中的空值
+                String[] resultArray = ArrayUtil.removeEmpty(arrayWithEmpty);
+                accountComboBox.getItems().addAll(resultArray);
+                accountComboxSelectLabel.setText("1/" + resultArray.length);
             }
         }
         accountComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
