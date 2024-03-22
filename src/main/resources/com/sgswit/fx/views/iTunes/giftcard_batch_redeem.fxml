@@ -75,7 +75,7 @@
                                                                         <Button fx:id="open2FAViewBtn" onAction="#open2FAViewBtnAction">输入双重验证码</Button>
                                                                         <Button fx:id="editOrImportAccountListBtn" onAction="#editOrImportAccountListBtnAction">编辑或导入列表中的账号</Button>
                                                                         <Label prefWidth="90" />
-                                                                        <Label text="0/0" />
+                                                                        <Label fx:id="accountComboxSelectLabel" text="0/0" />
                                                                     </children>
                                                                 </HBox>
                                                                 <Label fx:id="checkAccountDescLabel" textFill="red" wrapText="true" />
