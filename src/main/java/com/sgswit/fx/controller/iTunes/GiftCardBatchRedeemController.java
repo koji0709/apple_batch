@@ -58,6 +58,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     ComboBox<String> accountComboBox;
 
     @FXML
+    Label accountComboxSelectLabel;
+
+    @FXML
     Label countryLabel;
 
     @FXML
@@ -131,6 +134,29 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         });
         accountComboBox.getEditor().setOnContextMenuRequested((ContextMenuEvent event) -> {
         });
+
+        // 初始化检测账号列表
+        File file = new File(Constant.LOCAL_FILE_STORAGE_PATH + "/兑换账号列表/account.txt");
+        if (file.exists()){
+            String content = FileUtil.readUtf8String(file);
+            if (StrUtil.isNotEmpty(content)){
+                content = content.replaceAll("\t"," ");
+                String[] split = content.split("\n");
+                accountComboBox.setValue(split[0]);
+                accountComboBox.getItems().clear();
+                accountComboBox.getItems().addAll(split);
+                accountComboxSelectLabel.setText("1/" + split.length);
+            }
+        }
+        accountComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            // 自己输入的值
+            if (newValue.intValue() == -1){
+                accountComboxSelectLabel.setText("0/0");
+            }else{
+                accountComboxSelectLabel.setText((newValue.intValue() + 1) + "/" + accountComboBox.getItems().size());
+            }
+        });
+
     }
     /**
      * 导入账号
@@ -677,7 +703,60 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * 编辑或导入列表中的账号
      */
     public void editOrImportAccountListBtnAction(){
-        alert("功能开发中");
+        // Constant.LOCAL_FILE_STORAGE_PATH
+        Stage stage = new Stage();
+
+        Label descLabel = new Label("在编辑框中编辑兑换列表中的工作账号，格式为账号----密码，一行一条。");
+        descLabel.setWrapText(true);
+
+        TextArea area = new TextArea();
+        area.setPrefHeight(250);
+        area.setPrefWidth(560);
+
+        VBox vBox2 = new VBox();
+        vBox2.setPadding(new Insets(0, 0, 0, 205));
+
+        Button button = new Button("保存修改并重新加载");
+        button.setTextFill(Paint.valueOf("#067019"));
+        button.setPrefWidth(150);
+        button.setPrefHeight(30);
+
+        button.setOnAction(event -> {
+            String content = area.getText();
+            String path = Constant.LOCAL_FILE_STORAGE_PATH + "/兑换账号列表/account.txt";
+            File file = new File(path);
+            if (file.exists()){
+                FileUtil.del(file);
+            }
+            if (StrUtil.isNotEmpty(content)){
+                content = content.replaceAll("\t"," ");
+                String[] split = content.split("\n");
+                accountComboBox.setValue(split[0]);
+                accountComboBox.getItems().clear();
+                accountComboBox.getItems().addAll(split);
+            }else{
+                accountComboBox.setValue("");
+                accountComboBox.getItems().clear();
+            }
+            file = FileUtil.newFile(path);
+            FileUtil.appendUtf8String(content,file);
+            stage.close();
+        });
+
+        vBox2.getChildren().addAll(button);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(20);
+        mainVbox.setPadding(new Insets(20));
+        mainVbox.getChildren().addAll(descLabel, area, vBox2);
+
+        Group root = new Group(mainVbox);
+        stage.setTitle("编辑/添加兑换列表账号");
+        stage.setScene(new Scene(root, 600, 380));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.showAndWait();
     }
 
     /**
