@@ -581,6 +581,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String account = accountComboBoxValueArr[0];
                 String pwd     = accountComboBoxValueArr[1];
                 String guid = DataUtil.getGuidByAppleId(account);
+                // 修复个人信息读取上一个登陆的用户的bug
                 if ((StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
                         || !account.equals(singleGiftCardRedeem.getAccount())
                         || !pwd.equals(singleGiftCardRedeem.getAccount())
