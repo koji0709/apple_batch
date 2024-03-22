@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -61,6 +62,16 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
             accountTextField.setText(accountText);
             loginBtnAction();
         }
+        // 注册粘贴事件的监听器
+        accountTextField.setOnContextMenuRequested((ContextMenuEvent event) -> {
+        });
+        accountTextField.setOnKeyReleased(event -> {
+            if (event.isShortcutDown()) {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                String content = clipboard.getString().replaceAll("\t"," ");
+                accountTextField.setText(content);
+            }
+        });
         // 设置表格cell样式
         setCellStyle();
     }
