@@ -10,6 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import javafx.scene.input.ContextMenuEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -158,6 +159,9 @@ public class AppleIdView extends CustomTableView<Account> {
     }
 
     public String getValidationErrors(String body){
+        if(StringUtils.isEmpty(body)){
+            return "";
+        }
         List errorMessageList = new ArrayList();
         List errorMessageList1 = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
         List errorMessageList2 = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
