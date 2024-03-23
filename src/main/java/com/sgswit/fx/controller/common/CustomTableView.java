@@ -764,4 +764,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             throw new UnavailableException();
         }
     }
+
+    protected String createId(String account,String password){
+        return account+":"+password;
+    }
 }

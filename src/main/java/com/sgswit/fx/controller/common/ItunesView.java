@@ -29,8 +29,8 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
     public void itunesLogin(T accountModel){
         String appleId = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
         String pwd = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
-
-        LoginInfo loginInfo = loginSuccessMap.get(appleId+pwd);
+        String id=super.createId(appleId,pwd);
+        LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null) {
             accountModel.setIsLogin(loginInfo.isLogin());
             accountModel.setItspod(loginInfo.getItspod());
@@ -95,7 +95,8 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setPasswordToken(json.getStr("passwordToken",""));
             CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
             accountModel.setIsLogin(true);
-            loginSuccessMap.put(appleId+pwd,accountModel);
+            String storeId=super.createId(appleId,pwd);
+            loginSuccessMap.put(storeId,accountModel);
             return;
         }
 

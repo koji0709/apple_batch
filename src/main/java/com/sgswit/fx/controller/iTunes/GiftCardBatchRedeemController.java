@@ -475,7 +475,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if (giftCardRedeem.getFailCount() == 0){
                     // 需要重新登录
                     giftCardRedeem.setIsLogin(false);
-                    loginSuccessMap.remove(giftCardRedeem.getAccount()+giftCardRedeem.getPwd());
+                    String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
+                    loginSuccessMap.remove(id);
                     giftCardRedeem.setFailCount(1);
                     accountHandler(giftCardRedeem);
                 }
