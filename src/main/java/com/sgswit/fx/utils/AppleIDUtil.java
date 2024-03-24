@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.Method;
@@ -720,6 +719,9 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
         headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+
+        account.getCookie();
 
         HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
                 .header(headers)

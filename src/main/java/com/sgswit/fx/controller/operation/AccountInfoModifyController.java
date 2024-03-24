@@ -17,6 +17,7 @@ import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PointUtil;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -147,24 +148,32 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改密码
         if (updatePwdCheckBoxSelected){
             String newPwd = pwdTextField.getText();
-            HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
-            if (updatePasswordRsp.getStatus() != 200){
-                appendAndRefreshNote(account,getValidationErrors(updatePasswordRsp.body()),"修改密码失败");
+            if(StringUtils.isEmpty(newPwd)){
+                appendAndRefreshNote(account,"修改密码失败【未设置新密码】");
             }else{
-                account.setPwd(newPwd);
-                appendAndRefreshNote(account,"修改密码成功");
+                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
+                if (updatePasswordRsp.getStatus() != 200){
+                    appendAndRefreshNote(account,getValidationErrors(updatePasswordRsp.body()),"修改密码失败");
+                }else{
+                    account.setPwd(newPwd);
+                    appendAndRefreshNote(account,"修改密码成功");
+                }
             }
         }
 
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
             LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
-            HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
-            if (updateBirthdayRsp.getStatus() != 200){
-                appendAndRefreshNote(account,getValidationErrors(updateBirthdayRsp.body()),"修改生日失败");
+            if(null==birthdayDatePickerValue){
+                appendAndRefreshNote(account,"修改生日失败【未设置生日】");
             }else{
-                account.setBirthday(birthdayDatePickerValue.toString());
-                appendAndRefreshNote(account,"修改生日成功");
+                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
+                if (updateBirthdayRsp.getStatus() != 200){
+                    appendAndRefreshNote(account,getValidationErrors(updateBirthdayRsp.body()),"修改生日失败");
+                }else{
+                    account.setBirthday(birthdayDatePickerValue.toString());
+                    appendAndRefreshNote(account,"修改生日成功");
+                }
             }
         }
 
@@ -177,19 +186,20 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 Faker faker = new Faker(Locale.CHINA);
                 firstName = faker.name().firstName();
                 lastName  = faker.name().lastName();
-            }
-            if ("随机英文".equals(nameGenerationTypeChoiceBoxValue)){
+            }else if ("随机英文".equals(nameGenerationTypeChoiceBoxValue)){
                 Faker faker = new Faker();
                 firstName = faker.name().firstName();
                 lastName  = faker.name().lastName();
-            }
-
-            HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
-            if (updateNameRsp.getStatus() != 200){
-                appendAndRefreshNote(account,getValidationErrors(updateNameRsp.body()),"修改姓名失败");
+            }else if(StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)){
+                appendAndRefreshNote(account,"修改姓名失败【姓名信息不完善】");
             }else{
-                account.setName(firstName + lastName);
-                appendAndRefreshNote(account,"姓名修改成功");
+                HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
+                if (updateNameRsp.getStatus() != 200){
+                    appendAndRefreshNote(account,getValidationErrors(updateNameRsp.body()),"修改姓名失败");
+                }else{
+                    account.setName(firstName + lastName);
+                    appendAndRefreshNote(account,"姓名修改成功");
+                }
             }
         }
 
@@ -206,19 +216,22 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}" +
                     ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}]}";
             LinkedHashMap<String, Integer> questionMap = DataUtil.getQuestionMap();
-
-            body = String.format(body
-                    ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
-                    ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
-                    ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
-            HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
-            if (updateQuestionsRsp.getStatus() != 200){
-                appendAndRefreshNote(account,getValidationErrors(updateQuestionsRsp.body()),"修改密保失败");
+            if(null==question1ChoiceBoxValue || null==question2ChoiceBoxValue || null==question3ChoiceBoxValue){
+                appendAndRefreshNote(account,"密保修改失败【未设置密保问题】");
             }else{
-                account.setAnswer1(answer1TextFieldText);
-                account.setAnswer2(answer2TextFieldText);
-                account.setAnswer3(answer3TextFieldText);
-                appendAndRefreshNote(account,"修改密保成功");
+                body = String.format(body
+                        ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
+                        ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
+                        ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
+                HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
+                if (updateQuestionsRsp.getStatus() != 200){
+                    appendAndRefreshNote(account,getValidationErrors(updateQuestionsRsp.body()),"修改密保失败");
+                }else{
+                    account.setAnswer1(answer1TextFieldText);
+                    account.setAnswer2(answer2TextFieldText);
+                    account.setAnswer3(answer3TextFieldText);
+                    appendAndRefreshNote(account,"修改密保成功");
+                }
             }
         }
 
@@ -252,13 +265,17 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改显示语言
         if (updateShowLangCheckBoxSelected){
             Object showLang = updateShowLangChoiceBox.getValue();
-            LinkedHashMap<String, String> languageMap = DataUtil.getLanguageMap();
-            String langCode = languageMap.get(showLang);
-            HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
-            if (changeShowLanguageRsp.getStatus() != 200){
-                appendAndRefreshNote(account,getValidationErrors(changeShowLanguageRsp.body()),"修改显示语言失败");
+            if(null==showLang){
+                appendAndRefreshNote(account,"修改显示语言失败【未设置显示语言】");
             }else{
-                appendAndRefreshNote(account,"修改显示语言成功");
+                LinkedHashMap<String, String> languageMap = DataUtil.getLanguageMap();
+                String langCode = languageMap.get(showLang);
+                HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
+                if (changeShowLanguageRsp.getStatus() != 200){
+                    appendAndRefreshNote(account,getValidationErrors(changeShowLanguageRsp.body()),"修改显示语言失败");
+                }else{
+                    appendAndRefreshNote(account,"修改显示语言成功");
+                }
             }
         }
 
