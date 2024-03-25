@@ -133,7 +133,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
         // 清空之前的信息
-        setAndRefreshNote(account,"");
+        setAndRefreshNote(account,"程序执行中...");
         // 登录账号
         login(account);
 
