@@ -395,14 +395,25 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         // 获取礼品卡信息
         setAndRefreshNote(giftCardRedeem,"查询礼品卡信息中...");
         HttpResponse codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
+        if (codeInfoSrvRsp.getStatus() == 403){
+            // 删除登陆信息,再次获取礼品卡信息
+            giftCardRedeem.setIsLogin(false);
+            String id = super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
+            loginSuccessMap.remove(id);
+            itunesLogin(giftCardRedeem);
+            codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
+        }
+
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
-        setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功，兑换中...");
 
-        if (codeInfo != null){
-            String amount = codeInfo.getStr("amount", "0");
-            giftCardRedeem.setGiftCardAmount(amount);
+        if (codeInfo == null){
+            throw new ServiceException("礼品卡信息读取失败，请稍后重试");
         }
+
+        setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功，兑换中...");
+        String amount = codeInfo.getStr("amount", "0");
+        giftCardRedeem.setGiftCardAmount(amount);
 
         // 获取现有金额
         synchronized (this){
@@ -510,7 +521,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
             if (!addSuccess){
-                LoggerManger.info("同步兑换记录失败："+JSONUtil.toJsonStr(params1));
+                LoggerManger.info("同步兑换记录失败: status: " + addGiftcardRedeemLogRsp.getStatus() + ", params: " + JSONUtil.toJsonStr(params1));
             }
         });
 
