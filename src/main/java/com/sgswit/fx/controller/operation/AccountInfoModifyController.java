@@ -148,40 +148,48 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
         account.setName(accountJSON.getByPath("name.fullName",String.class));
 
+        Map<String,String> messageMap= new LinkedHashMap<>();
         // 修改密码
         if (updatePwdCheckBoxSelected){
+            setMessageAndRefreshTable("updatePwd","正在修改密码...",messageMap,account);
             String newPwd = pwdTextField.getText();
             if(StringUtils.isEmpty(newPwd)){
-                appendAndRefreshNote(account,"修改密码失败【未设置新密码】");
+                setMessageAndRefreshTable("updatePwd","修改密码失败【未设置新密码】",messageMap,account);
             }else{
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    appendAndRefreshNote(account,getValidationErrors(updatePasswordRsp.body()),"修改密码失败");
+                    String s=getValidationErrors(updatePasswordRsp.body());
+                    s = StrUtil.isEmpty(s) ? "修改密码失败" : s;
+                    setMessageAndRefreshTable("updatePwd",s,messageMap,account);
                 }else{
                     account.setPwd(newPwd);
-                    appendAndRefreshNote(account,"修改密码成功");
+                    setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
                 }
             }
         }
 
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
+            setMessageAndRefreshTable("updateBirthday","正在修改生日...",messageMap,account);
             LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
             if(null==birthdayDatePickerValue){
-                appendAndRefreshNote(account,"修改生日失败【未设置生日】");
+                setMessageAndRefreshTable("updateBirthday","修改生日失败【未设置生日】",messageMap,account);
             }else{
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
-                    appendAndRefreshNote(account,getValidationErrors(updateBirthdayRsp.body()),"修改生日失败");
+                    String s=getValidationErrors(updateBirthdayRsp.body());
+                    s = StrUtil.isEmpty(s) ? "修改生日失败" : s;
+                    setMessageAndRefreshTable("updateBirthday",s,messageMap,account);
                 }else{
                     account.setBirthday(birthdayDatePickerValue.toString());
-                    appendAndRefreshNote(account,"修改生日成功");
+                    setMessageAndRefreshTable("updateBirthday","修改生日成功",messageMap,account);
                 }
             }
         }
 
         // 修改姓名
         if (updateNameCheckBoxSelected){
+            setMessageAndRefreshTable("updateName","正在修改姓名...",messageMap,account);
             String firstName = firstNameTextField.getText();
             String lastName = lastNameTextField.getText();
             Object nameGenerationTypeChoiceBoxValue = nameGenerationTypeChoiceBox.getValue();
@@ -194,20 +202,23 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 firstName = faker.name().firstName();
                 lastName  = faker.name().lastName();
             }else if(StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)){
-                appendAndRefreshNote(account,"修改姓名失败【姓名信息不完善】");
+                setMessageAndRefreshTable("updateName","修改姓名失败【姓名信息不完善】",messageMap,account);
             }else{
                 HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
                 if (updateNameRsp.getStatus() != 200){
-                    appendAndRefreshNote(account,getValidationErrors(updateNameRsp.body()),"修改姓名失败");
+                    String s=getValidationErrors(updateNameRsp.body());
+                    s = StrUtil.isEmpty(s) ? "修改姓名失败" : s;
+                    setMessageAndRefreshTable("updateName", s,messageMap,account);
                 }else{
                     account.setName(firstName + lastName);
-                    appendAndRefreshNote(account,"姓名修改成功");
+                    setMessageAndRefreshTable("updateName","姓名修改成功",messageMap,account);
                 }
             }
         }
 
         // 修改密保
         if (updatePasswordProtectionCheckBoxSelected){
+            setMessageAndRefreshTable("updatePasswordProtection","正在修改密保...",messageMap,account);
             Object question1ChoiceBoxValue = question1ChoiceBox.getValue();
             Object question2ChoiceBoxValue = question2ChoiceBox.getValue();
             Object question3ChoiceBoxValue = question3ChoiceBox.getValue();
@@ -220,7 +231,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}]}";
             LinkedHashMap<String, Integer> questionMap = DataUtil.getQuestionMap();
             if(null==question1ChoiceBoxValue || null==question2ChoiceBoxValue || null==question3ChoiceBoxValue){
-                appendAndRefreshNote(account,"密保修改失败【未设置密保问题】");
+                setMessageAndRefreshTable("updatePasswordProtection","密保修改失败【未设置密保问题】",messageMap,account);
             }else{
                 body = String.format(body
                         ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
@@ -228,56 +239,64 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                         ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    appendAndRefreshNote(account,getValidationErrors(updateQuestionsRsp.body()),"修改密保失败");
+                    String s=getValidationErrors(updateQuestionsRsp.body());
+                    s = StrUtil.isEmpty(s) ? "修改密保失败" : s;
+                    setMessageAndRefreshTable("updatePasswordProtection", s,messageMap,account);
                 }else{
                     account.setAnswer1(answer1TextFieldText);
                     account.setAnswer2(answer2TextFieldText);
                     account.setAnswer3(answer3TextFieldText);
-                    appendAndRefreshNote(account,"修改密保成功");
+                    setMessageAndRefreshTable("updatePasswordProtection","修改密保成功",messageMap,account);
                 }
             }
         }
 
         // 移除设备
         if (removeDeviceCheckBoxSelected){
+            setMessageAndRefreshTable("removeDevice","正在移除设备...",messageMap,account);
             HttpResponse deviceListRsp = AppleIDUtil.getDeviceList(account);
             checkAndThrowUnavailableException(deviceListRsp);
 
             String body = deviceListRsp.body();
             JSONObject bodyJSON = JSONUtil.parseObj(body);
             List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
-
             if (CollUtil.isEmpty(deviceIdList)){
-                appendAndRefreshNote(account,"该账号下暂无设备");
+                setMessageAndRefreshTable("removeDevice","该账号下暂无设备",messageMap,account);
             }else{
                 AppleIDUtil.removeDevices(deviceListRsp);
-                appendAndRefreshNote(account,"移除设备成功");
+                setMessageAndRefreshTable("removeDevice","移除设备成功",messageMap,account);
             }
         }
 
         // 移除救援邮箱
         if (removeRescueEmailCheckBoxSelected){
+            setMessageAndRefreshTable("removeRescueEmail","正在移除救援邮箱...",messageMap,account);
             HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
             if (deleteRescueEmailRsp.getStatus() != 204){
-                appendAndRefreshNote(account,getValidationErrors(deleteRescueEmailRsp.body()),"移除救援邮箱失败");
+                String s=getValidationErrors(deleteRescueEmailRsp.body());
+                s = StrUtil.isEmpty(s) ? "移除救援邮箱失败" : s;
+                setMessageAndRefreshTable("removeRescueEmail", s,messageMap,account);
             }else{
-                appendAndRefreshNote(account,"移除救援邮箱成功");
+                setMessageAndRefreshTable("removeRescueEmail","移除救援邮箱成功",messageMap,account);
             }
         }
 
         // 修改显示语言
         if (updateShowLangCheckBoxSelected){
+            setMessageAndRefreshTable("updateShowLang","正在修改显示语言...",messageMap,account);
             Object showLang = updateShowLangChoiceBox.getValue();
             if(null==showLang){
-                appendAndRefreshNote(account,"修改显示语言失败【未设置显示语言】");
+                setMessageAndRefreshTable("updateShowLang","修改显示语言失败【未设置显示语言】",messageMap,account);
             }else{
                 LinkedHashMap<String, String> languageMap = DataUtil.getLanguageMap();
                 String langCode = languageMap.get(showLang);
                 HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
                 if (changeShowLanguageRsp.getStatus() != 200){
-                    appendAndRefreshNote(account,getValidationErrors(changeShowLanguageRsp.body()),"修改显示语言失败");
+                    String s=getValidationErrors(changeShowLanguageRsp.body());
+                    s = StrUtil.isEmpty(s) ? "修改显示语言失败" : s;
+                    setMessageAndRefreshTable("updateShowLang", s,messageMap,account);
                 }else{
-                    appendAndRefreshNote(account,"修改显示语言成功");
+                    setMessageAndRefreshTable("updateShowLang","修改显示语言成功",messageMap,account);
                 }
             }
         }
@@ -285,5 +304,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         if (!account.getNote().contains("成功")){
             throw new ServiceException(account.getNote());
         }
+    }
+    private void setMessageAndRefreshTable(String key,String message, Map<String,String> messageMap,Account account){
+        String note="";
+        messageMap.put(key, message);
+        for(Map.Entry entry : messageMap.entrySet()){
+            note=StringUtils.isEmpty(note)?entry.getValue().toString():(note+";"+entry.getValue());
+        }
+        account.setNote(note);
+        super.accountTableView.refresh();
     }
 }
