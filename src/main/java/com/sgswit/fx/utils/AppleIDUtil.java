@@ -469,7 +469,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .execute();
 
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
 
 
         return rsp;
@@ -648,7 +648,7 @@ public class AppleIDUtil {
             verifyPassword(rsp,password);
             return updateName(account,password,firstName,lastName);
         }
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -737,7 +737,7 @@ public class AppleIDUtil {
             verifyPassword(rsp,account.getPwd());
             return updateQuestions(account,body);
         }
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
         return rsp;
     }
 
@@ -844,7 +844,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .execute();
 
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
 
         return rsp;
     }
