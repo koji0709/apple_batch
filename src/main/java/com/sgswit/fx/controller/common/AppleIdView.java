@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.LoggerManger;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -162,10 +163,18 @@ public class AppleIdView extends CustomTableView<Account> {
         if(StringUtils.isEmpty(body)){
             return "";
         }
+        JSONObject jsonObject;
+        try{
+            jsonObject= JSONUtil.parseObj(body);
+        }catch (Exception e){
+            LoggerManger.info("官方资料修改",e);
+            LoggerManger.info("官方资料修改返回body信息："+body);
+            return "";
+        }
         List errorMessageList = new ArrayList();
-        List errorMessageList1 = JSONUtil.parseObj(body).getByPath("validationErrors.message", List.class);
-        List errorMessageList2 = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
-        List errorMessageList3 = JSONUtil.parseObj(body).getByPath("service_errors.message", List.class);
+        List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
+        List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
+        List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
 
         if (!CollUtil.isEmpty(errorMessageList1)){
             errorMessageList.addAll(errorMessageList1);
