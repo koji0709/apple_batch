@@ -687,7 +687,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
 
         return rsp;
     }
