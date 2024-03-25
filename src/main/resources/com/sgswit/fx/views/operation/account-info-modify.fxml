@@ -78,7 +78,7 @@
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" prefWidth="162" />
+                                                <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" editable="false" prefWidth="162" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
