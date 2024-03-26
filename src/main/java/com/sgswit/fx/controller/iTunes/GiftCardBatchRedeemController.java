@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.iTunes;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
@@ -55,6 +56,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -105,6 +108,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     private Map<String, AtomicReference<BigDecimal>> atomicBalanceMap = new HashMap<>();
 
+    private static Map<String, List<Long>> countMap = new HashMap<>();
+
+    private static Set<String> lockSet = new HashSet<>();
 
     private Map<String, String> currencyMap = new HashMap<>();
 
@@ -275,6 +281,16 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         return accountList1;
     }
 
+    @Override
+    public void stopTaskButtonAction() {
+        super.stopTaskButtonAction();
+        for (GiftCardRedeem giftCardRedeem : accountList) {
+            if ("兑换暂不可用，将在一分钟之后执行".equals(giftCardRedeem.getNote())){
+                setAndRefreshNote(giftCardRedeem,"");
+            }
+        }
+    }
+
     /**
      * 执行按钮点击
      */
@@ -339,22 +355,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     // 处理账号
                     for (int i = 0; i < accountList.size(); i++) {
                         GiftCardRedeem giftCardRedeem = accountList.get(i);
+                        String account = giftCardRedeem.getAccount();
+
+                        // 校验 (一分钟内一个id最多只能五张卡、每日兑换上限)
+                        redeemCheck(account);
+
                         if (reentrantLock.isLocked()) {
                             return;
                         }
 
                         accountHandlerExpand(giftCardRedeem,false);
                         ThreadUtil.sleep(2000);
-
-                        if ((i+1) != accountList.size() && (i+1) % 5 == 0){
-                            //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
-                            for(GiftCardRedeem g:accountList){
-                                if(StringUtils.isEmpty(g.getNote())){
-                                    setAndRefreshNote(g,"兑换暂不可用，将在一分钟之后执行");
-                                }
-                            }
-                            ThreadUtil.sleep(1000 * 60);
-                        }
 
                         if (--processNum <= 0) {
                             // 任务执行结束, 恢复执行按钮状态
@@ -366,7 +377,46 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
             }
         });
+    }
 
+    public void redeemCheck(String account){
+        synchronized (getClass()){
+            List<Long> countList = countMap.get(account);
+            if (!CollUtil.isEmpty(countList)){
+                // 清理掉2分钟前的数据
+                countList = countList.stream().filter(time -> {
+                    long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
+                    return second < 120;
+                }).collect(Collectors.toList());
+            }
+
+            if (!CollUtil.isEmpty(countList) && countList.size() >= 5){
+                //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
+                for(GiftCardRedeem g:accountList){
+                    if(StringUtils.isEmpty(g.getNote())){
+                        setAndRefreshNote(g,"兑换暂不可用，将在一分钟之后执行");
+                    }
+                }
+                lockSet.add(account);
+            }
+        }
+
+        if (lockSet.contains(account)){
+            ThreadUtil.sleep(1000 * 63);
+        }
+
+        synchronized (getClass()){
+            if (lockSet.contains(account)){
+                lockSet.remove(account);
+                countMap.remove(account);
+            }
+            List<Long> countList = countMap.get(account);
+            if (CollUtil.isEmpty(countList)){
+                countList = new ArrayList<>();
+            }
+            countList.add(System.currentTimeMillis());
+            countMap.put(account,countList);
+        }
     }
 
     /**
@@ -443,7 +493,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String body = redeemRsp.body();
 
         // 如果操作频繁，重新执行一次
-        if (giftCardRedeem.getMaxTryNumber()<5 && execAgainCheckBox.isSelected() && (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body))){
+        if (giftCardRedeem.getMaxTryNumber() < 5 && execAgainCheckBox.isSelected() && StrUtil.isEmpty(body)){
             int i=giftCardRedeem.getMaxTryNumber()+1;
             ThreadUtil.sleep(2000L);
             setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中"+i+"...");
