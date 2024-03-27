@@ -52,14 +52,13 @@ public class IntegratedSettingsController implements Initializable {
         proxyTypeFn();
         initParas();
     }
-    /**快捷国家资料下拉**/
     protected void proxyTypeFn(){
         proxyType.getItems().addAll(ProxyEnum.Type.getProxyTypeList());
         proxyType.converterProperty().set(new StringConverter<>() {
             @Override
             public String toString(Map<String, String> map) {
                 if(null==map){
-                    return "";
+                    return "1";
                 }
                 return map.get("value");
             }
