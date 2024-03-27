@@ -212,8 +212,10 @@ public class CommRightContextMenuView<T> extends CommonView {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
                     Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                    if(!hasFinished){
-                        alert("正在执行中");
+                    String note = ReflectUtil.invoke(account, "getNote");
+
+                    if(!hasFinished || Constant.REDEEM_WAIT_DESC.equals(note)){
+                        alert("执行中，不可重复执行。");
                         return;
                     }
                     boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");

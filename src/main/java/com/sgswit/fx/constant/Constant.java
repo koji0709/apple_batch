@@ -39,6 +39,8 @@ public class Constant {
 
     public static final String LOCAL_FILE_EXTENSION = ".applebatch";
 
+    public static final String REDEEM_WAIT_DESC = "兑换暂不可用，将在一分钟之后执行";
+
     public static final Map<String,String> errorMap = new HashMap<>(){{
         put(ACCOUNT_IS_DISABLED,"出于安全原因，你的账户已被锁定。");
         put(ACCOUNT_HAS_BEEN_LOCKED,"帐户存在欺诈行为，已被【双禁】。");

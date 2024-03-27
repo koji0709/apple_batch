@@ -72,6 +72,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected Button executeButton;
 
     @FXML
+    protected Button importAccountButton;
+
+    @FXML
     public TableView<T> accountTableView;
     @FXML
     protected Label accountNumLabel;
@@ -635,6 +638,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 executeButton.setText("开始执行");
                 executeButton.setDisable(false);
             }
+        }
+        if (importAccountButton != null){
+            importAccountButton.setDisable(isRunning);
         }
     }
 

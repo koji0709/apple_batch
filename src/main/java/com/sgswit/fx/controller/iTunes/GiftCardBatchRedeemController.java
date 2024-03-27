@@ -284,7 +284,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void stopTaskButtonAction() {
         super.stopTaskButtonAction();
         for (GiftCardRedeem giftCardRedeem : accountList) {
-            if ("兑换暂不可用，将在一分钟之后执行".equals(giftCardRedeem.getNote())){
+            if (Constant.REDEEM_WAIT_DESC.equals(giftCardRedeem.getNote())){
                 ReflectUtil.invoke(giftCardRedeem,"setHasFinished",true);
                 setAndRefreshNote(giftCardRedeem,"");
             }
@@ -375,8 +375,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void setExecuteButtonStatus(){
         boolean isEnd = true;
         for (GiftCardRedeem cardRedeem : this.accountList) {
-            if (StrUtil.isEmpty(cardRedeem.getNote())
-                    || "兑换暂不可用，将在一分钟之后执行".equals(cardRedeem.getNote())){
+            if (StrUtil.isEmpty(cardRedeem.getNote()) || Constant.REDEEM_WAIT_DESC.equals(cardRedeem.getNote())){
                isEnd = false;
                break;
             }
@@ -404,12 +403,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
 
             if (!CollUtil.isEmpty(countList) && countList.size() >= 5){
-                setAndRefreshNote(giftCardRedeem,"兑换暂不可用，将在一分钟之后执行");
+                setAndRefreshNote(giftCardRedeem,Constant.REDEEM_WAIT_DESC);
                 //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
                 if (updateAllNote){
                     for(GiftCardRedeem g:accountList){
                         if(g.getAccount().equals(giftCardRedeem.getAccount()) && StringUtils.isEmpty(g.getNote())){
-                            setAndRefreshNote(g,"兑换暂不可用，将在一分钟之后执行");
+                            setAndRefreshNote(g,Constant.REDEEM_WAIT_DESC);
                         }
                     }
                 }
@@ -822,6 +821,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         button.setOnAction(event -> {
             String content = area.getText();
+            content = content.replaceAll("\t"," ");
             File file1 = new File(path);
             if (file1.exists()){
                 FileUtil.del(file1);
