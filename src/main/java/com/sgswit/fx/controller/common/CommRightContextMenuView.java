@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
@@ -231,9 +232,14 @@ public class CommRightContextMenuView<T> extends CommonView {
                         ReflectUtil.invoke(account,"setStep","");
                     }
                     if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
-                        ReflectUtil.invoke(this,"redeemCheck",account);
+                        ThreadUtil.execute(()-> {
+                                //ReflectUtil.invoke(this,"redeemCheck",account);
+                                accountHandlerExpand(account);
+                                ReflectUtil.invoke(this,"setExecuteButtonStatus");
+                        });
+                    }else{
+                        accountHandlerExpand(account);
                     }
-                    accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {

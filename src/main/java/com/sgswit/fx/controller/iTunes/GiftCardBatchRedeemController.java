@@ -386,14 +386,18 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
     }
 
+    /**
+     * 反射方法调用
+     */
     public boolean redeemCheck(GiftCardRedeem giftCardRedeem){
         return redeemCheck(giftCardRedeem,false);
     }
 
     public boolean redeemCheck(GiftCardRedeem giftCardRedeem,boolean updateAllNote){
         String account = giftCardRedeem.getAccount();
+        List<Long> countList;
         synchronized (getClass()){
-            List<Long> countList = countMap.get(account);
+            countList = countMap.get(account);
             if (!CollUtil.isEmpty(countList)){
                 // 清理掉2分钟前的数据
                 countList = countList.stream().filter(time -> {
@@ -416,7 +420,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
         }
 
-        if (lockSet.contains(account)){
+        if (!CollUtil.isEmpty(countList) && countList.size() >= 5 && lockSet.contains(account)){
             int i = 0;
             while (++i <= 64){
                 if (reentrantLock.isLocked()) {
@@ -431,7 +435,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 lockSet.remove(account);
                 countMap.remove(account);
             }
-            List<Long> countList = countMap.get(account);
+            countList = countMap.get(account);
             if (CollUtil.isEmpty(countList)){
                 countList = new ArrayList<>();
             }
