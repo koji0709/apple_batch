@@ -29,7 +29,8 @@ public class MainApplication extends Application {
     static {
         //隐式退出开关，设置关闭所有窗口后程序仍不退出
         Platform.setImplicitExit(false);
-        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        // JDK 8u111版本后，目标页面为HTTPS协议，启用proxy用户密码鉴权
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "false");
     }
     @Override
     public void start(Stage stage) throws IOException {
