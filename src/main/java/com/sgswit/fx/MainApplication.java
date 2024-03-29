@@ -29,6 +29,7 @@ public class MainApplication extends Application {
     static {
         //隐式退出开关，设置关闭所有窗口后程序仍不退出
         Platform.setImplicitExit(false);
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
     }
     @Override
     public void start(Stage stage) throws IOException {

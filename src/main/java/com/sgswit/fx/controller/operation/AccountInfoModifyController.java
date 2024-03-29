@@ -136,18 +136,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         setAndRefreshNote(account,"程序执行中...");
         // 登录账号
         login(account);
-
+        setAndRefreshNote(account,"正在读取用户信息...");
         HttpResponse accountRsp = AppleIDUtil.account(account);
-        if(accountRsp.getStatus()==401){
-            account.setIsLogin(false);
-            login(account);
-        }
         checkAndThrowUnavailableException(accountRsp);
         JSON accountJSON = JSONUtil.parse(accountRsp.body());
         account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
         account.setName(accountJSON.getByPath("name.fullName",String.class));
-
+        setAndRefreshNote(account,"成功读取用户信息");
         Map<String,String> messageMap= new LinkedHashMap<>();
         // 修改密码
         if (updatePwdCheckBoxSelected){

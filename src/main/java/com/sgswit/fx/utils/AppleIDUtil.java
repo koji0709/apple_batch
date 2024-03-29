@@ -14,6 +14,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -687,7 +688,7 @@ public class AppleIDUtil {
                 .execute();
 
         int status = rsp.getStatus();
-        account.updateLoginInfo(rsp);
+//        account.updateLoginInfo(rsp);
 
         return rsp;
     }

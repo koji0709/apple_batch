@@ -15,6 +15,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -16,6 +16,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;

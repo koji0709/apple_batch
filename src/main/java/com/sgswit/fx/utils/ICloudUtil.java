@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;

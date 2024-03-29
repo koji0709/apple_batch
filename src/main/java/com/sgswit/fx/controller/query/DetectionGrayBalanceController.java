@@ -1,5 +1,6 @@
 package com.sgswit.fx.controller.query;
 
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
@@ -62,6 +63,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new ServiceException(WebLoginUtil.serviceErrorMessages(response.body()));
             }
             String countryCode=MapUtil.getStr(paras,"countryCode");
+            account.setState(DataUtil.getNameByCountryCode(countryCode));
             // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
             String supportCountry = PropertiesUtil.getConfig("grayBalance.query.support.country");
             if(!StringUtils.containsIgnoreCase(supportCountry,countryCode)){
@@ -74,7 +76,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 String code2=DataUtil.getInfoByCountryCode(countryCode).getCode2();
                 paras.put("code2",code2.toLowerCase());
             }
-            account.setArea(DataUtil.getNameByCountryCode(countryCode));
             accountTableView.refresh();
             if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
                 throw new ServiceException("该账户为双重认证用户,请输入双重验证码");
@@ -202,6 +203,10 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 account.setBalance(balance);
                 tableRefreshAndInsertLocal(account,"查询成功");
             }
+        } catch (IORuntimeException e) {
+            throw e;
+        }catch (ServiceException ae){
+            throw ae;
         }catch (Exception e){
             throw new ServiceException("余额查询失败！");
         }

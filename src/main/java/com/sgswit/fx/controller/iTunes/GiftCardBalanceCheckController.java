@@ -384,30 +384,28 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         setAndRefreshNote(giftCard,"正在查询...");
         ThreadUtil.sleep(2000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
-        if(503==step4Res.getStatus()){
+        if(step4Res.getStatus()!=200){
             giftCard.setFailCount(giftCard.getFailCount()+1);
             String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
             setAndRefreshNote(giftCard, message);
             loginAndInit();
             checkBalance(giftCard,paras);
             if(giftCard.getFailCount()>3){
-                giftCard.setNote("操作频繁，请稍后重试！");
-                throw new ServiceException("操作频繁，请稍后重试！");
-            }
-        }else if(step4Res.getStatus()!=200){
-            giftCard.setFailCount(giftCard.getFailCount()+1);
-            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
-            loginAndInit();
-            checkBalance(giftCard,paras);
-            if(giftCard.getFailCount()>3){
-                giftCard.setNote("余额查询失败");
-                throw new ServiceException("余额查询失败");
+                if(503==step4Res.getStatus()){
+                    throw new ServiceException("操作频繁，请稍后重试！");
+                }else {
+                    throw new ServiceException("余额查询失败");
+                }
             }
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
-            String status=bodyJson.getByPath("head.status").toString();
-            if(!Constant.SUCCESS.equals(status)){
-                giftCard.setNote("余额查询失败");
+            try {
+                String status=bodyJson.getByPath("head.status",String.class);
+                if(!Constant.SUCCESS.equals(status)){
+                    giftCard.setNote("余额查询失败");
+                    throw new ServiceException("余额查询失败");
+                }
+            }catch (Exception e){
                 throw new ServiceException("余额查询失败");
             }
             String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
@@ -448,59 +446,5 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
-    }
-
-
-    public static void main(String[] args) {
-        String cardsString="XMGMHLFGKGZXT5CK\n" +
-                "XFGFZ8DGVM58KHJF\n" +
-                "XXF4ZV6GF5JMKYP8\n" +
-                "XCZ3D69Z6MY95FP7\n" +
-                "X4Z4NGXVMQG94WDM\n" +
-                "XJVKD434T5G6K2VY\n" +
-                "X5GH3C7F8CLP9WKP\n" +
-                "X8DR5V4VL286Z9M5\n" +
-                "XFPM32HRDCWFWH7Z\n" +
-                "XT5XZ2JFWDJVR9LQ\n" +
-                "XHXZ8GQGHLP8ZLCZ\n" +
-                "XLX2HCQM6MQKNWJM\n" +
-                "XZX8RM47KHJKXHXC\n" +
-                "XDXKFT4C2N2JPXD8\n" +
-                "XDMK9KX7D8ZML9G2\n" +
-                "XL25TGLDPQ7PQCLP\n" +
-                "XJL8PX9YHTJXVTLC\n" +
-                "X8Z56XHXMKN2NYRY\n" +
-                "XD453CKMWFPZ4WQ5\n" +
-                "X7D4JGCJTRLT6DHN\n" +
-                "X7KL5RNTY3QN9CLW\n" +
-                "XRKC49F869WV43G8\n" +
-                "XFZPM3P6VDVR3YKV\n" +
-                "XCK89CQHZF5YW94V\n" +
-                "XDFCQJ3X9RVX35VJ\n" +
-                "XJM9V98QPLDWRDVJ\n" +
-                "XG6G7FQWYNLFDWJ3\n" +
-                "XM4LMKDC6T92XF6G\n" +
-                "XHMDL9XQL2DWYTKM\n" +
-                "XVCQYX8N8ZHQJH9Q\n" +
-                "X2FMPQMPMD8NQLYQ\n" +
-                "X4HJTMLXRVK3GJD7\n" +
-                "X5TC6ZKVCWT72JHZ\n" +
-                "XJ7YM6VD54Q6XPDT\n" +
-                "XDHYQD4LWJK2545G\n" +
-                "XJTMNDN6XQVXV7QW\n" +
-                "XPLCW8XPXRY9RC5Y\n" +
-                "X9W5GJ87C8W3T5M9\n" +
-                "XDM9QG8TV4KMTJZM";
-
-        String[] cardArr=cardsString.split("\n");
-
-
-//        account_pwd.setText("");
-        for (int i=0;i<cardArr.length;i++){
-//            checkBalance
-            GiftCard giftCard  =new GiftCard();
-            giftCard.setGiftCardCode(cardArr[i]);
-
-        }
     }
 }
