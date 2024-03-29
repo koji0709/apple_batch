@@ -26,6 +26,8 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -101,6 +103,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @FXML
     CheckBox execAgainCheckBox;
 
+    @FXML
+    TextField maxRedeemAmountTextField;
+
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     Stage redeemLogStage;
@@ -112,7 +117,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private static Set<String> lockSet = new HashSet<>();
 
     private Map<String, String> currencyMap = new HashMap<>();
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -164,6 +168,20 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 accountComboxSelectLabel.setText("0/0");
             }else{
                 accountComboxSelectLabel.setText((newValue.intValue() + 1) + "/" + accountComboBox.getItems().size());
+            }
+        });
+
+        String maxRedeemAmountStr = PropertiesUtil.getOtherConfig("maxRedeemAmount","");
+        maxRedeemAmountTextField.setText(maxRedeemAmountStr);
+
+        maxRedeemAmountTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            System.err.println(oldValue);
+            System.err.println(newValue);
+            if (!StrUtil.isEmpty(newValue) && !NumberUtil.isNumber(newValue)){
+                maxRedeemAmountTextField.setText("");
+                alert("累计兑换金额上限只能填写数字");
+            }else{
+                PropertiesUtil.setOtherConfig("maxRedeemAmount",newValue);
             }
         });
 
@@ -490,6 +508,27 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功，兑换中...");
         String amount = codeInfo.getStr("amount", "0");
         giftCardRedeem.setGiftCardAmount(amount);
+
+        synchronized (this.getClass()){
+            String maxRedeemAmountStr = maxRedeemAmountTextField.getText();
+            // 0则不做限制
+            if (StrUtil.isEmpty(maxRedeemAmountStr) || "0".equals(maxRedeemAmountStr)){
+                BigDecimal maxRedeemAmount = new BigDecimal(maxRedeemAmountStr);
+                HttpResponse rsp = HttpUtils.get("/giftcardRedeemLog/sumByAccountAndDay", new HashMap<>() {{
+                    put("account", account);
+                }});
+                boolean verify = HttpUtils.verifyRsp(rsp);
+                if (!verify){
+                    throw new ServiceException("查询账号今日累计兑换金额失败!");
+                }
+
+                BigDecimal redeemTotal = HttpUtils.data(rsp,BigDecimal.class);
+                // 今日兑换金额+礼品卡金额 > 每日最大兑换金额
+                if (redeemTotal.add(new BigDecimal(amount)).compareTo(maxRedeemAmount) == 1){
+                    throw new ServiceException("已超出ID设定数值");
+                }
+            }
+        }
 
         // 获取现有金额
         synchronized (this){

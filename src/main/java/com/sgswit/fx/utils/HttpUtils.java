@@ -65,4 +65,8 @@ public class HttpUtils {
     public static JSONArray dataList(HttpResponse rsp){
         return JSONUtil.parse(rsp.body()).getByPath("data", JSONArray.class);
     }
+
+    public static <T> T data(HttpResponse rsp,Class<T> clz){
+        return JSONUtil.parse(rsp.body()).getByPath("data", clz);
+    }
 }
