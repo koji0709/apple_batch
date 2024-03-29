@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.proxy;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Validator;
@@ -8,12 +8,13 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import com.sgswit.fx.enums.ProxyEnum;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -40,11 +41,11 @@ public class ProxyUtil{
         //判断是否设置代理
 //        HttpRequest.closeCookie();
         try {
-            String proxyMode=PropertiesUtil.getOtherConfig("proxyMode");
+            String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
             sendTimeOut=sendTimeOut==0?30*1000:sendTimeOut*1000;
             if(StringUtils.isEmpty(proxyMode)){
-                return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
+                return proxyRequest(method,url,sendTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
                 //判断是否为空
                 String proxyApiUrl= PropertiesUtil.getOtherConfig("proxyApiUrl");
@@ -77,46 +78,44 @@ public class ProxyUtil{
                        }
                     }
                 }
-                return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
+                return HttpUtil.createRequest(method,url).timeout(sendTimeOut);
             }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)){
                 String address= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
-                String host=address.split(":")[0];
-                int port=Integer.valueOf(address.split(":")[1]);
+                String proxyHost=address.split(":")[0];
+                int proxyPort=Integer.valueOf(address.split(":")[1]);
                 String authUser=PropertiesUtil.getOtherConfig("proxyTunnelUser");
                 String authPassword= PropertiesUtil.getOtherConfig("proxyTunnelPass");
-                return proxyRequest(method,url,host,port,authUser,authPassword,sendTimeOut);
+                return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfig= DataUtil.getProxyConfig();
                 if(null!=proxyConfig && !proxyConfig.isEmpty()){
                     int index= ThreadLocalRandom.current().nextInt(proxyConfig.size()) % proxyConfig.size();
                     Map<String,Object> map=proxyConfig.get(index);
                     String host= MapUtil.getStr(map,"ip");
-                    String authUser= MapUtil.getStr(map,"account");
-                    String authPassword= MapUtil.getStr(map,"pwd");
                     int port=MapUtil.getInt(map,"port");
-                    return proxyRequest(method,url,host,port,authUser,authPassword,sendTimeOut);
+                    return proxyRequest(method,url,host,port,sendTimeOut);
                 }else{
-                    return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
+                    return proxyRequest(method,url,sendTimeOut);
                 }
             }else{
-                return HttpUtil.createRequest(method,url).setConnectionTimeout(sendTimeOut);
+                return proxyRequest(method,url,sendTimeOut);
             }
         }catch (Exception e){
             throw e;
         }
     }
-   private static HttpRequest proxyRequest(Method method,String url,String host,Integer port,String authUser,String authPassword,Integer sendTimeOut){
-       Authenticator.setDefault(
-               new Authenticator() {
-                   @Override
-                   public PasswordAuthentication getPasswordAuthentication() {
-                       return new PasswordAuthentication(authUser, authPassword.toCharArray());
-                   }
-               }
-       );
-
-       return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(host, port))).setConnectionTimeout(sendTimeOut);
-
+    /**IP代理请求**/
+   private static HttpRequest proxyRequest(Method method,String url,String host,Integer port,Integer sendTimeOut){
+       return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(host, port))).timeout(sendTimeOut);
+   }
+   private static HttpRequest proxyRequest(Method method,String url,String proxyHost,Integer proxyPort,String authUser,String authPassword,Integer sendTimeOut){
+       System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+       // 设置请求验证信息
+       Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
+       return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(proxyHost, proxyPort))).timeout(sendTimeOut);
+   }
+   private static HttpRequest proxyRequest(Method method,String url,Integer sendTimeOut){
+       return  HttpUtil.createRequest(method,url).timeout(sendTimeOut);
    }
 
   private static Proxy.Type getProxyType(){

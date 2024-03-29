@@ -499,7 +499,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             // 停止任务, 恢复按钮状态
             setExecuteButtonStatus(false);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
     }
