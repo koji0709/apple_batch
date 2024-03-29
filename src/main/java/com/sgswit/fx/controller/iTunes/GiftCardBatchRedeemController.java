@@ -404,6 +404,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
     }
 
+    @Override
+    public void setExecuteButtonStatus(boolean isRunning) {
+        super.setExecuteButtonStatus(isRunning);
+        maxRedeemAmountTextField.setDisable(isRunning);
+    }
+
     /**
      * 反射方法调用
      */
@@ -512,7 +518,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         synchronized (this.getClass()){
             String maxRedeemAmountStr = maxRedeemAmountTextField.getText();
             // 0则不做限制
-            if (StrUtil.isEmpty(maxRedeemAmountStr) || "0".equals(maxRedeemAmountStr)){
+            if (!StrUtil.isEmpty(maxRedeemAmountStr) && !"0".equals(maxRedeemAmountStr)){
                 BigDecimal maxRedeemAmount = new BigDecimal(maxRedeemAmountStr);
                 HttpResponse rsp = HttpUtils.get("/giftcardRedeemLog/sumByAccountAndDay", new HashMap<>() {{
                     put("account", account);
