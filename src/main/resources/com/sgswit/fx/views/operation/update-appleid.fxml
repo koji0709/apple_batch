@@ -74,7 +74,6 @@
                                                 </FXCollections>
                                             </items>
                                         </ChoiceBox>
-                                        <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>
                             </content>
