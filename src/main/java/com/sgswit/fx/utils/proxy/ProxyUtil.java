@@ -109,7 +109,6 @@ public class ProxyUtil{
        return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(host, port))).timeout(sendTimeOut);
    }
    private static HttpRequest proxyRequest(Method method,String url,String proxyHost,Integer proxyPort,String authUser,String authPassword,Integer sendTimeOut){
-       System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
        // 设置请求验证信息
        Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
        return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(proxyHost, proxyPort))).timeout(sendTimeOut);

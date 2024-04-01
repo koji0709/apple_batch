@@ -132,8 +132,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
 
-        // 清空之前的信息
-        setAndRefreshNote(account,"程序执行中...");
         // 登录账号
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...");
@@ -143,7 +141,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
         account.setName(accountJSON.getByPath("name.fullName",String.class));
-        setAndRefreshNote(account,"成功读取用户信息");
+        account.setNote("查询成功");
+        super.accountTableView.refresh();
         Map<String,String> messageMap= new LinkedHashMap<>();
         // 修改密码
         if (updatePwdCheckBoxSelected){

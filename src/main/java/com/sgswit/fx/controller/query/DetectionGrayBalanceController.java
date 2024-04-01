@@ -173,7 +173,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new ServiceException( MapUtil.getStr(map,"msg"));
             }
             account.setState(map.get("address").toString());
-            setAndRefreshNote(account,"");
             //确认地址 - 显示账户余额
             Thread.sleep(2000);
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);
