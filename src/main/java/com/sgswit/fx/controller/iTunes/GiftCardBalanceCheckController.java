@@ -418,6 +418,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 giftCard.setDataStatus("1");
                 giftCard.setBalance(balance);
                 giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                setAndRefreshNote(giftCard,"查询成功.");
             }
         }
         giftCard.setHasFinished(true);
