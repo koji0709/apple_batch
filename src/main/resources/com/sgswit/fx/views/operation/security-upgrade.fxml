@@ -65,7 +65,6 @@
                                     <children>
                                         <Label text="选择电话号码地区" />
                                         <ComboBox fx:id="dialCodeComboBox" editable="false" visibleRowCount="8" />
-                                        <CheckBox fx:id="randomIPProxyCheckBox" text="使用随机IP代理" />
                                     </children>
                                 </VBox>
                             </content>
