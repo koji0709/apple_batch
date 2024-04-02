@@ -6,7 +6,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -144,13 +143,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         if (file.exists()){
             String content = FileUtil.readUtf8String(file);
             if (StrUtil.isNotEmpty(content)){
-                String[] arrayWithEmpty = content.split("\n");
-                accountComboBox.setValue(arrayWithEmpty[0]);
+                content = content.replaceAll("\t"," ");
+                String[] split = content.split("\n");
+                accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();
-                // 使用Hutool的ArrayUtil.removeEmpty方法删除数组中的空值
-                String[] resultArray = ArrayUtil.removeEmpty(arrayWithEmpty);
-                accountComboBox.getItems().addAll(resultArray);
-                accountComboxSelectLabel.setText("1/" + resultArray.length);
+                accountComboBox.getItems().addAll(split);
+                accountComboxSelectLabel.setText("1/" + split.length);
             }
         }
         accountComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -754,12 +752,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 FileUtil.del(file1);
             }
             if (StrUtil.isNotEmpty(content)){
-                String[] arrayWithEmpty = content.split("\n");
-                accountComboBox.setValue(arrayWithEmpty[0]);
+                content = content.replaceAll("\t"," ");
+                String[] split = content.split("\n");
+                accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();
-                // 使用Hutool的ArrayUtil.removeEmpty方法删除数组中的空值
-                String[] resultArray = ArrayUtil.removeEmpty(arrayWithEmpty);
-                accountComboBox.getItems().addAll(resultArray);
+                accountComboBox.getItems().addAll(split);
             }else{
                 accountComboBox.setValue("");
                 accountComboBox.getItems().clear();

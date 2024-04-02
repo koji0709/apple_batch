@@ -393,7 +393,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 }
             }
             giftCard.setFailCount(giftCard.getFailCount()+1);
-            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
+            String message= MessageFormat.format("查询失败，正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
             setAndRefreshNote(giftCard, message);
             checkBalance(giftCard,paras);
         }else{
