@@ -115,8 +115,8 @@ public class GiftCardUtil {
         paras.put("locationSSi",locationSSi);
         // get x-apple-hc
         HttpResponse pre4 = signFrame(paras);
+        paras.put("code",pre4.getStatus());
         if(503==pre4.getStatus()){
-            paras.put("code","503");
             return paras;
         }
         paras.put("callbackSignInUrl",callbackSignInUrl);

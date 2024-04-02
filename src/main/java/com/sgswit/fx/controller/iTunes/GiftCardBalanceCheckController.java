@@ -385,11 +385,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         ThreadUtil.sleep(2000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
-            giftCard.setFailCount(giftCard.getFailCount()+1);
-            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
-            setAndRefreshNote(giftCard, message);
-            loginAndInit();
-            checkBalance(giftCard,paras);
             if(giftCard.getFailCount()>3){
                 if(503==step4Res.getStatus()){
                     throw new ServiceException("操作频繁，请稍后重试！");
@@ -397,6 +392,10 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                     throw new ServiceException("余额查询失败");
                 }
             }
+            giftCard.setFailCount(giftCard.getFailCount()+1);
+            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
+            setAndRefreshNote(giftCard, message);
+            checkBalance(giftCard,paras);
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             try {
