@@ -35,8 +35,6 @@ public class TencentQQUtil {
      */
     public static List<String> getLoginQQList(){
         final List<String> list= new ArrayList<>();
-        String vmName = System.getProperty("java.vm.name");
-
         if (SystemUtils.isVirtual()) {
 
         } else {
@@ -74,4 +72,5 @@ public class TencentQQUtil {
             return false;
         }
     }
+
 }
