@@ -223,6 +223,10 @@ public class CommRightContextMenuView<T> extends CommonView {
                     if(step){
                         ReflectUtil.invoke(account,"setStep","");
                     }
+                    boolean verify = executeButtonActionBefore();
+                    if (!verify) {
+                        return;
+                    }
                     accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
@@ -384,6 +388,12 @@ public class CommRightContextMenuView<T> extends CommonView {
     }
     public void accountHandler(T account){}
 
+    /**
+     * 执行前, 一般做一些参数校验
+     */
+    public boolean executeButtonActionBefore() {
+        return true;
+    }
 
     public void setAccountNumLabel() {
     }
