@@ -231,6 +231,10 @@ public class CommRightContextMenuView<T> extends CommonView {
                     if(step){
                         ReflectUtil.invoke(account,"setStep","");
                     }
+                    boolean verify = executeButtonActionBefore();
+                    if (!verify) {
+                        return;
+                    }
                     if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
                         ThreadUtil.execute(()-> {
                                 //ReflectUtil.invoke(this,"redeemCheck",account);
@@ -240,6 +244,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                     }else{
                         accountHandlerExpand(account);
                     }
+                    accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {
@@ -400,6 +405,12 @@ public class CommRightContextMenuView<T> extends CommonView {
     }
     public void accountHandler(T account){}
 
+    /**
+     * 执行前, 一般做一些参数校验
+     */
+    public boolean executeButtonActionBefore() {
+        return true;
+    }
 
     public void setAccountNumLabel() {
     }

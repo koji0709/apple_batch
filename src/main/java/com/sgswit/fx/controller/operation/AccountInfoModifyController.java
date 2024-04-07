@@ -188,6 +188,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             String firstName = firstNameTextField.getText();
             String lastName = lastNameTextField.getText();
             Object nameGenerationTypeChoiceBoxValue = nameGenerationTypeChoiceBox.getValue();
+
             if ("随机中文".equals(nameGenerationTypeChoiceBoxValue)){
                 Faker faker = new Faker(Locale.CHINA);
                 firstName = faker.name().firstName();
@@ -196,19 +197,18 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 Faker faker = new Faker();
                 firstName = faker.name().firstName();
                 lastName  = faker.name().lastName();
-            }else if(StringUtils.isEmpty(firstName) || StringUtils.isEmpty(lastName)){
-                setMessageAndRefreshTable("updateName","修改姓名失败【姓名信息不完善】",messageMap,account);
-            }else{
-                HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
-                if (updateNameRsp.getStatus() != 200){
-                    String s=getValidationErrors(updateNameRsp.body());
-                    s = StrUtil.isEmpty(s) ? "修改姓名失败" : s;
-                    setMessageAndRefreshTable("updateName", s,messageMap,account);
-                }else{
-                    account.setName(firstName + lastName);
-                    setMessageAndRefreshTable("updateName","姓名修改成功",messageMap,account);
-                }
             }
+
+            HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
+            if (updateNameRsp.getStatus() != 200){
+                String s=getValidationErrors(updateNameRsp.body());
+                s = StrUtil.isEmpty(s) ? "修改姓名失败" : s;
+                setMessageAndRefreshTable("updateName", s,messageMap,account);
+            }else{
+                account.setName(firstName + lastName);
+                setMessageAndRefreshTable("updateName","姓名修改成功",messageMap,account);
+            }
+
         }
 
         // 修改密保

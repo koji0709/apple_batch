@@ -33,10 +33,9 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
         JSONObject rspJSON = PListUtil.parse(authRsp.body());
         String balance  = rspJSON.getStr("creditDisplay","0");
-        Boolean isDisabledAccount  = rspJSON.getBool("accountFlags.isDisabledAccount",false);
+        Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
         account.setBalance((StrUtil.isEmpty(balance) ? "0" : balance));
         account.setDisableStatus( !isDisabledAccount ? "正常" : "禁用");
-
         String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
         String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
         if (!StrUtil.isEmpty(country)){

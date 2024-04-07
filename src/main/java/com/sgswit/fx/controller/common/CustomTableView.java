@@ -159,6 +159,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     /**
      * 执行前, 一般做一些参数校验
      */
+    @Override
     public boolean executeButtonActionBefore() {
         return true;
     }
