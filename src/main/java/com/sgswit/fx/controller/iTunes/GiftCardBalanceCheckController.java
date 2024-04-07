@@ -41,7 +41,6 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
@@ -75,9 +74,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     public Label alertMessage;
     @FXML
     public Button loginBtn;
-//
-    @FXML
-    private TableView accountTableView;
 
     private ObservableList<GiftCard> accountList = FXCollections.observableArrayList();
 
@@ -85,7 +81,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     private Map<String,Object> hashMap;
     private boolean hasInit=false;
-    private static ExecutorService executor = ThreadUtil.newExecutor(1);
+    private boolean loginProcess=false;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
@@ -382,14 +378,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         }
         giftCard.setHasFinished(false);
         setAndRefreshNote(giftCard,"正在查询...");
-        ThreadUtil.sleep(2000);
+        ThreadUtil.sleep(5000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
-            giftCard.setFailCount(giftCard.getFailCount()+1);
-            String message= MessageFormat.format("查询失败正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
-            setAndRefreshNote(giftCard, message);
-            loginAndInit();
-            checkBalance(giftCard,paras);
             if(giftCard.getFailCount()>3){
                 if(503==step4Res.getStatus()){
                     throw new ServiceException("操作频繁，请稍后重试！");
@@ -397,12 +388,23 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                     throw new ServiceException("余额查询失败");
                 }
             }
+            giftCard.setFailCount(giftCard.getFailCount()+1);
+            String message= MessageFormat.format("查询失败，正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
+            setAndRefreshNote(giftCard, message);
+            Map<String,String> result=login();
+            if(result.get("code").equals("-1")) {
+                throw new ServiceException("余额查询失败");
+            }else if(result.get("code").equals("1")){
+                ThreadUtil.sleep(3000);
+            }else{
+                checkBalance(giftCard,paras);
+            }
+
         }else{
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             try {
                 String status=bodyJson.getByPath("head.status",String.class);
                 if(!Constant.SUCCESS.equals(status)){
-                    giftCard.setNote("余额查询失败");
                     throw new ServiceException("余额查询失败");
                 }
             }catch (Exception e){
@@ -412,15 +414,109 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
             if(null==balance){
                 giftCard.setDataStatus("0");
-                giftCard.setNote("这不是有效的礼品(或已兑换)");
                 throw new ServiceException("这不是有效的礼品(或已兑换)");
             }else{
                 giftCard.setDataStatus("1");
                 giftCard.setBalance(balance);
                 giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                setAndRefreshNote(giftCard,"查询成功.");
             }
         }
         giftCard.setHasFinished(true);
+    }
+
+    public synchronized Map<String,String> login(){
+        Map<String,String> res=new HashMap<>();
+        try {
+            if(loginProcess){
+                res.put("code","1");
+                res.put("message","登录中");
+                return res;
+            }
+            loginProcess=true;
+            String account=null;
+            String pwd=null;
+            if(StringUtils.isEmpty(account_pwd.getText())){
+
+            }else{
+                String[] its=AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+                if(its.length==2){
+                    account=its[0];
+                    pwd=its[1];
+                }
+            }
+            String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
+            //https://secure.store.apple.com/shop/giftcard/balance
+            HttpResponse pre1 = GiftCardUtil.shopPre1(countryCode);
+            if(pre1.getStatus() != 303){
+                res.put("code","-1");
+                res.put("message","登陆失败");
+                return res;
+            }
+            //https://secure4.store.apple.com/shop/giftcard/balance
+            HttpResponse pre2 = GiftCardUtil.shopPre2(pre1);
+            if(pre2.getStatus() != 302){
+                res.put("code","-1");
+                res.put("message","登陆失败");
+                return res;
+            }
+            //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
+            HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
+            if(null==hashMap){
+                hashMap=new HashMap<>();
+            }
+            hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
+            if(null!=hashMap.get("code") && MapUtil.getStr(hashMap,"code").equalsIgnoreCase("503")){
+                res.put("code","-1");
+                res.put("message","登陆失败");
+                return res;
+            }
+            HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
+            String a= MapUtil.getStr(hashMap,"a");
+            HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
+            if(503==step1Res.getStatus()){
+                res.put("code","-1");
+                res.put("message","登陆失败");
+                return res;
+            }
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
+            if(409==step2Res.getStatus()){
+                String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
+                if(authType.equals("hsa2")){
+                    res.put("code","-1");
+                    res.put("message","登陆失败");
+                    return res;
+                }
+            }else if(200==step2Res.getStatus()){
+                hasInit=true;
+            } else{
+                if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
+                    res.put("code","-1");
+                    res.put("message","登陆失败");
+                    return res;
+                }
+            }
+            //step3 shop signin
+            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,hashMap);
+            StringBuilder cookieBuilder = new StringBuilder();
+            List<String> resCookies = step3Res.headerList("Set-Cookie");
+            for(String item : resCookies){
+                cookieBuilder.append(";").append(item);
+            }
+            cookieBuilder.append(";").append(hashMap.get("as_sfa_cookie"));
+            Map<String,String> cookieMap=new HashMap<>();
+            cookieMap=CookieUtils.setCookiesToMap(step3Res,cookieMap);
+            hashMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
+            PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
+            hasInit=true;
+            res.put("code", "0");
+        }catch (Exception e){
+            res.put("code", "-1");
+            throw e;
+        }finally {
+            loginProcess=false;
+        }
+        return res;
     }
 
     private void initAccountTableView(){

@@ -120,7 +120,7 @@
                                           <TextField fx:id="proxyTunnelPass" layoutX="85.0" layoutY="10.0" prefHeight="25.0" prefWidth="150.0" />
                                        </children>
                                     </Pane>
-<!--                                    <Button layoutX="134.0" layoutY="158.0" mnemonicParsing="false" onAction="#proxyTunnelAddressCheckAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />-->
+                                    <Button layoutX="134.0" layoutY="158.0" mnemonicParsing="false" onAction="#proxyTunnelAddressCheckAction" prefWidth="100.0" style="-fx-background-color: #33485E;" text="检测隧道地址" textFill="WHITE" />
                                  </children>
                               </Pane>
                            </content>

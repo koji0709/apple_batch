@@ -76,17 +76,15 @@ public class ProxyUtil{
                         Map<String,Object> map=mapList.get(index);
                         String proxyHost= MapUtil.getStr(map,"ip");
                         int proxyPort=MapUtil.getInt(map,"port");
+                        String authUser=MapUtil.getStr(map,"account");
+                        String authPassword= MapUtil.getStr(map,"pwd");
                         if(key.equals("2")){
-                            String authUser=MapUtil.getStr(map,"account");
-                            String authPassword= MapUtil.getStr(map,"pwd");
                             return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
                         }else if(key.equals("1")){
-                            String authUser=MapUtil.getStr(map,"account");
-                            String authPassword= MapUtil.getStr(map,"pwd");
                             String proxyApiUrl= MessageFormat.format("{0}:{1}",new String[]{proxyHost, String.valueOf(proxyPort)});
                             return  apiProxyRequest(method,url,proxyApiUrl,authUser,authPassword, false,sendTimeOut);
                         }else {
-                            return proxyRequest(method,url,proxyHost,proxyPort,sendTimeOut);
+                            return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
                         }
                     }
                     return proxyRequest(method,url,sendTimeOut);
@@ -99,10 +97,6 @@ public class ProxyUtil{
         }catch (Exception e){
             throw e;
         }
-    }
-    /**IP代理请求**/
-    private static HttpRequest proxyRequest(Method method,String url,String host,Integer port,Integer sendTimeOut){
-       return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(host, port))).timeout(sendTimeOut);
     }
     private static HttpRequest proxyRequest(Method method,String url,String proxyHost,Integer proxyPort,String authUser,String authPassword,Integer sendTimeOut){
        // 设置请求验证信息

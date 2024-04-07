@@ -1,20 +1,26 @@
 package com.sgswit.fx.controller.base;
 
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.proxy.ProxyAuthenticator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.Authenticator;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -88,6 +94,40 @@ public class IntegratedSettingsController implements Initializable {
     }
     @FXML
     public void proxyTunnelAddressCheckAction(ActionEvent actionEvent) {
+        try{
+            String address= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
+            String proxyHost=address.split(":")[0];
+            int proxyPort=Integer.valueOf(address.split(":")[1]);
+            String authUser=PropertiesUtil.getOtherConfig("proxyTunnelUser");
+            String authPassword= PropertiesUtil.getOtherConfig("proxyTunnelPass");
+            String url = "http://39.99.59.122:15000/api/data/getIp";
+            // JDK 8u111版本后，目标页面为HTTPS协议，启用proxy用户密码鉴权
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
+            // 发送请求
+            HttpResponse result = HttpUtil.createRequest(Method.GET,url)
+                    .setHttpProxy(proxyHost, proxyPort )
+                    .timeout(20000)
+                    .execute();
+            if(result.getStatus()==200){
+                JSON json=JSONUtil.parse(result.body());
+                if(json.getByPath("data.code",String.class).equals("0")){
+                    String country= json.getByPath("data.country",String.class);
+                    String region= json.getByPath("data.region",String.class);
+                    String city= json.getByPath("data.city",String.class);
+                    String isp= json.getByPath("data.isp",String.class);
+                    String ip= json.getByPath("data.ip",String.class);
+                    String m= MessageFormat.format("IP:{0}，所属国家：{1}，省份：{2}，城市：{3}，运营商：{4}",new String[]{ip,country,region,city,isp});
+                    CommonView.alert(m, Alert.AlertType.INFORMATION,true);
+                }else{
+                    CommonView.alert("有效的隧道代理", Alert.AlertType.INFORMATION,true);
+                }
+            }else {
+                CommonView.alert("无效的隧道代理", Alert.AlertType.INFORMATION,true);
+            }
+        }catch (Exception e){
+
+        }
 
     }
     @FXML

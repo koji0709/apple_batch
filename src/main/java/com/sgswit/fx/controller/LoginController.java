@@ -1,6 +1,8 @@
 package com.sgswit.fx.controller;
 
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.NetUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
@@ -225,18 +227,41 @@ public class LoginController extends CommonView implements Initializable {
         if (StrUtil.isEmpty(userName)){
             alert("注册账号不能为空！",Alert.AlertType.INFORMATION,true);
             return;
+        }else{
+            String regex = "^[a-zA-Z0-9]{8,20}$";
+            if(!userName.matches(regex)){
+                alert("账号长度为8到20位,必须包含字母或数字！",Alert.AlertType.INFORMATION,true);
+                return;
+            }
         }
         if (StrUtil.isEmpty(pwd)){
             alert("注册密码不能为空！",Alert.AlertType.INFORMATION,true);
             return;
+        }else{
+            String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$";
+            if(!pwd.matches(pattern)){
+                alert("密码长度为8到20位,必须包含大小写字母数字及特殊字符！",Alert.AlertType.INFORMATION,true);
+                return;
+            }
         }
         if (StrUtil.isEmpty(email)){
             alert("安全邮箱不能为空！",Alert.AlertType.INFORMATION,true);
             return;
+        }else{
+            if(!Validator.isEmail(email)){
+                alert("邮箱格式不正确！",Alert.AlertType.INFORMATION,true);
+                return;
+            }
         }
         if (StrUtil.isEmpty(qq)){
             alert("绑定QQ不能为空！",Alert.AlertType.INFORMATION,true);
             return;
+        }else {
+            String QQ_PATTERN = "^[1-9][0-9]{4,10}$";
+            if(!ReUtil.isMatch(QQ_PATTERN, qq)){
+                alert("QQ格式不正确！",Alert.AlertType.INFORMATION,true);
+                return;
+            }
         }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
@@ -273,6 +298,12 @@ public class LoginController extends CommonView implements Initializable {
         if (StrUtil.isEmpty(newPwd)){
             alert("新密码不能为空",Alert.AlertType.INFORMATION,true);
             return;
+        }else{
+            String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$";
+            if(!newPwd.matches(pattern)){
+                alert("密码长度为8到20位,必须包含大小写字母数字及特殊字符！",Alert.AlertType.INFORMATION,true);
+                return;
+            }
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
         body = String.format(body,userName,SM4Util.encryptBase64(newPwd),verifyCode);
