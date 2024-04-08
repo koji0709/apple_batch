@@ -55,7 +55,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            throw new ServiceException("请检查用户名密码是否正确");
+            throw new ServiceException("Apple ID或密码不正确");
         }
 
         return signInRsp;
@@ -84,7 +84,7 @@ public class AppleIdView extends CustomTableView<Account> {
             setAndRefreshNote(account,"正在验证账号密码...");
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
-                throw new ServiceException("请检查用户名密码是否正确;");
+                throw new ServiceException("Apple ID或密码不正确;");
             }
             // Auth
             HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
