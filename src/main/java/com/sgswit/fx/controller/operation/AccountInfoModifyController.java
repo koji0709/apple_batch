@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -47,7 +48,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         question3ChoiceBox.setItems(FXCollections.observableArrayList(questionList.get(2)));
 
         List<String> languageList = DataUtil.getLanguageList();
-        updateShowLangChoiceBox.setItems(FXCollections.observableArrayList(languageList));
+        updateShowLangComboBox.setItems(FXCollections.observableArrayList(languageList));
 
         nameGenerationTypeChoiceBox.setValue("固定姓名");
     }
@@ -65,7 +66,16 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean updateBirthdayCheckBoxSelected = updateBirthdayCheckBox.isSelected();
         boolean updateNameCheckBoxSelected = updateNameCheckBox.isSelected();
         boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
+        boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
+        boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
+
+
+        if (!(updatePwdCheckBoxSelected || updateBirthdayCheckBoxSelected  || updateNameCheckBoxSelected || updatePasswordProtectionCheckBoxSelected
+                || updatePasswordProtectionCheckBoxSelected || removeDeviceCheckBoxSelected || removeRescueEmailCheckBoxSelected || updateShowLangCheckBoxSelected)){
+            alert("至少选择一项修改信息！");
+            return false;
+        }
 
         // 修改密码
         if (updatePwdCheckBoxSelected){
@@ -109,7 +119,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
         // 修改显示语言
         if (updateShowLangCheckBoxSelected){
-            Object value = updateShowLangChoiceBox.getValue();
+            Object value = updateShowLangComboBox.getValue();
             if (value == null){
                 alert("请选择显示语言");
                 return false;
@@ -141,6 +151,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
         account.setName(accountJSON.getByPath("name.fullName",String.class));
+        account.setRescueEmail(accountJSON.getByPath("account.security.rescueEmail",String.class));
+        String createdDate = accountJSON.getByPath("account.person.reachableAtOptions.primaryEmailAddress.createdDate", String.class);
+        String updateDate = accountJSON.getByPath("account.person.reachableAtOptions.primaryEmailAddress.updateDate", String.class);
+        account.setCreatedDate(DateUtil.format(new Date(Long.valueOf(createdDate.substring(0,10))*1000),"yyyy年MM月dd日"));
+        account.setUpdateDate(DateUtil.format(new Date(Long.valueOf(updateDate.substring(0,10))*1000),"yyyy年MM月dd日"));
         account.setNote("查询成功");
         super.accountTableView.refresh();
         Map<String,String> messageMap= new LinkedHashMap<>();
@@ -279,7 +294,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改显示语言
         if (updateShowLangCheckBoxSelected){
             setMessageAndRefreshTable("updateShowLang","正在修改显示语言...",messageMap,account);
-            Object showLang = updateShowLangChoiceBox.getValue();
+            Object showLang = updateShowLangComboBox.getValue();
             if(null==showLang){
                 setMessageAndRefreshTable("updateShowLang","修改显示语言失败【未设置显示语言】",messageMap,account);
             }else{

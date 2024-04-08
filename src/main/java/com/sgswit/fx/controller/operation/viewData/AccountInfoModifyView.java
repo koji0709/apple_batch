@@ -133,6 +133,6 @@ public class AccountInfoModifyView extends AppleIdView {
      * 显示语言
      */
     @FXML
-    protected ChoiceBox updateShowLangChoiceBox;
+    protected ComboBox updateShowLangComboBox;
 
 }

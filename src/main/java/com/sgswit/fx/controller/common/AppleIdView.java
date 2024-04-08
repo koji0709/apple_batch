@@ -7,6 +7,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.LoggerManger;
@@ -55,7 +56,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            throw new ServiceException("请检查用户名密码是否正确");
+            throw new ServiceException("Apple ID或密码不正确");
         }
 
         return signInRsp;
@@ -84,7 +85,7 @@ public class AppleIdView extends CustomTableView<Account> {
             setAndRefreshNote(account,"正在验证账号密码...");
             HttpResponse signInRsp = signIn(account);
             if(signInRsp.getStatus()!=409){
-                throw new ServiceException("请检查用户名密码是否正确;");
+                throw new ServiceException("Apple ID或密码不正确;");
             }
             // Auth
             HttpResponse authRsp = AppleIDUtil.auth(account,signInRsp);
@@ -145,7 +146,7 @@ public class AppleIdView extends CustomTableView<Account> {
         account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
 
         if (tokenRsp.getStatus() != 200){
-            throw new ServiceException("登录异常;");
+            throw new PointDeduException(FunctionListEnum.ACCOUNT_INFO_MODIFY_INFOERR.getCode(), "登录异常;");
         }
         setAndRefreshNote(account,"登录成功;");
         account.setIsLogin(true);

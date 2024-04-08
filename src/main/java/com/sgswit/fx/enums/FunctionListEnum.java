@@ -35,6 +35,7 @@ public enum FunctionListEnum {
     ICLOUD_ACTIVATE_MAIL("2180",60,"激活iCloud邮箱"),
     /********** OPERATION区 ***********/
     ACCOUNT_INFO_MODIFY("3110",30,"官方修改资料"),
+    ACCOUNT_INFO_MODIFY_INFOERR("3111",5,"官方修改资料-账号异常或失败"),
     UNLOCK_CHANGE_PASSWORD("3120",20,"账号解锁改密"),
     UPDATE_APPLE_ID("3130",20,"苹果更改账号"),
     SECURITY_UPGRADE("3140",20,"开通双重认证"),

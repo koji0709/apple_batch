@@ -46,6 +46,12 @@ public class Account extends LoginInfo {
     private SimpleStringProperty memberAccount;
     private SimpleStringProperty memberPwd;
     private SimpleStringProperty cvv;
+    private SimpleStringProperty rescueEmail;
+
+    private SimpleStringProperty createdDate;
+    private SimpleStringProperty updateDate;
+
+
 
     public Account(){
         this.seq = new SimpleIntegerProperty();
@@ -82,6 +88,10 @@ public class Account extends LoginInfo {
         this.memberAccount = new SimpleStringProperty();
         this.memberPwd = new SimpleStringProperty();
         this.cvv = new SimpleStringProperty();
+        this.rescueEmail = new SimpleStringProperty();
+        this.createdDate = new SimpleStringProperty();
+        this.updateDate = new SimpleStringProperty();
+
     }
 
     public Integer getSeq() {
@@ -423,6 +433,41 @@ public class Account extends LoginInfo {
         this.country = country;
     }
 
+    public String getRescueEmail() {
+        return rescueEmail.get();
+    }
+
+    public SimpleStringProperty rescueEmailProperty() {
+        return rescueEmail;
+    }
+
+    public void setRescueEmail(String rescueEmail) {
+        this.rescueEmail.set(rescueEmail);
+    }
+
+    public String getCreatedDate() {
+        return createdDate.get();
+    }
+
+    public SimpleStringProperty createdDateProperty() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate.set(createdDate);
+    }
+
+    public String getUpdateDate() {
+        return updateDate.get();
+    }
+
+    public SimpleStringProperty updateDateProperty() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(String updateDate) {
+        this.updateDate.set(updateDate);
+    }
 
     @Override
     public String toString() {
@@ -446,12 +491,25 @@ public class Account extends LoginInfo {
                 ", targetCountry=" + targetCountry +
                 ", dsid=" + dsid +
                 ", support=" + support +
+                ", familyDetails=" + familyDetails +
+                ", country='" + country + '\'' +
                 ", email=" + email +
                 ", popKey=" + popKey +
                 ", pin=" + pin +
                 ", pinExpir=" + pinExpir +
                 ", disableStatus=" + disableStatus +
                 ", balance=" + balance +
+                ", createTime=" + createTime +
+                ", inspection=" + inspection +
+                ", purchasesLast90Count=" + purchasesLast90Count +
+                ", paymentAccount=" + paymentAccount +
+                ", paymentPwd=" + paymentPwd +
+                ", memberAccount=" + memberAccount +
+                ", memberPwd=" + memberPwd +
+                ", cvv=" + cvv +
+                ", rescueEmail=" + rescueEmail +
+                ", createdDate=" + createdDate +
+                ", updateDate=" + updateDate +
                 '}';
     }
 }
