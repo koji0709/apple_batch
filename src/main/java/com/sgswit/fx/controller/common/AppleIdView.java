@@ -7,6 +7,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.LoggerManger;
@@ -145,7 +146,7 @@ public class AppleIdView extends CustomTableView<Account> {
         account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
 
         if (tokenRsp.getStatus() != 200){
-            throw new ServiceException("登录异常;");
+            throw new PointDeduException(FunctionListEnum.ACCOUNT_INFO_MODIFY_INFOERR.getCode(), "登录异常;");
         }
         setAndRefreshNote(account,"登录成功;");
         account.setIsLogin(true);

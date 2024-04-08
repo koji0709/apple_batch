@@ -61,7 +61,7 @@
                         </TitledPane>
 
                         <!--修改资料-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="790" text="修改资料">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="930" text="修改资料">
                             <content>
                                 <GridPane alignment="CENTER_LEFT" style="-fx-hgap: 10; -fx-vgap: 10">
                                     <children>
@@ -141,14 +141,15 @@
 
                                         <!--邮箱,语言-->
                                         <CheckBox fx:id="removeRescueEmailCheckBox" text="移除救援邮箱" GridPane.columnIndex="5" GridPane.rowIndex="0" />
-                                        <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                        <HBox GridPane.columnIndex="5" GridPane.rowIndex="2">
+                                        <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+
+                                        <Label wrapText="true" text="账号异常或失败扣5点" textFill="red" GridPane.columnIndex="6" GridPane.rowIndex="0" />
+                                        <Label wrapText="true" text="初始化函数失败不扣点" textFill="red" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                        <HBox GridPane.columnIndex="6" GridPane.rowIndex="2">
                                             <children>
-                                                <ChoiceBox fx:id="updateShowLangChoiceBox" prefWidth="80" />
+                                                <ComboBox fx:id="updateShowLangComboBox" prefWidth="130" editable="false" visibleRowCount="8" />
                                             </children>
                                         </HBox>
-
-
                                     </children>
                            <columnConstraints>
                               <ColumnConstraints />
@@ -228,15 +229,17 @@
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="130" text="账号" />
-                                <TableColumn fx:id="pwd" prefWidth="130" text="密码" />
+                                <TableColumn fx:id="pwd" prefWidth="100" text="密码" />
                                 <TableColumn fx:id="answer1" prefWidth="100" text="答案1" />
                                 <TableColumn fx:id="answer2" prefWidth="100" text="答案2" />
                                 <TableColumn fx:id="answer3" prefWidth="100" text="答案3" />
                                 <TableColumn fx:id="birthday" prefWidth="80" text="生日" />
                                 <TableColumn fx:id="area" prefWidth="75" text="国家" />
                                 <TableColumn fx:id="name" prefWidth="100" text="姓名" />
-                                <TableColumn fx:id="status" prefWidth="75" text="状态" />
-                                <TableColumn fx:id="note" prefWidth="230" text="执行信息" />
+                                <TableColumn fx:id="rescueEmail" prefWidth="110" text="救援邮箱" />
+                                <TableColumn fx:id="createdDate" prefWidth="120" text="AppleID注册时间" />
+                                <TableColumn fx:id="updateDate" prefWidth="120" text="上次更改资料时间" />
+                                <TableColumn fx:id="note" prefWidth="220" text="执行信息" />
                             </columns>
                         </TableView>
                     </content>

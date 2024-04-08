@@ -255,7 +255,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info(e.getMessage());
-        }catch (PointCostException e){
+        }catch (PointDeduException e){// 部分业务抛出异常,但是还是要扣除点数
+            pointCost(account,PointUtil.out,e.getFunCode());
+            setAndRefreshNote(account,e.getMessage());
+            pointIncr(account);
+            setDataStatus(account,false);
+            LoggerManger.info(e.getMessage());
+        }
+        catch (PointCostException e){
             setAndRefreshNote(account,e.getMessage());
             setDataStatus(account,false);
             String type = e.getType();
