@@ -339,4 +339,34 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
             add(Constant.RightContextMenu.COPY.getCode());
         }}));
     }
+    @Override
+    public List<GiftCardRedeem> parseAccount(String accountStr){
+        List<GiftCardRedeem> accountList = new ArrayList<>();
+        String[] accList = accountStr.split("\n");
+        for (int i = 0; i < accList.length; i++) {
+            String acc = accList[i];
+            if (!StrUtil.isEmpty(acc)){
+                String accountString = accountTextField.getText();
+                if (!StrUtil.isEmpty(accountStr)){
+                    String[] accountArr = AccountImportUtil.parseAccountAndPwd(accountString);
+                    if (accountArr.length != 2){
+                        continue;
+                    }else{
+                        GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                        giftCardRedeem.setAccount(accountArr[0]);
+                        giftCardRedeem.setPwd(accountArr[1]);
+                        String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
+                        giftCardRedeem.setGiftCardCode(giftCardCode);
+                        boolean success = giftCardCodeVerify(giftCardCode);
+                        if (!success){
+                            giftCardRedeem.setGiftCardStatus("无效卡");
+                        }
+                        accountList.add(giftCardRedeem);
+                    }
+                }
+            }
+
+        }
+        return accountList;
+    }
 }

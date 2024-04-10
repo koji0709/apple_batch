@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -25,8 +26,6 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -54,12 +53,12 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -238,62 +237,62 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
     @Override
     public List<GiftCardRedeem> parseAccount(String accountStr){
-        List<GiftCardRedeem> accountList1 = new ArrayList<>();
+        List<GiftCardRedeem> accountList = new ArrayList<>();
         String[] accList = accountStr.split("\n");
-
         for (int i = 0; i < accList.length; i++) {
             String acc = accList[i];
-            if (StrUtil.isEmpty(acc)){
-                continue;
-            }
-            String[] accountAndPwdArr=AccountImportUtil.parseAccountAndPwd(acc);
-            // 单礼品卡模式
-            if (accountAndPwdArr.length==1){
-                String accountComboBoxValue = accountComboBox.getValue();
-                if (StrUtil.isEmpty(accountComboBoxValue)){
-                    continue;
-                }
-                String[] accountComboBoxValueArr = AccountImportUtil.parseAccountAndPwd(accountComboBoxValue);
-                if (accountComboBoxValueArr.length != 2){
-                    continue;
-                }
-                String giftCardCode = acc;
-                String account = accountComboBoxValueArr[0];
-                String pwd     = accountComboBoxValueArr[1];
-                GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
-                giftCardRedeem.setAccount(account);
-                giftCardRedeem.setPwd(pwd);
-                giftCardRedeem.setGiftCardCode(giftCardCode);
-
-                boolean success = giftCardCodeVerify(giftCardCode);
-                if (!success){
-                    giftCardRedeem.setGiftCardStatus("无效卡");
-                }
-                accountList1.add(giftCardRedeem);
-            }else{
-                // 账号礼品卡模式
-                if (accountAndPwdArr.length >= 3){
-                    String account =accountAndPwdArr[0];
-                    String pwd     = accountAndPwdArr[1];
-                    for (int j = 2; j < accountAndPwdArr.length; j++) {
-                        String giftCardCode = accountAndPwdArr[j];
-                        GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
-                        giftCardRedeem.setAccount(account);
-                        giftCardRedeem.setPwd(pwd);
-                        giftCardRedeem.setGiftCardCode(giftCardCode);
-
-                        boolean success = giftCardCodeVerify(giftCardCode);
-                        if (!success){
-                            giftCardRedeem.setGiftCardStatus("无效卡");
+            if (!StrUtil.isEmpty(acc)){
+                //判断数据是否以邮箱格式或者是数字格式开头的
+                String[]  array=AccountImportUtil.parseAccountAndPwd(acc);
+                if(Validator.isEmail(array[0]) ||Validator.isNumber(array[0])){
+                    if (array.length >= 3){
+                        String account =array[0];
+                        String pwd     = array[1];
+                        StringBuffer stringBuffer=new StringBuffer();
+                        for (int j = 2; j < array.length; j++) {
+                            stringBuffer.append(array[j]);
                         }
-
-                        accountList1.add(giftCardRedeem);
+                        // 分割的位数
+                        int segmentLength = 16;
+                        List<String> segments = Arrays.asList(StrUtil.cut(stringBuffer, segmentLength));
+                        // 输出分割后的字符串
+                        for (String giftCardCode : segments) {
+                            GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                            giftCardRedeem.setAccount(account);
+                            giftCardRedeem.setPwd(pwd);
+                            giftCardRedeem.setGiftCardCode(giftCardCode);
+                            boolean success = giftCardCodeVerify(giftCardCode);
+                            if (!success){
+                                giftCardRedeem.setGiftCardStatus("无效卡");
+                            }
+                            accountList.add(giftCardRedeem);
+                        }
+                    }
+                }else{
+                    String accountComboBoxValue = accountComboBox.getValue();
+                    if (StrUtil.isEmpty(accountComboBoxValue)){
+                        continue;
+                    }else{
+                        String[] accountComboBoxValueArr = AccountImportUtil.parseAccountAndPwd(accountComboBoxValue);
+                        if (accountComboBoxValueArr.length != 2){
+                            continue;
+                        }else{
+                            GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                            giftCardRedeem.setAccount(accountComboBoxValueArr[0]);
+                            giftCardRedeem.setPwd(accountComboBoxValueArr[1]);
+                            String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
+                            giftCardRedeem.setGiftCardCode(giftCardCode);
+                            boolean success = giftCardCodeVerify(giftCardCode);
+                            if (!success){
+                                giftCardRedeem.setGiftCardStatus("无效卡");
+                            }
+                            accountList.add(giftCardRedeem);
+                        }
                     }
                 }
             }
         }
-
-        return accountList1;
+        return accountList;
     }
 
     @Override
@@ -563,11 +562,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         // 如果操作频繁，重新执行一次
         if (giftCardRedeem.getMaxTryNumber() < 5 && execAgainCheckBox.isSelected() && StrUtil.isEmpty(body)){
-            int i=giftCardRedeem.getMaxTryNumber()+1;
+            giftCardRedeem.setMaxTryNumber(giftCardRedeem.getMaxTryNumber()+1);
             ThreadUtil.sleep(2000L);
-            setAndRefreshNote(giftCardRedeem,"操作频繁，重新执行中"+i+"...");
+            String message= MessageFormat.format("操作频繁，正在进行第{0}次尝试...",new String[]{giftCardRedeem.getMaxTryNumber()+""});
+            setAndRefreshNote(giftCardRedeem,message);
             redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
-            giftCardRedeem.setMaxTryNumber(i);
             body      = redeemRsp.body();
         }
 

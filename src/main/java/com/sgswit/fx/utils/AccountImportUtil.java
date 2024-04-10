@@ -146,7 +146,6 @@ public class AccountImportUtil<T>{
         }
         return list.stream().toArray(String[]::new);
     }
-
     public static boolean checkIfEmailStarted(String inputStr) {
         // 定义邮箱格式的正则表达式
         Pattern pattern = Pattern.compile("^["+regex+"]+@["+regex+"]+\\.[a-zA-Z]{2,}");
