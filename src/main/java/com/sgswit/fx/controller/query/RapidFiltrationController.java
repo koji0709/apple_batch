@@ -1,9 +1,9 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
@@ -11,13 +11,17 @@ import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 /**
@@ -52,58 +56,113 @@ public class RapidFiltrationController extends CustomTableView<Account> {
 
     @Override
     public void accountHandler(Account account) {
-        account.setHasFinished(false);
-        //step1 sign 登录
-        setAndRefreshNote(account,"登录中...");
-        ThreadUtil.sleep(2000);
-        HttpResponse step1Res = AppleIDUtil.signin(account);
-
-        if(step1Res.getStatus()==503){
-            account.setFailCount(account.getFailCount()+1);
-            if(account.getFailCount() >= 5){
-                account.setHasFinished(true);
-                throw new ServiceException("操作频繁，请稍后重试！！");
-            }
-            ThreadUtil.sleep(10*1000);
-            accountHandler(account);
-        }else{
-            if (step1Res.getStatus() != 409) {
-                account.setHasFinished(true);
-                queryFail(account,step1Res.body());
-
-            }
-
-            String step1Body = step1Res.body();
-            JSON json = JSONUtil.parse(step1Body);
-
-            ThreadUtil.sleep(2000);
-            //step2 获取认证信息 -- 需要输入密保
-            HttpResponse step21Res = AppleIDUtil.auth(account,step1Res);
-            String authType = (String) json.getByPath("authType");
-            if ("sa".equals(authType)) {
-                setAndRefreshNote(account,"正常账号");
+        //扣除点数
+        try {
+            account.setHasFinished(false);
+            setAndRefreshNote(account,"查询中...");
+            Thread.sleep(2*1000);
+            HashMap<String, List<String>> headers = new HashMap<>();
+            headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+            headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+            String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
+            HttpResponse captchaResponse = ProxyUtil.createGet(url)
+                    .header(headers)
+                    .execute();
+            if(captchaResponse.getStatus()==503){
                 insertLocalHistory(List.of(account));
-            } else if ("hsa2".equals(authType)) {
-                setAndRefreshNote(account,"此账号已开启双重认证");
-                insertLocalHistory(List.of(account));
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
+                throw new ServiceException("操作频繁，请稍后重试！");
+            }else{
+                String body = captchaResponse.body();
+                JSONObject object = JSONUtil.parseObj(body);
+                String capId = object.getStr("id");
+                String capToken = object.getStr("token");
+                //解析图片
+                try {
+                    Thread.sleep(2*1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
+                String content = payloadJson.getStr("content");
+                String predict = OcrUtil.recognize(content);
+                String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
+                HttpResponse verifyAppleIdRes = ProxyUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+                        .body(bodys)
+                        .header(headers)
+                        .execute();
+                if (verifyAppleIdRes.getStatus() == 503) {
+                    //返还点数
+                    PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
+                    account.setFailCount(account.getFailCount()+1);
+                    if(account.getFailCount() >= 5){
+                        insertLocalHistory(List.of(account));
+                        throw new ServiceException("操作频繁，请稍后重试！！");
+                    }
+                    try {
+                        Thread.sleep(10*1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    accountHandler(account);
+                }else if(verifyAppleIdRes.getStatus() == 400){
+                    JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
+                    boolean hasError = jsonObject.getBool("hasError");
+                    if(hasError){
+                        String service_errors = jsonObject.getStr("service_errors");
+                        JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                        String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
+                        if(code.equals("captchaAnswer.Invalid")){
+                            //返还点数
+                            PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
+                            accountHandler(account);
+                        }else if(code.equals("-20210")){
+                            setAndRefreshNote(account,"这个 Apple ID 没有被激活。");
+                            insertLocalHistory(List.of(account));
+                        }
+                    }
+                }else if(verifyAppleIdRes.getStatus() == 302){
+                    String location=verifyAppleIdRes.header("Location");
+                    if(StringUtils.containsIgnoreCase(location,"password/authenticationmethod")){
+                        setAndRefreshNote(account,"此AppleID已被锁定");
+                    }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
+                        setAndRefreshNote(account,"登录中...");
+                        HttpResponse step1Res = AppleIDUtil.signin(account);
+                        if (step1Res.getStatus() != 409) {
+                            setAndRefreshNote(account,"Apple ID 或密码不正确");
+                        }else{
+                            setAndRefreshNote(account,"正常账号");
+                        }
+                    }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
+                        setAndRefreshNote(account,"登录中...");
+                        HttpResponse step1Res = AppleIDUtil.signin(account);
+                        if (step1Res.getStatus() != 409) {
+                            setAndRefreshNote(account,"Apple ID 或密码不正确");
+                        }else{
+                            setAndRefreshNote(account,"此AppleID已开启双重认证");
+                        }
+                    }
+                    insertLocalHistory(List.of(account));
+                }else if(verifyAppleIdRes.getStatus() == 200){
+                    JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
+                    String service_errors = jsonObject.getStr("serviceErrors");
+                    JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                    if(null!=jsonArray){
+                        String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
+                        if(code.equals("appleIdNotSupported")){
+                            setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
+                            insertLocalHistory(List.of(account));
+                        }
+                    }
+                }
             }
-        }
-        account.setHasFinished(true);
-    }
+        }catch (Exception e){
 
-    private void queryFail(Account account,Object body) {
-        JSONArray serviceErrors = JSONUtil.parseArray(JSONUtil.parseObj(body.toString()).get("serviceErrors").toString());
-        String message = JSONUtil.parseObj(serviceErrors.get(0)).get("message").toString();
-        if(message.contains("锁定")){
-            account.setNote("账号已锁定");
-        }else
-        if(message.contains("密码")){
-            account.setNote("Apple ID 或密码不正确");
-        }else{
-            account.setNote("Apple ID 未激活");
+        }finally {
+            account.setHasFinished(true);
         }
-        setAndRefreshNote(account,account.getNote());
-        insertLocalHistory(List.of(account));
+
     }
 
 }
