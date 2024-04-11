@@ -180,7 +180,7 @@ public class ShoppingUtil {
     }
 
     // 查看购物车
-    public static Map<String,Object>  shopbag(Map<String,Object> paras) throws Exception{
+    public static Map<String,Object>  shopbag(Map<String,Object> paras){
         Map<String,Object> map = new HashMap<>();
 
         HashMap<String, List<String>> headers = new HashMap<>();
