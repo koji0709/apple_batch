@@ -126,9 +126,8 @@
                                 <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="364.0" prefWidth="1066.0">
                                     <columns>
                                         <TableColumn fx:id="seq" prefWidth="75.0" style="-fx-alignment: CENTER" text="序号" />
-                                        <TableColumn fx:id="account" prefWidth="350.0" style="-fx-alignment: CENTER" text="账号" />
-                                        <TableColumn fx:id="status" prefWidth="375.0" style="-fx-alignment: CENTER" text="状态" />
-                                        <TableColumn fx:id="note" prefWidth="280.0" style="-fx-alignment: CENTER" text="信息" />
+                                        <TableColumn fx:id="account" prefWidth="410.99998474121094" style="-fx-alignment: CENTER" text="账号" />
+                                        <TableColumn fx:id="note" prefWidth="582.0" style="-fx-alignment: CENTER" text="执行信息" />
                                     </columns>
                                 </TableView>
                             </content>

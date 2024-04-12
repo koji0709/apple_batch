@@ -17,7 +17,7 @@
     <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
   </rowConstraints>
   <children>
-    <Button layoutX="10.0"  onAction="#onRapidFiltrationBtnClick" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="极速过滤密正" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" mnemonicParsing="false" onAction="#onRapidFiltrationBtnClick" prefHeight="25.0" prefWidth="140.0" text="极速过滤密正" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
@@ -25,23 +25,19 @@
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-    <Button layoutX="10.0"  onAction="#onWhetherAppleIdBtnClick" layoutY="44.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="检测是否ApplelD" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="44.0" mnemonicParsing="false" onAction="#onWhetherAppleIdBtnClick" prefHeight="25.0" prefWidth="140.0" text="检测是否ApplelD" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>
-      <Button layoutX="10.0" onAction="#onBirthdayCountryQueryBtnClick" layoutY="104.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="查询生日国家" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+      <Button layoutX="10.0" layoutY="104.0" mnemonicParsing="false" onAction="#onBirthdayCountryQueryBtnClick" prefHeight="25.0" prefWidth="140.0" text="查询生日国家" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
           <GridPane.margin>
               <Insets bottom="5.0" top="5.0" />
           </GridPane.margin></Button>
-      <Button layoutX="10.0" onAction="#onSecurityQuestionBtnClick" layoutY="74.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="查询密保问题" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+      <Button layoutX="10.0" layoutY="74.0" mnemonicParsing="false" onAction="#onSecurityQuestionBtnClick" prefHeight="25.0" prefWidth="140.0" text="查询密保问题" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
           <GridPane.margin>
               <Insets bottom="5.0" top="5.0" />
           </GridPane.margin></Button>
-    <Button layoutX="10.0" onAction="#onCheckGrayBalanceBtnClick"  layoutY="134.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="检测灰余额" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-         <GridPane.margin>
-            <Insets bottom="5.0" top="5.0" />
-         </GridPane.margin></Button>
-    <Button layoutX="10.0"  onAction="#onBalanceQueryBtnClick"  layoutY="164.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="密保查询余额" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+    <Button layoutX="10.0" layoutY="134.0" mnemonicParsing="false" onAction="#onCheckGrayBalanceBtnClick" prefHeight="25.0" prefWidth="140.0" text="检测灰余额" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets bottom="5.0" top="5.0" />
          </GridPane.margin></Button>

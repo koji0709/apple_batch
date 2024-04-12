@@ -222,7 +222,8 @@ public class ShoppingUtil {
         paras.put("header",xheaders);
 
         Map<String,Object> bodys = new HashMap<>();
-        bodys.put("shoppingCart.recommendations.recommendedItem.part",jo.getByPath("shoppingCart.recommendations.recommendedItem.d.part").toString());
+        String part=jo.getByPath("shoppingCart.recommendations.recommendedItem.d.part",String.class);
+        bodys.put("shoppingCart.recommendations.recommendedItem.part",part);
 
         List<String> items = (List<String>) jo.getByPath("shoppingCart.items.c");
         for(String item : items){
@@ -232,11 +233,11 @@ public class ShoppingUtil {
             String quantityKey = "shoppingCart.items." + item + ".itemQuantity.quantity";
             String quantityKeyContent = "shoppingCart.items." + item + ".itemQuantity.d.quantity";
 
-            bodys.put(giftKey,(Boolean)jo.getByPath(giftKeyContent));
-            bodys.put(quantityKey,(Integer)jo.getByPath(quantityKeyContent));
+            bodys.put(giftKey,jo.getByPath(giftKeyContent,Boolean.class));
+            bodys.put(quantityKey,jo.getByPath(quantityKeyContent,Integer.class));
         }
 
-        bodys.put("shoppingCart.locationConsent.locationConsent",(Boolean)jo.getByPath("shoppingCart.locationConsent.d.locationConsent"));
+        bodys.put("shoppingCart.locationConsent.locationConsent",jo.getByPath("shoppingCart.locationConsent.d.locationConsent",Boolean.class));
         bodys.put("shoppingCart.summary.promoCode.promoCode",jo.getByPath("shoppingCart.summary.promoCode.d.promoCode").toString());
         bodys.put("shoppingCart.actions.fcscounter",jo.getByPath("shoppingCart.actions.d.fcscounter").toString());
         bodys.put("shoppingCart.actions.fcsdata",jo.getByPath("shoppingCart.actions.d.fcsdata").toString());
