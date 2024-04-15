@@ -38,15 +38,14 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
     public void initViewData(){
         // 默认中国
         dialCodeComboBox.setValue("+86(中国大陆)");
-        String mobilePhoneJson = ResourceUtil.readUtf8Str("data/global-mobile-phone-regular.json");
-        JSONObject jsonObj = JSONUtil.parseObj(mobilePhoneJson);
-        JSONArray mobilephoneArray = jsonObj.getJSONArray("data");
-        for (Object o : mobilephoneArray) {
+        String mobilePhoneJson = ResourceUtil.readUtf8Str("data/support_all_country.json");
+        JSONArray mobilePhoneArray = JSONUtil.parseArray(mobilePhoneJson);
+        for (Object o : mobilePhoneArray) {
             JSONObject json = (JSONObject) o;
             // +86（中国大陆）
             String format = "+%s(%s)";
-            String code = json.getStr("code");
-            String zh = json.getStr("zh");
+            String code = json.getStr("dial_code");
+            String zh = json.getStr("name_zh");
             dialCodeComboBox.getItems().add(String.format(format, code, zh));
             globalMobilePhoneMap.put(code,json);
         }

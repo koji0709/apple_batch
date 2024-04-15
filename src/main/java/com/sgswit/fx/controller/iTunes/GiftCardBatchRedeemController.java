@@ -698,8 +698,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     Platform.runLater(() -> checkAccountDescLabel.setText("账号信息格式不正确！格式：账号----密码"));
                     return;
                 }
-
+                String account = accountComboBoxValueArr[0];
+                String pwd     = accountComboBoxValueArr[1];
+                String guid = DataUtil.getGuidByAppleId(account);
                 // 扣除点数
+                singleGiftCardRedeem.setAccount(account);
                 pointCost(singleGiftCardRedeem,PointUtil.out, FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
 
                 Platform.runLater(() -> {
@@ -709,9 +712,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     open2FAViewBtn.setDisable(true);
                     editOrImportAccountListBtn.setDisable(true);
                 });
-                String account = accountComboBoxValueArr[0];
-                String pwd     = accountComboBoxValueArr[1];
-                String guid = DataUtil.getGuidByAppleId(account);
                 // 修复个人信息读取上一个登陆的用户的bug
                 if ((StrUtil.isEmpty(singleGiftCardRedeem.getAccount())
                         || !account.equals(singleGiftCardRedeem.getAccount())

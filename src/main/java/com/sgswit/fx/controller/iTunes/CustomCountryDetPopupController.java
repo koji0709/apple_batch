@@ -50,8 +50,6 @@ public class CustomCountryDetPopupController implements Initializable {
     @FXML
     public Pane billMailingAddressPane;
 
-    private List<Map<String, String>> countryList=new ArrayList<>();
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         selectCountryListener();
