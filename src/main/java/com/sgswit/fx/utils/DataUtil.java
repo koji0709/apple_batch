@@ -181,7 +181,7 @@ public class DataUtil {
         return getId(web_client_id,appleId);
     }
     public static List<String> getLanguageList(){
-        return  getLanguageMap().keySet().stream().map(e -> e.toString()).collect(Collectors.toList());
+        return  getLanguageMap().keySet().stream().collect(Collectors.toList());
     }
 
     public static LinkedHashMap<String,String> getLanguageMap(){
@@ -258,6 +258,14 @@ public class DataUtil {
             id=IdUtil.fastUUID().toUpperCase();
         }
         return id;
+   }
+   public static Map<String,String> getAddressInfo(String countryCode){
+       HttpResponse rsp = HttpUtils.get("/api/data/getRandAddress?countryCode="+countryCode);
+       JSON json=JSONUtil.parse(rsp.body());
+       if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+          return json.getByPath("data",Map.class);
+       }
+       return null;
    }
    /**
    　* 设置用户信息

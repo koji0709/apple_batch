@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.Faker;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
@@ -164,83 +165,84 @@ public class CountryModifyController extends CustomTableView<Account>{
 
     @Override
     public void accountHandler(Account account){
-        account.setHasFinished(false);
-        setAndRefreshNote(account,"正在登录...");
-        String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
-        Map<String,Object> res=account.getAuthData();
-        if("00".equals(step)){
-            String authCode=account.getAuthCode();
-            res= PurchaseBillUtil.iTunesAuth(authCode,res);
-        }else if("01".equals(step)){
-            res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
-        }else{
-            res=new HashMap<>();
-        }
-        account.setOriginalCountry(MapUtil.getStr(res,"countryName"));
-        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
-            account.setNote(String.valueOf(res.get("msg")));
-            account.setAuthData(res);
-            throw new ServiceException(String.valueOf(res.get("msg")));
-        }else if(!Constant.SUCCESS.equals(res.get("code"))){
-            account.setNote(String.valueOf(res.get("msg")));
-            account.setDataStatus("0");
-            throw new ServiceException(String.valueOf(res.get("msg")));
-        }else{
-            setAndRefreshNote(account,"登录成功，正在修改...");
-            String body="",targetCountry="";
-            //自定义国家信息
-            if(fromType.equals("2")){
-                // 创建json文件对象
-                File jsonFile = new File("userNationalData.json");
-                String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
-                List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
-                UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().get("code"))).collect(Collectors.toList()).get(0);
-                targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
-                Map<String,Object> bodyMap=new HashMap<>();
-                bodyMap.put("iso3CountryCode",u.getPayment().getBillingAddress().getCountryCode());
-                bodyMap.put("addressOfficialCountryCode",u.getPayment().getBillingAddress().getCountryCode());
-                bodyMap.put("agreedToTerms","1");
-                bodyMap.put("paymentMethodVersion","2.0");
-                bodyMap.put("needsTopUp",false);
-                bodyMap.put("paymentMethodType","None");
-                bodyMap.put("billingFirstName",u.getPayment().getOwnerName().getFirstName());
-                bodyMap.put("billingLastName",u.getPayment().getOwnerName().getLastName());
-                bodyMap.put("addressOfficialLineFirst",u.getPayment().getBillingAddress().getLine1());
-                bodyMap.put("addressOfficialLineSecond",u.getPayment().getBillingAddress().getLine2());
-                bodyMap.put("addressOfficialLineThird",u.getPayment().getBillingAddress().getLine3());
-                bodyMap.put("addressOfficialCity",u.getPayment().getBillingAddress().getCity());
-                bodyMap.put("addressOfficialPostalCode",u.getPayment().getBillingAddress().getPostalCode());
-                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getStateProvinceName());
-                bodyMap.put("phoneOfficeNumber",u.getPayment().getPhoneNumber().getNumber());
-                bodyMap.put("phoneOfficeAreaCode",u.getPayment().getPhoneNumber().getCountryCode());
-                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getStateProvinceName());
-//                                bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getSuburb());
-                body=MapUtil.join(bodyMap,"&","=",true);
-            }else{
-                //快捷国家信息
-                targetCountry=countryBox.getSelectionModel().getSelectedItem().get("name");
-                String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
-                //生成填充数据
-                body=generateFillData(countryCode);
-            }
-            account.setTargetCountry(targetCountry);
-            accountTableView.refresh();
-
-            res.put("addressInfo",body);
-            Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
-            if(Constant.SUCCESS.equals(MapUtil.getStr(editBillingInfoRes,"code"))){
-                account.setDataStatus("1");
-                //修改成功之后，清除iTunes登录缓存信息
-                String id=super.createId(account.getAccount(),account.getPwd());
-                loginSuccessMap.remove(id);
-            }else{
-                account.setDataStatus("0");
-            }
-            account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
+        try {
             account.setHasFinished(false);
+            setAndRefreshNote(account,"正在登录...");
+            String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
+            Map<String,Object> res=account.getAuthData();
+            if("00".equals(step)){
+                String authCode=account.getAuthCode();
+                res= PurchaseBillUtil.iTunesAuth(authCode,res);
+            }else if("01".equals(step)){
+                res= PurchaseBillUtil.iTunesAuth(account.getAccount(),account.getPwd());
+            }else{
+                res=new HashMap<>();
+            }
+            account.setOriginalCountry(MapUtil.getStr(res,"countryName"));
+            if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
+                account.setNote(String.valueOf(res.get("msg")));
+                account.setAuthData(res);
+                throw new ServiceException(String.valueOf(res.get("msg")));
+            }else if(!Constant.SUCCESS.equals(res.get("code"))){
+                account.setNote(String.valueOf(res.get("msg")));
+                account.setDataStatus("0");
+                throw new ServiceException(String.valueOf(res.get("msg")));
+            }else{
+                setAndRefreshNote(account,"登录成功，正在修改...");
+                String body="",targetCountry="";
+                //自定义国家信息
+                if(fromType.equals("2")){
+                    // 创建json文件对象
+                    File jsonFile = new File("userNationalData.json");
+                    String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());
+                    List<UserNationalModel> list = JSONUtil.toList(jsonString,UserNationalModel.class);
+                    UserNationalModel u=list.stream().filter(e->e.getId().equals(customCountryBox.getSelectionModel().getSelectedItem().get("code"))).collect(Collectors.toList()).get(0);
+                    targetCountry=DataUtil.getInfoByCountryCode(u.getPayment().getBillingAddress().getCountryCode()).getNameZh();
+                    Map<String,Object> bodyMap=new HashMap<>();
+                    bodyMap.put("iso3CountryCode",u.getPayment().getBillingAddress().getCountryCode());
+                    bodyMap.put("addressOfficialCountryCode",u.getPayment().getBillingAddress().getCountryCode());
+                    bodyMap.put("agreedToTerms","1");
+                    bodyMap.put("paymentMethodVersion","2.0");
+                    bodyMap.put("needsTopUp",false);
+                    bodyMap.put("paymentMethodType","None");
+                    bodyMap.put("billingFirstName",u.getPayment().getOwnerName().getFirstName());
+                    bodyMap.put("billingLastName",u.getPayment().getOwnerName().getLastName());
+                    bodyMap.put("addressOfficialLineFirst",u.getPayment().getBillingAddress().getLine1());
+                    bodyMap.put("addressOfficialLineSecond",u.getPayment().getBillingAddress().getLine2());
+                    bodyMap.put("addressOfficialLineThird",u.getPayment().getBillingAddress().getLine3());
+                    bodyMap.put("addressOfficialCity",u.getPayment().getBillingAddress().getCity());
+                    bodyMap.put("addressOfficialPostalCode",u.getPayment().getBillingAddress().getPostalCode());
+                    bodyMap.put("addressOfficialStateProvince",u.getPayment().getBillingAddress().getStateProvinceName());
+                    bodyMap.put("phoneOfficeNumber",u.getPayment().getPhoneNumber().getNumber());
+                    bodyMap.put("phoneOfficeAreaCode",u.getPayment().getPhoneNumber().getAreaCode());
+                    body=MapUtil.join(bodyMap,"&","=",true);
+                }else{
+                    //快捷国家信息
+                    targetCountry=countryBox.getSelectionModel().getSelectedItem().get("name");
+                    String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
+                    //生成填充数据
+                    body=generateFillData(countryCode);
+                }
+                account.setTargetCountry(targetCountry);
+                accountTableView.refresh();
+
+                res.put("addressInfo",body);
+                Map<String,Object> editBillingInfoRes= ITunesUtil.editBillingInfo(res);
+                account.setNote(MapUtil.getStr(editBillingInfoRes,"message"));
+                if(Constant.SUCCESS.equals(MapUtil.getStr(editBillingInfoRes,"code"))){
+                    account.setDataStatus("1");
+                    //修改成功之后，清除iTunes登录缓存信息
+                    String id=super.createId(account.getAccount(),account.getPwd());
+                    loginSuccessMap.remove(id);
+                }else{
+                    account.setDataStatus("0");
+                    throw new ServiceException(account.getNote());
+                }
+            }
+            super.accountTableView.refresh();
+        }catch (Exception e){
+            throw e;
         }
-        account.setHasFinished(true);
-        accountTableView.refresh();
     }
 
     /**
@@ -279,21 +281,39 @@ public class CountryModifyController extends CustomTableView<Account>{
     private static String generateFillData(String countryCode){
         String body="";
         try {
-            if("USA".equals(countryCode)){
-                body="iso3CountryCode=USA&addressOfficialCountryCode=USA&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ZhuJu&billingLastName=Mao&addressOfficialLineFirst=ZuoLingZhen379Hao&addressOfficialLineSecond=19Chuang4DanYuan801Shi&addressOfficialCity=luobin&addressOfficialPostalCode=99775&phoneOfficeNumber=3562000&phoneOfficeAreaCode=410&addressOfficialStateProvince=AK";
-            }else if("CHN".equals(countryCode)){
-                body="iso3CountryCode=CHN&addressOfficialCountryCode=CHN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=%e8%ae%ba%e8%bf%b0&billingLastName=%e7%89%b9&addressOfficialLineFirst=asfaga124&addressOfficialLineSecond=fasfa125&addressOfficialCity=%e5%b9%bf%e5%b7%9e&addressOfficialPostalCode=510000&phoneOfficeNumber=18377114211&addressOfficialStateProvince=%e5%b9%bf%e4%b8%9c";
+            Map<String,String> bodyMap=  new HashMap<>();
+            bodyMap.put("iso3CountryCode",countryCode);
+            bodyMap.put("addressOfficialCountryCode",countryCode);
+            bodyMap.put("agreedToTerms","1");
+            bodyMap.put("paymentMethodVersion","2.0");
+            bodyMap.put("needsTopUp","false");
+            bodyMap.put("paymentMethodType","None");
+            Faker faker ;
+            if("CHN".equals(countryCode)){
+                faker = new Faker(Locale.CHINA);
+            }else if("USA".equals(countryCode)){
+                faker = new Faker(Locale.US);
             }else if("CAN".equals(countryCode)){
-                body="iso3CountryCode=CAN&addressOfficialCountryCode=CAN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=NnpMW6d&billingLastName=Z1sIxex&addressOfficialLineFirst=hfghfg1&addressOfficialLineSecond=terter2&addressOfficialCity=terter2&addressOfficialPostalCode=T9X+1Z4&phoneOfficeNumber=4488258&phoneOfficeAreaCode=403&addressOfficialStateProvince=AB";
-            }else if("AUS".equals(countryCode)){
-                body="iso3CountryCode=AUS&addressOfficialCountryCode=AUS&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=r0QjeVm&billingLastName=SgUWhG4&addressOfficialLineFirst=dsad1&addressOfficialLineSecond=fdsfds1&addressOfficialCity=fdsfds1&addressOfficialPostalCode=7009&phoneOfficeNumber=40517322&phoneOfficeAreaCode=61&addressOfficialStateProvince=Tasmania";
+                faker = new Faker(Locale.CANADA);
             }else if("JPN".equals(countryCode)){
-                body="iso3CountryCode=JPN&addressOfficialCountryCode=JPN&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=cikej&billingLastName=kxzfh&addressOfficialLineFirst=JiuJiQiFuFen&addressOfficialLineSecond=&addressOfficialCity=KeChuHuiJiaFei&addressOfficialPostalCode=786-7875&phoneOfficeNumber=78757862&phoneOfficeAreaCode=3951&addressOfficialStateProvince=%e7%be%a4%e9%a6%ac%e7%9c%8c&phoneticBillingLastName=xingpingying&phoneticBillingFirstName=mingpingyin";
+                faker = new Faker(Locale.JAPAN);
+                Faker faker2 = new Faker();
+                bodyMap.put("phoneticBillingFirstName",faker2.name().firstName());
+                bodyMap.put("phoneticBillingLastName",faker2.name().lastName());
             }else if("GBR".equals(countryCode)){
-                body="iso3CountryCode=GBR&addressOfficialCountryCode=GBR&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=ShiMei&billingLastName=Shao&addressOfficialLineFirst=YinZuZhen239Hao&addressOfficialLineSecond=42Chuang4DanYuan502Shi&addressOfficialCity=YunChengShi&addressOfficialPostalCode=YI3+3PR&phoneOfficeNumber=72333032&phoneOfficeAreaCode=44";
+                faker = new Faker(Locale.ENGLISH);
             }else if("DEU".equals(countryCode)){
-                body="iso3CountryCode=DEU&addressOfficialCountryCode=DEU&agreedToTerms=1&paymentMethodVersion=2.0&needsTopUp=false&paymentMethodType=None&billingFirstName=YaoTao&billingLastName=Li&addressOfficialLineFirst=PanKouXiang294Hao&addressOfficialLineSecond=27Chuang4DanYuan903Shi&addressOfficialCity=luobin&addressOfficialPostalCode=83141&phoneOfficeNumber=83141954&phoneOfficeAreaCode=2427";
+                faker = new Faker(Locale.GERMANY);
+            }else{
+                faker = new Faker();
             }
+            bodyMap.put("billingLastName",faker.name().lastName());
+            bodyMap.put("billingFirstName",faker.name().firstName());
+            Map<String,String> resMap=DataUtil.getAddressInfo(countryCode);
+            // 合并map1和map2
+            bodyMap.putAll(resMap);
+            body=MapUtil.join(bodyMap,"&","=",true);
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -320,4 +340,7 @@ public class CountryModifyController extends CustomTableView<Account>{
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
 
+    public static void main(String[] args) {
+        System.out.println(generateFillData("CHN"));
+    }
 }
