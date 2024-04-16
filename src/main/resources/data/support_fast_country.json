@@ -40,4 +40,12 @@
   "name_zh": "英国",
   "code2": "GB",
   "code": "GBR"
-}]
+},{
+  "dial_code": "852",
+  "name_en": "Hong Kong",
+  "name_zh": "香港",
+  "code2": "HK",
+  "code": "HKG"
+},
+  {"dial_code":"886","name_en":"Taiwan","name_zh":"台湾","code2":"TW","code":"TWN"}
+]
