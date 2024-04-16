@@ -224,6 +224,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                                     if("无效卡".equals(row.getGiftCardStatus()) || "僵尸卡".equals(row.getGiftCardStatus())
                                             || "旧卡".equals(row.getGiftCardStatus()) || "兑换失败".equals(row.getGiftCardStatus())){
                                         setTextFill(Color.RED);
+                                    }else if ("本卡兑换".equals(row.getGiftCardStatus())){
+                                        setTextFill(Color.CORNFLOWERBLUE);
                                     }else{
                                         setTextFill(Color.BLACK);
                                     }
@@ -299,7 +301,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void stopTaskButtonAction() {
         super.stopTaskButtonAction();
         for (GiftCardRedeem giftCardRedeem : accountList) {
-            if (Constant.REDEEM_WAIT_DESC.equals(giftCardRedeem.getNote())){
+            if (Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote()) || Constant.REDEEM_WAIT2_DESC.equals(giftCardRedeem.getNote())){
                 ReflectUtil.invoke(giftCardRedeem,"setHasFinished",true);
                 setAndRefreshNote(giftCardRedeem,"");
             }
@@ -343,16 +345,18 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         // 每一次执行前都释放锁
         if (reentrantLock.isLocked()) {
             reentrantLock.unlock();
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(300);
         }
 
         // 此处的线程是为了处理,按钮状态等文案显示
         ThreadUtil.execute(() -> {
+            // 将账号分组
             LinkedHashMap<String,List<GiftCardRedeem>> accountGroupMap = new LinkedHashMap<>();
             for (GiftCardRedeem giftCardRedeem : accountList) {
                 if (isProcessed(giftCardRedeem)){
                     continue;
                 }
+                giftCardRedeem.setNote("");
                 String account = giftCardRedeem.getAccount();
                 List<GiftCardRedeem> giftCardRedeemList = accountGroupMap.get(account);
                 if (giftCardRedeemList==null){
@@ -375,11 +379,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         // 校验 (一分钟内一个id最多只能五张卡、每日兑换上限)
                         boolean b = redeemCheck(giftCardRedeem,true);
                         if (!b){
+                            setExecuteButtonStatus();
                             continue;
                         }
                         accountHandlerExpand(giftCardRedeem, false);
                         setExecuteButtonStatus();
-                        ThreadUtil.sleep(2000);
+                        //ThreadUtil.sleep(200);
                     }
                 });
             }
@@ -390,7 +395,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void setExecuteButtonStatus(){
         boolean isEnd = true;
         for (GiftCardRedeem cardRedeem : this.accountList) {
-            if (StrUtil.isEmpty(cardRedeem.getNote()) || Constant.REDEEM_WAIT_DESC.equals(cardRedeem.getNote())){
+            if (StrUtil.isEmpty(cardRedeem.getNote()) || (Constant.REDEEM_WAIT1_DESC.equals(cardRedeem.getNote()) && execAgainCheckBox.isSelected())){
                isEnd = false;
                break;
             }
@@ -407,54 +412,57 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         maxRedeemAmountTextField.setDisable(isRunning);
     }
 
-    /**
-     * 反射方法调用
-     */
-    public boolean redeemCheck(GiftCardRedeem giftCardRedeem){
-        return redeemCheck(giftCardRedeem,false);
-    }
-
-    public boolean redeemCheck(GiftCardRedeem giftCardRedeem,boolean updateAllNote){
+    public boolean redeemCheck(GiftCardRedeem giftCardRedeem,boolean isNormal){
         String account = giftCardRedeem.getAccount();
         List<Long> countList;
         synchronized (getClass()){
             countList = countMap.get(account);
             if (!CollUtil.isEmpty(countList)){
-                // 清理掉2分钟前的数据
+                // 清理掉1分钟前的数据
                 countList = countList.stream().filter(time -> {
                     long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-                    return second < 120;
+                    return second < 60;
                 }).collect(Collectors.toList());
             }
 
             if (!CollUtil.isEmpty(countList) && countList.size() >= 5){
-                setAndRefreshNote(giftCardRedeem,Constant.REDEEM_WAIT_DESC);
+                String note = execAgainCheckBox.isSelected() ? Constant.REDEEM_WAIT1_DESC : Constant.REDEEM_WAIT2_DESC;
+                setAndRefreshNote(giftCardRedeem,note);
                 //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
-                if (updateAllNote){
+                if (isNormal){
                     for(GiftCardRedeem g:accountList){
                         if(g.getAccount().equals(giftCardRedeem.getAccount()) && StringUtils.isEmpty(g.getNote())){
-                            setAndRefreshNote(g,Constant.REDEEM_WAIT_DESC);
+                            g.setNote(note);
+                            setAndRefreshNote(g,note);
                         }
                     }
                 }
                 lockSet.add(account);
+            }else{
+                lockSet.remove(account);
             }
         }
 
-        if (!CollUtil.isEmpty(countList) && countList.size() >= 5 && lockSet.contains(account)){
-            int i = 0;
-            while (++i <= 64){
+        boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
+        if (!CollUtil.isEmpty(countList) && countList.size() >= 5 && lockSet.contains(account) && execAgainCheckBoxSelected){
+            Long time = countList.get(0);
+            Long between = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
+            while (!isNormal ? between <= 60 : between <= 63){
                 if (reentrantLock.isLocked()) {
                     return false;
                 }
                 ThreadUtil.sleep(1000);
+                between = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
             }
         }
 
         synchronized (getClass()){
-            if (lockSet.contains(account)){
-                lockSet.remove(account);
-                countMap.remove(account);
+            // 如果延迟了一分钟后,将之前的缓存数据清理掉,并且添加新的缓存
+            if (execAgainCheckBoxSelected){
+                if (lockSet.contains(account)){
+                    lockSet.remove(account);
+                    countMap.remove(account);
+                }
             }
             countList = countMap.get(account);
             if (CollUtil.isEmpty(countList)){
@@ -463,7 +471,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             countList.add(System.currentTimeMillis());
             countMap.put(account,countList);
         }
-        return true;
+        // 如果是延迟执行,则直接返回true；否则根据是否执行了五条数据来响应。
+        return execAgainCheckBoxSelected ? true : !lockSet.contains(account);
+    }
+
+
+    @Override
+    public boolean isProcessed(GiftCardRedeem account) {
+        return !(StrUtil.isEmpty(account.getNote()) || Constant.REDEEM_WAIT1_DESC.equals(account.getNote())  || Constant.REDEEM_WAIT2_DESC.equals(account.getNote())) ;
     }
 
     /**
@@ -560,16 +575,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
         String body = redeemRsp.body();
 
-        // 如果操作频繁，重新执行一次
-        if (giftCardRedeem.getMaxTryNumber() < 5 && execAgainCheckBox.isSelected() && StrUtil.isEmpty(body)){
-            giftCardRedeem.setMaxTryNumber(giftCardRedeem.getMaxTryNumber()+1);
-            ThreadUtil.sleep(2000L);
-            String message= MessageFormat.format("操作频繁，正在进行第{0}次尝试...",new String[]{giftCardRedeem.getMaxTryNumber()+""});
-            setAndRefreshNote(giftCardRedeem,message);
-            redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
-            body      = redeemRsp.body();
-        }
-
         if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
             String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
             throw new ServiceException(message);
@@ -593,6 +598,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if (bodyJSON.getInt("status") != 0 || StrUtil.isEmpty(recipientDsId)){
                     message = String.format(message,"此代码已被兑换");
                 }else{
+                    if (recipientDsId.equals(giftCardRedeem.getDsPersonId())){
+                        giftCardRedeem.setGiftCardStatus("本号兑换");
+                    }
                     message = String.format(message,"此代码已被[dsid:"+recipientDsId+"]兑换");
                 }
             } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){

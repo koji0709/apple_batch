@@ -215,7 +215,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                     Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
                     String note = ReflectUtil.invoke(account, "getNote");
 
-                    if(!hasFinished || Constant.REDEEM_WAIT_DESC.equals(note)){
+                    if(!hasFinished || Constant.REDEEM_WAIT1_DESC.equals(note)){
                         alert("执行中，不可重复执行。");
                         return;
                     }
@@ -237,14 +237,15 @@ public class CommRightContextMenuView<T> extends CommonView {
                     }
                     if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
                         ThreadUtil.execute(()-> {
-                                //ReflectUtil.invoke(this,"redeemCheck",account);
+                            Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", account,false);
+                            if (redeemCheck){
                                 accountHandlerExpand(account);
                                 ReflectUtil.invoke(this,"setExecuteButtonStatus");
+                            }
                         });
                     }else{
                         accountHandlerExpand(account);
                     }
-                    accountHandlerExpand(account);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode())) {
