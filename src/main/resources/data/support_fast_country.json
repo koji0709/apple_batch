@@ -43,9 +43,11 @@
 },{
   "dial_code": "852",
   "name_en": "Hong Kong",
-  "name_zh": "香港",
+  "name_zh": "中国香港",
   "code2": "HK",
   "code": "HKG"
 },
-  {"dial_code":"886","name_en":"Taiwan","name_zh":"台湾","code2":"TW","code":"TWN"}
+  {"dial_code":"886","name_en":"Taiwan","name_zh":"中国台湾","code2":"TW","code":"TWN"}
+,{"dial_code":"34","name_en":"Spain","name_zh":"西班牙","code2":"ES","code":"ESP"}
+,{"dial_code":"55","name_en":"Brazil","name_zh":"巴西","code2":"BR","code":"ESP"}
 ]
