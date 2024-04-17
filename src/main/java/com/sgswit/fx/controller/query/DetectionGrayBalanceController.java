@@ -97,7 +97,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Thread.sleep(1000);
             // 添加到购物车
             setAndRefreshNote(account,"添加到购物车中...");
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 throw new ServiceException(MapUtil.getStr(addMap,"msg"));
@@ -206,7 +206,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         }catch (ServiceException ae){
             throw ae;
         }catch (Exception e){
-            throw new ServiceException("余额查询失败！");
+            throw new ServiceException("余额查询失败，请稍后重试！");
         }
 
     }

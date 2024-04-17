@@ -17,6 +17,7 @@ public class Constant {
     public static final String FailureTypeTemporarilyUnavailable = "2059";
 
     public static final String CustomerMessageNotYetUsediTunesStore = "has not yet been used with the iTunes Store.";
+    public static final String CustomerMessageNotYetUsediTunesStoreCode = "5001";
     public static final String ACCOUNT_IS_DISABLED = "Your account is disabled.";
     public static final String  ACCOUNT_HAS_BEEN_LOCKED = "You cannot login because your account has been locked";
 

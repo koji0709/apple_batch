@@ -385,7 +385,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 if(503==step4Res.getStatus()){
                     throw new ServiceException("操作频繁，请稍后重试！");
                 }else {
-                    throw new ServiceException("余额查询失败");
+                    throw new ServiceException("余额查询失败，请稍后重试！");
                 }
             }
             giftCard.setFailCount(giftCard.getFailCount()+1);
@@ -393,7 +393,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             setAndRefreshNote(giftCard, message);
             Map<String,String> result=login();
             if(result.get("code").equals("-1")) {
-                throw new ServiceException("余额查询失败");
+                throw new ServiceException("余额查询失败，请稍后重试！");
             }else if(result.get("code").equals("1")){
                 ThreadUtil.sleep(3000);
             }else{
@@ -405,10 +405,10 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             try {
                 String status=bodyJson.getByPath("head.status",String.class);
                 if(!Constant.SUCCESS.equals(status)){
-                    throw new ServiceException("余额查询失败");
+                    throw new ServiceException("余额查询失败，请稍后重试！");
                 }
             }catch (Exception e){
-                throw new ServiceException("余额查询失败");
+                throw new ServiceException("余额查询失败，请稍后重试！");
             }
             String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
             String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
@@ -511,7 +511,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             res.put("code", "0");
         }catch (Exception e){
             res.put("code", "-1");
-            throw e;
+//            throw e;
         }finally {
             loginProcess=false;
         }

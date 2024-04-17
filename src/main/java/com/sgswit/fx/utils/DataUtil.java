@@ -37,7 +37,6 @@ public class DataUtil {
     private static Map<String,Object> userInfo=new HashMap<>();
     //内置代理信息
     private static List<Map<String,Object>> proxyConfigList;
-    private static List<Map<String,Object>> proxyModeList;
     public static List<Map<String,Object>> getProxyConfig(){
         try {
             if(null==proxyConfigList || proxyConfigList.size()==0){

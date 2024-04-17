@@ -481,7 +481,7 @@ public class ShoppingUtil {
 
         if(resp.getStatus() != 200){
             paras.put("code","1");
-            paras.put("msg","余额查询失败");
+            paras.put("msg","余额查询失败，请稍后重试！");
             return paras;
         }
         paras.put("code",Constant.SUCCESS);
@@ -513,84 +513,69 @@ public class ShoppingUtil {
 
         String countryCode=MapUtil.getStr(paras,"countryCode");
         //TODO: 需要根据appleid 所属国家， 调整如下相关地址
+        paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
+        paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
+        paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
         if("USA".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","29Chao4HaiLi701ST");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode","97216-1701");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.zipLookupCityState","Portland, OR");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","US");
         }else if("JPN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","番地など");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","951-8073");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","新宿区");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","山形県");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","JP");
         }else if("DEU".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","99085 Erfurt");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","Thälmannstraße 51");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","68089");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Erfurt");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","DE");
         }else if("AUS".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","29Chao4HaiLi701ST");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","8000");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Victoria");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","VIC");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","AU");
         }else if("CAN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","11755 108 Ave NW");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","V0T 1H0");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.cityTypeAhead.city","Edmonton");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","AB");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","CA");
         }else if("GBR".equals(countryCode)){
             paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street2","94 Broadway");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street","Swanley");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.postalCode","EC7I 5OD");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.city","London, England");
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode","GB");
