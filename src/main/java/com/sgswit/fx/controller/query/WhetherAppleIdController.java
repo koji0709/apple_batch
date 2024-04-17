@@ -93,7 +93,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){
-                        insertLocalHistory(List.of(account));
                         throw new ServiceException("操作频繁，请稍后重试！！");
                     }
                     try {
@@ -115,7 +114,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                             accountHandler(account);
                         }else if(code.equals("-20210")){
                             setAndRefreshNote(account,"这个 Apple ID 没有被激活。");
-                            insertLocalHistory(List.of(account));
                         }
                     }
                 }else if(verifyAppleIdRes.getStatus() == 302){
@@ -127,7 +125,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
                         setAndRefreshNote(account,"此AppleID已开启双重认证");
                     }
-                    insertLocalHistory(List.of(account));
                 }else if(verifyAppleIdRes.getStatus() == 200){
                     JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
                     String service_errors = jsonObject.getStr("serviceErrors");
@@ -136,7 +133,6 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                         String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
                         if(code.equals("appleIdNotSupported")){
                             setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
-                            insertLocalHistory(List.of(account));
                         }
                     }
                 }
