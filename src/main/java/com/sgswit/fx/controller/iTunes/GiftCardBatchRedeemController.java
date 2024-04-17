@@ -418,11 +418,27 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         synchronized (getClass()){
             countList = countMap.get(account);
             if (!CollUtil.isEmpty(countList)){
-                // 清理掉1分钟前的数据
-                countList = countList.stream().filter(time -> {
-                    long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-                    return second < 60;
-                }).collect(Collectors.toList());
+                // 如果被锁了
+                if (countList.size() >= 5 && lockSet.contains(account)){
+                    // 明显超时的数据去除掉
+                    countList = countList.stream().filter(time -> {
+                        long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
+                        return second < 120;
+                    }).collect(Collectors.toList());
+                    countMap.put(account,countList);
+
+                    // 清理掉1分钟前的数据
+                    List<Long> collect = countList.stream().filter(time -> {
+                        long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
+                        return second < 60;
+                    }).collect(Collectors.toList());
+
+                    if (collect.size() == 0){
+                        countList = new ArrayList<>();
+                        lockSet.remove(account);
+                        countMap.remove(account);
+                    }
+                }
             }
 
             if (!CollUtil.isEmpty(countList) && countList.size() >= 5){
@@ -445,9 +461,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
         if (!CollUtil.isEmpty(countList) && countList.size() >= 5 && lockSet.contains(account) && execAgainCheckBoxSelected){
-            Long time = countList.get(0);
+            Long time = countList.get(countList.size()-1);
             Long between = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-            while (!isNormal ? between <= 60 : between <= 63){
+            while (!isNormal ? between <= 60 : between <= 62){
                 if (reentrantLock.isLocked()) {
                     return false;
                 }
@@ -468,7 +484,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             if (CollUtil.isEmpty(countList)){
                 countList = new ArrayList<>();
             }
-            countList.add(System.currentTimeMillis());
+            if (!lockSet.contains(account)){
+                countList.add(System.currentTimeMillis());
+            }
             countMap.put(account,countList);
         }
         // 如果是延迟执行,则直接返回true；否则根据是否执行了五条数据来响应。
@@ -516,6 +534,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         }
 
+        if (codeInfoSrvRsp == null || StrUtil.isEmpty(codeInfoSrvRsp.body())){
+            throw new ServiceException("礼品卡信息读取失败，请稍后重试");
+        }
+
         JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
         JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
 
@@ -549,6 +571,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
 
         // 获取现有金额
+        String body = "";
+        HttpResponse redeemRsp = null;
         synchronized (this){
             AtomicReference<BigDecimal> balanceReference = atomicBalanceMap.get(account);
             if (balanceReference == null) {
@@ -569,13 +593,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 atomicBalanceMap.put(account,balanceReference);
                 currencyMap.put(account,getCurrency(balanceStr));
             }
+            setAndRefreshNote(giftCardRedeem,"兑换中...");
+            redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
+            body = redeemRsp.body();
         }
 
-        setAndRefreshNote(giftCardRedeem,"兑换中...");
-        HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
-        String body = redeemRsp.body();
-
-        if (redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
+        if (redeemRsp == null || redeemRsp.getStatus() != 200 || StrUtil.isEmpty(body)){
             String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
             throw new ServiceException(message);
         }
