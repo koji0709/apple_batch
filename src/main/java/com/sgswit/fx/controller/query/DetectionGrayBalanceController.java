@@ -183,22 +183,24 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
 
                 List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
                 Integer num = 0;
-                for(JSONObject o : ja){
-                    if(o.containsKey("disabled")){
-                        String disabled = o.get("disabled").toString();
-                        if("true".equals(disabled)){
-                            num ++;
-                            break;
+                if(null!=ja &&ja.size()>0){
+                    for(JSONObject o : ja){
+                        if(o.containsKey("disabled")){
+                            String disabled = o.get("disabled").toString();
+                            if("true".equals(disabled)){
+                                num ++;
+                                break;
+                            }
                         }
                     }
                 }
-                String balance = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.availableAppleBalance").toString();
                 if(num == 0){
-                    account.setStatus("启用");
+                    account.setStatus("正常");
                 }else {
                     account.setStatus("禁用");
                 }
-                account.setBalance(balance);
+                Object balance = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.availableAppleBalance");
+                account.setBalance((null==balance||balance.equals(""))?"0":balance.toString());
                 tableRefreshAndInsertLocal(account,"查询成功");
             }
         } catch (IORuntimeException e) {
@@ -210,11 +212,5 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         }
 
     }
-
-    private void tableRefresh(Account account,String message){
-        account.setNote(message);
-        accountTableView.refresh();
-    }
-
 
 }

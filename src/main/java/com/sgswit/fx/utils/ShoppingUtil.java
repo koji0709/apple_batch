@@ -6,7 +6,9 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.Faker;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -34,7 +36,12 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-        String accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
+        String accessoriesUrl;
+        if(StringUtils.isEmpty(code2)){
+            accessoriesUrl="https://www.apple.com/shop/iphone/accessories";
+        }else{
+            accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
+        }
         HttpResponse accRes = ProxyUtil.createGet(accessoriesUrl)
                 .header(headers).execute();
         if(accRes.getStatus() != 200){
@@ -164,7 +171,7 @@ public class ShoppingUtil {
                 .execute();
 
         if(res.getStatus() != 303){
-            paras.put("msg","添加到购物车失败！");
+            paras.put("msg","加入购物车失败！");
             paras.put("code","1");
             return paras;
         }
@@ -468,10 +475,10 @@ public class ShoppingUtil {
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
         Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
+        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","UG");
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
-        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x/fulfillment?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
 
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
@@ -516,74 +523,54 @@ public class ShoppingUtil {
         paramMap.put("checkout.shipping.addressSelector.newAddress.saveToAddressBook",false);
         paramMap.put("checkout.shipping.addressSelector.newAddress.address.isBusinessAddress",false);
         paramMap.put("checkout.shipping.addressSelector.selectAddress","newAddr");
+        paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
+        paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
+        Faker faker=new Faker();
+        paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName",faker.name().lastName());
+        paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName",faker.name().firstName());
+        BaseAreaInfo areaInfo=DataUtil.getInfoByCountryCode(countryCode);
+        Map<String,String> addressInfo=DataUtil.getAddressInfo(countryCode);
+        String postalCode=addressInfo.get("addressOfficialPostalCode");
+        String street=addressInfo.get("addressOfficialLineFirst");
+        String street2=addressInfo.get("addressOfficialLineSecond");
+        String state=addressInfo.get("addressOfficialStateProvince");
+        String city=addressInfo.get("addressOfficialCity");
+        if("USA".equals(countryCode) || "JPN".equals(countryCode) ||"DEU".equals(countryCode)
+            ||"CAN".equals(countryCode)){
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2",street2);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street",street);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode",postalCode);
+        }
         if("USA".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","29Chao4HaiLi701ST");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode","97216-1701");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.zipLookupCityState","Portland, OR");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","US");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.zipLookupCityState",city+", "+state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode",areaInfo.getCode2());
         }else if("JPN".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","番地など");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","951-8073");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","新宿区");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","山形県");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","JP");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode",areaInfo.getCode2());
         }else if("DEU".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","99085 Erfurt");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","Thälmannstraße 51");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","68089");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Erfurt");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","DE");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode",areaInfo.getCode2());
         }else if("AUS".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","zhichunjiayuan201hao");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","29Chao4HaiLi701ST");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","8000");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city","Victoria");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","VIC");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode","AU");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2",street2);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street",street);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode",postalCode);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode",areaInfo.getCode2());
         }else if("CAN".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.street","11755 108 Ave NW");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode","V0T 1H0");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.cityTypeAhead.city","Edmonton");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state","AB");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode","CA");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.cityTypeAhead.city",city);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.countryCode",areaInfo.getCode2());
         }else if("GBR".equals(countryCode)){
-            paramMap.put("checkout.shipping.addressNotification.address.emailAddress","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street2","94 Broadway");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName","wang");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName","pingping");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.companyName","");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street","Swanley");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.postalCode","EC7I 5OD");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.city","London, England");
-            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode","GB");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street2",street2);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.street",street);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.postalCode",postalCode);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.city",city+", "+state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode",areaInfo.getCode2());
         }
 
-        String nameByCountryCode = DataUtil.getNameByCountryCode(countryCode);
-
-        String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
+        String url = paras.get("url") + "x/shipping?_a=continueFromShippingToBilling&_m=checkout.shipping";
 
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
@@ -596,7 +583,7 @@ public class ShoppingUtil {
             return paras;
         }
         paras.put("code",Constant.SUCCESS);
-        paras.put("address",nameByCountryCode);
+        paras.put("address",areaInfo.getNameZh());
         return paras;
     }
 
@@ -620,23 +607,12 @@ public class ShoppingUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-        String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
+        String url =  paras.get("url") + "x/shipping?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
 
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .execute();
-        JSONObject meta = JSONUtil.parseObj(resp.body());
-
-        List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
-        for(JSONObject o : ja){
-            if(o.containsKey("disabled")){
-                String disabled = o.get("disabled").toString();
-                if("true".equals(disabled)){
-                    break;
-                }
-            }
-        }
         return resp;
     }
 }
