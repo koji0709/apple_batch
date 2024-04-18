@@ -6,6 +6,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
@@ -410,15 +411,31 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }catch (Exception e){
                 throw new ServiceException("余额查询失败，请稍后重试！");
             }
-            String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
-            String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
             giftCard.setDataStatus("1");
-            if(null==balance){
-                setAndRefreshNote(giftCard,"这不是有效的礼品(或已兑换)");
+            Object giftCardBalanceError=bodyJson.getByPath("body.giftCardBalanceCheck.t.giftCardBalanceError.microEvents");
+            if(null!=giftCardBalanceError){
+                JSONArray jsonArray= JSONUtil.parseArray(giftCardBalanceError);
+                String message="";
+                for(Object object:jsonArray){
+                    JSONObject jsonObject= (JSONObject) object;
+                    if(jsonObject.getStr("value").equals("transaction.gc_balance.alert.invalid_giftcard")){
+                        message=message+"输入的礼品卡无效；";
+                    }else if(jsonObject.getStr("value").equals("transaction.gc_balance.alert.invalid_country_giftcard")){
+                        String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
+                        message=message+"此代码不属于【"+DataUtil.getNameByCountryCode(countryCode)+"】地区；";
+                    }
+                }
+                setAndRefreshNote(giftCard,message);
             }else{
-                giftCard.setBalance(balance);
-                giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
-                setAndRefreshNote(giftCard,"查询成功.");
+                String balance=bodyJson.getByPath("body.giftCardBalanceCheck.d.balance",String.class);
+                String giftCardNumber=bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber",String.class);
+                if(null==balance){
+                    setAndRefreshNote(giftCard,"已兑换");
+                }else{
+                    giftCard.setBalance(balance);
+                    giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                    setAndRefreshNote(giftCard,"查询成功.");
+                }
             }
         }
         giftCard.setHasFinished(true);
