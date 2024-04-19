@@ -75,7 +75,7 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             insertLocalHistory(List.of(account));
         }catch (Exception e){
             account.setHasFinished(true);
-            throw new ServiceException("操作频繁，请稍后重试！！");
+            throw e;
         }
     }
 }
