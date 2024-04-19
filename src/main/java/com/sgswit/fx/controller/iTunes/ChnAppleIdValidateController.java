@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.map.MapUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.UserInfo;
 import com.sgswit.fx.utils.ITunesUtil;
@@ -85,15 +86,11 @@ public class ChnAppleIdValidateController extends CustomTableView<UserInfo>{
             account.setNote(String.valueOf(accountInfoMap.get("msg")));
             account.setAuthData(accountInfoMap);
         }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
-            account.setDataStatus("0");
-            account.setNote(String.valueOf(accountInfoMap.get("msg")));
-            accountTableView.refresh();
+            throw new ServiceException(String.valueOf(accountInfoMap.get("msg")));
         }else {
             boolean hasInspectionFlag= (boolean) accountInfoMap.get("hasInspectionFlag");
             if(!hasInspectionFlag){
-                account.setDataStatus("0");
-                setAndRefreshNote(account, "此 Apple ID 尚未用于 App Store。");
-                return;
+                throw new ServiceException("此 Apple ID 尚未用于 App Store。");
             }
             setAndRefreshNote(account,"登录成功，正在校验身份信息...");
             //判断是否需要认证
@@ -107,7 +104,7 @@ public class ChnAppleIdValidateController extends CustomTableView<UserInfo>{
                 account.setDataStatus(Constant.SUCCESS.equals(MapUtil.getStr(accountInfoMap, "code"))?"1":"0");
             }else{
                 account.setHasFinished(true);
-                account.setDataStatus("0");
+                account.setDataStatus("1");
                 setAndRefreshNote(account, "该账户不需要认证。");
                 return;
             }
