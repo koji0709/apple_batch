@@ -83,8 +83,8 @@ public class ChnAppleIdValidateController extends CustomTableView<UserInfo>{
             accountInfoMap=new HashMap<>();
         }
         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(accountInfoMap.get("code"))) {
-            account.setNote(String.valueOf(accountInfoMap.get("msg")));
             account.setAuthData(accountInfoMap);
+            throw new ServiceException(String.valueOf(accountInfoMap.get("msg")));
         }else if(!Constant.SUCCESS.equals(accountInfoMap.get("code"))){
             throw new ServiceException(String.valueOf(accountInfoMap.get("msg")));
         }else {
