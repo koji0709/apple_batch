@@ -37,6 +37,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         String status = "正常";
+        String code="";
         if (!StrUtil.isEmpty(signInRsp.body())){
             String failMessage = "";
             JSONArray errorArr = JSONUtil.parseObj(signInRsp.body())
@@ -45,6 +46,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 JSONObject err = (JSONObject)(errorArr.get(0));
                 if ("-20209".equals(err.getStr("code"))){
                     status = "锁定";
+                    code="-1";
                 }
                 for (Object o : errorArr) {
                     JSONObject jsonObject = (JSONObject) o;
@@ -56,7 +58,11 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            throw new ServiceException("Apple ID或密码不正确");
+            String message="Apple ID或密码不正确";
+            if("-1".equals(code)){
+                message="此账号已被锁定";
+            }
+            throw new ServiceException(message);
         }
 
         return signInRsp;
@@ -111,6 +117,9 @@ public class AppleIdView extends CustomTableView<Account> {
                 ThreadUtil.sleep(500);
                 setAndRefreshNote(account,"正在阅读协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
+
+
+
                 checkAndThrowUnavailableException(authRsp);
 
                 String XAppleIDSessionId = "";

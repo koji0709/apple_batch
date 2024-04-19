@@ -113,23 +113,19 @@ public class LoginController extends CommonView implements Initializable {
             if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
                 return;
             }
-            new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
-                        Thread.sleep(1500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }finally {
-                        //JavaFX Application Thread会逐个阻塞的执行这些任务
-                        Platform.runLater(new Task<Integer>() {
-                            @Override
-                            protected Integer call() {
-                                login();
-                                return 1;
-                            }
-                        });
-                    }
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1500);
+                    //JavaFX Application Thread会逐个阻塞的执行这些任务
+                    Platform.runLater(new Task<Integer>() {
+                        @Override
+                        protected Integer call() {
+                            login();
+                            return 1;
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }).start();
         }

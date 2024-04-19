@@ -287,7 +287,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 hashMap=new HashMap<>();
             }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            if(null!=hashMap.get("code") && MapUtil.getStr(hashMap,"code").equalsIgnoreCase("503")){
+            if(null!=hashMap.get("code") && "503".equals(MapUtil.getStr(hashMap,"code"))){
                 msg="初始化失败，请重试";
                 color="red";
                 hasInit=false;
@@ -308,7 +308,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
-                if(authType.equals("hsa2")){
+                if("hsa2".equals(authType)){
                     msg="您的Apple ID已受双重认证保护";
                     color="red";
                     hasInit=false;

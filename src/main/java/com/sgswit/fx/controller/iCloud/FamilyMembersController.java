@@ -40,19 +40,19 @@ public class FamilyMembersController extends CustomTableView<Account> {
         nameGenerationTypeChoiceBox.valueProperty().addListener((observableValue, o, t1) -> {
             if("添加家庭成员".equals(t1)){
                 for (TableColumn<Account, ?> column : accountTableView.getColumns()) {
-                    if(column.getId().equals("memberPwd")){
+                    if("memberPwd".equals(column.getId())){
                         column.setVisible(true);
                     }
-                    if(column.getId().equals("cvv")){
+                    if("cvv".equals(column.getId())){
                         column.setVisible(true);
                     }
                 }
             }else {
                 for (TableColumn<Account, ?> column : accountTableView.getColumns()) {
-                    if(column.getId().equals("memberPwd")){
+                    if("memberPwd".equals(column.getId())){
                         column.setVisible(false);
                     }
-                    if(column.getId().equals("cvv")){
+                    if("cvv".equals(column.getId())){
                         column.setVisible(false);
                     }
                 }

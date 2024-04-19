@@ -147,13 +147,13 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         setAndRefreshNote(account,"正在读取用户信息...");
         HttpResponse accountRsp = AppleIDUtil.account(account);
         checkAndThrowUnavailableException(accountRsp);
-        JSON accountJSON = JSONUtil.parse(accountRsp.body());
-        account.setArea(accountJSON.getByPath("account.person.primaryAddress.countryName",String.class));
-        account.setBirthday(accountJSON.getByPath("account.person.birthday",String.class));
-        account.setName(accountJSON.getByPath("name.fullName",String.class));
-        account.setRescueEmail(accountJSON.getByPath("account.security.rescueEmail",String.class));
-        String createdDate = accountJSON.getByPath("account.person.reachableAtOptions.primaryEmailAddress.createdDate", String.class);
-        String updateDate = accountJSON.getByPath("account.person.reachableAtOptions.primaryEmailAddress.updateDate", String.class);
+        JSON accountJson = JSONUtil.parse(accountRsp.body());
+        account.setArea(accountJson.getByPath("account.person.primaryAddress.countryName",String.class));
+        account.setBirthday(accountJson.getByPath("account.person.birthday",String.class));
+        account.setName(accountJson.getByPath("name.fullName",String.class));
+        account.setRescueEmail(accountJson.getByPath("account.security.rescueEmail",String.class));
+        String createdDate = accountJson.getByPath("account.person.reachableAtOptions.primaryEmailAddress.createdDate", String.class);
+        String updateDate = accountJson.getByPath("account.person.reachableAtOptions.primaryEmailAddress.updateDate", String.class);
         account.setCreatedDate(DateUtil.format(new Date(Long.valueOf(createdDate.substring(0,10))*1000),"yyyy年MM月dd日"));
         account.setUpdateDate(DateUtil.format(new Date(Long.valueOf(updateDate.substring(0,10))*1000),"yyyy年MM月dd日"));
         account.setNote("查询成功");
@@ -268,8 +268,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             checkAndThrowUnavailableException(deviceListRsp);
 
             String body = deviceListRsp.body();
-            JSONObject bodyJSON = JSONUtil.parseObj(body);
-            List<String> deviceIdList = bodyJSON.getByPath("devices.id", List.class);
+            JSONObject bodyJson = JSONUtil.parseObj(body);
+            List<String> deviceIdList = bodyJson.getByPath("devices.id", List.class);
             if (CollUtil.isEmpty(deviceIdList)){
                 setMessageAndRefreshTable("removeDevice","该账号下暂无设备",messageMap,account);
             }else{
