@@ -506,11 +506,12 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public void stopTaskButtonAction() {
         try {
-            reentrantLock.lock();
             // 停止任务, 恢复按钮状态
             setExecuteButtonStatus(false);
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            reentrantLock.lock();
         }
 
     }

@@ -119,7 +119,6 @@
                                         <TableColumn fx:id="answer3" prefWidth="100" text="答案3" />
                                         <TableColumn fx:id="area" prefWidth="75.0" style="-fx-alignment: CENTER" text="国家" />
                                         <TableColumn fx:id="birthday" prefWidth="120.0" style="-fx-alignment: CENTER" text="生日" />
-                                        <TableColumn fx:id="status" prefWidth="75.0" style="-fx-alignment: CENTER" text="状态" />
                                         <TableColumn fx:id="note" prefWidth="180.0" style="-fx-alignment: CENTER" text="信息" />
                                     </columns>
                                 </TableView>

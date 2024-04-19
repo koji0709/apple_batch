@@ -469,10 +469,7 @@ public class AppleIDUtil {
                 .header(headers)
                 .cookie(account.getCookie())
                 .execute();
-
 //        account.updateLoginInfo(rsp);
-
-
         return rsp;
     }
 
@@ -686,10 +683,6 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body(body)
                 .execute();
-
-        int status = rsp.getStatus();
-//        account.updateLoginInfo(rsp);
-
         return rsp;
     }
 
@@ -756,7 +749,6 @@ public class AppleIDUtil {
 
     /**
      * 获取设备列表
-     * todo ? 为什么啥参数都不传可以确定是哪一个Appleid账号啊！
      */
     public static HttpResponse getDeviceList(Account account){
         HashMap<String, List<String>> headers = new HashMap<>();

@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.query;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -79,15 +80,24 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
                 throw new ServiceException("操作频繁，请稍后重试！");
             }
             try {
-                Thread.sleep(20*1000);
+                Thread.sleep(5*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             accountHandler(problem);
         }else{
             if (step1Res.getStatus() != 409) {
+                String message="Apple ID或密码不正确";
+                JSONArray errorArr = JSONUtil.parseObj(step1Res.body())
+                        .getByPath("serviceErrors",JSONArray.class);
+                if (errorArr != null && errorArr.size()>0){
+                    JSONObject err = (JSONObject)(errorArr.get(0));
+                    if ("-20209".equals(err.getStr("code"))){
+                        message="此账号已被锁定";
+                    }
+                }
                 problem.setHasFinished(true);
-                throw new ServiceException("查询失败，请确认用户名密码是否正确");
+                throw new ServiceException(message);
             }
             String step1Body = step1Res.body();
             JSON json = JSONUtil.parse(step1Body);
