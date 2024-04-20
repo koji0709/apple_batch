@@ -80,7 +80,13 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             throw new UnavailableException();
         }
 
-        JSONObject json = PListUtil.parse(loginRsp.body());
+        JSONObject json=null;
+        try{
+            json = PListUtil.parse(loginRsp.body());
+        }catch (Exception e){
+            throw new UnavailableException();
+        }
+
         String failureType     = json.getStr("failureType","");
         String customerMessage = json.getStr("customerMessage","");
 
