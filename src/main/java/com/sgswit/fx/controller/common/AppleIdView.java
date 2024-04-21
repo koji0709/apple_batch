@@ -173,29 +173,28 @@ public class AppleIdView extends CustomTableView<Account> {
         if(StringUtils.isEmpty(body)){
             return "";
         }
-        JSONObject jsonObject;
+        List errorMessageList = new ArrayList();
         try{
-            jsonObject= JSONUtil.parseObj(body);
+            JSONObject jsonObject= JSONUtil.parseObj(body);
+            List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
+            List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
+            List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
+
+            if (!CollUtil.isEmpty(errorMessageList1)){
+                errorMessageList.addAll(errorMessageList1);
+            }
+            if (!CollUtil.isEmpty(errorMessageList2)){
+                errorMessageList.addAll(errorMessageList2);
+            }
+            if (!CollUtil.isEmpty(errorMessageList3)){
+                errorMessageList.addAll(errorMessageList3);
+            }
+            if (CollUtil.isEmpty(errorMessageList)){
+                return "";
+            }
         }catch (Exception e){
             LoggerManger.info("官方资料修改",e);
             LoggerManger.info("官方资料修改返回body信息："+body);
-            return "";
-        }
-        List errorMessageList = new ArrayList();
-        List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
-        List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
-        List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
-
-        if (!CollUtil.isEmpty(errorMessageList1)){
-            errorMessageList.addAll(errorMessageList1);
-        }
-        if (!CollUtil.isEmpty(errorMessageList2)){
-            errorMessageList.addAll(errorMessageList2);
-        }
-        if (!CollUtil.isEmpty(errorMessageList3)){
-            errorMessageList.addAll(errorMessageList3);
-        }
-        if (CollUtil.isEmpty(errorMessageList)){
             return "";
         }
         return String.join(";",errorMessageList);
