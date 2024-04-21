@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
@@ -78,7 +79,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-                throw new ServiceException("操作频繁，请稍后重试！");
+                throw new UnavailableException();
             }
             String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){

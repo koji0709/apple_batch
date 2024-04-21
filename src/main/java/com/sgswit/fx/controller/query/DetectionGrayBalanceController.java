@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
@@ -57,7 +58,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             HttpResponse response= WebLoginUtil.signin(paras);
             if(response.getStatus()==503){
                 account.setHasFinished(true);
-                throw new ServiceException("操作频繁，请稍后重试！");
+                throw new UnavailableException();
             } else if(response.getStatus()!=409){
                 account.setHasFinished(true);
                 throw new ServiceException(WebLoginUtil.serviceErrorMessages(response.body()));
@@ -138,7 +139,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }else if(signInResp.getStatus() == 200){
 
             }else if(signInResp.getStatus() == 503){
-                throw new ServiceException("操作频繁，请稍后重试！");
+                throw new UnavailableException();
             }
 
             setAndRefreshNote(account,"登录成功...");

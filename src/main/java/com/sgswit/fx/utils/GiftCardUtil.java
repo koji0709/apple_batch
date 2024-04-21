@@ -13,7 +13,7 @@ import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -303,7 +303,7 @@ public class GiftCardUtil {
         try{
             json =  JSONUtil.parse(res1.body());
         }catch (Exception e){
-            throw new ServiceException("操作频繁，请稍后重试");
+            throw new UnavailableException();
         }
 
         int iter = (Integer) json.getByPath("iteration");

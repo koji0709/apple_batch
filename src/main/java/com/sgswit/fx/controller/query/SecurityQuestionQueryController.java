@@ -9,6 +9,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
@@ -72,12 +73,13 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         HttpResponse step1Res = AppleIDUtil.signin(account);
         setAndRefreshNote(problem,"查询密保问题中...");
         if (step1Res.getStatus() == 503) {
-            //返还点数
-            PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             account.setFailCount(account.getFailCount()+1);
             if(account.getFailCount() >= 3){
                 problem.setHasFinished(true);
-                throw new ServiceException("操作频繁，请稍后重试！");
+                throw new UnavailableException();
+            }else {
+                //返还点数
+                PointUtil.pointCost(FunctionListEnum.SECURITY_QUESTION.getCode(),PointUtil.in,account.getAccount());
             }
             try {
                 Thread.sleep(5*1000);

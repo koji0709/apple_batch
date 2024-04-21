@@ -13,6 +13,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
@@ -384,7 +385,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         if(step4Res.getStatus()!=200){
             if(giftCard.getFailCount()>3){
                 if(503==step4Res.getStatus()){
-                    throw new ServiceException("操作频繁，请稍后重试！");
+                    throw new UnavailableException();
                 }else {
                     throw new ServiceException("余额查询失败，请稍后重试！");
                 }

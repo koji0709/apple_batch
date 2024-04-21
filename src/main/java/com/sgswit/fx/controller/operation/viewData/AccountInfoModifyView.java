@@ -10,18 +10,6 @@ import javafx.scene.control.*;
 public class AccountInfoModifyView extends AppleIdView {
 
     /**
-     * 失败重试
-     */
-    @FXML
-    protected CheckBox tryAgainCheckBox;
-
-    /**
-     * 随机ip代理
-     */
-    @FXML
-    protected CheckBox randomIPProxyCheckBox;
-
-    /**
      * 修改密码
      */
     @FXML

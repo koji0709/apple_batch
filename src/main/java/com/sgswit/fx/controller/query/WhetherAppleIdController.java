@@ -7,7 +7,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
@@ -65,10 +65,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     .header(headers)
                     .execute();
             if(captchaResponse.getStatus()==503){
-                insertLocalHistory(List.of(account));
-                //返还点数
-                PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
-                throw new ServiceException("操作频繁，请稍后重试！！");
+                throw new UnavailableException();
             }else{
                 String body = captchaResponse.body();
                 JSONObject object = JSONUtil.parseObj(body);
@@ -89,11 +86,12 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                         .header(headers)
                         .execute();
                 if (verifyAppleIdRes.getStatus() == 503) {
-                    //返还点数
-                    PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){
-                        throw new ServiceException("操作频繁，请稍后重试！！");
+                        throw new UnavailableException();
+                    }else{
+                        //返还点数
+                        PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                     }
                     try {
                         Thread.sleep(10*1000);

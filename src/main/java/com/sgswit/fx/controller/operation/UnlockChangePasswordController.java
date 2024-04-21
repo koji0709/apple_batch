@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
@@ -51,7 +52,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
         if (verifyAppleIdRsp.getStatus() == 503){
-            throw new ServiceException("操作频繁，请稍后重试！");
+            throw new UnavailableException();
         }
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");

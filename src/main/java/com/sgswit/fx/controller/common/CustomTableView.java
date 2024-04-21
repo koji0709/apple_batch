@@ -264,8 +264,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info(e.getMessage());
-        }
-        catch (PointCostException e){
+        }catch (PointCostException e){
             setAndRefreshNote(account,e.getMessage());
             setDataStatus(account,false);
             String type = e.getType();

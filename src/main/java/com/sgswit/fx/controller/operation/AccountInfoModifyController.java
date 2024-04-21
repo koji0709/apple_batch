@@ -146,7 +146,12 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...");
         HttpResponse accountRsp = AppleIDUtil.account(account);
+
+
+
         checkAndThrowUnavailableException(accountRsp);
+
+
         JSON accountJson = JSONUtil.parse(accountRsp.body());
         account.setArea(accountJson.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJson.getByPath("account.person.birthday",String.class));

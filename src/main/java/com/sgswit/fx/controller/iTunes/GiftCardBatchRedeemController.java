@@ -21,6 +21,7 @@ import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.CommCodePopupView;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -53,7 +54,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -532,19 +532,20 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             loginSuccessMap.remove(id);
             itunesLogin(giftCardRedeem);
             codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
+        }else if(503==codeInfoSrvRsp.getStatus()){
+            throw new UnavailableException();
         }
-
-        if (codeInfoSrvRsp == null || StrUtil.isEmpty(codeInfoSrvRsp.body())){
+        JSONObject bodyJSON = null;
+        JSONObject codeInfo = null;
+        try {
+            bodyJSON =JSONUtil.parseObj(codeInfoSrvRsp.body());
+            codeInfo = bodyJSON.getJSONObject("codeInfo");
+            if (codeInfo == null){
+                throw new ServiceException("礼品卡信息读取失败，请稍后重试");
+            }
+        }catch (Exception e){
             throw new ServiceException("礼品卡信息读取失败，请稍后重试");
         }
-
-        JSONObject bodyJSON = JSONUtil.parseObj(codeInfoSrvRsp.body());
-        JSONObject codeInfo = bodyJSON.getJSONObject("codeInfo");
-
-        if (codeInfo == null){
-            throw new ServiceException("礼品卡信息读取失败，请稍后重试");
-        }
-
         setAndRefreshNote(giftCardRedeem,"礼品卡信息查询成功，兑换中...");
         String amount = codeInfo.getStr("amount", "0");
         giftCardRedeem.setGiftCardAmount(amount);
