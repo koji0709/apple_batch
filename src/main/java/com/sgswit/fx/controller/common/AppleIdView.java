@@ -37,6 +37,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         String status = "正常";
+        String code="";
         if (!StrUtil.isEmpty(signInRsp.body())){
             String failMessage = "";
             JSONArray errorArr = JSONUtil.parseObj(signInRsp.body())
@@ -45,6 +46,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 JSONObject err = (JSONObject)(errorArr.get(0));
                 if ("-20209".equals(err.getStr("code"))){
                     status = "锁定";
+                    code="-1";
                 }
                 for (Object o : errorArr) {
                     JSONObject jsonObject = (JSONObject) o;
@@ -56,7 +58,11 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            throw new ServiceException("Apple ID或密码不正确");
+            String message="Apple ID或密码不正确";
+            if("-1".equals(code)){
+                message="此账号已被锁定";
+            }
+            throw new ServiceException(message);
         }
 
         return signInRsp;
@@ -111,6 +117,9 @@ public class AppleIdView extends CustomTableView<Account> {
                 ThreadUtil.sleep(500);
                 setAndRefreshNote(account,"正在阅读协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
+
+
+
                 checkAndThrowUnavailableException(authRsp);
 
                 String XAppleIDSessionId = "";
@@ -164,29 +173,28 @@ public class AppleIdView extends CustomTableView<Account> {
         if(StringUtils.isEmpty(body)){
             return "";
         }
-        JSONObject jsonObject;
+        List errorMessageList = new ArrayList();
         try{
-            jsonObject= JSONUtil.parseObj(body);
+            JSONObject jsonObject= JSONUtil.parseObj(body);
+            List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
+            List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
+            List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
+
+            if (!CollUtil.isEmpty(errorMessageList1)){
+                errorMessageList.addAll(errorMessageList1);
+            }
+            if (!CollUtil.isEmpty(errorMessageList2)){
+                errorMessageList.addAll(errorMessageList2);
+            }
+            if (!CollUtil.isEmpty(errorMessageList3)){
+                errorMessageList.addAll(errorMessageList3);
+            }
+            if (CollUtil.isEmpty(errorMessageList)){
+                return "";
+            }
         }catch (Exception e){
             LoggerManger.info("官方资料修改",e);
             LoggerManger.info("官方资料修改返回body信息："+body);
-            return "";
-        }
-        List errorMessageList = new ArrayList();
-        List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
-        List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
-        List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
-
-        if (!CollUtil.isEmpty(errorMessageList1)){
-            errorMessageList.addAll(errorMessageList1);
-        }
-        if (!CollUtil.isEmpty(errorMessageList2)){
-            errorMessageList.addAll(errorMessageList2);
-        }
-        if (!CollUtil.isEmpty(errorMessageList3)){
-            errorMessageList.addAll(errorMessageList3);
-        }
-        if (CollUtil.isEmpty(errorMessageList)){
             return "";
         }
         return String.join(";",errorMessageList);
