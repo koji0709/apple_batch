@@ -19,6 +19,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -695,6 +696,16 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             return account1.toString();
         }
     }
+    public Object getAccountField(T account,String field){
+        Object fieldValue = ReflectUtil.getFieldValue(account, field);
+        if (fieldValue instanceof SimpleStringProperty){
+            return ((SimpleStringProperty) fieldValue).getValue();
+        } else if (fieldValue instanceof SimpleIntegerProperty){
+            return ((SimpleIntegerProperty) fieldValue).getValue();
+        }else{
+            return fieldValue;
+        }
+    }
 
     /**
      * 点数扣除
@@ -715,7 +726,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 点数操作
      */
     public void pointCost(T account,String type,String funcCode){
-        Map<String,String> pointCost = PointUtil.pointCost(funcCode,type,getAccountNo(account));
+        Object note=getAccountField(account,"note");
+        Map<String,String> pointCost = PointUtil.pointCost(funcCode,type,getAccountNo(account),null==note?"":note.toString());
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
             throw new PointCostException(type,pointCost.get("msg"));
         }
