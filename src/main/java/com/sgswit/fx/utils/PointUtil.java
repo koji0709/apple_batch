@@ -11,7 +11,9 @@ import javafx.concurrent.Task;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,12 +71,15 @@ public class PointUtil {
         }
         return res;
     }
-    public static Map<String,String> pointCost(String functionCode,String type,String appleId){
+    public static Map<String,String> pointCost(String functionCode,String type,String appleId,String reason){
         String notes="";
         if(out.equals(type)){
             notes="成功后自动扣除";
         }else{
             notes="失败后返还";
+        }
+        if(!StringUtils.isEmpty(reason)){
+            notes=MessageFormat.format(notes+"。失败原因：{0}", new String[]{reason});
         }
         return pointCost(functionCode,type,appleId,notes,1,"");
     }
