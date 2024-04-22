@@ -256,12 +256,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setDataStatus(account,true);
         } catch (ServiceException e) {// 业务异常
             setAndRefreshNote(account,e.getMessage());
+            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info(e.getMessage());
         }catch (PointDeduException e){// 部分业务抛出异常,但是还是要扣除点数
             pointCost(account,PointUtil.out,e.getFunCode());
             setAndRefreshNote(account,e.getMessage());
+            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info(e.getMessage());
@@ -274,16 +276,19 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }catch (UnavailableException e){
             setAndRefreshNote(account, e.getMessage());
+            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);
         } catch (IORuntimeException e) {
             setAndRefreshNote(account, "连接异常，请检查网络");
+            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("连接异常，请检查网络",e);
         } catch (Exception e) {// 程序异常
             setAndRefreshNote(account, "数据处理异常");
+            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("数据处理异常",e);
@@ -767,7 +772,13 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         accountTableView.refresh();
     }
-
+    public void setNote(T account, String note, String defaultNote) {
+        note = StrUtil.isEmpty(note) ? defaultNote : note;
+        boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");
+        if (hasNote) {
+            ReflectUtil.invoke(account, "setNote", note);
+        }
+    }
     public void appendAndRefreshNote(T account, String note) {
         appendAndRefreshNote(account, "", note);
     }
