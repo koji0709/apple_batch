@@ -12,20 +12,20 @@ public class Account extends LoginInfo {
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
     private final SimpleStringProperty area;
-    private  final SimpleStringProperty areaCode;
+    private final SimpleStringProperty areaCode;
     private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
     private final SimpleStringProperty logtime;
-    private  final SimpleStringProperty answer1;
-    private  final SimpleStringProperty answer2;
-    private  final SimpleStringProperty answer3;
-    private  final SimpleStringProperty originalCountry;
-    private  final SimpleStringProperty targetCountry;
-    private  final SimpleStringProperty dsid;
-    private  final SimpleStringProperty support;
-    private  final SimpleStringProperty familyDetails;
+    private final SimpleStringProperty answer1;
+    private final SimpleStringProperty answer2;
+    private final SimpleStringProperty answer3;
+    private final SimpleStringProperty originalCountry;
+    private final SimpleStringProperty targetCountry;
+    private final SimpleStringProperty dsid;
+    private final SimpleStringProperty support;
+    private final SimpleStringProperty familyDetails;
 
     private  String country;
 

@@ -533,7 +533,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             itunesLogin(giftCardRedeem);
             codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
         }else if(503==codeInfoSrvRsp.getStatus()){
-            throw new UnavailableException();
+            if(giftCardRedeem.getMaxTryNumber()<3){
+                giftCardRedeem.setMaxTryNumber(giftCardRedeem.getMaxTryNumber()+1);
+                codeInfoSrvRsp = ITunesUtil.getCodeInfoSrv(giftCardRedeem, giftCardCode);
+            }else{
+                throw new UnavailableException();
+            }
         }
         JSONObject bodyJSON = null;
         JSONObject codeInfo = null;
