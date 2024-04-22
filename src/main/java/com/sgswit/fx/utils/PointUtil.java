@@ -71,6 +71,9 @@ public class PointUtil {
         }
         return res;
     }
+    public static Map<String,String> pointCost(String functionCode,String type,String appleId){
+        return pointCost(functionCode,type,appleId,"");
+    }
     public static Map<String,String> pointCost(String functionCode,String type,String appleId,String reason){
         String notes="";
         if(out.equals(type)){
