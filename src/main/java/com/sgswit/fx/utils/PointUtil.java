@@ -81,7 +81,7 @@ public class PointUtil {
         }else{
             notes="失败后返还";
         }
-        if(!StringUtils.isEmpty(reason)){
+        if(!StringUtils.isEmpty(reason) && in.equals(type)){
             notes=MessageFormat.format(notes+"。失败原因：{0}", new String[]{reason});
         }
         return pointCost(functionCode,type,appleId,notes,1,"");
