@@ -181,21 +181,22 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new ServiceException("余额查询失败！");
             }else {
                 JSONObject meta = JSONUtil.parseObj(httpResponse.body());
-
                 List<JSONObject> ja = (List<JSONObject>)meta.getByPath("body.checkout.billing.billingOptions.d.options");
-                Integer num = 0;
+                if(null==ja){
+                    throw new ServiceException("余额查询失败！");
+                }
+                boolean disabled = false;
                 if(null!=ja &&ja.size()>0){
                     for(JSONObject o : ja){
-                        if(o.containsKey("disabled")){
-                            String disabled = o.get("disabled").toString();
-                            if("true".equals(disabled)){
-                                num ++;
+                        if(o.getStr("moduleKey").equals("appleBalance")){
+                            if("true".equals(o.get("disabled"))){
+                                disabled=true;
                                 break;
                             }
                         }
                     }
                 }
-                if(num == 0){
+                if(!disabled){
                     account.setStatus("正常");
                 }else {
                     account.setStatus("禁用");
