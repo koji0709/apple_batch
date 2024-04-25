@@ -55,14 +55,14 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         String url = "";
         HttpResponse loginRsp;
         if (StrUtil.isEmpty(accountModel.getAuthCode())){
-            url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+accountModel.getGuid();
+            url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
             loginRsp = itunesLogin(accountModel,url,0);
         }else{
             Object authRsp = accountModel.getAuthData().get("authRsp");
             if (authRsp == null){
                 throw new ServiceException("请先登录鉴权");
             }
-            url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+accountModel.getGuid();
+            url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
             loginRsp = itunesLogin(accountModel,url,1);
         }
 
@@ -70,16 +70,6 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         if (status == 503){
             throw new UnavailableException();
         }
-
-        if (loginRsp == null || StrUtil.isEmpty(loginRsp.body())){
-            throw new ServiceException("AppleID或密码错误。");
-        }
-
-        if (!loginRsp.body().startsWith("<?xml")){
-            LoggerManger.info("接口响应异常; " + loginRsp.body());
-            throw new UnavailableException();
-        }
-
         JSONObject json=null;
         try{
             json = PListUtil.parse(loginRsp.body());
@@ -148,7 +138,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         if("".equals(failureType) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throw new ServiceException("Apple ID或密码错误。或需要输入双重验证码;");
+            throw new ServiceException("Apple ID或密码错误。或需要输入双重验证码。");
         }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"account is disabled")){
             throw new ServiceException("出于安全原因，你的账户已被锁定。");
         }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"You cannot login because your account has been locked")){

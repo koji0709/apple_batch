@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  * @date 2024/1/2511:34
  */
 public class ProxyUtil{
+    private static int counter=0;
     public static HttpRequest createGet(String url) {
         return createRequest(Method.GET,url);
     }

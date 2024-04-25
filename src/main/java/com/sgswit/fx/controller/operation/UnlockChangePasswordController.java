@@ -60,8 +60,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
 
         // 修改密码 (如果账号被锁定,则解锁改密)
         HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, newPassword);
-        boolean unlock = verifyAppleIdRsp.header("Location").startsWith("/password/authenticationmethod");
-        if ((unlock && updatePwdByProtectionRsp.getStatus() == 206) || (!unlock && updatePwdByProtectionRsp.getStatus() == 260)){
+        if (updatePwdByProtectionRsp.getStatus() == 260){
             account.setPwd(newPassword);
             setAndRefreshNote(account,"解锁改密成功");
         }else{

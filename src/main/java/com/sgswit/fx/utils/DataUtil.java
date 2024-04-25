@@ -217,6 +217,22 @@ public class DataUtil {
         }
         return resultMap;
     }
+    public static int getQuestionIndex(int id){
+        int index=1;
+        String questions = ResourceUtil.readUtf8Str("data/questions.json");
+        JSONArray jsonArray = JSONUtil.parseArray(questions);
+        LinkedHashMap<String,Integer> resultMap =  new LinkedHashMap<>();
+        for (int i=0;i<jsonArray.size();i++ ) {
+            JSONArray array = (JSONArray) jsonArray.get(i);
+            for (Object object : array) {
+                JSONObject json = (JSONObject) object;
+                if(id==json.getInt("id")){
+                    return i+1;
+                }
+            }
+        }
+        return index;
+    }
 
 
     private static String getId(String type,String appleId){
@@ -281,5 +297,4 @@ public class DataUtil {
    public static Map<String,Object> getUserInfo(){
        return userInfo;
    }
-
 }

@@ -4,6 +4,7 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
@@ -30,12 +31,16 @@ public class ShoppingUtil {
         String code2=MapUtil.getStr(paras,"code2","");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
+        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("accept-encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("referer",ListUtil.toList("https://www.apple.com/"));
 
         headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+        headers.put("te",ListUtil.toList("trailers"));
         String accessoriesUrl;
         if(StringUtils.isEmpty(code2)){
             accessoriesUrl="https://www.apple.com/shop/iphone/accessories";
@@ -45,7 +50,7 @@ public class ShoppingUtil {
         HttpResponse accRes = ProxyUtil.createGet(accessoriesUrl)
                 .header(headers).execute();
         if(accRes.getStatus() != 200){
-            paras.put("msg","商品信息加载失败！");
+            paras.put("msg","商城信息加载失败！");
             paras.put("code","1");
             return paras;
         }
@@ -163,7 +168,6 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-
         HttpResponse res = ProxyUtil.createPost(paras.get("url").toString())
                 .header(headers)
                 .form((Map<String,Object>)paras.get("body"))
@@ -268,8 +272,7 @@ public class ShoppingUtil {
         headers.put("s-aos-model-page",ListUtil.toList(header.get("x-aos-model-page").toString()));
         headers.put("modelVersion",ListUtil.toList(header.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(header.get("syntax").toString()));
-
-        HttpResponse res = ProxyUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
+        HttpResponse res = HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .form(MapUtil.getStr(paras,"body"))
@@ -286,7 +289,7 @@ public class ShoppingUtil {
     }
 
     //调登录页面
-    public static Map<String,Object> shopSignIn(Map<String,Object> paras) throws Exception{
+    public static Map<String,Object> shopSignIn(Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
@@ -471,6 +474,7 @@ public class ShoppingUtil {
         headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
         headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
+        headers.put("TE",ListUtil.toList("trailers"));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
@@ -571,7 +575,6 @@ public class ShoppingUtil {
         }
 
         String url = paras.get("url") + "x/shipping?_a=continueFromShippingToBilling&_m=checkout.shipping";
-
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -584,6 +587,7 @@ public class ShoppingUtil {
         }
         paras.put("code",Constant.SUCCESS);
         paras.put("address",areaInfo.getNameZh());
+        paras.put("resp",resp);
         return paras;
     }
 

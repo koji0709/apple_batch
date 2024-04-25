@@ -43,6 +43,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -275,8 +276,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (PointUtil.in.equals(type)){
             }
         }catch (UnavailableException e){
-            setAndRefreshNote(account, e.getMessage());
-            setNote(account,e.getMessage(),"");
+            //判断是否开启代理
+            String proxyMode=PropertiesUtil.getOtherConfig("proxyMode");
+            String message=e.getMessage();
+            if(StringUtils.isEmpty(proxyMode) || "0".equals(proxyMode)){
+                message="操作频繁，请稍后重试。或开启代理模式";
+            }
+            setAndRefreshNote(account, message);
+            setNote(account,message,"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);

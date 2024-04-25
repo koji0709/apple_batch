@@ -8,6 +8,9 @@ public class PointCostException extends RuntimeException{
         super(message);
         this.type = type;
     }
+    public PointCostException(String message) {
+        super(message);
+    }
 
     public String getType() {
         return type;

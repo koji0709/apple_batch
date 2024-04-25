@@ -8,9 +8,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
@@ -1254,7 +1256,9 @@ public class AppleIDUtil {
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
-
+        if(!authMethodOptions.contains("questions")){
+            throw new ServiceException("不支持密保问题方式解锁改密");
+        }
         HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
                 .header(authMethod1Rsp.headers())
                 .header("Content-Type","application/json")
@@ -1270,8 +1274,12 @@ public class AppleIDUtil {
                 .execute();
         account.updateLoginInfo(verifyBirthday1Rsp);
         header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
-
-        DateTime birthday = DateUtil.parse(account.getBirthday());
+        DateTime birthday=null;
+        try {
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("出生日期输入错误！");
+        }
         HttpResponse verifyBirthday2Rsp = ProxyUtil.createPost(host + "/password/verify/birthday")
                 .header(header)
                 .header("Content-Type","application/json")
@@ -1297,7 +1305,9 @@ public class AppleIDUtil {
         }};
         for (JSONObject question : questions) {
             question.remove("locale");
-            question.putOnce("answer",answerMap.get(question.getInt("number")));
+            //重新排序
+            int number=DataUtil.getQuestionIndex(question.getInt("id"));
+            question.putOnce("answer",answerMap.get(number));
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
@@ -1307,7 +1317,19 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .execute();
         account.updateLoginInfo(verifyQuestions2Rsp);
-
+        if(400==verifyQuestions2Rsp.getStatus()){
+            JSON questionsResponseBodyJson= JSONUtil.parse(verifyQuestions2Rsp.body());
+            StringBuffer m=new StringBuffer();
+            JSONArray jsonArray=JSONUtil.parseArray(questionsResponseBodyJson.getByPath("serviceErrors"));
+            for(Object o:jsonArray){
+                JSONObject jsonObject=(JSONObject)o;
+                String code=jsonObject.getStr("code");
+                if("crIncorrect".equals(code)){
+                    m.append("输入的密保答案错误；");
+                }
+            }
+            throw new ServiceException(m.toString());
+        }
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.createGet(host + resrtPasswordOptionLocation)
                 .header(header)
@@ -1353,14 +1375,15 @@ public class AppleIDUtil {
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
         List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
-
+        if(!authMethodOptions.contains("questions")){
+            throw new ServiceException("不支持密保问题方式解锁改密");
+        }
         HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
                 .header(header)
                 .cookie(account.getCookie())
                 .body("{\"type\":\"questions\"}")
                 .execute();
         account.updateLoginInfo(authMethod2Rsp);
-
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.createGet(host + verifyBirthday1Location)
                 .header(header)
@@ -1369,14 +1392,31 @@ public class AppleIDUtil {
         account.updateLoginInfo(verifyBirthday1Rsp);
         header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
 
-        DateTime birthday = DateUtil.parse(account.getBirthday());
+        DateTime birthday=null;
+        try {
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("出生日期输入错误！");
+        }
         HttpResponse verifyBirthday2Rsp = ProxyUtil.createPost(host + "/password/verify/birthday")
                 .header(header)
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .execute();
         account.updateLoginInfo(verifyBirthday2Rsp);
-
+        if(400==verifyBirthday2Rsp.getStatus()){
+            JSON birthdayResponseBodyJson= JSONUtil.parse(verifyBirthday2Rsp.body());
+            StringBuffer m=new StringBuffer();
+            JSONArray jsonArray=JSONUtil.parseArray(birthdayResponseBodyJson.getByPath("serviceErrors"));
+            for(Object o:jsonArray){
+                JSONObject jsonObject=(JSONObject)o;
+                String code=jsonObject.getStr("code");
+                if("crIncorrect".equals(code)){
+                    m.append("输入的生日错误；");
+                }
+            }
+            throw new ServiceException(m.toString());
+        }
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
                 .header(header)
@@ -1394,8 +1434,11 @@ public class AppleIDUtil {
         }};
         for (JSONObject question : questions) {
             question.remove("locale");
-            question.putOnce("answer",answerMap.get(question.getInt("number")));
+            //重新排序
+            int number=DataUtil.getQuestionIndex(question.getInt("id"));
+            question.putOnce("answer",answerMap.get(number));
         }
+
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
         HttpResponse verifyQuestions2Rsp = ProxyUtil.createPost(host + "/password/verify/questions")
@@ -1405,23 +1448,28 @@ public class AppleIDUtil {
                 .execute();
         account.updateLoginInfo(verifyQuestions2Rsp);
 
+
+        if(400==verifyQuestions2Rsp.getStatus()){
+            JSON questionsResponseBodyJson= JSONUtil.parse(verifyQuestions2Rsp.body());
+            StringBuffer m=new StringBuffer();
+            JSONArray jsonArray=JSONUtil.parseArray(questionsResponseBodyJson.getByPath("serviceErrors"));
+            for(Object o:jsonArray){
+                JSONObject jsonObject=(JSONObject)o;
+                String code=jsonObject.getStr("code");
+                if("crIncorrect".equals(code)){
+                    m.append("输入的密保答案错误；");
+                }
+            }
+            throw new ServiceException(m.toString());
+        }
         String options1Location = verifyQuestions2Rsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.createGet(host + options1Location)
                 .header(header)
+                .cookie(account.getCookie())
                 .execute();
         account.updateLoginInfo(options1Rsp);
-        header.put("sstt",List.of(options1Rsp.header("sstt")));
 
-        List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("types", List.class);
-
-        HttpResponse options2Rsp = ProxyUtil.createPost(host + "/password/reset/options")
-                .header(header)
-                .cookie(account.getCookie())
-                .body("{\"type\":\"password_reset\"}")
-                .execute();
-        account.updateLoginInfo(options2Rsp);
-
-        String passwordReset1Location = options2Rsp.header("Location");
+        String passwordReset1Location = options1Rsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.createGet(host + passwordReset1Location)
                 .header(header)
                 .cookie(account.getCookie())
