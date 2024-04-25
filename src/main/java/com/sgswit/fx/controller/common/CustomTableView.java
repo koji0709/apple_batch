@@ -59,9 +59,10 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
     // 登录成功的账号缓存(缓存5分钟,能刷新)
-    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(5*60*1000);
+    private static final long time=30*60*1000;
+    protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(time);
     static {
-        loginSuccessMap.schedulePrune(300000);
+        loginSuccessMap.schedulePrune(time);
     }
     private static final Log logger = LogFactory.get();
     public Set<String> menuItem =new LinkedHashSet<>(){{

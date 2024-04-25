@@ -42,7 +42,7 @@ public class ProxyUtil{
 
     public static HttpRequest createRequest(Method method,String url){
         //判断是否设置代理
-//        HttpRequest.closeCookie();
+        HttpRequest.closeCookie();
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");

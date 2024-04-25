@@ -516,7 +516,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,account.getPwd());
+            verifyPassword(rsp,account);
             return deleteRescueEmail(account);
         }
 
@@ -562,7 +562,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,account.getPwd());
+            verifyPassword(rsp,account);
             return addRescueEmailSendVerifyCode(account);
         }
 
@@ -645,7 +645,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,password);
+            verifyPassword(rsp,account);
             return updateName(account,password,firstName,lastName);
         }
 //        account.updateLoginInfo(rsp);
@@ -730,7 +730,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,account.getPwd());
+            verifyPassword(rsp,account);
             return updateQuestions(account,body);
         }
 //        account.updateLoginInfo(rsp);
@@ -740,11 +740,12 @@ public class AppleIDUtil {
     /**
      * 验证密码
      */
-    public static HttpResponse verifyPassword(HttpResponse rsp,String password){
+    public static HttpResponse verifyPassword(HttpResponse rsp,Account account){
         String verifyPasswordUrl = "https://appleid.apple.com" + rsp.header("Location");
         HttpResponse rsp1 = ProxyUtil.createRequest(Method.POST, verifyPasswordUrl)
-                .body("{\"password\":\""+password+"\"}")
+                .body("{\"password\":\""+account.getPwd()+"\"}")
                 .header(rsp.headers())
+                .cookie(account.getCookie())
                 .execute();
         return rsp1;
     }
@@ -882,7 +883,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(verifyRsp,account.getPwd());
+            verifyPassword(verifyRsp,account);
             return updateAppleIdSendVerifyCode(account);
         }
         account.updateLoginInfo(verifyRsp);
@@ -965,7 +966,7 @@ public class AppleIDUtil {
 
         // 需要验证密码
         if (status == 451){
-            verifyPassword(rsp,account.getPwd());
+            verifyPassword(rsp,account);
             return securityUpgradeVerifyPhone(account,body);
         }
 
