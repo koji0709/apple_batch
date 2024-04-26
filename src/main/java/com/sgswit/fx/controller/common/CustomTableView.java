@@ -398,6 +398,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         return new AccountImportUtil().parseAccount(clz, accountStr, formats);
     }
+   protected boolean isRunning(T account){
+        Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+        return !hasFinished;
+   }
+
 
     /**
      * 本地记录按钮点击
@@ -546,8 +551,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         //判断任务是否进行中
         for(T account:accountList){
-            Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-            if(!hasFinished){
+            if(isRunning(account)){
                 alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
                 return;
             }

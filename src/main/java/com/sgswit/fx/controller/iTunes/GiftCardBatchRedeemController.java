@@ -353,7 +353,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         if (reentrantLock.isLocked()) {
                             return;
                         }
-                        // 校验 (一分钟内一个id最多只能五张卡、每日兑换上限)
+                        // 校验 (一分钟内一个id最多只能五张卡)
                         boolean b = redeemCheck(giftCardRedeem,true);
                         if (!b){
                             setExecuteButtonStatus();
@@ -387,7 +387,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void setExecuteButtonStatus(boolean isRunning) {
         super.setExecuteButtonStatus(isRunning);
     }
-
+    @Override
+    protected boolean isRunning(GiftCardRedeem giftCardRedeem){
+        boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(giftCardRedeem, "hasFinished");
+        boolean running= Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote());
+        return (running || !hasFinished);
+    }
     public boolean redeemCheck(GiftCardRedeem giftCardRedeem,boolean isNormal){
         String account = giftCardRedeem.getAccount();
         List<Long> countList;
@@ -472,7 +477,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     @Override
     public boolean isProcessed(GiftCardRedeem account) {
-        return !(StrUtil.isEmpty(account.getNote()) || Constant.REDEEM_WAIT1_DESC.equals(account.getNote())  || Constant.REDEEM_WAIT2_DESC.equals(account.getNote())) ;
+        return !(StrUtil.isEmpty(account.getNote()) || Constant.REDEEM_WAIT1_DESC.equals(account.getNote())) ;
     }
 
     /**
