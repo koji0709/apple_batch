@@ -35,33 +35,6 @@ import java.util.Map;
  * @date 2023/9/2720:32
  */
 public class ITunesUtil {
-
-    public  static HttpResponse getPurchases(HttpResponse response){
-        HashMap<String, List<String>> headers = new HashMap<>();
-//
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-
-        headers.put("Host", ListUtil.toList("p30-buy.itunes.apple.com"));
-        headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));
-
-        headers.put("User-Agent", ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
-        headers.put("X-Apple-I-MD-RINFO",ListUtil.toList("143465-19,32"));
-        headers.put("X-Dsid",ListUtil.toList("8135448658"));
-        headers.put("X-Apple-Tz",ListUtil.toList("28800"));
-        headers.put("X-Token",ListUtil.toList("17F0A7C9295E7B44BA41A2F39E8626AA"));
-
-        String cookie=CookieUtils.getCookiesFromHeader(response);
-
-        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,"https://p30-buy.itunes.apple.com/commerce/account/purchases?isJsonApiFormat=true&page=1")
-                .header(headers)
-//                .body(body)
-                .cookie(cookie)
-                .execute();
-
-        return step4Res;
-    }
     /**
      　* 统计购买记录
      * @param
@@ -771,27 +744,5 @@ public class ITunesUtil {
                     .body(redeemBody)
                     .execute();
             return redeemRsp;
-    }
-
-    private static String getCookie(HttpResponse rsp) {
-        StringBuilder cookieBuilder = new StringBuilder();
-        List<String> res1Cookies = rsp.headers().get("Set-Cookie");
-        List<String> res2Cookies = rsp.headers().get("set-cookie");
-
-        if (res1Cookies != null) {
-            for (String item : res1Cookies) {
-                cookieBuilder.append(";").append(item);
-            }
-        }
-        if (res2Cookies != null) {
-            for (String item : res2Cookies) {
-                cookieBuilder.append(";").append(item);
-            }
-        }
-        String cookies = "";
-        if(cookieBuilder.toString().length() > 0){
-            cookies = cookieBuilder.toString().substring(1);
-        }
-        return cookies;
     }
 }
