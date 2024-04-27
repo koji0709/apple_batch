@@ -86,9 +86,16 @@
 
                                                 <VBox spacing="5">
                                                     <children>
-                                                        <Label>检测需要消耗点数：5</Label>
-                                                        <Label fx:id="countryLabel" prefWidth="100" wrapText="true">国家：</Label>
-                                                        <Label fx:id="balanceLabel" prefWidth="100" wrapText="true">余额：</Label>
+                                                        <Pane>
+                                                            <Label>检测需要消耗点数：</Label>
+                                                            <Label layoutX="110.0" text="5" textFill="red">
+                                                                <font>
+                                                                   <Font name="System Bold" size="14.0" />
+                                                                </font>
+                                                            </Label>
+                                                        </Pane>
+                                                        <Label fx:id="countryLabel" prefWidth="120" wrapText="true">国家：</Label>
+                                                        <Label fx:id="balanceLabel" prefWidth="120" wrapText="true">余额：</Label>
                                                         <Label fx:id="statusLabel" prefWidth="120" wrapText="true">状态：</Label>
                                                     </children>
                                                 </VBox>
