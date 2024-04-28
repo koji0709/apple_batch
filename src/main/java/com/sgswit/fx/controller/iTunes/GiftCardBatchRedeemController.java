@@ -382,7 +382,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                                 Map<String,Long> map = countMap.get(account);
                                 map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
                                 countMap.put(account,map);
-                                System.out.println(count.get());
+//                                System.out.println(count.get());
                                 if (count.get() <=0) {
                                     if(execAgainCheckBoxSelected){
                                         Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
