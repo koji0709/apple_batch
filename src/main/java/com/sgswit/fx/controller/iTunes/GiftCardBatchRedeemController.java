@@ -373,13 +373,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                                 map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
                                 countMap.put(account,map);
                                 if (count.get() < 0) {
-                                    if(execAgainCheckBoxSelected){
-                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
-                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
-                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
-                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
-                                        accountHandlerExpand(giftCardRedeem, false);
-                                    }
+//                                    if(execAgainCheckBoxSelected){
+//                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+//                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
+//                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
+//                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
+//                                        accountHandlerExpand(giftCardRedeem, false);
+//                                    }
                                     throw new RuntimeException();
                                 }
                             }, 0, 1, TimeUnit.SECONDS);
@@ -482,9 +482,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 ThreadUtil.sleep(500);
                 countList.put(account+giftCardCode, System.currentTimeMillis());
                 countMap.put(account,countList);
-                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
-                toBeExecutedMap.put(account,toBeExecutedList);
-
+//                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
+//                toBeExecutedMap.put(account,toBeExecutedList);
                 redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
             }
         }
