@@ -325,6 +325,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         // 修改按钮为执行状态
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
+
+        // 每一次执行前都释放锁
+        if (reentrantLock.isLocked()) {
+            reentrantLock.unlock();
+            ThreadUtil.sleep(300);
+        }
+
         // 此处的线程是为了处理,按钮状态等文案显示
         ThreadUtil.execute(() -> {
             // 将账号分组
@@ -349,6 +356,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     // 使用迭代器进行遍历和修改
                     Iterator<GiftCardRedeem> iterator = accountList.iterator();
                     while (iterator.hasNext()) {
+                        if (reentrantLock.isLocked()) {
+                            return;
+                        }
                         GiftCardRedeem giftCardRedeem = iterator.next();
                         String account=giftCardRedeem.getAccount();
                         Map<String,Long> countList = countMap.get(account);
@@ -372,14 +382,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                                 Map<String,Long> map = countMap.get(account);
                                 map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
                                 countMap.put(account,map);
-                                if (count.get() < 0) {
-//                                    if(execAgainCheckBoxSelected){
-//                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
-//                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
-//                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
-//                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
-//                                        accountHandlerExpand(giftCardRedeem, false);
-//                                    }
+                                System.out.println(count.get());
+                                if (count.get() <=0) {
+                                    if(execAgainCheckBoxSelected){
+                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
+                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
+                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
+                                        accountHandlerExpand(giftCardRedeem, false);
+                                    }
                                     throw new RuntimeException();
                                 }
                             }, 0, 1, TimeUnit.SECONDS);
