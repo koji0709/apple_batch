@@ -24,6 +24,7 @@ import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -55,9 +56,12 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -104,9 +108,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     Stage redeemLogStage;
 
-    private static Map<String, List<Long>> countMap = new HashMap<>();
+    private static Map<String, Map<String,Long>> countMap = new HashMap<>();
+//    private static List<GiftCardRedeem> unfinishedAccountList = new ArrayList<>();
+    private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
 
-    private static Set<String> lockSet = new HashSet<>();
+    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -278,7 +284,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void stopTaskButtonAction() {
         super.stopTaskButtonAction();
         for (GiftCardRedeem giftCardRedeem : accountList) {
-            if (Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote()) || Constant.REDEEM_WAIT2_DESC.equals(giftCardRedeem.getNote())){
+            if (Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote())){
                 ReflectUtil.invoke(giftCardRedeem,"setHasFinished",true);
                 setAndRefreshNote(giftCardRedeem,"");
             }
@@ -296,7 +302,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             super.executeButtonAction();
             return;
         }
-
+        boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
         // 同账号单线程工作
         // 校验
         if (accountList.isEmpty()) {
@@ -317,14 +323,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
 
         // 修改按钮为执行状态
+        // 修改按钮为执行状态
         setExecuteButtonStatus(true);
-
-        // 每一次执行前都释放锁
-        if (reentrantLock.isLocked()) {
-            reentrantLock.unlock();
-            ThreadUtil.sleep(300);
-        }
-
         // 此处的线程是为了处理,按钮状态等文案显示
         ThreadUtil.execute(() -> {
             // 将账号分组
@@ -343,25 +343,47 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 accountGroupMap.put(account,giftCardRedeemList);
             }
 
-            for (Map.Entry<String, List<GiftCardRedeem>> entry : accountGroupMap.entrySet()) {
+            for (String key : accountGroupMap.keySet()) {
                 ThreadUtil.execute(()->{
-                    List<GiftCardRedeem> accountList = entry.getValue();
-
-                    // 处理账号
-                    for (int i = 0; i < accountList.size(); i++) {
-                        GiftCardRedeem giftCardRedeem = accountList.get(i);
-                        if (reentrantLock.isLocked()) {
-                            return;
+                    List<GiftCardRedeem> accountList = accountGroupMap.get(key);
+                    // 使用迭代器进行遍历和修改
+                    Iterator<GiftCardRedeem> iterator = accountList.iterator();
+                    while (iterator.hasNext()) {
+                        GiftCardRedeem giftCardRedeem = iterator.next();
+                        String account=giftCardRedeem.getAccount();
+                        Map<String,Long> countList = countMap.get(account);
+                        if(null==countList){
+                            countList=new HashMap<>();
                         }
-                        // 校验 (一分钟内一个id最多只能五张卡)
-                        boolean b = redeemCheck(giftCardRedeem,true);
-                        if (!b){
-                            setExecuteButtonStatus();
-                            continue;
+                        if(null!=countList && countList.size()>=5){
+                            ThreadUtil.sleep(100);
+                            giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
+                            Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                            if(null==toBeExecutedList){
+                                toBeExecutedList=new LinkedHashMap<>();
+                            }
+                            toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                            iterator.remove();
+                        }else{
+                            accountHandlerExpand(giftCardRedeem, false);
+                            AtomicInteger count = new AtomicInteger(63);
+                            executorService.scheduleAtFixedRate(() -> {
+                                setExecuteButtonStatus();
+                                Map<String,Long> map = countMap.get(account);
+                                map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
+                                countMap.put(account,map);
+                                if (count.get() < 0) {
+                                    if(execAgainCheckBoxSelected){
+                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
+                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
+                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
+                                        accountHandlerExpand(giftCardRedeem, false);
+                                    }
+                                    throw new RuntimeException();
+                                }
+                            }, 0, 1, TimeUnit.SECONDS);
                         }
-                        accountHandlerExpand(giftCardRedeem, false);
-                        setExecuteButtonStatus();
-                        //ThreadUtil.sleep(200);
                     }
                 });
             }
@@ -370,15 +392,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     public void setExecuteButtonStatus(){
-        boolean isEnd = true;
-        for (GiftCardRedeem cardRedeem : this.accountList) {
-            if (StrUtil.isEmpty(cardRedeem.getNote()) || (Constant.REDEEM_WAIT1_DESC.equals(cardRedeem.getNote()) && execAgainCheckBox.isSelected())){
-                isEnd = false;
-                break;
+        Platform.runLater(() -> setExecuteButtonStatus(true));
+        int finishCount=0;
+        for(GiftCardRedeem account:this.accountList){
+            if(!isRunning(account)){
+                finishCount++;
             }
         }
         // 任务执行结束, 恢复执行按钮状态
-        if (isEnd){
+        if (finishCount ==this.accountList.size()){
             Platform.runLater(() -> setExecuteButtonStatus(false));
         }
     }
@@ -393,87 +415,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         boolean running= Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote());
         return (running || !hasFinished);
     }
-    public boolean redeemCheck(GiftCardRedeem giftCardRedeem,boolean isNormal){
-        String account = giftCardRedeem.getAccount();
-        List<Long> countList;
-        synchronized (getClass()){
-            countList = countMap.get(account);
-            if (!CollUtil.isEmpty(countList)){
-                // 如果被锁了
-                if (countList.size() >= 5 && lockSet.contains(account)){
-                    // 明显超时的数据去除掉
-                    countList = countList.stream().filter(time -> {
-                        long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-                        return second < 120;
-                    }).collect(Collectors.toList());
-                    countMap.put(account,countList);
-
-                    // 清理掉1分钟前的数据
-                    List<Long> collect = countList.stream().filter(time -> {
-                        long second = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-                        return second < 60;
-                    }).collect(Collectors.toList());
-
-                    if (collect.size() == 0){
-                        countList = new ArrayList<>();
-                        lockSet.remove(account);
-                        countMap.remove(account);
-                    }
-                }
-            }
-
-            if (!CollUtil.isEmpty(countList) && countList.size() >= 5){
-                String note = execAgainCheckBox.isSelected() ? Constant.REDEEM_WAIT1_DESC : Constant.REDEEM_WAIT2_DESC;
-                setAndRefreshNote(giftCardRedeem,note);
-                //将相同appleID下的未对换所有卡号设置成 一分钟之后执行
-                if (isNormal){
-                    for(GiftCardRedeem g:accountList){
-                        if(g.getAccount().equals(giftCardRedeem.getAccount()) && StringUtils.isEmpty(g.getNote())){
-                            g.setNote(note);
-                            setAndRefreshNote(g,note);
-                        }
-                    }
-                }
-                lockSet.add(account);
-            }else{
-                lockSet.remove(account);
-            }
-        }
-
-        boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
-        if (!CollUtil.isEmpty(countList) && countList.size() >= 5 && lockSet.contains(account) && execAgainCheckBoxSelected){
-            Long time = countList.get(countList.size()-1);
-            Long between = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-            while (!isNormal ? between <= 60 : between <= 62){
-                if (reentrantLock.isLocked()) {
-                    return false;
-                }
-                ThreadUtil.sleep(1000);
-                between = DateUtil.between(new Date(time), new Date(System.currentTimeMillis()), DateUnit.SECOND);
-            }
-        }
-
-        synchronized (getClass()){
-            // 如果延迟了一分钟后,将之前的缓存数据清理掉,并且添加新的缓存
-            if (execAgainCheckBoxSelected){
-                if (lockSet.contains(account)){
-                    lockSet.remove(account);
-                    countMap.remove(account);
-                }
-            }
-            countList = countMap.get(account);
-            if (CollUtil.isEmpty(countList)){
-                countList = new ArrayList<>();
-            }
-            if (!lockSet.contains(account)){
-                countList.add(System.currentTimeMillis());
-            }
-            countMap.put(account,countList);
-        }
-        // 如果是延迟执行,则直接返回true；否则根据是否执行了五条数据来响应。
-        return execAgainCheckBoxSelected ? true : !lockSet.contains(account);
-    }
-
 
     @Override
     public boolean isProcessed(GiftCardRedeem account) {
@@ -482,29 +423,77 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     /**
      * qewqeq@2980.com----Ac223388----XMPC3HRMNM6K5FXP
-     * shabagga222@tutanota.com----Ac223388----XMPC3HRMNM6K5FXP
-     * cncots@gmail.com----Xx97595031.----XMPC3HRMNM6K5FXP
      */
+    public boolean redeemCheck(GiftCardRedeem giftCardRedeem){
+        setAndRefreshNote(giftCardRedeem,"兑换中...");
+        Map<String,Long> countList = countMap.get(giftCardRedeem.getAccount());
+        if(null==countList){
+            countList=new HashMap<>();
+        }
+        if(null!=countList && countList.size()>=5){
+            ThreadUtil.sleep(500);
+            boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
+            giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
+            return false;
+        }else{
+            return true;
+        }
+    }
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
+        String account=giftCardRedeem.getAccount();
+        String giftCardCode=giftCardRedeem.getGiftCardCode();
+        setAndRefreshNote(giftCardRedeem,"账户登录中...");
+        String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
+        LoginInfo loginInfo = loginSuccessMap.get(id);
+        if (loginInfo != null){
+            //产生随机数
+            int m= RandomUtil.randomInt(3, 8);
+            ThreadUtil.sleep(m*1000);
+        }
         giftCardRedeem.setExecTime(DateUtil.now());
-        //产生随机数
-        int m=RandomUtil.randomInt(3, 5);
-        ThreadUtil.sleep(m*1000);
+        Map<String, Long> countList = countMap.get(account);
+        if(null==countList){
+            countList=new HashMap<>();
+        }
+        LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+        if(null==toBeExecutedList){
+            toBeExecutedList=new LinkedHashMap<>();
+        }
         // 登录并缓存
         itunesLogin(giftCardRedeem);
+        ThreadUtil.sleep(500);
+        setAndRefreshNote(giftCardRedeem,"兑换中...");
         boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
             giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
         }
-        String account = giftCardRedeem.getAccount();
-        setAndRefreshNote(giftCardRedeem,"兑换中...");
-        HttpResponse redeemRsp = ITunesUtil.redeem(giftCardRedeem,"");
+        HttpResponse redeemRsp = null;
+        try{
+            countList.put(account+giftCardCode, System.currentTimeMillis());
+            countMap.put(account,countList);
+            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+        }catch (IORuntimeException e){
+            giftCardRedeem.setTimeOutCount(giftCardRedeem.getTimeOutCount()+1);
+            if(giftCardRedeem.getTimeOutCount()>5){
+                throw e;
+            }else{
+                ThreadUtil.sleep(500);
+                countList.put(account+giftCardCode, System.currentTimeMillis());
+                countMap.put(account,countList);
+                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
+                toBeExecutedMap.put(account,toBeExecutedList);
+
+                redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+            }
+        }
+
+
+
         String  body = redeemRsp.body();
         if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
-            String message = "礼品卡兑换失败!兑换过于频繁，请稍后重试！";
-            throw new ServiceException(message);
+            throw new ServiceException(Constant.REDEEM_WAIT2_DESC);
         }
         // 兑换
         JSONObject redeemBody = JSONUtil.parseObj(body);
@@ -530,7 +519,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if (giftCardRedeem.getFailCount() == 0){
                     // 需要重新登录
                     giftCardRedeem.setIsLogin(false);
-                    String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
                     loginSuccessMap.remove(id);
                     giftCardRedeem.setFailCount(1);
                     accountHandler(giftCardRedeem);
@@ -567,8 +555,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 put("initBalance", new BigDecimal(totalMoneyRaw).subtract(new BigDecimal(giftCardMoneyRaw)));
                 put("redeemBalance",giftCardMoneyRaw);
                 //设置东八区时间和服务器一致
-                TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
-                put("redeemTime",DateUtil.now());
+//                put("redeemTime",DateUtil.now());
             }};
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);

@@ -38,28 +38,28 @@ public class PurchaseBillUtil {
     public static void main(String[] args ) throws Exception {
 //        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
 //        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","##B0527s0207");
-        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
-        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-                "<plist version=\"1.0\">\n" +
-                "<dict>\n" +
-                "\t<key>sign-sap-setup-buffer</key>\n" +
-                "\t<data>\n" +
-                "\tAQhKdD/RkztjkFqunbzm27gmJu58NokfUn6ZGRV7KGnxA1uuT3UmOLzN25YfaV4L3ePR\n" +
-                "\tLxMeQxdEtUgTQr3DQbzhjd5a63J5+cpljJQQUoBdxm4KD96noRcptMSK9/wZC62H7aBI\n" +
-                "\t60p7V2e10qyeR0YussFJuMEYKUSD6w1pqK4/NCjvL0WcKeezInOzH89sda548/GLzRen\n" +
-                "\tFFoOAiLSW3DBI9d+eB49duZTC065+1HW7S0ZNv6cZb6zRnMX743dLbvIqOWAKD3FHQ9h\n" +
-                "\tEzSkTn/TpT99VsITJqYzitVfNWnBWog/HC8iXF+zz26J70+2RSwIFRFwK42/UCRyJNx8\n" +
-                "\tOOuVUBRWqSnSVjvoUKH37Hr8J7zlJe9knaQsAAAAMDsu3WljmqxwZ7Kd5uP6mu501XFD\n" +
-                "\tjwLFEwcqn93ScJ/jBjGNw0bhl3vZpl/31P6r2mVPA/G+ypWMv05wVcNXPYR6mgpy\n" +
-                "\t</data>\n" +
-                "</dict>\n" +
-                "</plist>";
-        HttpResponse step4Res = ProxyUtil.createRequest(Method.POST,url)
-                .body(body)
-                .execute();
+//        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
+//        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+//                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+//                "<plist version=\"1.0\">\n" +
+//                "<dict>\n" +
+//                "\t<key>sign-sap-setup-buffer</key>\n" +
+//                "\t<data>\n" +
+//                "\tAQhKdD/RkztjkFqunbzm27gmJu58NokfUn6ZGRV7KGnxA1uuT3UmOLzN25YfaV4L3ePR\n" +
+//                "\tLxMeQxdEtUgTQr3DQbzhjd5a63J5+cpljJQQUoBdxm4KD96noRcptMSK9/wZC62H7aBI\n" +
+//                "\t60p7V2e10qyeR0YussFJuMEYKUSD6w1pqK4/NCjvL0WcKeezInOzH89sda548/GLzRen\n" +
+//                "\tFFoOAiLSW3DBI9d+eB49duZTC065+1HW7S0ZNv6cZb6zRnMX743dLbvIqOWAKD3FHQ9h\n" +
+//                "\tEzSkTn/TpT99VsITJqYzitVfNWnBWog/HC8iXF+zz26J70+2RSwIFRFwK42/UCRyJNx8\n" +
+//                "\tOOuVUBRWqSnSVjvoUKH37Hr8J7zlJe9knaQsAAAAMDsu3WljmqxwZ7Kd5uP6mu501XFD\n" +
+//                "\tjwLFEwcqn93ScJ/jBjGNw0bhl3vZpl/31P6r2mVPA/G+ypWMv05wVcNXPYR6mgpy\n" +
+//                "\t</data>\n" +
+//                "</dict>\n" +
+//                "</plist>";
+//        HttpResponse step4Res = ProxyUtil.createRequest(Method.POST,url)
+//                .body(body)
+//                .execute();
 
-//        Map<String,Object> res= iTunesAuth("djli0506@163.com","##B0527s0207");
+        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
 //        ITunesUtil.getPaymentInfos(res);
     }
     ///网页版版
@@ -573,7 +573,7 @@ public class PurchaseBillUtil {
             result.put("code","400");
             String messageBodyLocKey=JSONUtil.parse(loginResponse.body()).getByPath("error.messageBodyLocKey",String.class);
             if(messageBodyLocKey.equals("RAP2.Error.ACCOUNT_DISABLED.Body")){
-                result.put("msg","帐户存在欺诈行为，已被【双禁】。");
+                result.put("msg",Constant.errorMap.get(Constant.ACCOUNT_HAS_BEEN_LOCKED));
             }
             return result;
         }
@@ -948,11 +948,8 @@ public class PurchaseBillUtil {
                 paras.put("msg","帐户存在欺诈行为，已被【双禁】。");
                 return paras;
             }
-            if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType) && customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
-                return iTunesLogin(authCode,guid,1,paras);
-            }
             paras.put("hasInspectionFlag",true);
-            if(!StringUtils.isEmpty(customerMessage) &&customerMessage.contains(Constant.CustomerMessageNotYetUsediTunesStore)){
+            if(!StringUtils.isEmpty(customerMessage) &&failureType.equals(Constant.CustomerMessageNotYetUsediTunesStoreCode)){
                 paras.put("hasInspectionFlag",false);
                 String appStoreOverCheckUrl=rspJSON.getByPath("dialog.okButtonAction.url",String.class);
                 paras.put("appStoreOverCheckUrl",appStoreOverCheckUrl);

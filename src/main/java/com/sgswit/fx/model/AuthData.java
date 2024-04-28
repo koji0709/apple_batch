@@ -19,6 +19,7 @@ public class AuthData {
     private String dataStatus = "";
     /**失败次数**/
     private int failCount = 0;
+    private int timeOutCount = 0;
 
     public Map<String, Object> getAuthData() {
         return authData;
@@ -66,5 +67,13 @@ public class AuthData {
 
     public void setFailCount(int failCount) {
         this.failCount = failCount;
+    }
+
+    public int getTimeOutCount() {
+        return timeOutCount;
+    }
+
+    public void setTimeOutCount(int timeOutCount) {
+        this.timeOutCount = timeOutCount;
     }
 }

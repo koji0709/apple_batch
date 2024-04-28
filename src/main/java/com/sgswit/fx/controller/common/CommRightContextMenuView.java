@@ -237,7 +237,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                     }
                     if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
                         ThreadUtil.execute(()-> {
-                            Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", account,false);
+                            Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", account);
                             if (redeemCheck){
                                 accountHandlerExpand(account);
                                 ReflectUtil.invoke(this,"setExecuteButtonStatus");
