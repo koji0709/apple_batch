@@ -58,8 +58,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,7 +112,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 //    private static List<GiftCardRedeem> unfinishedAccountList = new ArrayList<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
 
-    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);;
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -321,11 +321,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             //alert("账号都已处理！");
             return;
         }
-
-        // 修改按钮为执行状态
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
-
+        timer();
         // 每一次执行前都释放锁
         if (reentrantLock.isLocked()) {
             reentrantLock.unlock();
@@ -368,38 +366,58 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         if(null!=countList && countList.size()>=5){
                             ThreadUtil.sleep(100);
                             giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
-                            Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                            giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
+                            LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
                             if(null==toBeExecutedList){
                                 toBeExecutedList=new LinkedHashMap<>();
                             }
                             toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                            toBeExecutedMap.put(account,toBeExecutedList);
                             iterator.remove();
                         }else{
                             accountHandlerExpand(giftCardRedeem, false);
-                            AtomicInteger count = new AtomicInteger(63);
-                            executorService.scheduleAtFixedRate(() -> {
-                                setExecuteButtonStatus();
-                                Map<String,Long> map = countMap.get(account);
-                                map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
-                                countMap.put(account,map);
-//                                System.out.println(count.get());
-                                if (count.get() <=0) {
-                                    if(execAgainCheckBoxSelected){
-                                        Map<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
-                                        GiftCardRedeem toBeGiftCardRedeem= toBeExecutedList.entrySet().iterator().next().getValue();
-                                        toBeExecutedList.remove(toBeGiftCardRedeem.getAccount()+toBeGiftCardRedeem.getGiftCardCode());
-                                        toBeExecutedList.put(toBeGiftCardRedeem+toBeGiftCardRedeem.getGiftCardCode(),toBeGiftCardRedeem);
-                                        accountHandlerExpand(giftCardRedeem, false);
-                                    }
-                                    throw new RuntimeException();
-                                }
-                            }, 0, 1, TimeUnit.SECONDS);
                         }
                     }
                 });
             }
 
         });
+    }
+
+    private void timer(){
+       try{
+           ScheduledFuture scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+               setExecuteButtonStatus();
+               for(String key: countMap.keySet()){
+                   Map<String,Long> map = countMap.get(key);
+                   map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
+                   if(map.size()==0){
+                       countMap.remove(key);
+                   }
+               }
+               boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
+               for(String key: toBeExecutedMap.keySet()){
+                   Map<String, GiftCardRedeem> map = toBeExecutedMap.get(key);
+                   Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
+                   while (iterator.hasNext()) {
+                       Map.Entry<String, GiftCardRedeem> entry = iterator.next();
+                       GiftCardRedeem giftCardRedeem=entry.getValue();
+                       if(DateUtil.between(new Date(giftCardRedeem.getStartRecordTime()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63){
+                           // 删除满足条件的元素
+                           iterator.remove();
+                           if(execAgainCheckBoxSelected){
+                               accountHandlerExpand(giftCardRedeem, false);
+                           }
+                       }
+                   }
+                   if(map.size()==0){
+                       toBeExecutedMap.remove(key);
+                   }
+               }
+           }, 0, 1, TimeUnit.SECONDS);
+       }catch (Exception e){
+           e.printStackTrace();
+       }
     }
 
     public void setExecuteButtonStatus(){
@@ -493,9 +511,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 ThreadUtil.sleep(500);
                 countList.put(account+giftCardCode, System.currentTimeMillis());
                 countMap.put(account,countList);
-//                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
-//                toBeExecutedMap.put(account,toBeExecutedList);
-                redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+                giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
+                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
+                toBeExecutedMap.put(account,toBeExecutedList);
+                accountHandler(giftCardRedeem);
             }
         }
 
@@ -624,7 +643,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     singleGiftCardRedeem.setGuid(guid);
                     singleGiftCardRedeem.setNote("");
                 }
-
+                String id=super.createId(account,pwd);
+                loginSuccessMap.remove(id);
                 itunesLogin(singleGiftCardRedeem);
 
                 HttpResponse authRsp = (HttpResponse) singleGiftCardRedeem.getAuthData().get("authRsp");
@@ -645,7 +665,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
                     balanceLabel.setText( "余额：" + "");
-                    statusLabel.setText( "状态：" + e.getMessage());
+                    statusLabel.setText( "状态：" + "");
                     checkAccountDescLabel.setText(e.getMessage());
                 });
                 // 异常返回点数
@@ -654,7 +674,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
                     balanceLabel.setText( "余额：" + "");
-                    statusLabel.setText( "状态：" + "连接异常，请检查网络");
+                    statusLabel.setText( "状态：" + "");
                     checkAccountDescLabel.setText("连接异常，请检查网络");
                 });
                 // 异常返回点数
@@ -663,7 +683,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
                     balanceLabel.setText( "余额：" + "");
-                    statusLabel.setText( "状态：" + "数据处理异常");
+                    statusLabel.setText( "状态：" + "");
                     checkAccountDescLabel.setText("数据处理异常");
                 });
                 // 异常返回点数

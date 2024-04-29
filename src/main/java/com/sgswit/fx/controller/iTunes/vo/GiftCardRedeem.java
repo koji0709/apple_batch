@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.iTunes.vo;
 
 import com.sgswit.fx.model.LoginInfo;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 
@@ -19,6 +20,7 @@ public class GiftCardRedeem extends LoginInfo {
     private final SimpleStringProperty execTime;
     private final SimpleStringProperty note;
     private final SimpleIntegerProperty maxTryNumber;
+    private final SimpleLongProperty startRecordTime;
 
     public GiftCardRedeem() {
         this.account = new SimpleStringProperty();
@@ -33,6 +35,7 @@ public class GiftCardRedeem extends LoginInfo {
         this.note = new SimpleStringProperty();
         this.execTime = new SimpleStringProperty();
         this.maxTryNumber = new SimpleIntegerProperty();
+        this.startRecordTime = new SimpleLongProperty();
     }
     public String getAccount() {
         return account.get();
@@ -171,6 +174,15 @@ public class GiftCardRedeem extends LoginInfo {
 
     public void setMaxTryNumber(int maxTryNumber) {
         this.maxTryNumber.set(maxTryNumber);
+    }
+
+
+    public long getStartRecordTime() {
+        return startRecordTime.get();
+    }
+
+    public void setStartRecordTime(long startRecordTime) {
+        this.startRecordTime.set(startRecordTime);
     }
 
     @Override
