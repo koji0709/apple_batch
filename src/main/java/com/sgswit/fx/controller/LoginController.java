@@ -261,7 +261,7 @@ public class LoginController extends CommonView implements Initializable {
         }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
-        body = String.format(body,userName,SM4Util.encryptBase64(pwd),email,qq,cardNo);
+        body = String.format(body,userName,pwd,email,qq,cardNo);
         HttpResponse rsp = HttpUtils.post("/userInfo/register", body);
         alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
     }
@@ -302,7 +302,7 @@ public class LoginController extends CommonView implements Initializable {
             }
         }
         String body = "{\"userName\":\"%s\",\"newPwd\":\"%s\",\"verifyCode\":\"%s\"}";
-        body = String.format(body,userName,SM4Util.encryptBase64(newPwd),verifyCode);
+        body = String.format(body,userName,newPwd,verifyCode);
         HttpResponse rsp = HttpUtils.post("/userInfo/updatePwd", body);
         alert(HttpUtils.message(rsp),Alert.AlertType.ERROR,true);
     }
