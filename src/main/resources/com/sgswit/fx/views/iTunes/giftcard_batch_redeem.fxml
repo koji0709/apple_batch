@@ -103,7 +103,7 @@
                                                 <VBox alignment="CENTER" spacing="5">
                                                     <children>
                                                         <Button onAction="#giftCardBalanceBtnAction">礼品卡查询余额</Button>
-                                                        <Button onAction="#giftCardDetectionProfessionalEditionBtnAction">礼品卡检测专业版</Button>
+                                                        <Button disable="true" onAction="#giftCardDetectionProfessionalEditionBtnAction">礼品卡检测专业版</Button>
                                                         <Button onAction="#chnAppleIdValidateBtnAction">中国账号身份认证</Button>
                                                     </children>
                                                 </VBox>
