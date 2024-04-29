@@ -388,16 +388,18 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
        try{
            ScheduledFuture scheduledFuture= executorService.scheduleAtFixedRate(() -> {
                setExecuteButtonStatus();
-               for(String key: countMap.keySet()){
-                   Map<String,Long> map = countMap.get(key);
+               Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
+               while (countMapIterator.hasNext()){
+                   Map<String,Long> map = countMapIterator.next().getValue();
                    map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
                    if(map.size()==0){
-                       countMap.remove(key);
+                       countMapIterator.remove();
                    }
                }
                boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
-               for(String key: toBeExecutedMap.keySet()){
-                   Map<String, GiftCardRedeem> map = toBeExecutedMap.get(key);
+               Iterator<Map.Entry<String, LinkedHashMap<String, GiftCardRedeem>>> toBeExecutedMapIterator = toBeExecutedMap.entrySet().iterator();
+               while (toBeExecutedMapIterator.hasNext()){
+                   Map<String, GiftCardRedeem> map = toBeExecutedMapIterator.next().getValue();
                    Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
                    while (iterator.hasNext()) {
                        Map.Entry<String, GiftCardRedeem> entry = iterator.next();
@@ -411,10 +413,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                        }
                    }
                    if(map.size()==0){
-                       toBeExecutedMap.remove(key);
+                       toBeExecutedMapIterator.remove();
                    }
                }
-           }, 0, 1, TimeUnit.SECONDS);
+           }, 0, 3, TimeUnit.SECONDS);
        }catch (Exception e){
            e.printStackTrace();
        }
