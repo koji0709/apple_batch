@@ -312,7 +312,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         boolean isProcessed = true;
         for (GiftCardRedeem giftCardRedeem : accountList) {
-            if (!isProcessed(giftCardRedeem)){
+            if (StrUtil.isEmpty(giftCardRedeem.getNote())){
                 isProcessed = false;
                 break;
             }
