@@ -59,7 +59,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -387,11 +386,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private void timer(){
-           AtomicInteger i= new AtomicInteger();
            ScheduledFuture scheduledFuture= executorService.scheduleAtFixedRate(() -> {
                try {
                    setExecuteButtonStatus();
-                   System.out.println(i.getAndIncrement());
                    Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
                    while (countMapIterator.hasNext()){
                        Map<String,Long> map = countMapIterator.next().getValue();
