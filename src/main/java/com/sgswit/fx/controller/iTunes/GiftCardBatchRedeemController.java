@@ -7,7 +7,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -60,6 +59,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,7 +107,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     Stage redeemLogStage;
-
+    private static int intervalTime=65;
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
 //    private static List<GiftCardRedeem> unfinishedAccountList = new ArrayList<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
@@ -366,13 +366,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         if(null!=countList && countList.size()>=5){
                             ThreadUtil.sleep(100);
                             giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
-                            giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
-                            LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
-                            if(null==toBeExecutedList){
-                                toBeExecutedList=new LinkedHashMap<>();
+                            if(execAgainCheckBoxSelected){
+                                giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
+                                LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                                if(null==toBeExecutedList){
+                                    toBeExecutedList=new LinkedHashMap<>();
+                                }
+                                toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                                toBeExecutedMap.put(account,toBeExecutedList);
                             }
-                            toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
-                            toBeExecutedMap.put(account,toBeExecutedList);
                             iterator.remove();
                         }else{
                             accountHandlerExpand(giftCardRedeem, false);
@@ -385,41 +387,43 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private void timer(){
-       try{
+           AtomicInteger i= new AtomicInteger();
            ScheduledFuture scheduledFuture= executorService.scheduleAtFixedRate(() -> {
-               setExecuteButtonStatus();
-               Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
-               while (countMapIterator.hasNext()){
-                   Map<String,Long> map = countMapIterator.next().getValue();
-                   map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63);
-                   if(map.size()==0){
-                       countMapIterator.remove();
-                   }
-               }
-               boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
-               Iterator<Map.Entry<String, LinkedHashMap<String, GiftCardRedeem>>> toBeExecutedMapIterator = toBeExecutedMap.entrySet().iterator();
-               while (toBeExecutedMapIterator.hasNext()){
-                   Map<String, GiftCardRedeem> map = toBeExecutedMapIterator.next().getValue();
-                   Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
-                   while (iterator.hasNext()) {
-                       Map.Entry<String, GiftCardRedeem> entry = iterator.next();
-                       GiftCardRedeem giftCardRedeem=entry.getValue();
-                       if(DateUtil.between(new Date(giftCardRedeem.getStartRecordTime()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>63){
-                           // 删除满足条件的元素
-                           iterator.remove();
-                           if(execAgainCheckBoxSelected){
-                               accountHandlerExpand(giftCardRedeem, false);
-                           }
+               try {
+                   setExecuteButtonStatus();
+                   System.out.println(i.getAndIncrement());
+                   Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
+                   while (countMapIterator.hasNext()){
+                       Map<String,Long> map = countMapIterator.next().getValue();
+                       map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime);
+                       if(map.size()==0){
+                           countMapIterator.remove();
                        }
                    }
-                   if(map.size()==0){
-                       toBeExecutedMapIterator.remove();
+                   boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
+                   Iterator<Map.Entry<String, LinkedHashMap<String, GiftCardRedeem>>> toBeExecutedMapIterator = toBeExecutedMap.entrySet().iterator();
+                   while (toBeExecutedMapIterator.hasNext()){
+                       Map<String, GiftCardRedeem> map = toBeExecutedMapIterator.next().getValue();
+                       Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
+                       while (iterator.hasNext()) {
+                           Map.Entry<String, GiftCardRedeem> entry = iterator.next();
+                           GiftCardRedeem giftCardRedeem=entry.getValue();
+                           if(DateUtil.between(new Date(giftCardRedeem.getStartRecordTime()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime){
+                               // 删除满足条件的元素
+                               iterator.remove();
+                               if(execAgainCheckBoxSelected){
+                                   accountHandlerExpand(giftCardRedeem, false);
+                               }
+                           }
+                       }
+                       if(map.size()==0){
+                           toBeExecutedMapIterator.remove();
+                       }
                    }
+               }catch (Exception e){
+
                }
-           }, 0, 3, TimeUnit.SECONDS);
-       }catch (Exception e){
-           e.printStackTrace();
-       }
+           }, 0, 2, TimeUnit.SECONDS);
     }
 
     public void setExecuteButtonStatus(){
@@ -465,6 +469,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             ThreadUtil.sleep(500);
             boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
             giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
+            if(execAgainCheckBoxSelected){
+                String account=giftCardRedeem.getAccount();
+                LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                if(null==toBeExecutedList){
+                    toBeExecutedList=new LinkedHashMap<>();
+                }
+                toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                toBeExecutedMap.put(account,toBeExecutedList);
+            }
             return false;
         }else{
             return true;
@@ -479,7 +492,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null){
             //产生随机数
-            int m= RandomUtil.randomInt(3, 8);
+//            int m= RandomUtil.randomInt(3, 8);
+            int m= 3;
             ThreadUtil.sleep(m*1000);
         }
         giftCardRedeem.setExecTime(DateUtil.now());
@@ -519,9 +533,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 accountHandler(giftCardRedeem);
             }
         }
-
-
-
         String  body = redeemRsp.body();
         if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
             throw new ServiceException(Constant.REDEEM_WAIT2_DESC);
