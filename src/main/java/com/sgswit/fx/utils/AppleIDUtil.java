@@ -13,6 +13,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
@@ -1230,6 +1231,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
 
@@ -1239,6 +1241,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(options2Rsp);
         account.updateLoginInfo(options2Rsp);
 
         HttpResponse options3Rsp = ProxyUtil.createPost(host + "/recovery/options")
@@ -1246,6 +1249,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body("{\"recoveryOption\":\"reset_password\"}")
                 .execute();
+        checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
 
         String authMethod1Location = options3Rsp.header("Location");
@@ -1253,6 +1257,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(authMethod1Rsp);
         account.updateLoginInfo(authMethod1Rsp);
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
@@ -1266,6 +1271,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body("{\"type\":\"questions\"}")
                 .execute();
+        checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
 
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
@@ -1273,6 +1279,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(verifyBirthday1Rsp);
         account.updateLoginInfo(verifyBirthday1Rsp);
         header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
         DateTime birthday=null;
@@ -1287,6 +1294,7 @@ public class AppleIDUtil {
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(verifyBirthday2Rsp);
         account.updateLoginInfo(verifyBirthday2Rsp);
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
@@ -1294,6 +1302,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(verifyQuestions1Rsp);
         account.updateLoginInfo(verifyQuestions1Rsp);
         header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
 
@@ -1317,6 +1326,7 @@ public class AppleIDUtil {
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(verifyQuestions2Rsp);
         account.updateLoginInfo(verifyQuestions2Rsp);
         if(400==verifyQuestions2Rsp.getStatus()){
             JSON questionsResponseBodyJson= JSONUtil.parse(verifyQuestions2Rsp.body());
@@ -1336,6 +1346,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(resrtPasswordOptionRsp);
         account.updateLoginInfo(resrtPasswordOptionRsp);
         header.put("sstt",List.of(resrtPasswordOptionRsp.header("sstt")));
 
@@ -1344,6 +1355,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(passwordReset1Rsp);
         account.updateLoginInfo(passwordReset1Rsp);
         header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
@@ -1353,6 +1365,7 @@ public class AppleIDUtil {
                 .body("{\"password\":\""+newPwd+"\"}")
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(passwordReset2Rsp);
         account.updateLoginInfo(passwordReset2Rsp);
 
         return passwordReset2Rsp;
@@ -1372,6 +1385,8 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(authMethod1Rsp);
+
         account.updateLoginInfo(authMethod1Rsp);
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
@@ -1384,12 +1399,16 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body("{\"type\":\"questions\"}")
                 .execute();
+
+        checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.createGet(host + verifyBirthday1Location)
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+
+        checkAndThrowUnavailableException(verifyBirthday1Rsp);
         account.updateLoginInfo(verifyBirthday1Rsp);
         header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
 
@@ -1404,6 +1423,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .execute();
+        checkAndThrowUnavailableException(verifyBirthday2Rsp);
         account.updateLoginInfo(verifyBirthday2Rsp);
         if(400==verifyBirthday2Rsp.getStatus()){
             JSON birthdayResponseBodyJson= JSONUtil.parse(verifyBirthday2Rsp.body());
@@ -1423,6 +1443,8 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+
+        checkAndThrowUnavailableException(verifyQuestions1Rsp);
         account.updateLoginInfo(verifyQuestions1Rsp);
         header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
 
@@ -1447,6 +1469,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .execute();
+        checkAndThrowUnavailableException(verifyQuestions2Rsp);
         account.updateLoginInfo(verifyQuestions2Rsp);
 
 
@@ -1468,6 +1491,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
         String passwordReset1Location = options1Rsp.header("Location");
@@ -1475,6 +1499,7 @@ public class AppleIDUtil {
                 .header(header)
                 .cookie(account.getCookie())
                 .execute();
+        checkAndThrowUnavailableException(passwordReset1Rsp);
         account.updateLoginInfo(passwordReset1Rsp);
         header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
@@ -1484,6 +1509,7 @@ public class AppleIDUtil {
                 .body("{\"password\":\""+newPwd+"\"}")
                 .execute();
 
+        checkAndThrowUnavailableException(passwordReset2Rsp);
         account.updateLoginInfo(passwordReset2Rsp);
         return passwordReset2Rsp;
     }
@@ -1508,5 +1534,11 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
         return headers;
+    }
+
+    public static void checkAndThrowUnavailableException(HttpResponse response){
+        if (response != null && response.getStatus() == 503){
+            throw new UnavailableException();
+        }
     }
 }
