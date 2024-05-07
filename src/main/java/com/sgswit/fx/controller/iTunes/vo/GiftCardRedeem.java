@@ -185,6 +185,10 @@ public class GiftCardRedeem extends LoginInfo {
         this.startRecordTime.set(startRecordTime);
     }
 
+    public void setStartRecordTime(Integer startRecordTime) {
+        this.startRecordTime.set(startRecordTime);
+    }
+
     @Override
     public String toString() {
         return "GiftCardRedeem{" +
