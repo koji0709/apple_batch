@@ -80,7 +80,7 @@
                         </TitledPane>
 
                         <!--修改资料-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="700.0" text="修改资料">
+                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="800.0" text="修改资料">
                             <content>
                                 <HBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                                     <children>
@@ -195,7 +195,7 @@
                 <!--账号列表-->
                 <TitledPane animated="false" collapsible="false" text="账号列表">
                     <content>
-                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0">
+                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="500.0">
                             <columns>
                                 <TableColumn fx:id="seq" text="序号" />
                                 <TableColumn fx:id="account" prefWidth="180" text="账号" />
@@ -206,8 +206,8 @@
                                 <TableColumn fx:id="birthday" prefWidth="80" text="生日" />
                                 <TableColumn fx:id="area" prefWidth="75" text="国家" />
                                 <TableColumn fx:id="email" prefWidth="160" text="新账号或救援邮箱" />
-                                <TableColumn fx:id="popKey" prefWidth="160" text="POP密钥" />
-                                <TableColumn fx:id="note" prefWidth="180" text="执行信息" />
+                                <TableColumn fx:id="popKey" prefWidth="200" text="POP密钥" />
+                                <TableColumn fx:id="note" prefWidth="240" text="执行信息" />
                             </columns>
                         </TableView>
                     </content>
