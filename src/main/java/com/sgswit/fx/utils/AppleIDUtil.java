@@ -1494,7 +1494,16 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
-        String passwordReset1Location = options1Rsp.header("Location");
+        header.put("sstt",List.of(options1Rsp.header("sstt")));
+        HttpResponse options2Rsp = ProxyUtil.createPost(host + "/password/reset/options")
+                .header(header)
+                .body("{\"type\":\"password_reset\"}")
+                .cookie(account.getCookie())
+                .execute();
+        checkAndThrowUnavailableException(options1Rsp);
+        account.updateLoginInfo(options1Rsp);
+
+        String passwordReset1Location = options2Rsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.createGet(host + passwordReset1Location)
                 .header(header)
                 .cookie(account.getCookie())
