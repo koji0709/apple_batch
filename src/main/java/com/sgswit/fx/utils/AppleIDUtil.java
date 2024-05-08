@@ -18,7 +18,9 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1297,6 +1299,10 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(verifyBirthday2Rsp);
         account.updateLoginInfo(verifyBirthday2Rsp);
 
+        if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+            throw new ServiceException("密保不能为空");
+        }
+
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
                 .header(header)
@@ -1308,6 +1314,7 @@ public class AppleIDUtil {
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
         List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+
         Map<Integer,String> answerMap = new HashMap<>(){{
             put(1,account.getAnswer1());
             put(2,account.getAnswer2());
@@ -1438,6 +1445,11 @@ public class AppleIDUtil {
             }
             throw new ServiceException(m.toString());
         }
+
+        if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+            throw new ServiceException("密保不能为空");
+        }
+
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
                 .header(header)
@@ -1447,7 +1459,6 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(verifyQuestions1Rsp);
         account.updateLoginInfo(verifyQuestions1Rsp);
         header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
-
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
         List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
         Map<Integer,String> answerMap = new HashMap<>(){{
@@ -1546,8 +1557,45 @@ public class AppleIDUtil {
     }
 
     public static void checkAndThrowUnavailableException(HttpResponse response){
-        if (response != null && response.getStatus() == 503){
-            throw new UnavailableException();
+        if (response != null){
+            if (response.getStatus() == 503){
+                throw new UnavailableException();
+            }
+            if (response.getStatus() == 400){
+                throw new ServiceException(getValidationErrors(response,"Bad Request"));
+            }
         }
+    }
+
+    public static String getValidationErrors(HttpResponse response,String defaultMessage){
+        if (response == null){
+            return defaultMessage;
+        }
+        String body = response.body();
+        if(StringUtils.isEmpty(body)){
+            return defaultMessage;
+        }
+        List errorMessageList = new ArrayList();
+        try{
+            JSONObject jsonObject= JSONUtil.parseObj(body);
+            List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
+            List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
+            List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
+            if (!CollUtil.isEmpty(errorMessageList1)){
+                errorMessageList.addAll(errorMessageList1);
+            }
+            if (!CollUtil.isEmpty(errorMessageList2)){
+                errorMessageList.addAll(errorMessageList2);
+            }
+            if (!CollUtil.isEmpty(errorMessageList3)){
+                errorMessageList.addAll(errorMessageList3);
+            }
+            if (CollUtil.isEmpty(errorMessageList)){
+                return defaultMessage;
+            }
+        }catch (Exception e){
+            return defaultMessage;
+        }
+        return String.join(";",errorMessageList);
     }
 }

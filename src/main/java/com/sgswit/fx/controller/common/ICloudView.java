@@ -5,7 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.App;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.ICloudUtil;
 import com.sgswit.fx.utils.ICloudWeblogin;
 import javafx.beans.property.SimpleStringProperty;
@@ -64,7 +66,8 @@ public class ICloudView<T> extends CustomTableView<T> {
             HttpResponse securityCodeRsp = ICloudUtil.securityCode(signInMap, authRsp);
             String body = securityCodeRsp.body();
             if (securityCodeRsp.getStatus() != 200 && securityCodeRsp.getStatus() != 204) {
-                throw new ServiceException(serviceErrorMessages(body),"登录失败");
+                String message = AppleIDUtil.getValidationErrors(securityCodeRsp, "登录失败");
+                throw new ServiceException(message);
             }
 
             HttpResponse trustRsp = ICloudUtil.trust(signInMap,securityCodeRsp);
@@ -93,8 +96,8 @@ public class ICloudView<T> extends CustomTableView<T> {
             throw new UnavailableException();
         }
         if (status != 412 && status != 409) {
-            String errorMessages = serviceErrorMessages(signInRsp.body());
-            throw new ServiceException(errorMessages,"登录失败; status=" + status);
+            String message = AppleIDUtil.getValidationErrors(signInRsp, "登录失败; status=" + status);
+            throw new ServiceException(message,"登录失败; status=" + status);
         }
         // 412普通登录, 409双重登录
         if (status == 412) {
@@ -160,23 +163,6 @@ public class ICloudView<T> extends CustomTableView<T> {
                 throw new ServiceException("iCloud网页登录修复失败");
             }
         }
-    }
-
-    private String serviceErrorMessages(String body) {
-        if (StrUtil.isEmpty(body)) {
-            return null;
-        }
-        List messageList;
-        try{
-            JSONObject jsonObject=JSONUtil.parseObj(body);
-            messageList = jsonObject.getByPath("serviceErrors.message", List.class);
-        }catch (Exception e){
-            return null;
-        }
-        if (messageList == null) {
-            return null;
-        }
-        return String.join(";", messageList);
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

@@ -459,14 +459,5 @@ public class WebLoginUtil {
 
         return  x;
     }
-    public static String serviceErrorMessages(String body){
-        if (StrUtil.isEmpty(body)){
-            return null;
-        }
-        List messageList = JSONUtil.parseObj(body).getByPath("serviceErrors.message", List.class);
-        if (messageList == null){
-            return null;
-        }
-        return String.join(";", messageList);
-    }
+
 }

@@ -1,6 +1,5 @@
 package com.sgswit.fx.controller.common;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -10,9 +9,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.LoggerManger;
 import javafx.scene.input.ContextMenuEvent;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -168,38 +165,6 @@ public class AppleIdView extends CustomTableView<Account> {
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent,List<String> menuItemList) {
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItemList,new ArrayList<>());
     }
-
-    public String getValidationErrors(String body){
-        if(StringUtils.isEmpty(body)){
-            return "";
-        }
-        List errorMessageList = new ArrayList();
-        try{
-            JSONObject jsonObject= JSONUtil.parseObj(body);
-            List errorMessageList1 = jsonObject.getByPath("validationErrors.message", List.class);
-            List errorMessageList2 = jsonObject.getByPath("serviceErrors.message", List.class);
-            List errorMessageList3 = jsonObject.getByPath("service_errors.message", List.class);
-
-            if (!CollUtil.isEmpty(errorMessageList1)){
-                errorMessageList.addAll(errorMessageList1);
-            }
-            if (!CollUtil.isEmpty(errorMessageList2)){
-                errorMessageList.addAll(errorMessageList2);
-            }
-            if (!CollUtil.isEmpty(errorMessageList3)){
-                errorMessageList.addAll(errorMessageList3);
-            }
-            if (CollUtil.isEmpty(errorMessageList)){
-                return "";
-            }
-        }catch (Exception e){
-            LoggerManger.info("官方资料修改",e);
-            LoggerManger.info("官方资料修改返回body信息："+body);
-            return "";
-        }
-        return String.join(";",errorMessageList);
-    }
-
 
 
 }

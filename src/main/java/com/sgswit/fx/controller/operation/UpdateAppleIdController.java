@@ -54,11 +54,11 @@ public class UpdateAppleIdController extends UpdateAppleIDView {
                                         :  AppleIDUtil.addRescueEmailSendVerifyCode(account);
             if (isUpdateAppleId){
                 if (verifyRsp.getStatus() != 200){
-                    throw new ServiceException(getValidationErrors(verifyRsp.body()),"发送邮件失败");
+                    throw new ServiceException(AppleIDUtil.getValidationErrors(verifyRsp,"发送邮件失败"));
                 }
             }else{
                 if (verifyRsp.getStatus() != 201){
-                    throw new ServiceException(getValidationErrors(verifyRsp.body()),"发送邮件失败");
+                    throw new ServiceException(AppleIDUtil.getValidationErrors(verifyRsp,"发送邮件失败"));
                 }
             }
             account.getAuthData().put("verifyRsp",verifyRsp);

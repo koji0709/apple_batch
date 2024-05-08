@@ -61,7 +61,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 throw new UnavailableException();
             } else if(response.getStatus()!=409){
                 account.setHasFinished(true);
-                throw new ServiceException(WebLoginUtil.serviceErrorMessages(response.body()));
+                throw new ServiceException(AppleIDUtil.getValidationErrors(response,"签名失败"));
             }
             String countryCode=MapUtil.getStr(paras,"countryCode");
             account.setState(DataUtil.getNameByCountryCode(countryCode));

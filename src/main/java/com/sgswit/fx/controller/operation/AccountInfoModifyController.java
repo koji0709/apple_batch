@@ -173,9 +173,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }else{
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    String s=getValidationErrors(updatePasswordRsp.body());
-                    s = StrUtil.isEmpty(s) ? "修改密码失败" : s;
-                    setMessageAndRefreshTable("updatePwd",s,messageMap,account);
+                    String message = AppleIDUtil.getValidationErrors(updatePasswordRsp, "修改密码失败");
+                    setMessageAndRefreshTable("updatePwd",message,messageMap,account);
                 }else{
                     account.setPwd(newPwd);
                     setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
@@ -192,9 +191,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }else{
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
                 if (updateBirthdayRsp.getStatus() != 200){
-                    String s=getValidationErrors(updateBirthdayRsp.body());
-                    s = StrUtil.isEmpty(s) ? "修改生日失败" : s;
-                    setMessageAndRefreshTable("updateBirthday",s,messageMap,account);
+                    String message = AppleIDUtil.getValidationErrors(updateBirthdayRsp, "修改生日失败");
+                    setMessageAndRefreshTable("updateBirthday",message,messageMap,account);
                 }else{
                     account.setBirthday(birthdayDatePickerValue.toString());
                     setMessageAndRefreshTable("updateBirthday","修改生日成功",messageMap,account);
@@ -221,9 +219,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
             HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
             if (updateNameRsp.getStatus() != 200){
-                String s=getValidationErrors(updateNameRsp.body());
-                s = StrUtil.isEmpty(s) ? "修改姓名失败" : s;
-                setMessageAndRefreshTable("updateName", s,messageMap,account);
+                String message = AppleIDUtil.getValidationErrors(updateNameRsp, "修改姓名失败");
+                setMessageAndRefreshTable("updateName", message,messageMap,account);
             }else{
                 account.setName(firstName + lastName);
                 setMessageAndRefreshTable("updateName","姓名修改成功",messageMap,account);
@@ -254,9 +251,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                         ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    String s=getValidationErrors(updateQuestionsRsp.body());
-                    s = StrUtil.isEmpty(s) ? "修改密保失败" : s;
-                    setMessageAndRefreshTable("updatePasswordProtection", s,messageMap,account);
+                    String message = AppleIDUtil.getValidationErrors(updateQuestionsRsp, "修改密保失败");
+                    setMessageAndRefreshTable("updatePasswordProtection", message,messageMap,account);
                 }else{
                     account.setAnswer1(answer1TextFieldText);
                     account.setAnswer2(answer2TextFieldText);
@@ -288,9 +284,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             setMessageAndRefreshTable("removeRescueEmail","正在移除救援邮箱...",messageMap,account);
             HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
             if (deleteRescueEmailRsp.getStatus() != 204){
-                String s=getValidationErrors(deleteRescueEmailRsp.body());
-                s = StrUtil.isEmpty(s) ? "移除救援邮箱失败" : s;
-                setMessageAndRefreshTable("removeRescueEmail", s,messageMap,account);
+                String message = AppleIDUtil.getValidationErrors(deleteRescueEmailRsp, "移除救援邮箱失败");
+                setMessageAndRefreshTable("removeRescueEmail", message,messageMap,account);
             }else{
                 setMessageAndRefreshTable("removeRescueEmail","移除救援邮箱成功",messageMap,account);
             }
@@ -307,9 +302,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String langCode = languageMap.get(showLang);
                 HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
                 if (changeShowLanguageRsp.getStatus() != 200){
-                    String s=getValidationErrors(changeShowLanguageRsp.body());
-                    s = StrUtil.isEmpty(s) ? "修改显示语言失败" : s;
-                    setMessageAndRefreshTable("updateShowLang", s,messageMap,account);
+                    String message = AppleIDUtil.getValidationErrors(changeShowLanguageRsp,"修改显示语言失败");
+                    setMessageAndRefreshTable("updateShowLang", message ,messageMap,account);
                 }else{
                     setMessageAndRefreshTable("updateShowLang","修改显示语言成功",messageMap,account);
                 }
