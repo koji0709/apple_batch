@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.Method;
@@ -1182,7 +1183,22 @@ public class AppleIDUtil {
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(account,verifyAppleIdBody);
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
-            return captchaAndVerify(account,--retry);
+            if(verifyAppleIdRsp.getStatus() == 400){
+                String service_errors = JSONUtil.parse(verifyAppleIdRsp.body()).getByPath("service_errors",String.class);
+                JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
+                if(code.equals("captchaAnswer.Invalid")){
+                    //延迟半秒
+                    ThreadUtil.sleep(500);
+                    return captchaAndVerify(account,--retry);
+                }else if(code.equals("-20210")){
+                    throw new ServiceException("这个 Apple ID 没有被激活。");
+                }
+            }else {
+                ThreadUtil.sleep(500);
+                return captchaAndVerify(account,--retry);
+            }
+            return verifyAppleIdRsp;
         }else{
             account.updateLoginInfo(verifyAppleIdRsp);
             return verifyAppleIdRsp;

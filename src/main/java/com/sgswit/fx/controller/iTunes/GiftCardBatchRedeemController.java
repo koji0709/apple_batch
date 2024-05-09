@@ -106,7 +106,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     Stage redeemLogStage;
-    private static int intervalTime=65;
+    private static int intervalTime=66;
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
 //    private static List<GiftCardRedeem> unfinishedAccountList = new ArrayList<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
@@ -488,10 +488,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
         LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null){
-            //产生随机数
-//            int m= RandomUtil.randomInt(3, 8);
-            int m= 3;
-            ThreadUtil.sleep(m*1000);
+            ThreadUtil.sleep(1000);
         }
         giftCardRedeem.setExecTime(DateUtil.now());
         Map<String, Long> countList = countMap.get(account);

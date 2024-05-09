@@ -97,13 +97,13 @@ public class CommonView implements Initializable {
     }
 
     public String failMessage(HttpResponse rsp) {
-        String message = "";
+        StringBuffer stringBuffer=new StringBuffer();
         Object service_errors = JSONUtil.parseObj(rsp.body()).getByPath("service_errors");
         for (Object o : JSONUtil.parseArray(service_errors)) {
             JSONObject jsonObject = (JSONObject) o;
-            message += jsonObject.getByPath("message") + ";";
+            stringBuffer.append(jsonObject.getByPath("message") + ";");
         }
-        return message;
+        return stringBuffer.toString();
     }
 
 
