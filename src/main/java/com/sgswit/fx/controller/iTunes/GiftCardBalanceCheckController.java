@@ -319,11 +319,20 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }else if(200==step2Res.getStatus()){
                 hasInit=true;
             } else{
-                if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
-                    msg=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors.message",String.class);
+                StringBuffer m=new StringBuffer();
+                String serviceErrors=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors",String.class);
+                if(null!=serviceErrors){
+                    JSONArray jsonArray=JSONUtil.parseArray(serviceErrors);
+                    for(Object o:jsonArray){
+                        JSONObject jsonObject=(JSONObject)o;
+                        String code=jsonObject.getStr("code");
+                        if("-20101".equals(code)){
+                            m.append("Apple ID或密码错误；");
+                        }
+                    }
                     color="red";
                     hasInit=false;
-                    updateUI(msg,color);
+                    updateUI(m.toString(),color);
                     return ;
                 }
             }
