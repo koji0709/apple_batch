@@ -817,7 +817,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         stage.setResizable(false);
         String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
-        stage.initStyle(StageStyle.DECORATED);
+        stage.initStyle(StageStyle.UTILITY);
         stage.showAndWait();
     }
 
