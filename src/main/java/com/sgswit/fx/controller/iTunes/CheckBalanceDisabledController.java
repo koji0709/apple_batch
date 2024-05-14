@@ -7,7 +7,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.PListUtil;
 import javafx.event.ActionEvent;
 
 import java.util.List;
@@ -29,6 +29,8 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
     @Override
     public void accountHandler(Account account) {
         setAndRefreshNote(account,"登录查询中...");
+        String id=super.createId(account.getAccount(),account.getPwd());
+        loginSuccessMap.remove(id);
         itunesLogin(account);
         HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
         JSONObject rspJSON = PListUtil.parse(authRsp.body());
