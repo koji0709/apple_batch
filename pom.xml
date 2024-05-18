@@ -20,7 +20,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.8.20</version>
+            <version>5.8.26</version>
         </dependency>
         <dependency>
             <groupId>cn.wanghaomiao</groupId>
@@ -84,11 +84,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.mifmif</groupId>
             <artifactId>generex</artifactId>
             <version>1.0.2</version>
@@ -137,6 +132,21 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
+<!--        <dependency>-->
+<!--            <groupId>net.java.dev.jna</groupId>-->
+<!--            <artifactId>jna-platform</artifactId>-->
+<!--            <version>5.13.0</version>-->
+<!--        </dependency>-->
+
+
 
     </dependencies>
 
@@ -200,10 +210,11 @@
 
 
             <!-- javapackager mac打包关掉代理  -->
+            <!-- javapackager  -->
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
-                <version>1.7.5</version>
+                <version>1.6.7</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -211,29 +222,20 @@
                             <goal>package</goal>
                         </goals>
                         <configuration>
-                            <version>2.0.6</version>
-                            <organizationName>XXX公司</organizationName>
-                            <name>Apple批处理程序</name>
+                            <version>3.4.2</version>
+                            <organizationName>组织名称</organizationName>
+                            <name>Apple批量处理</name>
                             <!-- mandatory -->
                             <mainClass>com.sgswit.fx.AppLauncher</mainClass>
                             <!--是否绑定默认jre-->
                             <bundleJre>true</bundleJre>
                             <!--是否绑自定义jre-->
                             <customizedJre>false</customizedJre>
-<!--                            <generateInstaller>false</generateInstaller>-->
-                            <generateInstaller>true</generateInstaller>
+                            <generateInstaller>false</generateInstaller>
                             <!--是否需要管理员权限安装-->
                             <administratorRequired>false</administratorRequired>
-                            <copyDependencies>false</copyDependencies>
-                            <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</runnableJar>
-<!--                            <platform>windows</platform>-->
-                            <macConfig>
-                                <icnsFile>src/main/resources/image/icon.icns</icnsFile>
-                                <generatePkg>false</generatePkg>
-                            </macConfig>
-                            <winConfig>
-                                <icoFile>src/main/resources/image/icon.ico</icoFile>
-                            </winConfig>
+                            <platform>windows</platform>
+                            <!--                            <platform>mac|windows</platform>-->
                         </configuration>
                     </execution>
                 </executions>

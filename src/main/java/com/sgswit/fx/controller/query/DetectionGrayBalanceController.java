@@ -98,10 +98,18 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Thread.sleep(1000);
             // 添加到购物车
             setAndRefreshNote(account,"添加到购物车中...");
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
-                throw new ServiceException(MapUtil.getStr(addMap,"msg"));
+                if(addMap.get("code").equals("302")){
+                    Thread.sleep(3000);
+                    addMap = ShoppingUtil.add2bag(prodMap);
+                    if(!Constant.SUCCESS.equals(addMap.get("code"))){
+                        throw new ServiceException(MapUtil.getStr(addMap,"msg"));
+                    }
+                }else{
+                    throw new ServiceException(MapUtil.getStr(addMap,"msg"));
+                }
             }else{
                 setAndRefreshNote(account,"添加到购物车成功");
             }
@@ -214,5 +222,4 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         }
 
     }
-
 }

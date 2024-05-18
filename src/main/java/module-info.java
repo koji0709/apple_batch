@@ -10,7 +10,6 @@ open module com.sgswit.fx {
     requires java.sql;
     requires jna;
     requires javafaker;
-    requires jsoup;
     requires dd.plist;
     requires org.bouncycastle.provider;
     requires JsoupXpath;
@@ -19,5 +18,6 @@ open module com.sgswit.fx {
     requires commons.configuration;
     requires java.desktop;
     requires org.apache.commons.lang3;
+    requires org.jsoup;
     exports com.sgswit.fx;
 }

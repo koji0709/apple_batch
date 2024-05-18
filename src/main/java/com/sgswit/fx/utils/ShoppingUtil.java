@@ -28,19 +28,16 @@ public class ShoppingUtil {
     static String goodsCode="MHJA3AM/A";
     // 获取产品
     public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
+
         String code2=MapUtil.getStr(paras,"code2","");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("accept-encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("referer",ListUtil.toList("https://www.apple.com/"));
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
 
-        headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
-        headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
-        headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
-        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-        headers.put("te",ListUtil.toList("trailers"));
+        headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-Mode", ListUtil.toList("navigate"));
+        headers.put("Sec-Fetch-Dest", ListUtil.toList("document"));
+        headers.put("Sec-Fetch-User", ListUtil.toList("?1"));
         String accessoriesUrl;
         if(StringUtils.isEmpty(code2)){
             accessoriesUrl="https://www.apple.com/shop/iphone/accessories";
@@ -54,12 +51,7 @@ public class ShoppingUtil {
             paras.put("code","1");
             return paras;
         }
-        Map<String,String> cookiesMap;
-        if(null==paras.get("cookiesMap")){
-            cookiesMap=new HashMap<>();
-        }else{
-            cookiesMap= (Map<String, String>) paras.get("cookiesMap");
-        }
+        Map<String,String> cookiesMap= new HashMap<>();
         cookiesMap=CookieUtils.setCookiesToMap(accRes,cookiesMap);
         paras.put("cookiesMap" , cookiesMap);
         Document doc = Jsoup.parse(accRes.body());
@@ -122,6 +114,7 @@ public class ShoppingUtil {
             atbUrl = "https://www.apple.com/"+code2+"/shop/beacon/atb";
         }
         HttpResponse atbRes = ProxyUtil.createGet(atbUrl)
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .header(headers).execute();
         if(atbRes.getStatus() != 200){
             paras.put("msg","商品信息加载失败！");
@@ -179,12 +172,7 @@ public class ShoppingUtil {
             paras.put("code","1");
             return paras;
         }
-        Map<String,String> cookiesMap;
-        if(null==paras.get("cookiesMap")){
-            cookiesMap=new HashMap<>();
-        }else{
-            cookiesMap= (Map<String, String>) paras.get("cookiesMap");
-        }
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
         paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
         paras.put("code",Constant.SUCCESS);
         return paras;
@@ -439,7 +427,7 @@ public class ShoppingUtil {
         }
         Document prodDoc = Jsoup.parse(resp.body());
 
-        Elements initDataElement = prodDoc.select("script[id=init_data]");
+        Element initDataElement = prodDoc.selectFirst("script[id=init_data]");
         JSONObject meta = JSONUtil.parseObj(initDataElement.html());
         String x_aos_model_page = (String) meta.getByPath("meta.h.x-aos-model-page");
         String x_aos_stk = (String)meta.getByPath("meta.h.x-aos-stk");
@@ -474,15 +462,14 @@ public class ShoppingUtil {
         headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
         headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
-        headers.put("TE",ListUtil.toList("trailers"));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
         Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","UG");
+        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
-        String url =  paras.get("url") + "x/fulfillment?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
 
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
@@ -574,7 +561,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode",areaInfo.getCode2());
         }
 
-        String url = paras.get("url") + "x/shipping?_a=continueFromShippingToBilling&_m=checkout.shipping";
+        String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -611,7 +598,7 @@ public class ShoppingUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-        String url =  paras.get("url") + "x/shipping?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
+        String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
 
         HttpResponse resp = ProxyUtil.createPost(url)
                 .header(headers)

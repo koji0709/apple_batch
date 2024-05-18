@@ -56,6 +56,8 @@ public class PointUtil {
             map.put("username",username);
             map.put("num",num);
             map.put("flag",flag);
+            String platform=PropertiesUtil.getConfig("softwareInfo.platform");
+            map.put("platform",platform.equals("1")?"win":"mac");
             String body = JSONUtil.toJsonStr(map);
             HttpResponse rsp = HttpUtils.post("/api/data/pointCost",body);
             JSON json=JSONUtil.parse(rsp.body());

@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
+            <version>1.15.3</version>
         </dependency>
         <dependency>
             <groupId>com.github.mifmif</groupId>
@@ -196,7 +196,7 @@
                             <bundleJre>true</bundleJre>
                             <!-- 是否绑自定义jre -->
                             <customizedJre>false</customizedJre>
-                            <generateInstaller>true</generateInstaller>
+                            <generateInstaller>false</generateInstaller>
                             <!-- 是否需要管理员权限安装 -->
                             <administratorRequired>false</administratorRequired>
                             <copyDependencies>false</copyDependencies>

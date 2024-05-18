@@ -106,9 +106,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     Stage redeemLogStage;
-    private static int intervalTime=66;
+    private static int intervalTime=65;
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
-//    private static List<GiftCardRedeem> unfinishedAccountList = new ArrayList<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);;
