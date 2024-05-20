@@ -3,6 +3,7 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -44,8 +45,8 @@ public class ShoppingUtil {
         }else{
             accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
         }
-        HttpResponse accRes = ProxyUtil.createGet(accessoriesUrl)
-                .header(headers).execute();
+        HttpResponse accRes = ProxyUtil.execute(HttpUtil.createGet(accessoriesUrl)
+                .header(headers));
         if(accRes.getStatus() != 200){
             paras.put("msg","商城信息加载失败！");
             paras.put("code","1");
@@ -64,8 +65,8 @@ public class ShoppingUtil {
 
         String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
 
-        HttpResponse prodRes = ProxyUtil.createGet(productUrl)
-                .header(headers).execute();
+        HttpResponse prodRes = ProxyUtil.execute(HttpUtil.createGet(productUrl)
+                .header(headers));
 
         if(prodRes.getStatus() != 200){
             paras.put("msg","商品信息加载失败！");
@@ -113,9 +114,10 @@ public class ShoppingUtil {
         }else{
             atbUrl = "https://www.apple.com/"+code2+"/shop/beacon/atb";
         }
-        HttpResponse atbRes = ProxyUtil.createGet(atbUrl)
+        HttpRequest httpRequest=HttpUtil.createGet(atbUrl)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .header(headers).execute();
+                .header(headers);
+        HttpResponse atbRes = ProxyUtil.execute(httpRequest);
         if(atbRes.getStatus() != 200){
             paras.put("msg","商品信息加载失败！");
             paras.put("code","1");
@@ -161,11 +163,11 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-        HttpResponse res = ProxyUtil.createPost(paras.get("url").toString())
+        HttpRequest httpRequest=HttpUtil.createPost(paras.get("url").toString())
                 .header(headers)
                 .form((Map<String,Object>)paras.get("body"))
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse res = ProxyUtil.execute(httpRequest);
 
         if(res.getStatus() != 303){
             paras.put("msg","加入购物车失败！");
@@ -197,11 +199,10 @@ public class ShoppingUtil {
         }else{
             bagUrl="https://www.apple.com/"+code2+"/shop/bag";
         }
-
-        HttpResponse res = ProxyUtil.createGet(bagUrl)
+        HttpRequest httpRequest=HttpUtil.createGet(bagUrl)
                 .header(headers)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         if(res.getStatus() != 200){
             paras.put("msg","获取购物车中商品信息失败！");
             paras.put("code","1");
@@ -260,11 +261,11 @@ public class ShoppingUtil {
         headers.put("s-aos-model-page",ListUtil.toList(header.get("x-aos-model-page").toString()));
         headers.put("modelVersion",ListUtil.toList(header.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(header.get("syntax").toString()));
-        HttpResponse res = HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
+        HttpRequest httpRequest=HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .form(MapUtil.getStr(paras,"body"))
-                .execute();
+                .form(MapUtil.getStr(paras,"body"));
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         if(res.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","购物信息提交失败");
@@ -287,11 +288,10 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
-
-        HttpResponse res = ProxyUtil.createGet(MapUtil.getStr(paras,"url"))
+        HttpRequest httpRequest=HttpUtil.createGet(MapUtil.getStr(paras,"url"))
                 .header(headers)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         if(res.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","登录页面加载失败");
@@ -348,13 +348,11 @@ public class ShoppingUtil {
 
         paramMap.put("deviceID","");
         paramMap.put("grantCode","");
-
-        HttpResponse resp = ProxyUtil.createPost(MapUtil.getStr(signInMap,"callbackSignInUrl"))
+        HttpRequest httpRequest=HttpUtil.createPost(MapUtil.getStr(signInMap,"callbackSignInUrl"))
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join((Map<String,String>) signInMap.get("cookiesMap"),";","=",true))
-                .execute();
-
+                .cookie(MapUtil.join((Map<String,String>) signInMap.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
         if(resp.getStatus() != 200){
             signInMap.put("code","1");
             signInMap.put("msg","页面跳转失败");
@@ -389,12 +387,11 @@ public class ShoppingUtil {
         Map<String,Object> paramMap = new HashMap<>();
 
         paramMap.put("pltn",checkoutStartMap.get("pltn"));
-
-        HttpResponse resp = ProxyUtil.createPost(checkoutStartMap.get("url").toString())
+        HttpRequest httpRequest=HttpUtil.createPost(checkoutStartMap.get("url").toString())
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join((Map<String,String>) checkoutStartMap.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) checkoutStartMap.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
         checkoutStartMap.put("location",resp.header("location"));
         return checkoutStartMap;
 
@@ -414,12 +411,10 @@ public class ShoppingUtil {
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
-        HttpResponse resp = ProxyUtil.createGet(checkoutUrl)
+        HttpRequest httpRequest=HttpUtil.createGet(checkoutUrl)
                 .header(headers)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
-
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
         if(resp.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","提交操作失败");
@@ -470,13 +465,11 @@ public class ShoppingUtil {
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
         String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
-
-        HttpResponse resp = ProxyUtil.createPost(url)
+        HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
-
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
         if(resp.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","余额查询失败，请稍后重试！");
@@ -562,11 +555,11 @@ public class ShoppingUtil {
         }
 
         String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
-        HttpResponse resp = ProxyUtil.createPost(url)
+        HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil .execute(httpRequest);
         if(resp.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","填写shipping地址失败");
@@ -599,11 +592,10 @@ public class ShoppingUtil {
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
         String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
-
-        HttpResponse resp = ProxyUtil.createPost(url)
+        HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
-                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
-                .execute();
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
         return resp;
     }
 }

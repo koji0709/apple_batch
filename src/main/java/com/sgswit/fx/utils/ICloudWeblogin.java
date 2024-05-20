@@ -10,6 +10,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -32,15 +33,7 @@ public class ICloudWeblogin {
     private static String frameId = "";
     private static String clientId = "";
 
-//    public static void main(String[] args) throws  Exception{
-//        Map<String,String> signInMap = new HashMap<>();
-//        /// clientid 类似deviceid guid 一个客户端一个
-//        signInMap.put("clientId","a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
-//        signin(signInMap);
-//    }
-
     public static HttpResponse signin(Map<String,String> signInMap){
-//        frameId  = createFrameId();
         frameId = signInMap.get("frameId");
         clientId = signInMap.get("clientId");
 
@@ -90,9 +83,8 @@ public class ICloudWeblogin {
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
 
         return res;
     }
@@ -138,10 +130,9 @@ public class ICloudWeblogin {
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
 
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
+                        .header(headers)
+                        .body(body));
 
         return res;
     }
@@ -187,10 +178,9 @@ public class ICloudWeblogin {
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+ signInMap.get("account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
 
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+                        .header(headers)
+                        .body(body));
 
         return res;
     }
@@ -247,10 +237,9 @@ public class ICloudWeblogin {
 
         String body = "{\"accountName\":\""+signInMap.get("account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
 
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+                        .header(headers)
+                        .body(body));
 
         CookieUtils.getCookiesFromHeader(res);
         return res;

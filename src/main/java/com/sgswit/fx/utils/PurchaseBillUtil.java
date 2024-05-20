@@ -169,9 +169,8 @@ public class PurchaseBillUtil {
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         String url="https://reportaproblem.apple.com/";
-        HttpResponse res = ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
         return res;
     }
 
@@ -182,9 +181,9 @@ public class PurchaseBillUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
-        HttpResponse res = ProxyUtil.createGet(pre1.header("Location"))
-                .header(headers)
-                .execute();
+        HttpRequest httpRequest=HttpUtil.createGet(pre1.header("Location"))
+                .header(headers);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
     }
 
@@ -201,9 +200,8 @@ public class PurchaseBillUtil {
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
         return res;
     }
 
@@ -239,11 +237,10 @@ public class PurchaseBillUtil {
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
-
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
                 .header(headers)
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
     }
 
@@ -282,10 +279,10 @@ public class PurchaseBillUtil {
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
     }
 
@@ -352,12 +349,11 @@ public class PurchaseBillUtil {
             cookieBuilder.append(";").append(item);
         }
 
-
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
                 .body(JSONUtil.toJsonStr(paras))
-                .cookie(cookieBuilder.toString())
-                .execute();
+                .cookie(cookieBuilder.toString());
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
     }
 
@@ -374,9 +370,9 @@ public class PurchaseBillUtil {
         headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
         headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0"));
         String location = res1.header("Location");
-        HttpResponse res2 = ProxyUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
-                .header(headers)
-                .execute();
+        HttpRequest httpRequest=HttpUtil.createGet("https://appleid.apple.com/widget/account/repair?trustedWidgetDomain=https%3A%2F%2Fidmsa.apple.com&widgetKey=20379f32034f8867d352666ff2904d2152d5ff6843ee2db5ab5df863c14b1aef&rv=1&language=zh_CN_CHN#!repair")
+                .header(headers);
+        HttpResponse res2 = ProxyUtil.execute(httpRequest);
 
         return res2;
     }
@@ -401,9 +397,9 @@ public class PurchaseBillUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Connection",ListUtil.toList("keep-alive"));
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = ProxyUtil.createGet(scUrl)
-                .header(headers)
-                .execute();
+        HttpRequest httpRequest=HttpUtil.createGet(scUrl)
+                .header(headers);
+        HttpResponse res2 = ProxyUtil.execute(httpRequest);
         return res2;
     }
     public static HttpResponse securityUpgrade(HttpResponse res1, String XAppleIDSessionId, String scnt) {
@@ -428,9 +424,8 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse res2 = ProxyUtil.createGet(scUrl)
-                .header(headers)
-                .execute();
+        HttpResponse res2 = ProxyUtil.execute(HttpUtil.createGet(scUrl)
+                .header(headers));
         return res2;
     }
     public static HttpResponse securityUpgradeSetuplater(HttpResponse res1, String XAppleIDSessionId, String scnt) {
@@ -455,9 +450,8 @@ public class PurchaseBillUtil {
         headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse res2 = ProxyUtil.createGet(scUrl)
-                .header(headers)
-                .execute();
+        HttpResponse res2 = ProxyUtil.execute(HttpUtil.createGet(scUrl)
+                .header(headers));
         return res2;
     }
     public static HttpResponse repareOptionsSecond(HttpResponse res1, String XAppleIDSessionId, String scnt) {
@@ -484,9 +478,8 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
 
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res2 = ProxyUtil.createGet(scUrl)
-                .header(headers)
-                .execute();
+        HttpResponse res2 = ProxyUtil.execute(HttpUtil.createGet(scUrl)
+                .header(headers));
         return res2;
     }
     public static HttpResponse repareComplete(HttpResponse res1, HttpResponse step211Res,String frameId) {
@@ -525,9 +518,8 @@ public class PurchaseBillUtil {
 
 
         String scUrl = "https://idmsa.apple.com/appleauth/auth/repair/complete";
-        HttpResponse res2 = ProxyUtil.createPost(scUrl)
-                .header(headers)
-                .execute();
+        HttpResponse res2 = ProxyUtil.execute(HttpUtil.createPost(scUrl)
+                .header(headers));
         return res2;
     }
     /**
@@ -565,10 +557,9 @@ public class PurchaseBillUtil {
         }
         String loginCookies = cookieBuilder.substring(1);
         String loginUrl="https://reportaproblem.apple.com/api/login";
-        HttpResponse loginResponse = ProxyUtil.createGet(loginUrl)
+        HttpResponse loginResponse = ProxyUtil.execute(HttpUtil.createGet(loginUrl)
                 .header(headers)
-                .cookie(loginCookies)
-                .execute();
+                .cookie(loginCookies));
         if(400==loginResponse.getStatus()){
             result.put("code","400");
             String messageBodyLocKey=JSONUtil.parse(loginResponse.body()).getByPath("error.messageBodyLocKey",String.class);
@@ -621,11 +612,11 @@ public class PurchaseBillUtil {
         String body="{\"batchId\":\"%s\",\"dsid\":\"%s\",\"purchaseAmount\":\"\"}";
 
         body = String.format(body,nextBatchId,dsid);
-        HttpResponse searchResponse = ProxyUtil.createPost(searchUrl)
+        HttpRequest httpRequest=HttpUtil.createPost(searchUrl)
                 .header(headers)
                 .cookie(searchCookies)
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse searchResponse = ProxyUtil.execute(httpRequest);
         if(searchResponse.getStatus()==200){
             JSON json=JSONUtil.parse(searchResponse.body());
             jsonStrList.add(searchResponse.body());
@@ -902,11 +893,11 @@ public class PurchaseBillUtil {
                 "</plist>";
         try {
             String authUrl=MapUtil.getStr(paras,"authUrl");
-            HttpResponse res = ProxyUtil.createPost(authUrl)
+            HttpRequest httpRequest=HttpUtil.createPost(authUrl)
                     .header(headers)
                     .cookie(MapUtil.getStr(paras,"cookies"))
-                    .body(authBody)
-                    .execute();
+                    .body(authBody);
+            HttpResponse res = ProxyUtil.execute(httpRequest);
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("itspod",res.header(Constant.ITSPOD));
             if(!StringUtils.isEmpty(res.header("location"))){
@@ -1003,10 +994,9 @@ public class PurchaseBillUtil {
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {
-            HttpResponse res = ProxyUtil.createGet(accountUrl)
+            HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(accountUrl)
                     .header(headers)
-                    .cookie(cookies)
-                    .execute();
+                    .cookie(cookies));
             //解析HTML
             Document document=Jsoup.parse(res.body());
             Element element=document.getElementById("account-info-section");
@@ -1067,10 +1057,9 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
 
-        HttpResponse response = ProxyUtil.createRequest(Method.GET,url)
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createRequest(Method.GET,url)
                 .header(headers)
-                .cookie(cookies)
-                .execute();
+                .cookie(cookies));
         String purchasesJsonStr =JSONUtil.parse(response.body()).getByPath("data.attributes.purchases",String.class);
         return JSONUtil.parseArray(purchasesJsonStr).size();
     }

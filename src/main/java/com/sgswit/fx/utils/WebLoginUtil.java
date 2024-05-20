@@ -8,10 +8,11 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
@@ -98,9 +99,8 @@ public class WebLoginUtil {
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
 
-        HttpResponse res = ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
         return res;
     }
 
@@ -130,11 +130,10 @@ public class WebLoginUtil {
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
         String body = "{\"a\":\""+MapUtil.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtil.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
-
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
     }
 
@@ -183,11 +182,10 @@ public class WebLoginUtil {
         Map map = calM(MapUtil.getStr(paras,"account"), MapUtil.getStr(paras,"pwd"), a, iter, salt, b, g, n, ra);
 
         String body = "{\"accountName\":\""+MapUtil.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
-
-        HttpResponse res = ProxyUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                 .header(headers)
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
         Map<String,String> cookiesMap;
         if(null==paras.get("cookiesMap")){
             cookiesMap=new HashMap<>();

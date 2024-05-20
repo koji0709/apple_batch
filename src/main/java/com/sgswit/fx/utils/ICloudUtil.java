@@ -2,9 +2,9 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -26,24 +26,6 @@ import java.util.Map;
  * @date 2023/10/1320:38
  */
 public class ICloudUtil {
-    public static void main(String[] args) throws Exception {
-        //HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"shabagga222@tutanota.com","Xx97595031.2121" );
-        HttpResponse response= checkCloudAccount(IdUtil.fastUUID().toUpperCase(),"djli0506@163.com","##B0527s0207" );
-//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("djli0506@163.com"),"djli0506@163.com","##B0527s0207" );
-//        getiTunesAccountPaymentInfo(getAuthByHttResponse(response),"djli0506@163.com","8135448658");
-        verifyCVV(getAuthByHttResponse(response),"djli0506@163.com",null,null,null,null,null);
-//        getFamilyDetails(getAuthByHttResponse(response),"djli0506@163.com");
-//        createFamily(getAuthByHttResponse(response),"djli0506@163.com","##B0527s0207","djli0506@163.com","##B0527s0207");
-//        leaveFamily(getAuthByHttResponse(response),"djli0506@163.com");
-//        accountLoginDemo();
-
-
-//        HttpResponse response= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207" );
-//
-//        HttpResponse response2= checkCloudAccount(DataUtil.getClientIdByAppleId("3406858043@qq.com"),"3406858043@qq.com","B0527s0207123456" );
-
-
-    }
     public static HttpResponse checkCloudAccount(String clientId, String appleId, String password){
         //clientId从数据库中获取每个appleId生成一个
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -81,10 +63,9 @@ public class ICloudUtil {
                 "<string>"+password+"</string>" +
                 "</dict>" +
                 "</plist>";
-        HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/iosbuddy/loginDelegates")
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/iosbuddy/loginDelegates")
+                        .header(headers)
+                        .body(body));
         return response;
     }
 
@@ -109,9 +90,8 @@ public class ICloudUtil {
         headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
-        HttpResponse response = ProxyUtil.createGet("https://setup.icloud.com/setup/family/getFamilyDetails")
-                .header(headers)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createGet("https://setup.icloud.com/setup/family/getFamilyDetails")
+                        .header(headers));
 
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
@@ -181,10 +161,9 @@ public class ICloudUtil {
         bodyMap.put("organizerAppleIdForPurchasesPassword",payAppleIdPwd);
         bodyMap.put("organizerShareMyLocationEnabledDefault",true);
 
-        HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/mac/family/createFamily")
-                .header(headers)
-                .body(JSONUtil.toJsonStr(bodyMap))
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/createFamily")
+                        .header(headers)
+                        .body(JSONUtil.toJsonStr(bodyMap)));
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
             if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
@@ -224,9 +203,8 @@ public class ICloudUtil {
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
         headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
-        HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/mac/family/leaveFamily")
-                .header(headers)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/leaveFamily")
+                        .header(headers));
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
             JSON jsonBody=JSONUtil.parse(rb);
@@ -275,10 +253,9 @@ public class ICloudUtil {
         String format="{\"organizerDSID\":\"%s\",\"userAction\":\"ADDING_FAMILY_MEMBER\",\"sendSMS\":true}";
         String body=String.format(format,organizerDsid);
 
-        HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/mac/family/getiTunesAccountPaymentInfo")
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/getiTunesAccountPaymentInfo")
+                        .header(headers)
+                        .body(body));
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
             if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
@@ -310,23 +287,22 @@ public class ICloudUtil {
 
 
         Map<String,Object> bodyMap=new HashMap<>();
-//        bodyMap.put("creditCardId",creditCardId);
-        bodyMap.put("creditCardId","UPCC");
-//        bodyMap.put("creditCardLastFourDigits",creditCardLastFourDigits);
-        bodyMap.put("creditCardLastFourDigits","5639");
-//        bodyMap.put("securityCode",securityCode);
-        bodyMap.put("securityCode","864");
-//        bodyMap.put("verificationType",verificationType);
-        bodyMap.put("verificationType","CVV");
-//        bodyMap.put("billingType",billingType);
-        bodyMap.put("billingType","Card");
+        bodyMap.put("creditCardId",creditCardId);
+//        bodyMap.put("creditCardId","UPCC");
+        bodyMap.put("creditCardLastFourDigits",creditCardLastFourDigits);
+//        bodyMap.put("creditCardLastFourDigits","5639");
+        bodyMap.put("securityCode",securityCode);
+//        bodyMap.put("securityCode","864");
+        bodyMap.put("verificationType",verificationType);
+//        bodyMap.put("verificationType","CVV");
+        bodyMap.put("billingType",billingType);
+//        bodyMap.put("billingType","Card");
 
 
 
-        HttpResponse response = ProxyUtil.createPost("https://setup.icloud.com/setup/mac/family/verifyCVV")
-                .header(headers)
-                .body(JSONUtil.toJsonStr(bodyMap))
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/verifyCVV")
+                        .header(headers)
+                        .body(JSONUtil.toJsonStr(bodyMap)));
         if(200==response.getStatus()){
             String rb = response.charset("UTF-8").body();
             if("0".equals(JSONUtil.parse(rb).getByPath("status",String.class))){
@@ -362,9 +338,8 @@ public class ICloudUtil {
 
         headers.put("Referer",ListUtil.toList("https://idmsa.apple.com/"));
 
-        HttpResponse res =  ProxyUtil.createGet(signInRes.header("Location"))
-                .header(headers)
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(signInRes.header("Location"))
+                        .header(headers));
         return res;
     }
     public static HttpResponse appleIDrepairOptions(HttpResponse signInRes,HttpResponse repairRes,String clientId,String sessionId){
@@ -397,10 +372,9 @@ public class ICloudUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res =  ProxyUtil.createGet(url)
-                .header(headers)
-                .disableCookie()
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .disableCookie());
         return res;
     }
     public static HttpResponse appleIDUpgrade(HttpResponse signInRes,HttpResponse optionsRes,String clientId,String sessionId){
@@ -433,9 +407,8 @@ public class ICloudUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
 
         String url = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse res =  ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
         return res;
     }
     public static HttpResponse appleIDSetuplater(HttpResponse signInRes,HttpResponse optionsRes,HttpResponse upgradeRes,String clientId,String sessionId){
@@ -468,9 +441,8 @@ public class ICloudUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
 
         String url = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse res =  ProxyUtil.createGet(url)
-                .header(headers)
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers));
         return res;
     }
     public static HttpResponse appleIDrepairOptions2(HttpResponse signInRes,HttpResponse optionsRes, HttpResponse setuplaterRes,String clientId,String sessionId){
@@ -503,10 +475,9 @@ public class ICloudUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(sessionId));
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse res =  ProxyUtil.createGet(url)
-                .header(headers)
-                .disableCookie()
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .disableCookie());
         return res;
     }
     public static HttpResponse appleIDrepairComplete(HttpResponse signInRes,HttpResponse options2Res,String clientId,String sessionId){
@@ -547,9 +518,8 @@ public class ICloudUtil {
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(signInRes.header("X-Apple-Auth-Attributes")));
 
         String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
-        HttpResponse res =  ProxyUtil.createPost(url)
-                .header(headers)
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers));
         return res;
     }
 
@@ -594,10 +564,9 @@ public class ICloudUtil {
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(signInRes.header("X-Apple-ID-Session-Id")));
 
         String url = "https://idmsa.apple.com/appleauth/auth";
-        HttpResponse res =  ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(CookieUtils.getCookiesFromHeader(signInRes))
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(CookieUtils.getCookiesFromHeader(signInRes)));
         return res;
     }
 
@@ -665,12 +634,10 @@ public class ICloudUtil {
 
         HttpResponse rsp = null;
         if (!"".equals(body)) {
-            rsp = ProxyUtil.createPost(url)
-                    .header(headers)
-                    .body(body)
-//                    .cookie(signInMap.get("cookie"))
-                    .disableCookie()
-                    .execute();
+            rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                            .header(headers)
+                            .body(body)
+                            .disableCookie());
         }
         return rsp;
     }
@@ -720,10 +687,9 @@ public class ICloudUtil {
         headers.put("Scnt",List.of(securityCodeRsp.header("scnt")));
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(securityCodeRsp.header("X-Apple-ID-Session-Id")));
 
-        return ProxyUtil.createGet("https://idmsa.apple.com/appleauth/auth/2sv/trust")
-                .header(headers)
-                .cookie(CookieUtils.getCookiesFromHeader(securityCodeRsp))
-                .execute();
+        return ProxyUtil.execute(HttpUtil.createGet("https://idmsa.apple.com/appleauth/auth/2sv/trust")
+                        .header(headers)
+                        .cookie(CookieUtils.getCookiesFromHeader(securityCodeRsp)));
     }
 
     public static HttpResponse accountLogin(HttpResponse singInLocalRes,String domain){
@@ -750,10 +716,9 @@ public class ICloudUtil {
         String url = "https://setup."+domain+"/setup/ws/1/accountLogin";
         String body = "{\"dsWebAuthToken\":\""+singInLocalRes.header("X-Apple-Session-Token")+"\",\"accountCountryCode\":\"" +singInLocalRes.header("X-Apple-ID-Account-Country")+ "\",\"extended_login\":false}";
 
-        HttpResponse loginRsp =  ProxyUtil.createPost(url)
-                .header(headers)
-                .body(body)
-                .execute();
+        HttpResponse loginRsp =  ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body(body));
         return loginRsp;
     }
 
@@ -778,21 +743,19 @@ public class ICloudUtil {
         JSONObject body = JSONUtil.parseObj(authRsp.body());
         String url = "https://setup."+domain+"/setup/ws/1/getTerms";
         String languageCode = body.getByPath("dsInfo.languageCode", String.class);
-        HttpResponse getTermsRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .body("{\"locale\":\"" + languageCode + "\"}")
-                .cookie(CookieUtils.getCookiesFromHeader(authRsp))
-                .execute();
+        HttpResponse getTermsRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body("{\"locale\":\"" + languageCode + "\"}")
+                        .cookie(CookieUtils.getCookiesFromHeader(authRsp)));
 
         JSONObject termsRspBody = JSONUtil.parseObj(getTermsRsp.body());
         String termsVersion = termsRspBody.getByPath("iCloudTerms.version",String.class);
 
         String url1 = "https://setup."+domain+"/setup/ws/1/repairDone";
-        HttpResponse repairDoneRsp = ProxyUtil.createPost(url1)
-                .header(headers)
-                .body("{\"acceptedICloudTerms\":"+termsVersion+",\"gcbdPrivacyNoticeAccepted\":true}")
-                .cookie(CookieUtils.getCookiesFromHeader(authRsp))
-                .execute();
+        HttpResponse repairDoneRsp = ProxyUtil.execute(HttpUtil.createPost(url1)
+                        .header(headers)
+                        .body("{\"acceptedICloudTerms\":"+termsVersion+",\"gcbdPrivacyNoticeAccepted\":true}")
+                        .cookie(CookieUtils.getCookiesFromHeader(authRsp)));
         return repairDoneRsp;
     }
 
@@ -816,10 +779,9 @@ public class ICloudUtil {
         //headers.put("Host",ListUtil.toList(""));
 
         String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/emailSuggestions";
-        HttpResponse emailAvailabilityRsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(loginInfo.getCookie())
-                .execute();
+        HttpResponse emailAvailabilityRsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(loginInfo.getCookie()));
         return emailAvailabilityRsp;
     }
 
@@ -840,14 +802,12 @@ public class ICloudUtil {
 
         headers.put("Referer",ListUtil.toList("https://www."+domain+"/"));
         headers.put("Origin",ListUtil.toList("https://www."+domain));
-        //headers.put("Host",ListUtil.toList(""));
 
         String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/emailAvailability";
-        HttpResponse emailAvailabilityRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .body("{\"email\":\""+email+"\",\"entryPoint\":\"APP_LIBRARY\"}")
-                .cookie(loginInfo.getCookie())
-                .execute();
+        HttpResponse emailAvailabilityRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body("{\"email\":\""+email+"\",\"entryPoint\":\"APP_LIBRARY\"}")
+                        .cookie(loginInfo.getCookie()));
         return emailAvailabilityRsp;
     }
 
@@ -871,11 +831,10 @@ public class ICloudUtil {
         //headers.put("Host",ListUtil.toList(""));
 
         String url = "https://p"+pNum+"-mccgateway."+domain+"/mailacct/v1/web/activateEmail";
-        HttpResponse activateEmailRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .body("{\"email\":\""+email+"\"}")
-                .cookie(loginInfo.getCookie())
-                .execute();
+        HttpResponse activateEmailRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body("{\"email\":\""+email+"\"}")
+                        .cookie(loginInfo.getCookie()));
         return activateEmailRsp;
     }
 
@@ -917,9 +876,8 @@ public class ICloudUtil {
 
         String url = "https://setup.icloud.com/setup/ws/1/validate";
 
-        HttpResponse res =  ProxyUtil.createPost(url)
-                .header(headers)
-                .execute();
+        HttpResponse res =  ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers));
         JSONObject jo = JSONUtil.parseObj(res.body());
         String aui = (String)jo.getByPath("configBag.urls.accountAuthorizeUI");
         if(StrUtil.isNotEmpty(aui)){

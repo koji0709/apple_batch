@@ -6,7 +6,9 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
@@ -51,10 +53,9 @@ public class AppleIDUtil {
         String body = "{\"accountName\":\"%s\",\"password\":\"%s\",\"rememberMe\":false,\"trustTokens\":[]}";
         String scBogy = String.format(body, account.getAccount(), account.getPwd());
         String url = "https://idmsa.apple.com/appleauth/auth/signin?isRememberMeEnabled=false";
-        HttpResponse rsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .body(scBogy)
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body(scBogy));
         account.updateLoginInfo(rsp);
         return rsp;
     }
@@ -79,10 +80,9 @@ public class AppleIDUtil {
         headers.put("scnt",ListUtil.toList(signInRsp.header("scnt")));
 
         String url = "https://idmsa.apple.com/appleauth/auth";
-        HttpResponse rsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .cookie(loginInfo.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .cookie(loginInfo.getCookie()));
 
         loginInfo.updateLoginInfo(rsp);
         return rsp;
@@ -127,11 +127,10 @@ public class AppleIDUtil {
 
         HttpResponse rsp = null;
         if (!"".equals(body)) {
-            rsp = ProxyUtil.createPost(url)
-                    .header(headers)
-                    .body(body)
-                    .cookie(loginInfo.getCookie())
-                    .execute();
+            rsp = ProxyUtil .execute(HttpUtil.createPost(url)
+                            .header(headers)
+                            .body(body)
+                            .cookie(loginInfo.getCookie()));
 
             loginInfo.updateLoginInfo(rsp);
         }
@@ -175,11 +174,10 @@ public class AppleIDUtil {
 
         String url = "https://idmsa.apple.com/appleauth/auth/verify/questions";
         String body = "{\"questions\":" + JSONUtil.parse(qs) + "}";
-        HttpResponse rsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .body(body)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .body(body)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -203,10 +201,9 @@ public class AppleIDUtil {
 
         // https://appleid.apple.com/widget/account/repair?widgetKey=xx&rv=1&language=zh_CN_CHN#!repair
         String location = questionRsp.header("Location");
-        HttpResponse rsp = ProxyUtil.createGet(location)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(location)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -236,10 +233,9 @@ public class AppleIDUtil {
         headers.put("X-Apple-Session-Token",ListUtil.toList(questionRsp.header("X-Apple-Repair-Session-Token")));
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -268,10 +264,9 @@ public class AppleIDUtil {
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
 
         String url = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -300,10 +295,9 @@ public class AppleIDUtil {
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
 
         String url = "https://appleid.apple.com/account/security/upgrade/setuplater";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -331,10 +325,9 @@ public class AppleIDUtil {
         headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[\"hsa2_enrollment\"]"));
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -362,10 +355,9 @@ public class AppleIDUtil {
         headers.put("X-Apple-Repair-Session-Token",ListUtil.toList(repareOptionsSecondRsp.header("X-Apple-Session-Token")));
 
         String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
-        HttpResponse rsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
 
@@ -397,10 +389,9 @@ public class AppleIDUtil {
         headers.put("scnt",ListUtil.toList(securityCodeOrReparCompleteRsp.header("scnt")));
 
         String url = "https://appleid.apple.com/account/manage/gs/ws/token";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         account.setScnt(securityCodeOrReparCompleteRsp.header("scnt"));
@@ -427,10 +418,9 @@ public class AppleIDUtil {
         headers.put("scnt",ListUtil.toList(account.getScnt()));
 
         String url = "https://appleid.apple.com/account/manage";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
 
@@ -470,11 +460,10 @@ public class AppleIDUtil {
         String format = "{\"dayOfMonth\":\"%s\",\"monthOfYear\":\"%s\",\"year\":\"%s\"}";
         String body = String.format(format, birthdayArr[2], birthdayArr[1], birthdayArr[0]);
 
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
-                .body(body)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
+                        .body(body)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 //        account.updateLoginInfo(rsp);
         return rsp;
     }
@@ -506,10 +495,9 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
-        HttpResponse rsp = ProxyUtil.createRequest(Method.DELETE, url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE, url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         int status = rsp.getStatus();
 
@@ -555,11 +543,10 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
 
-        HttpResponse rsp = ProxyUtil.createRequest(Method.POST, url)
-                .header(headers)
-                .body("{\"address\":\""+account.getEmail()+"\"}")
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST, url)
+                        .header(headers)
+                        .body("{\"address\":\""+account.getEmail()+"\"}")
+                        .cookie(account.getCookie()));
 
         int status = rsp.getStatus();
 
@@ -580,7 +567,7 @@ public class AppleIDUtil {
     public static HttpResponse addRescueEmail(HttpResponse verifyRsp,Account account,String answer) {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
         String body = "{\"address\":\""+account.getEmail()+"\",\"verificationInfo\":{\"id\":\""+JSONUtil.parse(verifyRsp.body()).getByPath("verificationId")+"\",\"answer\":\""+answer+"\"}}";
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
+        HttpRequest request=HttpUtil.createRequest(Method.PUT, url)
                 .header("Accept","application/json, text/plain, */*")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -603,8 +590,8 @@ public class AppleIDUtil {
                 .header("sec-ch-ua"," \"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"")
                 .header("sec-ch-ua-mobile","?0")
                 .header("sec-ch-ua-platform","macOS")
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse rsp = ProxyUtil.execute(request);
         account.updateLoginInfo(rsp);
         return rsp;
     }
@@ -638,11 +625,10 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/name";
         String body = String.format("{\"firstName\":\"%s\",\"middleName\":\"\",\"lastName\":\"%s\"}",firstName,lastName);
 
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .cookie(account.getCookie())
-                .body(body)
-                .execute();
+                .body(body));
 
         int status = rsp.getStatus();
 
@@ -684,11 +670,10 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/security/password";
         String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .cookie(account.getCookie())
-                .body(body)
-                .execute();
+                .body(body));
         return rsp;
     }
 
@@ -723,11 +708,10 @@ public class AppleIDUtil {
 
         account.getCookie();
 
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .cookie(account.getCookie())
-                .body(body)
-                .execute();
+                .body(body));
 
         int status = rsp.getStatus();
 
@@ -746,11 +730,10 @@ public class AppleIDUtil {
      */
     public static HttpResponse verifyPassword(HttpResponse rsp,Account account){
         String verifyPasswordUrl = "https://appleid.apple.com" + rsp.header("Location");
-        HttpResponse rsp1 = ProxyUtil.createRequest(Method.POST, verifyPasswordUrl)
-                .body("{\"password\":\""+account.getPwd()+"\"}")
-                .header(rsp.headers())
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp1 = ProxyUtil.execute(HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
+                        .body("{\"password\":\""+account.getPwd()+"\"}")
+                        .header(rsp.headers())
+                        .cookie(account.getCookie()));
         return rsp1;
     }
 
@@ -781,10 +764,9 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
         String url = "https://appleid.apple.com/account/manage/security/devices";
-        HttpResponse rsp = ProxyUtil.createGet(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
         return rsp;
     }
@@ -800,10 +782,9 @@ public class AppleIDUtil {
         if (!CollUtil.isEmpty(deviceIdList)){
             for (String deviceId : deviceIdList) {
                 String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
-                HttpResponse rsp = ProxyUtil.createRequest(Method.DELETE,url)
-                        .header(deviceListRsp.headers())
-                        .cookie(deviceListRsp.getCookies())
-                        .execute();
+                HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE,url)
+                                .header(deviceListRsp.headers())
+                                .cookie(deviceListRsp.getCookies()));
             }
         }
     }
@@ -838,11 +819,10 @@ public class AppleIDUtil {
         String format = "{\"preferredLanguage\":\"%s\",\"marketingPreferences\":{\"appleUpdates\":true,\"iTunesUpdates\":true,\"appleNews\":false,\"appleMusic\":false},\"privacyPreferences\":{\"allowDeviceDiagnosticsAndUsage\":false,\"allowShareThirdPartyDevelopers\":false,\"allowICloudDataAnalytics\":false}}";
         String body = String.format(format, lang);
 
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
-                .body(body)
-                .header(headers)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
+                        .body(body)
+                        .header(headers)
+                        .cookie(account.getCookie()));
 
 //        account.updateLoginInfo(rsp);
 
@@ -877,11 +857,10 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+account.getEmail()+"\"}";
-        HttpResponse verifyRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .body(body)
-                .execute();
+        HttpResponse verifyRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .cookie(account.getCookie())
+                        .body(body));
 
         int status = verifyRsp.getStatus();
 
@@ -923,11 +902,10 @@ public class AppleIDUtil {
         String verifyId = JSONUtil.parse(verifyRsp.body()).getByPath("verificationId",String.class);
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+account.getEmail()+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
-        HttpResponse updateAppleIdRsp = ProxyUtil.createRequest(Method.PUT,url)
-                .header(headers)
-                .cookie(account.getCookie())
-                .body(body)
-                .execute();
+        HttpResponse updateAppleIdRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT,url)
+                        .header(headers)
+                        .cookie(account.getCookie())
+                        .body(body));
         account.updateLoginInfo(verifyRsp);
         return updateAppleIdRsp;
     }
@@ -961,11 +939,10 @@ public class AppleIDUtil {
 
 
         String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
-        HttpResponse rsp = ProxyUtil.createRequest(Method.PUT, url)
-                .header(headers)
-                .body(body)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
+                        .header(headers)
+                        .body(body)
+                        .cookie(account.getCookie()));
         int status = rsp.getStatus();
 
         // 需要验证密码
@@ -984,11 +961,10 @@ public class AppleIDUtil {
      */
     public static HttpResponse securityUpgrade(HttpResponse securityUpgradeVerifyPhoneRsp,Account account,String body){
         String url = "https://appleid.apple.com/account/security/upgrade";
-        HttpResponse securityUpgradeRsp = ProxyUtil.createRequest(Method.POST,url)
-                .header(securityUpgradeVerifyPhoneRsp.headers())
-                .body(body)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse securityUpgradeRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
+                        .header(securityUpgradeVerifyPhoneRsp.headers())
+                        .body(body)
+                        .cookie(account.getCookie()));
         return securityUpgradeRsp;
     }
 
@@ -999,9 +975,8 @@ public class AppleIDUtil {
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
-        HttpResponse verifyPhone1Rsp = ProxyUtil.createGet(host + verifyPhone1Location)
-                .header(buildHeader(account))
-                .execute();
+        HttpResponse verifyPhone1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyPhone1Location)
+                        .header(buildHeader(account)));
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
         if (recoverable == null || !recoverable){
@@ -1009,13 +984,11 @@ public class AppleIDUtil {
             return null;
         }
 
-        HttpResponse verifyPhone2Rsp = ProxyUtil.createGet(host + "/password/verify/phone")
-                .header(verifyPhone1Rsp.headers())
-                .execute();
+        HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
+                        .header(verifyPhone1Rsp.headers()));
 
-        HttpResponse unenrollmentRsp = ProxyUtil.createPost(host + "/password/verify/phone/unenrollment")
-                .header(verifyPhone2Rsp.headers())
-                .execute();
+        HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
+                        .header(verifyPhone2Rsp.headers()));
 
         if (unenrollmentRsp.getStatus() == 503){
             account.setNote("操作频繁，请稍后重试！");
@@ -1023,17 +996,15 @@ public class AppleIDUtil {
         }
 
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
-        HttpResponse verifyBirthday1Rsp = ProxyUtil.createGet(host + verifyBirthday1Location)
-                .header(buildHeader(account))
-                .execute();
+        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
+                        .header(buildHeader(account)));
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
 
-        HttpResponse verifyBirthday2Rsp = ProxyUtil.createPost(host + "/unenrollment/verify/birthday")
-                .header(verifyBirthday1Rsp.headers())
-                .header("Content-Type","application/json")
-                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
-                .execute();
+        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
+                        .header(verifyBirthday1Rsp.headers())
+                        .header("Content-Type","application/json")
+                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
 
         if (verifyBirthday2Rsp.getStatus() == 503){
             account.setNote("操作频繁，请稍后重试！");
@@ -1045,9 +1016,8 @@ public class AppleIDUtil {
             account.setNote("生日校验不通过");
             return null;
         }
-        HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
-                .header(buildHeader(account))
-                .execute();
+        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
+                        .header(buildHeader(account)));
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
         List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
@@ -1062,35 +1032,30 @@ public class AppleIDUtil {
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
-        HttpResponse verifyQuestions2Rsp = ProxyUtil.createPost(host + "/unenrollment/verify/questions")
-                .header(verifyQuestions1Rsp.headers())
-                .header("Content-Type","application/json")
-                .body(JSONUtil.toJsonStr(bodyMap))
-                .execute();
+        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/questions")
+                        .header(verifyQuestions1Rsp.headers())
+                        .header("Content-Type","application/json")
+                        .body(JSONUtil.toJsonStr(bodyMap)));
 
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
         if (StrUtil.isEmpty(verifyQuestions1Location)){
             account.setNote("密保校验不通过");
             return null;
         }
-        HttpResponse unenrollment1Rsp = ProxyUtil.createGet(host + unenrollment1Location)
-                .header(buildHeader(account))
-                .execute();
+        HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
+                        .header(buildHeader(account)));
 
-        HttpResponse unenrollment2Rsp = ProxyUtil.createPost(host + "/unenrollment")
-                .header(unenrollment1Rsp.headers())
-                .execute();
+        HttpResponse unenrollment2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment")
+                        .header(unenrollment1Rsp.headers()));
 
         String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
-        HttpResponse unenrollmentReset1Rsp = ProxyUtil.createGet(host + unenrollmentReset1Location)
-                .header(buildHeader(account))
-                .execute();
+        HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollmentReset1Location)
+                        .header(buildHeader(account)));
 
-        HttpResponse unenrollmentReset2Rsp = ProxyUtil.createPost(host + "/unenrollment/reset")
-                .header(unenrollmentReset1Rsp.headers())
-                .header("Content-Type","application/json")
-                .body("{\"password\":\""+newPwd+"\"}")
-                .execute();
+        HttpResponse unenrollmentReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
+                        .header(unenrollmentReset1Rsp.headers())
+                        .header("Content-Type","application/json")
+                        .body("{\"password\":\""+newPwd+"\"}"));
 
         return unenrollmentReset2Rsp;
     }
@@ -1123,9 +1088,8 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
 
         String url = "https://appleid.apple.com/account/manage/supportpin";
-        HttpResponse supportPinRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .execute();
+        HttpResponse supportPinRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers));
         return supportPinRsp;
     }
 
@@ -1136,9 +1100,8 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/payment";
         HashMap<String, List<String>> header = buildHeader(account);
 
-        HttpResponse paymentRsp = ProxyUtil.createGet(url)
-                .header(header)
-                .execute();
+        HttpResponse paymentRsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(header));
         return paymentRsp;
     }
 
@@ -1147,9 +1110,8 @@ public class AppleIDUtil {
      */
     public static HttpResponse captcha(Account account){
         String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-        return ProxyUtil.createGet(url)
-                .header(buildHeader(account))
-                .execute();
+        return ProxyUtil.execute(HttpUtil.createGet(url)
+                        .header(buildHeader(account)));
     }
 
     /**
@@ -1211,11 +1173,10 @@ public class AppleIDUtil {
     public static HttpResponse verifyAppleId(Account account,String body) {
         String url = "https://iforgot.apple.com/password/verify/appleid";
         HashMap<String, List<String>> header = buildHeader(account);
-        HttpResponse verifyAppleIdRsp = ProxyUtil.createPost(url)
-                .header(header)
-                .body(body)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyAppleIdRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(header)
+                        .body(body)
+                        .cookie(account.getCookie()));
         return verifyAppleIdRsp;
     }
 
@@ -1245,36 +1206,32 @@ public class AppleIDUtil {
 
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
-        HttpResponse options1Rsp = ProxyUtil.createGet(host + options1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
 
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
 
-        HttpResponse options2Rsp = ProxyUtil.createGet(host + "/recovery/options")
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/recovery/options")
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options2Rsp);
         account.updateLoginInfo(options2Rsp);
 
-        HttpResponse options3Rsp = ProxyUtil.createPost(host + "/recovery/options")
-                .header(header)
-                .cookie(account.getCookie())
-                .body("{\"recoveryOption\":\"reset_password\"}")
-                .execute();
+        HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body("{\"recoveryOption\":\"reset_password\"}"));
         checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
 
         String authMethod1Location = options3Rsp.header("Location");
-        HttpResponse authMethod1Rsp = ProxyUtil.createGet(host + authMethod1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(authMethod1Rsp);
         account.updateLoginInfo(authMethod1Rsp);
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
@@ -1283,20 +1240,18 @@ public class AppleIDUtil {
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
-        HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
-                .header(authMethod1Rsp.headers())
-                .header("Content-Type","application/json")
-                .cookie(account.getCookie())
-                .body("{\"type\":\"questions\"}")
-                .execute();
+        HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
+                        .header(authMethod1Rsp.headers())
+                        .header("Content-Type","application/json")
+                        .cookie(account.getCookie())
+                        .body("{\"type\":\"questions\"}"));
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
 
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
-        HttpResponse verifyBirthday1Rsp = ProxyUtil.createGet(host + verifyBirthday1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday1Rsp);
         account.updateLoginInfo(verifyBirthday1Rsp);
         header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
@@ -1306,12 +1261,11 @@ public class AppleIDUtil {
         }catch (Exception e){
             throw new ServiceException("出生日期输入错误！");
         }
-        HttpResponse verifyBirthday2Rsp = ProxyUtil.createPost(host + "/password/verify/birthday")
-                .header(header)
-                .header("Content-Type","application/json")
-                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
+                        .header(header)
+                        .header("Content-Type","application/json")
+                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday2Rsp);
         account.updateLoginInfo(verifyBirthday2Rsp);
 
@@ -1320,10 +1274,9 @@ public class AppleIDUtil {
         }
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
-        HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions1Rsp);
         account.updateLoginInfo(verifyQuestions1Rsp);
         header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
@@ -1344,11 +1297,10 @@ public class AppleIDUtil {
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
-        HttpResponse verifyQuestions2Rsp = ProxyUtil.createPost(host + "/password/verify/questions")
-                .header(header)
-                .body(JSONUtil.toJsonStr(bodyMap))
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
+                        .header(header)
+                        .body(JSONUtil.toJsonStr(bodyMap))
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions2Rsp);
         account.updateLoginInfo(verifyQuestions2Rsp);
         if(400==verifyQuestions2Rsp.getStatus()){
@@ -1365,29 +1317,26 @@ public class AppleIDUtil {
             throw new ServiceException(m.toString());
         }
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
-        HttpResponse resrtPasswordOptionRsp = ProxyUtil.createGet(host + resrtPasswordOptionLocation)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(resrtPasswordOptionRsp);
         account.updateLoginInfo(resrtPasswordOptionRsp);
         header.put("sstt",List.of(resrtPasswordOptionRsp.header("sstt")));
 
         String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
-        HttpResponse passwordReset1Rsp = ProxyUtil.createGet(host + passwordReset1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(passwordReset1Rsp);
         account.updateLoginInfo(passwordReset1Rsp);
         header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
-        HttpResponse passwordReset2Rsp = ProxyUtil.createPost(host + "/password/reset")
-                .header(header)
-                .header("Content-Type","application/json")
-                .body("{\"password\":\""+newPwd+"\"}")
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
+                        .header(header)
+                        .header("Content-Type","application/json")
+                        .body("{\"password\":\""+newPwd+"\"}")
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(passwordReset2Rsp);
         account.updateLoginInfo(passwordReset2Rsp);
 
@@ -1404,10 +1353,9 @@ public class AppleIDUtil {
         String host = "https://iforgot.apple.com";
 
         String authMethod1Location = verifyAppleIdRsp.header("Location");
-        HttpResponse authMethod1Rsp = ProxyUtil.createGet(host + authMethod1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(authMethod1Rsp);
 
         account.updateLoginInfo(authMethod1Rsp);
@@ -1417,19 +1365,17 @@ public class AppleIDUtil {
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
-        HttpResponse authMethod2Rsp = ProxyUtil.createPost(host + "/password/authenticationmethod")
-                .header(header)
-                .cookie(account.getCookie())
-                .body("{\"type\":\"questions\"}")
-                .execute();
+        HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body("{\"type\":\"questions\"}"));
 
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
-        HttpResponse verifyBirthday1Rsp = ProxyUtil.createGet(host + verifyBirthday1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
 
         checkAndThrowUnavailableException(verifyBirthday1Rsp);
         account.updateLoginInfo(verifyBirthday1Rsp);
@@ -1441,11 +1387,10 @@ public class AppleIDUtil {
         }catch (Exception e){
             throw new ServiceException("出生日期输入错误！");
         }
-        HttpResponse verifyBirthday2Rsp = ProxyUtil.createPost(host + "/password/verify/birthday")
-                .header(header)
-                .cookie(account.getCookie())
-                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
-                .execute();
+        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
         checkAndThrowUnavailableException(verifyBirthday2Rsp);
         account.updateLoginInfo(verifyBirthday2Rsp);
         if(400==verifyBirthday2Rsp.getStatus()){
@@ -1467,10 +1412,9 @@ public class AppleIDUtil {
         }
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
-        HttpResponse verifyQuestions1Rsp = ProxyUtil.createGet(host + verifyQuestions1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
 
         checkAndThrowUnavailableException(verifyQuestions1Rsp);
         account.updateLoginInfo(verifyQuestions1Rsp);
@@ -1491,11 +1435,10 @@ public class AppleIDUtil {
 
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
-        HttpResponse verifyQuestions2Rsp = ProxyUtil.createPost(host + "/password/verify/questions")
-                .header(header)
-                .cookie(account.getCookie())
-                .body(JSONUtil.toJsonStr(bodyMap))
-                .execute();
+        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body(JSONUtil.toJsonStr(bodyMap)));
         checkAndThrowUnavailableException(verifyQuestions2Rsp);
         account.updateLoginInfo(verifyQuestions2Rsp);
 
@@ -1514,36 +1457,32 @@ public class AppleIDUtil {
             throw new ServiceException(m.toString());
         }
         String options1Location = verifyQuestions2Rsp.header("Location");
-        HttpResponse options1Rsp = ProxyUtil.createGet(host + options1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
         header.put("sstt",List.of(options1Rsp.header("sstt")));
-        HttpResponse options2Rsp = ProxyUtil.createPost(host + "/password/reset/options")
-                .header(header)
-                .body("{\"type\":\"password_reset\"}")
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset/options")
+                        .header(header)
+                        .body("{\"type\":\"password_reset\"}")
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
         String passwordReset1Location = options2Rsp.header("Location");
-        HttpResponse passwordReset1Rsp = ProxyUtil.createGet(host + passwordReset1Location)
-                .header(header)
-                .cookie(account.getCookie())
-                .execute();
+        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
         checkAndThrowUnavailableException(passwordReset1Rsp);
         account.updateLoginInfo(passwordReset1Rsp);
         header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
-        HttpResponse passwordReset2Rsp = ProxyUtil.createPost(host + "/password/reset")
-                .header(header)
-                .cookie(account.getCookie())
-                .body("{\"password\":\""+newPwd+"\"}")
-                .execute();
+        HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body("{\"password\":\""+newPwd+"\"}"));
 
         checkAndThrowUnavailableException(passwordReset2Rsp);
         account.updateLoginInfo(passwordReset2Rsp);

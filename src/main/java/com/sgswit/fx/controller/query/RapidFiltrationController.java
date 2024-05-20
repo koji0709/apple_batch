@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -65,9 +66,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
             headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
             String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-            HttpResponse captchaResponse = ProxyUtil.createGet(url)
-                    .header(headers)
-                    .execute();
+            HttpResponse captchaResponse =
+                    ProxyUtil.execute(HttpUtil.createGet(url)
+                            .header(headers));
             if(captchaResponse.getStatus()==503){
                 throw new UnavailableException();
             }else{
@@ -85,10 +86,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 String content = payloadJson.getStr("content");
                 String predict = OcrUtil.recognize(content);
                 String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-                HttpResponse verifyAppleIdRes = ProxyUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
-                        .body(bodys)
-                        .header(headers)
-                        .execute();
+                HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+                                .body(bodys)
+                                .header(headers));
                 if (verifyAppleIdRes.getStatus() == 503) {
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){

@@ -4,9 +4,7 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.ContentType;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.Method;
+import cn.hutool.http.*;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -61,10 +59,9 @@ public class ITunesUtil {
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/commerce/account/purchases/count?isDeepLink=false&isJsonApiFormat=true&page=1";
-        HttpResponse step4Res = ProxyUtil.createRequest(Method.GET,url)
-                .header(headers)
-                .cookie(cookies)
-                .execute();
+        HttpResponse step4Res = ProxyUtil.execute(HttpUtil.createRequest(Method.GET,url)
+                        .header(headers)
+                        .cookie(cookies));
         if(step4Res.getStatus()==200){
             String years=JSONUtil.parseObj(step4Res.body()).getByPath("data.attributes.dates.years").toString();
             JSONArray jsonArray=  JSONUtil.parseArray(years);
@@ -101,10 +98,11 @@ public class ITunesUtil {
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
         String cookies = MapUtil.getStr(paras,"cookies","");
 
-        HttpResponse httpResponse = ProxyUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
+        HttpRequest request=HttpUtil.createRequest(Method.GET,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos?managePayments=true")
                 .header(headers)
-                .cookie(cookies)
-                .execute();
+                .cookie(cookies);
+
+        HttpResponse httpResponse = ProxyUtil.execute(request);
         return httpResponse;
     }
 
@@ -146,10 +144,9 @@ public class ITunesUtil {
                 if(!"None".equalsIgnoreCase(paymentMethodType)){
                     hasPayment=true;
                     String url= MessageFormat.format("https://p"+paras.get("itspod")+"-buy.itunes.apple.com/account/stackable/paymentInfos/{0}/delete",paymentId);
-                    HttpResponse delHttpResponse = ProxyUtil.createRequest(Method.POST,url)
-                            .header(headers)
-                            .cookie(cookies)
-                            .execute();
+                    HttpResponse delHttpResponse = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
+                                    .header(headers)
+                                    .cookie(cookies));
                 }
             }
             if(hasPayment){
@@ -237,11 +234,11 @@ public class ITunesUtil {
         //转为url参数格式的字符串
         String body=MapUtil.join(source,"&","=",false);
         String guid=MapUtil.getStr(paras,"guid","");
-        HttpResponse response = ProxyUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv?guid="+guid)
+        HttpRequest httpRequest=HttpUtil.createRequest(Method.POST,"https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/addOrEditBillingInfoSrv?guid="+guid)
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies",""))
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse response = ProxyUtil.execute(httpRequest);
         if(response.getStatus()==401){
             result.put("code","-1");
             result.put("message","未登录或登录超时");
@@ -315,10 +312,9 @@ public class ITunesUtil {
         String cookies = MapUtil.getStr(paras,"cookies","");
         //获取支付方式
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemLandingPage?cc=cn";
-        HttpResponse response = ProxyUtil.createRequest(Method.GET,url)
-                .header(headers)
-                .cookie(cookies)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createRequest(Method.GET,url)
+                        .header(headers)
+                        .cookie(cookies));
         Document document= Jsoup.parse(response.body());
         Element element=document.getElementById("nationalIdForm");
         String collectNationalId=element.attr("collect-national-id");
@@ -346,10 +342,9 @@ public class ITunesUtil {
         source.put("nationalId", MapUtil.getStr(paras,"nationalId"));
         String body=MapUtil.join(source,"&","=",false);
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemValidateId?"+body;
-        HttpResponse response = ProxyUtil.createRequest(Method.POST,url)
-                .header(headers)
-                .cookie(cookies)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
+                        .header(headers)
+                        .cookie(cookies));
         if(200!=response.getStatus()){
             result.put("code","1");
             result.put("msg","认证失败，未知错误");
@@ -382,10 +377,9 @@ public class ITunesUtil {
         String cookies = MapUtil.getStr(paras,"cookies","");
         String appStoreOverCheckUrl = MapUtil.getStr(paras,"appStoreOverCheckUrl","");
         //获取支付方式
-        HttpResponse response = ProxyUtil.createRequest(Method.GET,appStoreOverCheckUrl)
-                .header(headers)
-                .cookie(cookies)
-                .execute();
+        HttpResponse response = ProxyUtil.execute(HttpUtil.createRequest(Method.GET,appStoreOverCheckUrl)
+                        .header(headers)
+                        .cookie(cookies));
         return result;
     }
     /**
@@ -405,10 +399,10 @@ public class ITunesUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(loginInfo.getStoreFront()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate"));
         headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
-        HttpResponse httpResponse = ProxyUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
+        HttpRequest httpRequest=HttpUtil.createRequest(Method.GET,"https://p"+loginInfo.getItspod()+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/getCodeInfoSrv?code="+giftCardCode)
                 .header(headers)
-                .cookie(loginInfo.getCookie())
-                .execute();
+                .cookie(loginInfo.getCookie());
+        HttpResponse httpResponse = ProxyUtil.execute(httpRequest);
         return httpResponse;
     }
 
@@ -427,10 +421,9 @@ public class ITunesUtil {
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {
-            HttpResponse res = ProxyUtil.createGet(accountUrl)
-                    .header(headers)
-                    .cookie(cookies)
-                    .execute();
+            HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(accountUrl)
+                            .header(headers)
+                            .cookie(cookies));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -469,11 +462,11 @@ public class ITunesUtil {
         String guid=MapUtil.getStr(paras,"guid","");
         String body=MapUtil.getStr(paras,"addressInfo");
         String url="https://p"+paras.get("itspod")+"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/editBillingInfoSrv?guid="+guid;
-        HttpResponse response = ProxyUtil.createRequest(Method.POST,url)
+        HttpRequest httpRequest=HttpUtil.createRequest(Method.POST,url)
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies",""))
-                .body(body)
-                .execute();
+                .body(body);
+        HttpResponse response = ProxyUtil.execute(httpRequest);
         if(response.getStatus()==200){
             JSON bodyJson= JSONUtil.parse(response.body());
             int status=bodyJson.getByPath("status",int.class);
@@ -552,10 +545,9 @@ public class ITunesUtil {
                 "    </dict>" +
                 "</plist>";
         authBody = String.format(authBody,account,guid,pwd,authCode);
-        HttpResponse authRsp = ProxyUtil.createPost(authUrl)
-                .header(headers)
-                .body(authBody, ContentType.FORM_URLENCODED.getValue())
-                .execute();
+        HttpResponse authRsp = ProxyUtil.execute(HttpUtil.createPost(authUrl)
+                        .header(headers)
+                        .body(authBody, ContentType.FORM_URLENCODED.getValue()));
         return authRsp;
     }
 
@@ -570,9 +562,8 @@ public class ITunesUtil {
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         String params = "entity=software,iPadSoftware&media=software&country="+country+"&term="+term+"&limit="+limit;
         String searchUrl = "https://itunes.apple.com/search?" + params;
-        HttpResponse searchRsp = ProxyUtil.createGet(searchUrl)
-                .header(headers)
-                .execute();
+        HttpResponse searchRsp = ProxyUtil.execute(HttpUtil.createGet(searchUrl)
+                        .header(headers));
         return searchRsp;
     }
 
@@ -627,11 +618,10 @@ public class ITunesUtil {
                 "    </dict>\n" +
                 "</plist>";
         body = String.format(body,appstoreDownloadVo.getGuid(),trackId,trackId);
-        HttpResponse purchaseRsp = ProxyUtil.createPost(url)
-                .header(headers)
-                .cookie(appstoreDownloadVo.getCookie())
-                .body(body)
-                .execute();
+        HttpResponse purchaseRsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .header(headers)
+                        .cookie(appstoreDownloadVo.getCookie())
+                        .body(body));
 
         // 重定向
         if(purchaseRsp.getStatus() == 307 || purchaseRsp.getStatus() ==302){
@@ -675,11 +665,10 @@ public class ITunesUtil {
                 "    </dict>\n" +
                 "</plist>";
         body = String.format(body,appstoreDownloadVo.getGuid(),trackId);
-        HttpResponse downloadRsp = ProxyUtil.createPost(downloadUrl)
-                .header(headers)
-                .cookie(appstoreDownloadVo.getCookie())
-                .body(body)
-                .execute();
+        HttpResponse downloadRsp = ProxyUtil.execute(HttpUtil.createPost(downloadUrl)
+                        .header(headers)
+                        .cookie(appstoreDownloadVo.getCookie())
+                        .body(body));
 
         if(downloadRsp.getStatus() == 307 || downloadRsp.getStatus() ==302){
             return appstoreDownloadUrl(appstoreDownloadVo,trackId,downloadRsp.header("Location"));
@@ -738,11 +727,10 @@ public class ITunesUtil {
                 "\t</dict>\n" +
                 "</plist>";
 
-            HttpResponse redeemRsp = ProxyUtil.createPost(redeemUrl)
-                    .header(headers)
-                    .cookie(giftCardRedeem.getCookie())
-                    .body(redeemBody)
-                    .execute();
+            HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl)
+                            .header(headers)
+                            .cookie(giftCardRedeem.getCookie())
+                            .body(redeemBody));
             return redeemRsp;
     }
 }

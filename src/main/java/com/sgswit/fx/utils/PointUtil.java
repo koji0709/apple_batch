@@ -69,7 +69,7 @@ public class PointUtil {
                 res.put("msg", json.getByPath("msg",String.class));
             }
         }catch (Exception e){
-
+            e.printStackTrace();
         }
         return res;
     }

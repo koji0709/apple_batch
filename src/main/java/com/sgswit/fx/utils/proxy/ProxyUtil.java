@@ -1,12 +1,11 @@
 package com.sgswit.fx.utils.proxy;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.http.*;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
@@ -32,23 +31,32 @@ import java.util.stream.Collectors;
  * @date 2024/1/2511:34
  */
 public class ProxyUtil{
-    private static int counter=0;
-    public static HttpRequest createGet(String url) {
-        return createRequest(Method.GET,url);
-    }
-    public static HttpRequest createPost(String url) {
-        return createRequest(Method.POST,url);
-    }
 
-    public static HttpRequest createRequest(Method method,String url){
+    public static HttpResponse execute(HttpRequest request){
         //判断是否设置代理
         HttpRequest.closeCookie();
+       HttpResponse httpResponse=null;
+       try{
+           httpResponse= createRequest(request).execute();
+       }catch (IORuntimeException | HttpException e){
+           ThreadUtil.sleep(500);
+           return execute(request);
+       }
+
+       return httpResponse;
+    }
+    private static HttpRequest createRequest(HttpRequest request){
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
             sendTimeOut=sendTimeOut==0?30*1000:sendTimeOut*1000;
+//            Entity entity=ApiProxyUtil.getRandomIp();
+//            String proxyHost=entity.getStr("host");
+//            int proxyPort=entity.getInt("port");
+//            System.out.println(proxyHost+"--------------"+proxyPort);
+//            return  proxyRequest(request,proxyHost,proxyPort,ApiProxyUtil.ProxyUser,ApiProxyUtil.ProxyPass, sendTimeOut);
             if(StringUtils.isEmpty(proxyMode)){
-                return proxyRequest(method,url,sendTimeOut);
+                return proxyRequest(request,sendTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
                 //判断是否为空
                 String proxyApiUrl= PropertiesUtil.getOtherConfig("proxyApiUrl");
@@ -56,21 +64,22 @@ public class ProxyUtil{
                 String proxyApiPass= PropertiesUtil.getOtherConfig("proxyApiPass");
                 boolean proxyApiNeedPass= PropertiesUtil.getOtherBool("proxyApiNeedPass",false);
                 if(!StringUtils.isEmpty(proxyApiUrl)){
-                    apiProxyRequest(method,url,proxyApiUrl,proxyApiUser,proxyApiPass, proxyApiNeedPass,sendTimeOut);
+                    apiProxyRequest(request,proxyApiUrl,proxyApiUser,proxyApiPass, proxyApiNeedPass,sendTimeOut);
                 }
-                return HttpUtil.createRequest(method,url).timeout(sendTimeOut);
+                return request.timeout(sendTimeOut);
             }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)){
                 String address= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
                 String proxyHost=address.split(":")[0];
                 int proxyPort=Integer.valueOf(address.split(":")[1]);
                 String authUser=PropertiesUtil.getOtherConfig("proxyTunnelUser");
                 String authPassword= PropertiesUtil.getOtherConfig("proxyTunnelPass");
-                return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
+                return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
                     Map<String, List<Map<String, Object>>> skuMap = proxyConfigList.stream().collect(Collectors.groupingBy(e->e.get("proxyType").toString()));
                     for (Map.Entry<String, List<Map<String, Object>>> entry : skuMap.entrySet()) {
+                        // key=1-API代理，2-隧道道理，3-静态IP代理
                         String key = entry.getKey();
                         List<Map<String, Object>> mapList=entry.getValue();
                         int index= ThreadLocalRandom.current().nextInt(mapList.size()) % mapList.size();
@@ -80,34 +89,26 @@ public class ProxyUtil{
                         String authUser=MapUtil.getStr(map,"account");
                         String authPassword= MapUtil.getStr(map,"pwd");
                         if(key.equals("2")){
-                            return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
+                            return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
                         }else if(key.equals("1")){
                             String proxyApiUrl= MessageFormat.format("{0}:{1}",new String[]{proxyHost, String.valueOf(proxyPort)});
-                            return  apiProxyRequest(method,url,proxyApiUrl,authUser,authPassword, false,sendTimeOut);
+                            return  apiProxyRequest(request,proxyApiUrl,authUser,authPassword, false,sendTimeOut);
                         }else {
-                            return proxyRequest(method,url,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
+                            return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
                         }
                     }
-                    return proxyRequest(method,url,sendTimeOut);
+                    return proxyRequest(request,sendTimeOut);
                 }else{
-                    return proxyRequest(method,url,sendTimeOut);
+                    return proxyRequest(request,sendTimeOut);
                 }
             }else{
-                return proxyRequest(method,url,sendTimeOut);
+                return proxyRequest(request,sendTimeOut);
             }
         }catch (Exception e){
             throw e;
         }
     }
-    private static HttpRequest proxyRequest(Method method,String url,String proxyHost,Integer proxyPort,String authUser,String authPassword,Integer sendTimeOut){
-       // 设置请求验证信息
-       Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
-       return  HttpUtil.createRequest(method,url).setProxy(new Proxy(getProxyType(),new InetSocketAddress(proxyHost, proxyPort))).timeout(sendTimeOut);
-    }
-    private static HttpRequest proxyRequest(Method method,String url,Integer sendTimeOut){
-       return  HttpUtil.createRequest(method,url).timeout(sendTimeOut);
-    }
-    private static HttpRequest apiProxyRequest(Method method,String url,String proxyApiUrl,String proxyApiUser,String proxyApiPass,Boolean proxyApiNeedPass,Integer sendTimeOut){
+    private static HttpRequest apiProxyRequest(HttpRequest request,String proxyApiUrl,String proxyApiUser,String proxyApiPass,Boolean proxyApiNeedPass,Integer sendTimeOut){
         if(Validator.isUrl(proxyApiUrl)){
             HttpResponse response=HttpUtil.createRequest(Method.GET,proxyApiUrl).execute();
             if(response.getStatus()==200){
@@ -115,29 +116,44 @@ public class ProxyUtil{
                 List<String> lines= Arrays.asList(body.split("\r\n"));
                 if(null!=lines && lines.size()>0){
                     if(!proxyApiNeedPass){
-                        return getIpByTxt(lines,method,"","",url,sendTimeOut);
+                        return getIpByTxt(lines,request,"","",sendTimeOut);
                     }else{
-                        return getIpByTxt(lines,method,proxyApiUser,proxyApiPass,url,sendTimeOut);
+                        return getIpByTxt(lines,request,proxyApiUser,proxyApiPass,sendTimeOut);
                     }
                 }
             }
-            return HttpUtil.createRequest(method,url).timeout(sendTimeOut);
+            return request.timeout(sendTimeOut);
         }else{
+            //本地模式
             List<String> lines= FileUtil.readLines(new File(proxyApiUrl), Charset.defaultCharset());
             if(null!=lines && lines.size()>0){
                 if(!proxyApiNeedPass){
-                    return getIpByTxt(lines,method,"","",url,sendTimeOut);
+                    return getIpByTxt(lines,request,"","",sendTimeOut);
                 }else{
-                    return getIpByTxt(lines,method,proxyApiUser,proxyApiPass,url,sendTimeOut);
+                    return getIpByTxt(lines,request,proxyApiUser,proxyApiPass,sendTimeOut);
                 }
             }
-            return HttpUtil.createRequest(method,url).timeout(sendTimeOut);
+            return request.timeout(sendTimeOut);
         }
     }
-
-  private static Proxy.Type getProxyType(){
+    private static HttpRequest getIpByTxt(List<String> lines, HttpRequest request, String authUser, String authPassword, int sendTimeOut){
+        int index= ThreadLocalRandom.current().nextInt(lines.size()) % lines.size();
+        String [] arr=lines.get(index).split(":");
+        String host= arr[0];
+        int port=Integer.valueOf(arr[1]);
+        return proxyRequest(request,host,port,authUser,authPassword,sendTimeOut);
+    }
+    private static HttpRequest proxyRequest(HttpRequest request,String proxyHost,Integer proxyPort,String authUser,String authPassword,Integer sendTimeOut){
+        // 设置请求验证信息
+        Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
+        return  request.setProxy(new Proxy(getProxyType(),new InetSocketAddress(proxyHost, proxyPort))).timeout(sendTimeOut);
+    }
+    private static HttpRequest proxyRequest(HttpRequest request,Integer sendTimeOut){
+        return request.timeout(sendTimeOut);
+    }
+    private static Proxy.Type getProxyType(){
         Proxy.Type proxyType;
-        String type=PropertiesUtil.getOtherConfig("proxyType","");
+        String type= PropertiesUtil.getOtherConfig("proxyType","");
         if(type.equals(ProxyEnum.Type.Http.getKey())){
             proxyType=Proxy.Type.HTTP;
         }else if(type.equals(ProxyEnum.Type.Socks4.getKey()) ||
@@ -149,14 +165,6 @@ public class ProxyUtil{
             proxyType=Proxy.Type.HTTP;
         }
         return proxyType;
-    }
-
-    private static HttpRequest getIpByTxt(List<String> lines,Method method,String authUser,String authPassword,String url,int sendTimeOut){
-        int index= ThreadLocalRandom.current().nextInt(lines.size()) % lines.size();
-        String [] arr=lines.get(index).split(":");
-        String host= arr[0];
-        int port=Integer.valueOf(arr[1]);
-        return proxyRequest(method,url,host,port,authUser,authPassword,sendTimeOut);
     }
 
 

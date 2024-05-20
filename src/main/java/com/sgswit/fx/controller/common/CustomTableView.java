@@ -8,6 +8,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
+import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
@@ -288,7 +289,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);
-        } catch (IORuntimeException e) {
+        } catch (IORuntimeException | HttpException e) {
             setAndRefreshNote(account, "连接异常，请检查网络");
             setNote(account,e.getMessage(),"");
             pointIncr(account);
