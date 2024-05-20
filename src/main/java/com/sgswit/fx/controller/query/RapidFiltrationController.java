@@ -126,7 +126,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
                         setAndRefreshNote(account,"登录中...");
                         HttpResponse step1Res = AppleIDUtil.signin(account);
-                        if (step1Res.getStatus() != 409) {
+                        if(step1Res.getStatus() == 503){
+                            throw new UnavailableException();
+                        } else if (step1Res.getStatus() != 409) {
                             setAndRefreshNote(account,"Apple ID 或密码不正确");
                         }else{
                             setAndRefreshNote(account,"正常账号");
@@ -134,7 +136,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
                         setAndRefreshNote(account,"登录中...");
                         HttpResponse step1Res = AppleIDUtil.signin(account);
-                        if (step1Res.getStatus() != 409) {
+                        if(step1Res.getStatus() == 503){
+                            throw new UnavailableException();
+                        } else if (step1Res.getStatus() != 409) {
                             setAndRefreshNote(account,"Apple ID 或密码不正确");
                         }else{
                             setAndRefreshNote(account,"此AppleID已开启双重认证");
