@@ -23,4 +23,18 @@ public class CustomStringUtils extends StringUtils {
     public static String replaceMultipleSpaces(String str,String str2){
         return str.replaceAll("[\\ \\t|\\r]+", str2);
     }
+    /**
+    　* 删除空白行
+      * @param
+     * @param content
+    　* @return java.lang.String
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/6/5 18:22
+    */
+    public static String removeBlankLines(String content){
+        String regex = "^\\s*\n";
+        content= content.replaceAll(regex, "");
+        return content;
+    }
 }
