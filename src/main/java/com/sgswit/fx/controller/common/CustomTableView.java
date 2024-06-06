@@ -435,8 +435,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
         // 表格区
         HBox box2 = new HBox();
-        javafx.scene.control.TableView localHistoryTableView = new javafx.scene.control.TableView();
+        TableView localHistoryTableView = new TableView();
         localHistoryTableView.setPrefWidth(1180);
+        localHistoryTableView.setPrefHeight(460);
 
         // 动态渲染列,且增加操作时间字段
         for (TableColumn<T, ?> tableViewColumn : this.accountTableView.getColumns()) {
@@ -515,6 +516,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setResizable(false);
         stage.initStyle(StageStyle.DECORATED);
+        stage.setAlwaysOnTop(true);
         String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
         stage.showAndWait();
