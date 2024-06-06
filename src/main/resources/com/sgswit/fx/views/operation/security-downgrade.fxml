@@ -75,7 +75,7 @@
                             <content>
                                 <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                                     <children>
-                                        <Label text="导入格式：帐号----密码-答案1-答案2-答案3-生日" textFill="#169BD5" />
+                                        <Label text="导入格式：帐号----密码-答案1-答案2-答案3-生日(格式：yyyyMMdd)" textFill="#169BD5" />
                                         <Label text="功能说明：关闭近期开通的双重认证。" textFill="#169BD5" />
                                         <Label text="操作提示：关闭双重认证需要设置一个新密码，也只能关闭近期开通的双重认证。" textFill="#169BD5" />
                                     </children>

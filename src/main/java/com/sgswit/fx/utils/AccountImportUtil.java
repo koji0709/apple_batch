@@ -27,7 +27,7 @@ public class AccountImportUtil<T>{
         put("answer2","问题2");
         put("answer3","问题3");
         put("phone","手机号");
-        put("birthday","生日");
+        put("birthday","生日(yyyyMMdd)");
         put("email","邮箱");
         put("paymentAccount","付款账号");
         put("paymentPwd","付款账号密码");
