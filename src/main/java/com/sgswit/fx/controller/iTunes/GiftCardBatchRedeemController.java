@@ -9,6 +9,7 @@ import cn.hutool.core.lang.Validator;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -148,6 +149,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             String content = FileUtil.readUtf8String(file);
             if (StrUtil.isNotEmpty(content)){
                 content = content.replaceAll("\t"," ");
+                content=CustomStringUtils.removeBlankLines(content);
                 String[] split = content.split("\n");
                 accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();
@@ -675,8 +677,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     checkAccountDescLabel.setText(e.getMessage());
                 });
                 // 异常返回点数
+                singleGiftCardRedeem.setNote(e.getMessage());
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
-            } catch (IORuntimeException e) {
+            } catch (IORuntimeException | HttpException e) {
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
                     balanceLabel.setText( "余额：" + "");
@@ -684,6 +687,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     checkAccountDescLabel.setText("连接异常，请检查网络");
                 });
                 // 异常返回点数
+                singleGiftCardRedeem.setNote("连接异常，请检查网络");
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
             }catch (Exception e){
                 Platform.runLater(() -> {
@@ -693,6 +697,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     checkAccountDescLabel.setText("数据处理异常");
                 });
                 // 异常返回点数
+                singleGiftCardRedeem.setNote("数据处理异常");
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
             } finally {
                 Platform.runLater(() -> {
@@ -788,7 +793,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 FileUtil.del(file1);
             }
             if (StrUtil.isNotEmpty(content)){
-                content = content.replaceAll("\t"," ");
+                content=CustomStringUtils.removeBlankLines(content);
                 String[] split = content.split("\n");
                 accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();

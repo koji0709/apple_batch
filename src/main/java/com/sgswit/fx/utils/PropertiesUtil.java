@@ -1,11 +1,11 @@
 package com.sgswit.fx.utils;
 
-import cn.hutool.setting.Setting;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
+import java.util.Properties;
 
 /**
  * @author DeZh
@@ -16,13 +16,10 @@ import java.nio.charset.Charset;
  */
 public class PropertiesUtil {
     private static final String CUSTOMER_CONFIG = "config.ini";
-
-    private static final Setting config = new Setting("config.properties",Charset.defaultCharset(),false);
-
     public static boolean getConfigBool(String key,Boolean defaultValue) {
         boolean f=false;
         try {
-            String res = config.getStr(key);
+            String res = getConfig(key);
             if(null==res || res.equals("")){
                 f= defaultValue;
             }else{
@@ -36,7 +33,9 @@ public class PropertiesUtil {
     public static String getConfig(String key,String defaultValue) {
         String res = null;
         try {
-            res = config.getStr(key, defaultValue);
+            Properties prop=new Properties();
+            prop.load(new InputStreamReader(PropertiesUtil.class.getClassLoader().getResourceAsStream("config.properties"), "UTF-8"));
+            res = prop.getProperty(key,defaultValue);
         } catch (Exception e) {
             e.printStackTrace();
         }

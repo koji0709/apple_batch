@@ -88,12 +88,9 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     account.setFailCount(account.getFailCount()+1);
                     if(account.getFailCount() >= 5){
                         throw new UnavailableException();
-                    }else{
-                        //返还点数
-                        PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                     }
                     try {
-                        Thread.sleep(10*1000);
+                        Thread.sleep(3*1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
