@@ -1266,7 +1266,7 @@ public class AppleIDUtil {
                         .header("Content-Type","application/json")
                         .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                         .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyBirthday2Rsp);
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
 
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
@@ -1301,21 +1301,8 @@ public class AppleIDUtil {
                         .header(header)
                         .body(JSONUtil.toJsonStr(bodyMap))
                         .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyQuestions2Rsp);
+        checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
-        if(400==verifyQuestions2Rsp.getStatus()){
-            JSON questionsResponseBodyJson= JSONUtil.parse(verifyQuestions2Rsp.body());
-            StringBuffer m=new StringBuffer();
-            JSONArray jsonArray=JSONUtil.parseArray(questionsResponseBodyJson.getByPath("serviceErrors"));
-            for(Object o:jsonArray){
-                JSONObject jsonObject=(JSONObject)o;
-                String code=jsonObject.getStr("code");
-                if("crIncorrect".equals(code)){
-                    m.append("输入的密保答案错误；");
-                }
-            }
-            throw new ServiceException(m.toString());
-        }
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
                         .header(header)
@@ -1391,21 +1378,8 @@ public class AppleIDUtil {
                         .header(header)
                         .cookie(account.getCookie())
                         .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
-        checkAndThrowUnavailableException(verifyBirthday2Rsp);
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
-        if(400==verifyBirthday2Rsp.getStatus()){
-            JSON birthdayResponseBodyJson= JSONUtil.parse(verifyBirthday2Rsp.body());
-            StringBuffer m=new StringBuffer();
-            JSONArray jsonArray=JSONUtil.parseArray(birthdayResponseBodyJson.getByPath("serviceErrors"));
-            for(Object o:jsonArray){
-                JSONObject jsonObject=(JSONObject)o;
-                String code=jsonObject.getStr("code");
-                if("crIncorrect".equals(code)){
-                    m.append("输入的生日错误；");
-                }
-            }
-            throw new ServiceException(m.toString());
-        }
 
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
@@ -1439,23 +1413,8 @@ public class AppleIDUtil {
                         .header(header)
                         .cookie(account.getCookie())
                         .body(JSONUtil.toJsonStr(bodyMap)));
-        checkAndThrowUnavailableException(verifyQuestions2Rsp);
+        checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
-
-
-        if(400==verifyQuestions2Rsp.getStatus()){
-            JSON questionsResponseBodyJson= JSONUtil.parse(verifyQuestions2Rsp.body());
-            StringBuffer m=new StringBuffer();
-            JSONArray jsonArray=JSONUtil.parseArray(questionsResponseBodyJson.getByPath("serviceErrors"));
-            for(Object o:jsonArray){
-                JSONObject jsonObject=(JSONObject)o;
-                String code=jsonObject.getStr("code");
-                if("crIncorrect".equals(code)){
-                    m.append("输入的密保答案错误；");
-                }
-            }
-            throw new ServiceException(m.toString());
-        }
         String options1Location = verifyQuestions2Rsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
                         .header(header)
@@ -1507,20 +1466,34 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
         headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+
 
         return headers;
     }
 
-    public static void checkAndThrowUnavailableException(HttpResponse response){
+    public static void checkAndThrowUnavailableException(HttpResponse response,String title){
         if (response != null){
             if (response.getStatus() == 503){
                 throw new UnavailableException();
-            }
-            if (response.getStatus() == 400){
-                throw new ServiceException(getValidationErrors(response,"Bad Request"));
+            }else if (response.getStatus() == 400){
+                StringBuffer message=new StringBuffer();
+                if(!StrUtil.isEmpty(title)){
+                    message.append(title);
+                    message.append(":");
+                }
+                message.append(getValidationErrors(response,"Bad Request"));
+                throw new ServiceException(message.toString());
+            }else if(response.getStatus() == 410){
+                throw new ServiceException("网络异常，"+title+",410");
             }
         }
     }
+    public static void checkAndThrowUnavailableException(HttpResponse response){
+        checkAndThrowUnavailableException(response,"");
+    }
+
+
 
     public static String getValidationErrors(HttpResponse response,String defaultMessage){
         if (response == null){

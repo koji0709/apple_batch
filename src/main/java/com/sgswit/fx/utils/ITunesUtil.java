@@ -699,7 +699,7 @@ public class ITunesUtil {
         headers.put("X-Token",ListUtil.toList(passwordToken));
         headers.put("Connection",ListUtil.toList("close"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip"));
-
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
 
         String redeemBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<plist version=\"1.0\">\n" +
