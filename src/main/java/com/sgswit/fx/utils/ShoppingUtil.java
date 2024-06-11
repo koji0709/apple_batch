@@ -168,9 +168,10 @@ public class ShoppingUtil {
                 .form((Map<String,Object>)paras.get("body"))
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
         HttpResponse res = ProxyUtil.execute(httpRequest);
-
-        if(res.getStatus() != 303){
-            paras.put("msg","加入购物车失败！");
+        if(res.getStatus() == 302){
+            add2bag(paras);
+        }else if(res.getStatus() != 303){
+            paras.put("msg","加入购物车失败！"+res.getStatus());
             paras.put("code","1");
             return paras;
         }
@@ -243,6 +244,8 @@ public class ShoppingUtil {
         bodys.put("shoppingCart.actions.fcsdata",jo.getByPath("shoppingCart.actions.d.fcsdata").toString());
         paras.put("body",bodys);
         paras.put("code",Constant.SUCCESS);
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
         return paras;
     }
 
@@ -274,6 +277,8 @@ public class ShoppingUtil {
         JSONObject jo = JSONUtil.parseObj(res.body());
         paras.put("url",jo.getByPath("head.data.url").toString());
         paras.put("code",Constant.SUCCESS);
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
         return paras;
     }
 
@@ -459,12 +464,16 @@ public class ShoppingUtil {
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Fulfillment-init"));
+        String locationBase=paras.get("url").toString();
+        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
+        headers.put("origin",ListUtil.toList(locationBase));
 
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
-        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x/fulfillment?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -476,6 +485,8 @@ public class ShoppingUtil {
             return paras;
         }
         paras.put("code",Constant.SUCCESS);
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(resp,cookiesMap));
         return paras;
     }
 
@@ -499,7 +510,10 @@ public class ShoppingUtil {
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
-
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
+        String locationBase=paras.get("url").toString();
+        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
+        headers.put("origin",ListUtil.toList(locationBase));
         Map<String,Object> paramMap = new HashMap<>();
 
         String countryCode=MapUtil.getStr(paras,"countryCode");
@@ -554,7 +568,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode",areaInfo.getCode2());
         }
 
-        String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
+        String url = paras.get("url") + "x/shipping?_a=continueFromShippingToBilling&_m=checkout.shipping";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -568,9 +582,10 @@ public class ShoppingUtil {
         paras.put("code",Constant.SUCCESS);
         paras.put("address",areaInfo.getNameZh());
         paras.put("resp",resp);
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(resp,cookiesMap));
         return paras;
     }
-
     //确认地址 - 显示账户余额
     public static HttpResponse selectedAddress(Map<String,Object> paras) {
         HashMap<String, List<String>> headers = new HashMap<>();
@@ -588,10 +603,13 @@ public class ShoppingUtil {
         headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
         headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
-
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
-
-        String url =  paras.get("url") + "x?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
+        headers.put("x-requested-with",ListUtil.toList("Fetch"));
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
+        String locationBase=paras.get("url").toString();
+        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
+        headers.put("origin",ListUtil.toList(locationBase));
+        String url =  paras.get("url") + "x/shipping?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));

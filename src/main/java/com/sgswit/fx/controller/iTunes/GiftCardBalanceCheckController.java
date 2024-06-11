@@ -389,7 +389,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         }
         giftCard.setHasFinished(false);
         setAndRefreshNote(giftCard,"正在查询...");
-        ThreadUtil.sleep(5000);
+        ThreadUtil.sleep(3000);
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
             if(giftCard.getFailCount()>3){

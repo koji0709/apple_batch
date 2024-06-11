@@ -78,7 +78,7 @@
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" editable="false" prefWidth="162" />
+                                                <Label text="新生日" /><DatePicker fx:id="birthdayDatePicker" editable="false" prefWidth="160.0" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
@@ -143,15 +143,16 @@
                                         <CheckBox fx:id="removeRescueEmailCheckBox" text="移除救援邮箱" GridPane.columnIndex="5" GridPane.rowIndex="0" />
                                         <CheckBox fx:id="updateShowLangCheckBox" text="修改显示语言" GridPane.columnIndex="5" GridPane.rowIndex="2" />
 
-                                        <Label wrapText="true" text="账号异常或失败扣5点" textFill="red" GridPane.columnIndex="6" GridPane.rowIndex="0" />
-                                        <Label wrapText="true" text="初始化函数失败不扣点" textFill="red" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                        <Label text="账号异常或失败扣5点" textFill="red" wrapText="true" GridPane.columnIndex="6" GridPane.rowIndex="0" />
+                                        <Label text="初始化函数失败不扣点" textFill="red" wrapText="true" GridPane.columnIndex="6" GridPane.rowIndex="1" />
                                         <HBox GridPane.columnIndex="6" GridPane.rowIndex="2">
                                             <children>
-                                                <ComboBox fx:id="updateShowLangComboBox" prefWidth="130" editable="false" visibleRowCount="8" />
+                                                <ComboBox fx:id="updateShowLangComboBox" editable="false" prefWidth="130" visibleRowCount="8" />
                                             </children>
                                         </HBox>
                                     </children>
                            <columnConstraints>
+                              <ColumnConstraints />
                               <ColumnConstraints />
                               <ColumnConstraints />
                               <ColumnConstraints />

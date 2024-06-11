@@ -61,6 +61,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
             headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+            headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9"));
             String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
             HttpResponse captchaResponse = ProxyUtil.execute(HttpUtil.createGet(url)
                             .header(headers));
@@ -107,7 +108,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                             PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                             accountHandler(account);
                         }else if(code.equals("-20210")){
-                            setAndRefreshNote(account,"这个 Apple ID 没有被激活。");
+                            String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                            setAndRefreshNote(account,message);
                         }
                     }
                 }else if(verifyAppleIdRes.getStatus() == 302){

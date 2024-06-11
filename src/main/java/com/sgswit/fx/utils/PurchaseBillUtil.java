@@ -991,6 +991,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Store-Front",ListUtil.toList(paras.get("storeFront").toString()));
         headers.put("X-Token",ListUtil.toList(paras.get("passwordToken").toString()));
         headers.put("Accept-Encoding",ListUtil.toList("gzip"));
+        headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
 
         String cookies = MapUtil.getStr(paras,"cookies","");
         try {

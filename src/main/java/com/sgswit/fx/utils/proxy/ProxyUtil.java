@@ -5,7 +5,9 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
+import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
@@ -40,6 +42,16 @@ public class ProxyUtil{
            httpResponse= createRequest(request).execute();
        }catch (IORuntimeException | HttpException e){
            ThreadUtil.sleep(500);
+           String failCountStr=request.header("fc");
+           if(StrUtil.isEmpty(failCountStr)){
+               failCountStr="1";
+           }else{
+               failCountStr=String.valueOf(Integer.valueOf(failCountStr)+1);
+           }
+           request.header("fc", failCountStr);
+           if(Integer.valueOf(failCountStr)>10){
+             throw new ServiceException("网络异常");
+           }
            return execute(request);
        }
 
@@ -53,7 +65,6 @@ public class ProxyUtil{
 //            Entity entity=ApiProxyUtil.getRandomIp();
 //            String proxyHost=entity.getStr("host");
 //            int proxyPort=entity.getInt("port");
-//            System.out.println(proxyHost+"--------------"+proxyPort);
 //            return  proxyRequest(request,proxyHost,proxyPort,ApiProxyUtil.ProxyUser,ApiProxyUtil.ProxyPass, sendTimeOut);
             if(StringUtils.isEmpty(proxyMode)){
                 return proxyRequest(request,sendTimeOut);

@@ -413,7 +413,8 @@ public class GiftCardUtil {
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
         String location=MapUtil.getStr(paras,"location");
-        HttpResponse res4 = ProxyUtil.execute(HttpUtil.createPost(location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck")
+        String url=location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck";
+        HttpResponse res4 = ProxyUtil.execute(HttpUtil.createPost(url)
                 .header(headers)
                 .cookie(MapUtil.getStr(paras,"cookies"))
                 .form(data));
