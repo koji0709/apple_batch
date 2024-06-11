@@ -421,7 +421,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                }catch (Exception e){
 
                }
-           }, 0, 2, TimeUnit.SECONDS);
+           }, 0, 1, TimeUnit.SECONDS);
     }
 
     public void setExecuteButtonStatus(){
