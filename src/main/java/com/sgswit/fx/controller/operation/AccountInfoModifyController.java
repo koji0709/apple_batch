@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -87,9 +88,15 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
-            LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
-            if (birthdayDatePickerValue == null){
+            String birthdayTextFieldText = birthdayTextField.getText();
+            if (StringUtils.isEmpty(birthdayTextFieldText)){
                 alert("新生日不能为空！");
+                return false;
+            }
+            try{
+                DateUtil.parse(birthdayTextFieldText);
+            }catch (Exception e){
+                alert("生日格式不正确！");
                 return false;
             }
         }
@@ -185,16 +192,17 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
             setMessageAndRefreshTable("updateBirthday","正在修改生日...",messageMap,account);
-            LocalDate birthdayDatePickerValue = birthdayDatePicker.getValue();
-            if(null==birthdayDatePickerValue){
+            DateTime birthday = DateUtil.parse(birthdayTextField.getText());
+            if(null==birthday){
                 setMessageAndRefreshTable("updateBirthday","修改生日失败【未设置生日】",messageMap,account);
             }else{
-                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayDatePickerValue.toString());
+                String birthdayFormat = DateUtil.format(birthday, "yyyy-MM-dd");
+                HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayFormat);
                 if (updateBirthdayRsp.getStatus() != 200){
                     String message = AppleIDUtil.getValidationErrors(updateBirthdayRsp, "修改生日失败");
                     setMessageAndRefreshTable("updateBirthday",message,messageMap,account);
                 }else{
-                    account.setBirthday(birthdayDatePickerValue.toString());
+                    account.setBirthday(birthdayFormat);
                     setMessageAndRefreshTable("updateBirthday","修改生日成功",messageMap,account);
                 }
             }

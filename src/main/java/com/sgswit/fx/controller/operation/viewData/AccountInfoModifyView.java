@@ -31,7 +31,7 @@ public class AccountInfoModifyView extends AppleIdView {
      * 新生日
      */
     @FXML
-    protected DatePicker birthdayDatePicker;
+    protected TextField birthdayTextField;
 
     /**
      * 修改姓名
