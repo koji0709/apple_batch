@@ -24,9 +24,6 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.util.DigestFactory;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -79,59 +76,68 @@ public class WebLoginUtil {
     private static HttpResponse auth(Map<String,Object> signInMap){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("Content-Type",ListUtil.toList("application/x-www-form-urlencoded"));
 
+        headers.put("Referer", ListUtil.toList("https://appleid.apple.com/"));
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
         String redirectUri ="";
         if(!StringUtils.isEmpty(MapUtil.getStr(signInMap,"callbackSignInUrl"))){
             redirectUri=MapUtil.getStr(signInMap,"callbackSignInUrl");
             redirectUri = redirectUri.substring(0,redirectUri.indexOf("shop"));
+        }else{
+            redirectUri="https://www.apple.com/";
         }
         String frameId=MapUtil.getStr(signInMap,"frameId");
         String clientId=MapUtil.getStr(signInMap,"clientId");
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&skVersion=7" +
                 "&iframeId="+frameId+"&client_id="+clientId+"&redirect_uri="+ redirectUri +"&response_type=code" +
                 "&response_mode=web_message&state="+frameId+"&authVersion=latest";
-
+        Map<String,String> cookiesMap=new HashMap<>();
+        if(null==signInMap.get("cookiesMap")){
+            cookiesMap=new HashMap<>();
+        }else{
+            cookiesMap= (Map<String, String>) signInMap.get("cookiesMap");
+        }
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .cookie(cookiesMap.size()==0?"geo=CN;" :MapUtil.join(cookiesMap,";","=",true))
                         .header(headers));
+
+        CookieUtils.setCookiesToMap(res,cookiesMap);
+
+        signInMap.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
         return res;
     }
 
     private static HttpResponse signinInit(HttpResponse res1,Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("scnt",ListUtil.toList(res1.header("scnt")));
+        headers.put("X-Apple-Auth-Attributes", ListUtil.toList(res1.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList("https://www.apple.com/"));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(MapUtil.getStr(paras,"clientId")));
+        headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(MapUtil.getStr(paras,"frameId")));
+        headers.put("X-Apple-Domain-Id",ListUtil.toList("1"));
+        headers.put("X-Apple-Frame-Id",ListUtil.toList(MapUtil.getStr(paras,"frameId")));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
-        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
-
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtil.getStr(paras,"iframeId")));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
-
-        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
-        headers.put("scnt",ListUtil.toList(res1.header("scnt")));
-
         String body = "{\"a\":\""+MapUtil.getStr(paras,"a")+"\",\"accountName\":\""+ MapUtil.getStr(paras,"account") +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
         HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
                 .header(headers)
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .body(body);
         HttpResponse res = ProxyUtil.execute(httpRequest);
         return res;
@@ -143,27 +149,27 @@ public class WebLoginUtil {
         BigInteger n=new BigInteger(MapUtil.getStr(paras,"n"));
         BigInteger ra=new BigInteger(MapUtil.getStr(paras,"ra"));
         HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("scnt",ListUtil.toList(res1.header("scnt")));
+        headers.put("X-Apple-Auth-Attributes", ListUtil.toList(res0.header("X-Apple-Auth-Attributes")));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList("https://www.apple.com/"));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(MapUtil.getStr(paras,"clientId")));
+        headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(MapUtil.getStr(paras,"frameId")));
+        headers.put("X-Apple-Domain-Id",ListUtil.toList("1"));
+        headers.put("X-Apple-Frame-Id",ListUtil.toList(MapUtil.getStr(paras,"frameId")));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
-        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
-
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
-        headers.put("X-Apple-Frame-Id", ListUtil.toList(MapUtil.getStr(paras,"iframeId")));
-        headers.put("X-Apple-Widget-Key", ListUtil.toList(MapUtil.getStr(paras,"clientId")));
-        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
-        headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
         int xAppleHcBits = Integer.parseInt(res0.header("X-Apple-HC-Bits"));
         String xAppleHcChallenge = res0.header("X-Apple-HC-Challenge");
@@ -180,18 +186,21 @@ public class WebLoginUtil {
         String c = (String)json.getByPath("c");
 
         Map map = calM(MapUtil.getStr(paras,"account"), MapUtil.getStr(paras,"pwd"), a, iter, salt, b, g, n, ra);
-
-        String body = "{\"accountName\":\""+MapUtil.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
-        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
-                .header(headers)
-                .body(body);
-        HttpResponse res = ProxyUtil.execute(httpRequest);
         Map<String,String> cookiesMap;
         if(null==paras.get("cookiesMap")){
             cookiesMap=new HashMap<>();
         }else{
             cookiesMap= (Map<String, String>) paras.get("cookiesMap");
         }
+        cookiesMap.put("geo","CN");
+        String body = "{\"accountName\":\""+MapUtil.getStr(paras,"account")+"\",\"rememberMe\":false,\"m1\":\""+ map.get("m1") +"\",\"c\":\""+ c +"\",\"m2\":\"" + map.get("m2") +"\"}";
+        HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+                .header(headers)
+                .cookie(MapUtil.join(cookiesMap,";","=",true))
+                .body(body);
+        HttpResponse res = ProxyUtil.execute(httpRequest);
+
+
         paras.put("cookiesMap" , CookieUtils.setCookiesToMap(res,cookiesMap));
         paras.put("countryCode",res.header("X-Apple-ID-Account-Country"));
 
@@ -344,15 +353,6 @@ public class WebLoginUtil {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static char[] byteToChar(byte[] bytes) {
-        Charset charset = Charset.forName("UTF-8");
-        ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
-        byteBuffer.put(bytes);
-        byteBuffer.flip();
-        CharBuffer charBuffer = charset.decode(byteBuffer);
-        return charBuffer.array();
     }
 
     private static byte[] calculateM2(BigInteger bigA, byte[] m1, byte[] k){

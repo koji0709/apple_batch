@@ -54,14 +54,19 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String,Object> paras=new HashMap<>();
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
-            paras.put("serviceKey", DataUtil.getWebClientIdByAppleId(account.getAccount()));
+            paras.put("serviceKey", "a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
             HttpResponse response= WebLoginUtil.signin(paras);
             if(response.getStatus()==503){
                 account.setHasFinished(true);
                 throw new UnavailableException();
-            } else if(response.getStatus()!=409){
+            } else if(response.getStatus() == 409){
+                if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
+                    throw new ServiceException("暂不双重认证用户查询余额");
+                }
+
+            }else if(response.getStatus()!=200){
                 account.setHasFinished(true);
-                throw new ServiceException(AppleIDUtil.getValidationErrors(response,"签名失败"));
+                throw new ServiceException(AppleIDUtil.getValidationErrors(response,"登录失败"));
             }
             String countryCode=MapUtil.getStr(paras,"countryCode");
             account.setState(DataUtil.getNameByCountryCode(countryCode));
@@ -78,11 +83,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 paras.put("code2",code2.toLowerCase());
             }
             accountTableView.refresh();
-            if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
-                throw new ServiceException("该账户为双重认证用户,请输入双重验证码");
-            }
-
-
             paras.clear();
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
@@ -139,12 +139,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             setAndRefreshNote(account,"页面加载成功，登录中...");
             Thread.sleep(1000);
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
-            if(signInResp.getStatus() == 409){
-                if("hsa2".equals(JSONUtil.parseObj(signInResp.body()).getStr("authType"))){
-                    throw new ServiceException("该账户为双重认证用户,请输入双重验证码");
-                }
-
-            }else if(signInResp.getStatus() == 200){
+            if(signInResp.getStatus() == 200){
 
             }else if(signInResp.getStatus() == 503){
                 throw new UnavailableException();

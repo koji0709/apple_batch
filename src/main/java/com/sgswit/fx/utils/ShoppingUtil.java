@@ -26,14 +26,14 @@ import java.util.Map;
  * @author DELL
  */
 public class ShoppingUtil {
-    static String goodsCode="MHJA3AM/A";
+    static String goodsCode="MUJT3AM/A";
     // 获取产品
     public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
 
         String code2=MapUtil.getStr(paras,"code2","");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
 
         headers.put("Sec-Fetch-Site", ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode", ListUtil.toList("navigate"));
@@ -41,9 +41,9 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-User", ListUtil.toList("?1"));
         String accessoriesUrl;
         if(StringUtils.isEmpty(code2)){
-            accessoriesUrl="https://www.apple.com/shop/iphone/accessories";
+            accessoriesUrl="https://www.apple.com/shop/watch/bands";
         }else{
-            accessoriesUrl="https://www.apple.com/"+code2+"/shop/iphone/accessories";
+            accessoriesUrl="https://www.apple.com/"+code2+"/shop/watch/bands";
         }
         HttpResponse accRes = ProxyUtil.execute(HttpUtil.createGet(accessoriesUrl)
                 .header(headers));
@@ -58,9 +58,9 @@ public class ShoppingUtil {
         Document doc = Jsoup.parse(accRes.body());
         Elements elements;
         if(StringUtils.isEmpty(code2)){
-            elements = doc.select("a[href^=/shop/product/"+goodsCode+"/20w-usb-c-power-adapter]");
+            elements = doc.select("a[href^=/shop/product/"+goodsCode+"/41mm-black-unity-sport-loop]");
         }else{
-            elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"/20w-usb-c-power-adapter]");
+            elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"41mm-black-unity-sport-loop]");
         }
 
         String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
@@ -157,7 +157,7 @@ public class ShoppingUtil {
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
-        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("referer",ListUtil.toList(paras.get("referer").toString()));
         headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
@@ -169,7 +169,9 @@ public class ShoppingUtil {
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
         HttpResponse res = ProxyUtil.execute(httpRequest);
         if(res.getStatus() == 302){
-            add2bag(paras);
+            paras.put("msg","加入购物车失败！"+res.getStatus());
+            paras.put("code","1");
+            return paras;
         }else if(res.getStatus() != 303){
             paras.put("msg","加入购物车失败！"+res.getStatus());
             paras.put("code","1");
@@ -183,11 +185,9 @@ public class ShoppingUtil {
 
     // 查看购物车
     public static Map<String,Object>  shopbag(Map<String,Object> paras){
-        Map<String,Object> map = new HashMap<>();
-
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
 
         headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
@@ -286,13 +286,10 @@ public class ShoppingUtil {
     public static Map<String,Object> shopSignIn(Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept",ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.017"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
 
-        headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
-        headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
-        headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
-        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+        headers.put("Referer",ListUtil.toList("https://www.apple.com/shop/bag"));
         HttpRequest httpRequest=HttpUtil.createGet(MapUtil.getStr(paras,"url"))
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
@@ -325,6 +322,7 @@ public class ShoppingUtil {
         paras.put("serviceKey",serviceKey);
         paras.put("serviceURL",serviceURL);
         paras.put("callbackSignInUrl",callbackSignInUrl);
+        paras.put("checkoutStartRefererUrl",MapUtil.getStr(paras,"url"));
         paras.put("code",Constant.SUCCESS);
         return paras;
     }
@@ -334,7 +332,7 @@ public class ShoppingUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("*/*"));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
@@ -379,15 +377,16 @@ public class ShoppingUtil {
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
-
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
+        headers.put("sec-fetch-dest",ListUtil.toList("document"));
+        headers.put("sec-fetch-mode",ListUtil.toList("navigate"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+        headers.put("Referer",ListUtil.toList(MapUtil.getStr(checkoutStartMap,"checkoutStartRefererUrl")));
 
         Map<String,Object> paramMap = new HashMap<>();
 
@@ -398,6 +397,8 @@ public class ShoppingUtil {
                 .cookie(MapUtil.join((Map<String,String>) checkoutStartMap.get("cookiesMap"),";","=",true));
         HttpResponse resp = ProxyUtil.execute(httpRequest);
         checkoutStartMap.put("location",resp.header("location"));
+        Map<String,String>  cookiesMap= (Map<String, String>) checkoutStartMap.get("cookiesMap");;
+        checkoutStartMap.put("cookiesMap" , CookieUtils.setCookiesToMap(resp,cookiesMap));
         return checkoutStartMap;
 
     }
@@ -408,8 +409,8 @@ public class ShoppingUtil {
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
 
 
@@ -449,8 +450,8 @@ public class ShoppingUtil {
 
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, *; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
@@ -464,16 +465,13 @@ public class ShoppingUtil {
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
-        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Fulfillment-init"));
-        String locationBase=paras.get("url").toString();
-        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
-        headers.put("origin",ListUtil.toList(locationBase));
-
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
+        headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
-        String url =  paras.get("url") + "x/fulfillment?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -495,8 +493,8 @@ public class ShoppingUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, *; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
@@ -511,9 +509,7 @@ public class ShoppingUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
         headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
-        String locationBase=paras.get("url").toString();
-        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
-        headers.put("origin",ListUtil.toList(locationBase));
+        headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         Map<String,Object> paramMap = new HashMap<>();
 
         String countryCode=MapUtil.getStr(paras,"countryCode");
@@ -568,7 +564,7 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode",areaInfo.getCode2());
         }
 
-        String url = paras.get("url") + "x/shipping?_a=continueFromShippingToBilling&_m=checkout.shipping";
+        String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -590,8 +586,8 @@ public class ShoppingUtil {
     public static HttpResponse selectedAddress(Map<String,Object> paras) {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0."));
-        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
@@ -604,11 +600,8 @@ public class ShoppingUtil {
         headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
-        headers.put("x-requested-with",ListUtil.toList("Fetch"));
         headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
-        String locationBase=paras.get("url").toString();
-        locationBase = locationBase.substring(0,locationBase.indexOf("shop"));
-        headers.put("origin",ListUtil.toList(locationBase));
+        headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         String url =  paras.get("url") + "x/shipping?_a=continueWithSelectedAddress&_m=checkout.shipping.addressVerification.selectedAddress";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
