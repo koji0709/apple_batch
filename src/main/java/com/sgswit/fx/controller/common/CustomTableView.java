@@ -61,6 +61,9 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
     // 登录成功的账号缓存(缓存5分钟,能刷新)
     private static final long time=30*60*1000;
+
+    protected static Map<StageEnum,List<Thread>> threadMap = new HashMap<>();
+
     protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(time);
     static {
         loginSuccessMap.schedulePrune(time);
@@ -240,7 +243,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     public void accountHandlerExpand(T account,boolean isAsyn){
         if (isAsyn){
-            new Thread(() -> accountHandlerExpandX(account)).start();
+            Thread thread = new Thread(() -> accountHandlerExpandX(account));
+            thread.start();
+            List<Thread> threads = threadMap.get(stage);
+            if (CollUtil.isEmpty(threads)){
+                threads = new ArrayList<>();
+            }
+            threads.add(thread);
+            threadMap.put(stage,threads);
         }else{
             accountHandlerExpandX(account);
         }
@@ -526,6 +536,28 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 停止任务按钮点击
      */
     public void stopTaskButtonAction() {
+        // 不使用杀线程的方式停止
+        List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
+        if (!notForceStopList.contains(stage)){
+            List<Thread> threads = threadMap.get(stage);
+            if (!CollUtil.isEmpty(threads)){
+                try{
+                    for (Thread thread : threads) {
+                        if (thread != null){
+                            thread.stop();
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                for (T account : accountList) {
+                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+                    if(!hasFinished){
+                        setAndRefreshNote(account,"");
+                    }
+                }
+            }
+        }
         try {
             // 停止任务, 恢复按钮状态
             setExecuteButtonStatus(false);
