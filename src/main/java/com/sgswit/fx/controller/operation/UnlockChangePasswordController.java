@@ -2,14 +2,16 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -48,16 +50,18 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     @Override
     public void accountHandler(Account account) {
         String newPassword = pwdTextField.getText();
-        setAndRefreshNote(account,"解锁改密中...");
+        setAndRefreshNote(account,"正在识别验证码...");
+        String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
+        HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(HttpUtil.createGet(url));
+        String sstt=verifyAppleIdInitRsp.header("sstt");
+        account.setSstt(sstt);
+        CookieUtils.setCookiesToMap(verifyAppleIdInitRsp,account.getCookieMap());
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
-        if (verifyAppleIdRsp.getStatus() == 503){
-            throw new UnavailableException();
-        }
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");
         }
-
+        setAndRefreshNote(account,"验证码识别成功，解锁改密中...");
         // 修改密码 (如果账号被锁定,则解锁改密)
         HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, newPassword);
         if (updatePwdByProtectionRsp.getStatus() == 260){

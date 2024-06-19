@@ -16,7 +16,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
@@ -989,12 +988,6 @@ public class AppleIDUtil {
 
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
                         .header(verifyPhone2Rsp.headers()));
-
-        if (unenrollmentRsp.getStatus() == 503){
-            account.setNote("操作频繁，请稍后重试！");
-            return null;
-        }
-
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                         .header(buildHeader(account)));
@@ -1005,12 +998,6 @@ public class AppleIDUtil {
                         .header(verifyBirthday1Rsp.headers())
                         .header("Content-Type","application/json")
                         .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
-
-        if (verifyBirthday2Rsp.getStatus() == 503){
-            account.setNote("操作频繁，请稍后重试！");
-            return null;
-        }
-
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         if (StrUtil.isEmpty(verifyQuestions1Location)){
             account.setNote("生日校验不通过");
@@ -1109,9 +1096,19 @@ public class AppleIDUtil {
      * 获取图形验证码
      */
     public static HttpResponse captcha(Account account){
-        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-        return ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(buildHeader(account)));
+        String url = "https://iforgot.apple.com/captcha";
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("sstt",ListUtil.toList(account.getSstt()));
+        return ProxyUtil.execute(HttpUtil.createPost(url)
+                .body("{\"type\":\"IMAGE\"}")
+                .cookie(account.getCookie())
+                        .header(headers));
     }
 
     /**
@@ -1214,12 +1211,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
 
         List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
-
-        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/recovery/options")
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(options2Rsp);
-        account.updateLoginInfo(options2Rsp);
 
         HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
                         .header(header)
@@ -1474,9 +1465,7 @@ public class AppleIDUtil {
 
     public static void checkAndThrowUnavailableException(HttpResponse response,String title){
         if (response != null){
-            if (response.getStatus() == 503){
-                throw new UnavailableException();
-            }else if (response.getStatus() == 400){
+            if (response.getStatus() == 400){
                 StringBuffer message=new StringBuffer();
                 if(!StrUtil.isEmpty(title)){
                     message.append(title);

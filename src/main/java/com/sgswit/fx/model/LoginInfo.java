@@ -19,6 +19,8 @@ public class LoginInfo extends AuthData{
     // ----------------- AppleID
     private String scnt;
 
+    private String sstt;
+
     private String XAppleIDSessionId;
 
     private Map<String,String> cookieMap;
@@ -40,12 +42,15 @@ public class LoginInfo extends AuthData{
 
     // -----------------
     private boolean isLogin;
-    
+
     public void updateLoginInfo(HttpResponse rsp){
         CookieUtils.setCookiesToMap(rsp,getCookieMap());
 
         if(StrUtil.isNotEmpty(rsp.header("scnt"))){
             setScnt(rsp.header("scnt"));
+        }
+        if(StrUtil.isNotEmpty(rsp.header("sstt"))){
+            setSstt(rsp.header("sstt"));
         }
 
     }
@@ -66,16 +71,6 @@ public class LoginInfo extends AuthData{
 
         return sb.toString();
     }
-
-
-
-
-
-
-
-
-
-
     public String getDomainId() {
         return domainId;
     }
@@ -185,5 +180,13 @@ public class LoginInfo extends AuthData{
 
     public void setGuid(String guid) {
         this.guid = guid;
+    }
+
+    public String getSstt() {
+        return sstt;
+    }
+
+    public void setSstt(String sstt) {
+        this.sstt = sstt;
     }
 }
