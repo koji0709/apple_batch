@@ -241,7 +241,18 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         accountHandlerExpand(account,true);
     }
 
+    /**
+     * 设置执行期间的间隔频率
+     */
+    public Long getIntervalFrequency(){
+        return 0L;
+    }
+
     public void accountHandlerExpand(T account,boolean isAsyn){
+        Long intervalFrequency = getIntervalFrequency();
+        if (intervalFrequency > 0){
+            ThreadUtil.sleep(intervalFrequency);
+        }
         if (isAsyn){
             Thread thread = new Thread(() -> accountHandlerExpandX(account));
             thread.start();
