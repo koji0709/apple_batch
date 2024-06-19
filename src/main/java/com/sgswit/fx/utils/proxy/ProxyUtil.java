@@ -40,7 +40,8 @@ public class ProxyUtil{
        HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
-       }catch (IORuntimeException | HttpException e){
+       }catch (IORuntimeException e){
+           //链接超时
            ThreadUtil.sleep(500);
            String failCountStr=request.header("fc");
            if(StrUtil.isEmpty(failCountStr)){
@@ -49,10 +50,13 @@ public class ProxyUtil{
                failCountStr=String.valueOf(Integer.valueOf(failCountStr)+1);
            }
            request.header("fc", failCountStr);
-           if(Integer.valueOf(failCountStr)>10){
+           if(Integer.valueOf(failCountStr)>5){
              throw new ServiceException("网络异常");
            }
            return execute(request);
+       }catch (HttpException e){
+           //响应超时
+           throw new ServiceException("网络异常");
        }
 
        return httpResponse;

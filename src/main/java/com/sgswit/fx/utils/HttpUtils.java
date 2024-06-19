@@ -29,6 +29,7 @@ public class HttpUtils {
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
                 .body(body)
+                .setReadTimeout(30000)
                 .execute();
         return rsp;
     }
@@ -39,6 +40,7 @@ public class HttpUtils {
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
                 .body(body)
+                .setReadTimeout(30000)
                 .execute();
         return rsp;
     }
