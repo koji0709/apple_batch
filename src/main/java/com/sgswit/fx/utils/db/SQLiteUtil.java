@@ -1,28 +1,44 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.db;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.utils.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class SQLiteUtil {
 
     public static void init() throws Exception {
-        File file = new File("xg.sqlite");
+        boolean isWindows = SystemUtils.isWindows();
+        File file = new File(isWindows ? Constant.WIN_DB_URL : Constant.MAC_DB_URL);
         if (!file.exists()){
+            FileUtil.touch(file);
+            if (!isWindows){//windows可以忽略权限
+                // 设置文件权限为 rw-rw-rw-
+                Path path = file.toPath();
+                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
+                Files.setPosixFilePermissions(path, perms);
+            }
             // 获取当前类加载器对象
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             // 通过类加载器获取指定路径下的输入流
@@ -34,7 +50,7 @@ public class SQLiteUtil {
                 sqlText.append(line);
             }
             reader.close();
-            Db.use().executeBatch(sqlText.toString().split(";"));
+            Db.use(DataSourceFactory.getDataSource()).executeBatch(sqlText.toString().split(";"));
         }
     }
 
@@ -55,7 +71,7 @@ public class SQLiteUtil {
         sql = limit    != null ? sql + limit : sql;
 
         try {
-            localHistoryList = Db.use().query(sql,params);
+            localHistoryList = Db.use(DataSourceFactory.getDataSource()).query(sql,params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -103,7 +119,7 @@ public class SQLiteUtil {
             return 0;
         }
         try {
-            int count = Db.use().del("local_history", "clz_name", clzName);
+            int count = Db.use(DataSourceFactory.getDataSource()).del("local_history", "clz_name", clzName);
             return count;
         } catch (SQLException e) {
             throw new RuntimeException(e);

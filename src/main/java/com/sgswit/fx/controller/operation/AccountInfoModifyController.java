@@ -55,6 +55,14 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     }
 
     /**
+     * 设置每一行执行的间隔频率
+     */
+    @Override
+    public Long getIntervalFrequency() {
+        return 1000L;
+    }
+
+    /**
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
