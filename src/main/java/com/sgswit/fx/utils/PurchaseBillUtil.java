@@ -916,15 +916,6 @@ public class PurchaseBillUtil {
             paras.put("countryName",countryName);
             if(res.getStatus()==302 && attempt ==0){
                 return iTunesLogin(authCode,guid,1,paras);
-            }else if(res.getStatus()==503){
-                if(num > 5){
-                    paras.put("code","503");
-                    paras.put("msg","操作频繁，请稍后重试！");
-                    return paras;
-                }
-                num++;
-                paras.put("num",num);
-                iTunesLogin(authCode,guid,attempt,paras);
             }
             String rb = res.charset("UTF-8").body();
             JSONObject rspJSON = PListUtil.parse(rb);

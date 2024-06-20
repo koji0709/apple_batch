@@ -8,6 +8,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
 import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
@@ -40,9 +41,23 @@ public class ProxyUtil{
        HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
+           if(503==httpResponse.getStatus()){
+               ThreadUtil.sleep(1000);
+               String failCountStr=request.header("fc503");
+               if(StrUtil.isEmpty(failCountStr)){
+                   failCountStr="1";
+               }else{
+                   failCountStr=String.valueOf(Integer.valueOf(failCountStr)+1);
+               }
+               request.header("fc503", failCountStr);
+               if(Integer.valueOf(failCountStr)>20){
+                   throw new UnavailableException();
+               }
+               return execute(request);
+           }
        }catch (IORuntimeException e){
            //链接超时
-           ThreadUtil.sleep(500);
+           ThreadUtil.sleep(1000);
            String failCountStr=request.header("fc");
            if(StrUtil.isEmpty(failCountStr)){
                failCountStr="1";

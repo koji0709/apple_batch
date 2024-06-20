@@ -14,7 +14,6 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -26,7 +25,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class ICloudWeblogin {
 
@@ -49,9 +51,6 @@ public class ICloudWeblogin {
         HttpResponse step0Res = auth(signInMap);
         HttpResponse step1Res = federate(step0Res,signInMap,signInMap.get("account"));
         HttpResponse step2Res = signinInit(a,step0Res,step1Res,signInMap);
-        if (step2Res.getStatus() == 503){
-            throw new UnavailableException();
-        }
         HttpResponse step3Res = signinCompete(a,g,n,ra,step2Res,step0Res,signInMap);
         return  step3Res;
     }

@@ -8,7 +8,6 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
@@ -56,10 +55,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("pwd",account.getPwd());
             paras.put("serviceKey", "a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
             HttpResponse response= WebLoginUtil.signin(paras);
-            if(response.getStatus()==503){
-                account.setHasFinished(true);
-                throw new UnavailableException();
-            } else if(response.getStatus() == 409){
+            if(response.getStatus() == 409){
                 if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
                     throw new ServiceException("暂不双重认证用户查询余额");
                 }
@@ -139,14 +135,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             setAndRefreshNote(account,"页面加载成功，登录中...");
             Thread.sleep(1000);
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
-            if(signInResp.getStatus() == 200){
-
-            }else if(signInResp.getStatus() == 503){
-                throw new UnavailableException();
-            }
-
             setAndRefreshNote(account,"登录成功...");
-
             Thread.sleep(1000);
             setAndRefreshNote(account,"正在查询余额...");
             //回调applestore

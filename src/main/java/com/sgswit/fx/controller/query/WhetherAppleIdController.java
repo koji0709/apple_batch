@@ -8,7 +8,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
@@ -65,71 +64,56 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
             HttpResponse captchaResponse = ProxyUtil.execute(HttpUtil.createGet(url)
                             .header(headers));
-            if(captchaResponse.getStatus()==503){
-                throw new UnavailableException();
-            }else{
-                String body = captchaResponse.body();
-                JSONObject object = JSONUtil.parseObj(body);
-                String capId = object.getStr("id");
-                String capToken = object.getStr("token");
-                //解析图片
-                try {
-                    Thread.sleep(2*1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
-                String content = payloadJson.getStr("content");
-                String predict = OcrUtil.recognize(content);
-                String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-                HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
-                                .body(bodys)
-                                .header(headers));
-                if (verifyAppleIdRes.getStatus() == 503) {
-                    account.setFailCount(account.getFailCount()+1);
-                    if(account.getFailCount() >= 5){
-                        throw new UnavailableException();
-                    }
-                    try {
-                        Thread.sleep(3*1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    accountHandler(account);
-                }else if(verifyAppleIdRes.getStatus() == 400){
-                    JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
-                    boolean hasError = jsonObject.getBool("hasError");
-                    if(hasError){
-                        String service_errors = jsonObject.getStr("service_errors");
-                        JSONArray jsonArray = JSONUtil.parseArray(service_errors);
-                        String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                        if(code.equals("captchaAnswer.Invalid")){
-                            //返还点数
-                            PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
-                            accountHandler(account);
-                        }else if(code.equals("-20210")){
-                            String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
-                            setAndRefreshNote(account,message);
-                        }
-                    }
-                }else if(verifyAppleIdRes.getStatus() == 302){
-                    String location=verifyAppleIdRes.header("Location");
-                    if(StringUtils.containsIgnoreCase(location,"password/authenticationmethod")){
-                        setAndRefreshNote(account,"此AppleID已被锁定");
-                    }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
-                        setAndRefreshNote(account,"此AppleID正常");
-                    }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
-                        setAndRefreshNote(account,"此AppleID已开启双重认证");
-                    }
-                }else if(verifyAppleIdRes.getStatus() == 200){
-                    JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
-                    String service_errors = jsonObject.getStr("serviceErrors");
+            String body = captchaResponse.body();
+            JSONObject object = JSONUtil.parseObj(body);
+            String capId = object.getStr("id");
+            String capToken = object.getStr("token");
+            //解析图片
+            try {
+                Thread.sleep(2*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
+            String content = payloadJson.getStr("content");
+            String predict = OcrUtil.recognize(content);
+            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
+            HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
+                    .body(bodys)
+                    .header(headers));
+            if(verifyAppleIdRes.getStatus() == 400){
+                JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
+                boolean hasError = jsonObject.getBool("hasError");
+                if(hasError){
+                    String service_errors = jsonObject.getStr("service_errors");
                     JSONArray jsonArray = JSONUtil.parseArray(service_errors);
-                    if(null!=jsonArray){
-                        String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                        if(code.equals("appleIdNotSupported")){
-                            setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
-                        }
+                    String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
+                    if(code.equals("captchaAnswer.Invalid")){
+                        //返还点数
+                        PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
+                        accountHandler(account);
+                    }else if(code.equals("-20210")){
+                        String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                        setAndRefreshNote(account,message);
+                    }
+                }
+            }else if(verifyAppleIdRes.getStatus() == 302){
+                String location=verifyAppleIdRes.header("Location");
+                if(StringUtils.containsIgnoreCase(location,"password/authenticationmethod")){
+                    setAndRefreshNote(account,"此AppleID已被锁定");
+                }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
+                    setAndRefreshNote(account,"此AppleID正常");
+                }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
+                    setAndRefreshNote(account,"此AppleID已开启双重认证");
+                }
+            }else if(verifyAppleIdRes.getStatus() == 200){
+                JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
+                String service_errors = jsonObject.getStr("serviceErrors");
+                JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                if(null!=jsonArray){
+                    String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
+                    if(code.equals("appleIdNotSupported")){
+                        setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
                     }
                 }
             }

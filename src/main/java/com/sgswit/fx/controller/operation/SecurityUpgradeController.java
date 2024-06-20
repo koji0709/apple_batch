@@ -78,9 +78,6 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\""+countryCode+"\",\"number\":\""+phone+"\",\"countryDialCode\":\""+countryDialCode+"\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
 
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
-            if (securityUpgradeVerifyPhoneRsp.getStatus() == 503){
-                throw new UnavailableException();
-            }
             String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){
                 throw new ServiceException(failMessage);

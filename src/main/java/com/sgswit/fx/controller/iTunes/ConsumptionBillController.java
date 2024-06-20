@@ -11,7 +11,6 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.ConsumptionBill;
@@ -82,9 +81,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         a.setAccount(account.getAccount());
         HttpResponse step1Res = AppleIDUtil.signin(a);
         ThreadUtil.sleep(2000);
-        if (step1Res.getStatus() == 503){
-            throw new UnavailableException();
-        }else if (step1Res.getStatus() != 409) {
+        if (step1Res.getStatus() != 409) {
             throw new ServiceException("Apple ID 或密码不正确");
         }
         String step1Body = step1Res.body();

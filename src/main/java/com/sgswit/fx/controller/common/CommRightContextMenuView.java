@@ -11,8 +11,6 @@ import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.ClipboardManager;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -140,12 +138,7 @@ public class CommRightContextMenuView<T> extends CommonView {
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
         //焦点失去事件，关闭窗口
-        stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean onHidden, Boolean onShown) {
-                stage.close();
-            }
-        });
+        stage.focusedProperty().addListener((ov, onHidden, onShown) -> stage.close());
     }
 
 
@@ -199,6 +192,8 @@ public class CommRightContextMenuView<T> extends CommonView {
                 T account = selectedRows.get(0);
                 if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())) {
                     copyInfo(account);
+                }else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY_ALL.getCode())) {
+                    copyAllInfo(accountTableView);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
                     Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
                     if(!hasFinished){
@@ -301,6 +296,21 @@ public class CommRightContextMenuView<T> extends CommonView {
         }
         String str = resutList.stream().collect(Collectors.joining("----"));
         try {
+            ClipboardManager.setClipboard(str);
+        } catch (Exception e) {
+            alert("复制失败！");
+        }
+        alert("复制成功！");
+    }
+    private void copyAllInfo(TableView tableView) {
+        List<String> resutList = new ArrayList<>();
+        String str = resutList.stream().collect(Collectors.joining("----"));
+        try {
+
+
+
+
+
             ClipboardManager.setClipboard(str);
         } catch (Exception e) {
             alert("复制失败！");

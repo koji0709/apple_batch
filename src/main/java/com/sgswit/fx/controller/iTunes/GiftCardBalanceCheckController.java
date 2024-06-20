@@ -299,13 +299,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
             String a= MapUtil.getStr(hashMap,"a");
             HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
-            if(503==step1Res.getStatus()){
-                msg="初始化失败，请重试";
-                color="red";
-                hasInit=false;
-                updateUI(msg,color);
-                return ;
-            }
             HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
@@ -357,6 +350,11 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             msg="连接异常，请检查网络";
             color="red";
             updateUI(msg,color);
+        }catch (UnavailableException e){
+            msg="初始化失败，请重试";
+            color="red";
+            hasInit=false;
+            updateUI(msg,color);
         }catch (Exception e){
             msg="登录失败";
             color="red";
@@ -393,11 +391,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
         if(step4Res.getStatus()!=200){
             if(giftCard.getFailCount()>3){
-                if(503==step4Res.getStatus()){
-                    throw new UnavailableException();
-                }else {
-                    throw new ServiceException("余额查询失败，请稍后重试！");
-                }
+                throw new ServiceException("余额查询失败，请稍后重试！");
             }
             giftCard.setFailCount(giftCard.getFailCount()+1);
             String message= MessageFormat.format("查询失败，正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
@@ -500,11 +494,6 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
             String a= MapUtil.getStr(hashMap,"a");
             HttpResponse step1Res = GiftCardUtil.signinInit(account,a,step0Res,hashMap);
-            if(503==step1Res.getStatus()){
-                res.put("code","-1");
-                res.put("message","登陆失败");
-                return res;
-            }
             HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);

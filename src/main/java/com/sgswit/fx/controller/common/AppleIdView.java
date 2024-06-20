@@ -28,11 +28,6 @@ public class AppleIdView extends CustomTableView<Account> {
     public HttpResponse signIn(Account account){
         // SignIn
         HttpResponse signInRsp = AppleIDUtil.signin(account);
-
-        if(signInRsp.getStatus()==503){
-            throw new UnavailableException();
-        }
-
         String status = "正常";
         String code="";
         if (!StrUtil.isEmpty(signInRsp.body())){

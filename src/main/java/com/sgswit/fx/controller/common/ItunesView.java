@@ -67,9 +67,6 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         }
 
         int status = loginRsp.getStatus();
-        if (status == 503){
-            throw new UnavailableException();
-        }
         JSONObject json=null;
         try{
             json = PListUtil.parse(loginRsp.body());

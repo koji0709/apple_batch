@@ -11,8 +11,6 @@ import cn.hutool.db.Entity;
 import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -68,7 +66,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     static {
         loginSuccessMap.schedulePrune(time);
     }
-    private static final Log logger = LogFactory.get();
     public Set<String> menuItem =new LinkedHashSet<>(){{
         add(Constant.RightContextMenu.DELETE.getCode());
         add(Constant.RightContextMenu.REEXECUTE.getCode());
@@ -513,6 +510,15 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         });
 
         box2.getChildren().add(localHistoryTableView);
+        //添加右键事件
+        localHistoryTableView.setOnContextMenuRequested(contextMenuEvent->{
+            Set<String> menuItem =new LinkedHashSet<>(){{
+                add(Constant.RightContextMenu.COPY_ALL.getCode());
+                add(Constant.RightContextMenu.COPY.getCode());
+            }};
+            List<String> items=new ArrayList<>(menuItem) ;
+            super.onContentMenuClick(contextMenuEvent,localHistoryTableView,items);
+        });
 
         VBox mainVbox = new VBox();
         mainVbox.setSpacing(15);
@@ -526,7 +532,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.setResizable(false);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setAlwaysOnTop(true);
+        stage.setAlwaysOnTop(false);
         String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
         stage.showAndWait();

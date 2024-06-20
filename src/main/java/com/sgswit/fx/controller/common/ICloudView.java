@@ -5,7 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.github.javafaker.App;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.ICloudUtil;
@@ -92,9 +91,6 @@ public class ICloudView<T> extends CustomTableView<T> {
         // 双重认证账号，登录成功后， http code = 409；
         //        但此时返回的header中包含 X-Apple-Session-Token，可直接使用获取icloud账户信息
         int status = signInRsp.getStatus();
-        if(status==503){
-            throw new UnavailableException();
-        }
         if (status != 412 && status != 409) {
             String message = AppleIDUtil.getValidationErrors(signInRsp, "登录失败; status=" + status);
             throw new ServiceException(message,"登录失败; status=" + status);
