@@ -19,6 +19,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -277,7 +279,7 @@ public class CommRightContextMenuView<T> extends CommonView {
      *                    　* @date 2023/12/22 17:55
      */
     private void copyInfo(T selectModel) {
-        List<String> resutList = new ArrayList<>();
+        List<String> resultList = new ArrayList<>();
         for (Object column : accountTableView.getColumns()) {
             TableColumn tableColumn = (TableColumn) column;
             String id = tableColumn.getId();
@@ -291,10 +293,10 @@ public class CommRightContextMenuView<T> extends CommonView {
                         text = value.toString();
                     }
                 }
-                resutList.add(text);
+                resultList.add(text);
             }
         }
-        String str = resutList.stream().collect(Collectors.joining("----"));
+        String str = resultList.stream().collect(Collectors.joining("----"));
         try {
             ClipboardManager.setClipboard(str);
         } catch (Exception e) {
@@ -302,16 +304,56 @@ public class CommRightContextMenuView<T> extends CommonView {
         }
         alert("复制成功！");
     }
+    /**
+    　* 复制全部信息
+      * @param
+     * @param tableView
+    　* @return void
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/6/20 18:19
+    */
     private void copyAllInfo(TableView tableView) {
-        List<String> resutList = new ArrayList<>();
-        String str = resutList.stream().collect(Collectors.joining("----"));
         try {
+            tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            StringBuilder clipboardString = new StringBuilder();
+            // 输出表头标题
+            for (Object column : tableView.getColumns()) {
+                TableColumn tableColumn = (TableColumn) column;
+                String text = tableColumn.getText();
+                clipboardString.append(text);
+                clipboardString.append('\t');
+            }
+            clipboardString.append('\n');
 
-
-
-
-
-            ClipboardManager.setClipboard(str);
+            ObservableList<T> rowList = (ObservableList) tableView.getItems();
+            int index=1;
+            for (T selectModel:rowList){
+                for (Object column : tableView.getColumns()) {
+                    TableColumn tableColumn = (TableColumn) column;
+                    String id = tableColumn.getId();
+                    String text = "";
+                    if (!"seq".equals(id)) {
+                        if (ReflectUtil.hasField(selectModel.getClass(), id)) {
+                            Object value = ReflectUtil.invoke(
+                                    selectModel
+                                    , "get" + id.substring(0, 1).toUpperCase() + id.substring(1));
+                            if (value != null && StrUtil.isNotEmpty(value.toString())) {
+                                text = value.toString();
+                            }
+                        }
+                    }else{
+                        text=String.valueOf(index);
+                    }
+                    clipboardString.append(text);
+                    clipboardString.append('\t');
+                }
+                clipboardString.append('\n');
+                index++;
+            }
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(clipboardString.toString());
+            Clipboard.getSystemClipboard().setContent(content);
         } catch (Exception e) {
             alert("复制失败！");
         }
