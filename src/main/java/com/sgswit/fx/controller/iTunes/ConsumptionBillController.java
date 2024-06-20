@@ -18,6 +18,7 @@ import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.utils.db.DataSourceFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -153,7 +154,7 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
         String appleId=consumptionBill.getAccount();
         try {
             //删除历史记录
-            Db.use().del("purchase_record","apple_id",consumptionBill.getAccount());
+            Db.use(DataSourceFactory.getDataSource()).del("purchase_record","apple_id",consumptionBill.getAccount());
             String currency="";
             if(datas.size()>0){
                 for(String s:datas){
@@ -171,22 +172,22 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
                         entity.set("purchase_date",purchaseDate.getTime());
                         entity.set("estimated_total_amount",json.getByPath("estimatedTotalAmount"));
                         entity.set("plis",json.getByPath("plis"));
-                        Db.use().insert(entity);
+                        Db.use(DataSourceFactory.getDataSource()).insert(entity);
                     }
                 }
                 //最近记录
-                Entity entityLast=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  desc LIMIT 1;");
+                Entity entityLast=Db.use(DataSourceFactory.getDataSource()).queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  desc LIMIT 1;");
                 nowDate.setTime(entityLast.getLong("purchase_date"));
                 consumptionBill.setLastPurchaseDate(sdf.format(nowDate));
                 //最早记录
-                Entity entityEarliest=Db.use().queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  ASC LIMIT 1;");
+                Entity entityEarliest=Db.use(DataSourceFactory.getDataSource()).queryOne("SELECT * FROM purchase_record WHERE apple_id='"+appleId+"' ORDER BY purchase_date  ASC LIMIT 1;");
                 nowDate.setTime(entityEarliest.getLong("purchase_date"));
                 consumptionBill.setEarliestPurchaseDate(sdf.format(nowDate));
                 //消费总额
-                String total_amount=Db.use().queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record  where apple_id='"+appleId+"';");
+                String total_amount=Db.use(DataSourceFactory.getDataSource()).queryString("SELECT sum(CAST(SUBSTR(estimated_total_amount,2 ) AS REAL)) FROM purchase_record  where apple_id='"+appleId+"';");
                 consumptionBill.setTotalConsumption(entityEarliest.getStr("estimated_total_amount").substring(0,1)+total_amount);
                 String countSql="select COUNT(purchase_id) as count,strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime'))  as yyyy FROM purchase_record where apple_id='"+appleId+"' GROUP BY  strftime('%Y', datetime(purchase_date/1000, 'unixepoch', 'localtime')) ;";
-                List<Entity> countInfo=Db.use().query(countSql);
+                List<Entity> countInfo=Db.use(DataSourceFactory.getDataSource()).query(countSql);
                 List<Map<String,String>> purchaseRecord=new ArrayList<>(countInfo.size());
                 List<String> sList=new ArrayList<>(countInfo.size());
                 for(Entity entity:countInfo){

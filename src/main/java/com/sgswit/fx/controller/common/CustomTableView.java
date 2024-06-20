@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
+import cn.hutool.db.Db;
 import cn.hutool.db.DbUtil;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpException;
@@ -19,6 +20,8 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.db.DataSourceFactory;
+import com.sgswit.fx.utils.db.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -328,9 +331,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (hasField){
                 ReflectUtil.invoke(account,"setHasFinished",true);
             }
-            ThreadUtil.execute(() -> {
+            //ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
-            });
+            //});
             atomicInteger.decrementAndGet();
         }
     }
@@ -624,7 +627,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             insertList.add(entity);
         }
         try {
-            DbUtil.use().insert(insertList);
+            Db.use(DataSourceFactory.getDataSource()).insert(insertList);
         } catch (SQLException e) {
         }
     }
