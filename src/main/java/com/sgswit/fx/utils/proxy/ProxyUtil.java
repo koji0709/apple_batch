@@ -66,12 +66,12 @@ public class ProxyUtil{
            }
            request.header("fc", failCountStr);
            if(Integer.valueOf(failCountStr)>5){
-             throw new ServiceException("网络异常");
+             throw new ServiceException("资源请求超时");
            }
            return execute(request);
        }catch (HttpException e){
            //响应超时
-           throw new ServiceException("网络异常");
+           throw new ServiceException("服务端响应超时");
        }
 
        return httpResponse;
@@ -80,7 +80,7 @@ public class ProxyUtil{
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
-            sendTimeOut=sendTimeOut==0?30*1000:sendTimeOut*1000;
+            sendTimeOut=sendTimeOut==0?60*1000:sendTimeOut*1000;
 //            Entity entity=ApiProxyUtil.getRandomIp();
 //            String proxyHost=entity.getStr("host");
 //            int proxyPort=entity.getInt("port");
