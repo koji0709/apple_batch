@@ -112,7 +112,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);;
-
+    private ScheduledFuture scheduledFuture;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -387,41 +387,41 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private void timer(){
-           ScheduledFuture scheduledFuture= executorService.scheduleAtFixedRate(() -> {
-               try {
-                   setExecuteButtonStatus();
-                   Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
-                   while (countMapIterator.hasNext()){
-                       Map<String,Long> map = countMapIterator.next().getValue();
-                       map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime);
-                       if(map.size()==0){
-                           countMapIterator.remove();
-                       }
+       scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+           try {
+               setExecuteButtonStatus();
+               Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
+               while (countMapIterator.hasNext()){
+                   Map<String,Long> map = countMapIterator.next().getValue();
+                   map.entrySet().removeIf(entry -> DateUtil.between(new Date(entry.getValue()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime);
+                   if(map.size()==0){
+                       countMapIterator.remove();
                    }
-                   boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
-                   Iterator<Map.Entry<String, LinkedHashMap<String, GiftCardRedeem>>> toBeExecutedMapIterator = toBeExecutedMap.entrySet().iterator();
-                   while (toBeExecutedMapIterator.hasNext()){
-                       Map<String, GiftCardRedeem> map = toBeExecutedMapIterator.next().getValue();
-                       Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
-                       while (iterator.hasNext()) {
-                           Map.Entry<String, GiftCardRedeem> entry = iterator.next();
-                           GiftCardRedeem giftCardRedeem=entry.getValue();
-                           if(DateUtil.between(new Date(giftCardRedeem.getStartRecordTime()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime){
-                               // 删除满足条件的元素
-                               iterator.remove();
-                               if(execAgainCheckBoxSelected){
-                                   accountHandlerExpand(giftCardRedeem, false);
-                               }
+               }
+               boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
+               Iterator<Map.Entry<String, LinkedHashMap<String, GiftCardRedeem>>> toBeExecutedMapIterator = toBeExecutedMap.entrySet().iterator();
+               while (toBeExecutedMapIterator.hasNext()){
+                   Map<String, GiftCardRedeem> map = toBeExecutedMapIterator.next().getValue();
+                   Iterator<Map.Entry<String, GiftCardRedeem>> iterator = map.entrySet().iterator();
+                   while (iterator.hasNext()) {
+                       Map.Entry<String, GiftCardRedeem> entry = iterator.next();
+                       GiftCardRedeem giftCardRedeem=entry.getValue();
+                       if(DateUtil.between(new Date(giftCardRedeem.getStartRecordTime()), new Date(System.currentTimeMillis()), DateUnit.SECOND)>intervalTime){
+                           // 删除满足条件的元素
+                           iterator.remove();
+                           if(execAgainCheckBoxSelected){
+                               accountHandlerExpand(giftCardRedeem, false);
                            }
                        }
-                       if(map.size()==0){
-                           toBeExecutedMapIterator.remove();
-                       }
                    }
-               }catch (Exception e){
-
+                   if(map.size()==0){
+                       toBeExecutedMapIterator.remove();
+                   }
                }
-           }, 0, 1, TimeUnit.SECONDS);
+           }catch (Exception e){
+
+           }
+       }, 0, 1, TimeUnit.SECONDS);
     }
 
     public void setExecuteButtonStatus(){
@@ -458,6 +458,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * qewqeq@2980.com----Ac223388----XMPC3HRMNM6K5FXP
      */
     public boolean redeemCheck(GiftCardRedeem giftCardRedeem){
+        if(null==scheduledFuture){
+            timer();
+        }
         setAndRefreshNote(giftCardRedeem,"兑换中...");
         Map<String,Long> countList = countMap.get(giftCardRedeem.getAccount());
         if(null==countList){
