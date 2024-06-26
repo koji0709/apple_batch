@@ -20,10 +20,11 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,10 +36,19 @@ import java.util.stream.Collectors;
  */
 public class ProxyUtil{
 
+    private static final ConcurrentHashMap<String, Instant> uriTimestamps = new ConcurrentHashMap<>();
+
+    private static final long MIN_INTERVAL_MS = 200;
+
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+
     public static HttpResponse execute(HttpRequest request){
+        // 限制请求频率
+        //lock(request);
+
         //判断是否设置代理
         HttpRequest.closeCookie();
-       HttpResponse httpResponse=null;
+        HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
            if(503==httpResponse.getStatus()){
@@ -72,10 +82,14 @@ public class ProxyUtil{
        }catch (HttpException e){
            //响应超时
            throw new ServiceException("服务端响应超时");
+       }finally {
+           //unlock(request);
        }
 
        return httpResponse;
     }
+
+
     private static HttpRequest createRequest(HttpRequest request){
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
@@ -197,5 +211,44 @@ public class ProxyUtil{
         return proxyType;
     }
 
+    public static void lock(HttpRequest request){
+        String url = getUrl(request);
+        synchronized (getLock(url)) {
+            Instant now = Instant.now();
+            Instant lastRequestTime = uriTimestamps.get(url);
+            if (lastRequestTime != null) {
+                long elapsedTime = now.toEpochMilli() - lastRequestTime.toEpochMilli();
+                if (elapsedTime < MIN_INTERVAL_MS) {
+                    long waitTime = MIN_INTERVAL_MS - elapsedTime;
+                    CountDownLatch latch = new CountDownLatch(1);
+                    scheduler.schedule(() -> {
+                        latch.countDown();
+                    }, waitTime, TimeUnit.MILLISECONDS);
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            uriTimestamps.put(url, Instant.now());
+        }
+    }
+
+    public static void unlock(HttpRequest request){
+        scheduler.schedule(() -> {
+            uriTimestamps.remove(getUrl(request));
+        }, MIN_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+    public static String getUrl(HttpRequest request){
+        String  url = request.getUrl().toString();
+        url = url.contains("?") ? url.substring(0,url.indexOf("?")) : url;
+        return url;
+    }
+
+    private static Object getLock(String uri) {
+        return uri.intern();
+    }
 
 }
