@@ -24,7 +24,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -47,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -326,9 +324,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (hasField){
                 ReflectUtil.invoke(account,"setHasFinished",true);
             }
-            //ThreadUtil.execute(() -> {
+            ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
-            //});
+            });
             atomicInteger.decrementAndGet();
         }
     }
@@ -809,13 +807,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 设置账号的执行信息,以及刷新列表
      */
     public void setAndRefreshNote(T account, String note) {
-        Platform.runLater(new Task<Integer>() {
-            @Override
-            protected Integer call() {
-                setAndRefreshNote(account, note,"");
-                return 1;
-            }
-        });
+        setAndRefreshNote(account, note,"");
     }
     protected void tableRefreshAndInsertLocal(T account, String message){
         setAndRefreshNote(account,message);
