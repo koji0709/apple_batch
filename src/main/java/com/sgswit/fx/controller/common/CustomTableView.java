@@ -327,8 +327,13 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
             });
+            updateDate(account);
             atomicInteger.decrementAndGet();
         }
+    }
+
+    public void updateDate(T o){
+
     }
 
     /**

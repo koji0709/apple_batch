@@ -111,8 +111,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
 
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);;
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture scheduledFuture;
+    private static List<GiftCardRedeem> runningList=new ArrayList<>();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -322,73 +323,77 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             return;
         }
         // 修改按钮为执行状态
-        setExecuteButtonStatus(true);
-        timer();
+        Platform.runLater(() -> setExecuteButtonStatus(true));
+            timer();
         // 每一次执行前都释放锁
         if (reentrantLock.isLocked()) {
             reentrantLock.unlock();
             ThreadUtil.sleep(300);
         }
-
-        // 此处的线程是为了处理,按钮状态等文案显示
-        ThreadUtil.execute(() -> {
-            // 将账号分组
-            LinkedHashMap<String,List<GiftCardRedeem>> accountGroupMap = new LinkedHashMap<>();
-            for (GiftCardRedeem giftCardRedeem : accountList) {
-                if (isProcessed(giftCardRedeem)){
-                    continue;
-                }
-                giftCardRedeem.setNote("");
-                String account = giftCardRedeem.getAccount();
-                List<GiftCardRedeem> giftCardRedeemList = accountGroupMap.get(account);
-                if (giftCardRedeemList==null){
-                    giftCardRedeemList = new ArrayList<>();
-                }
-                giftCardRedeemList.add(giftCardRedeem);
-                accountGroupMap.put(account,giftCardRedeemList);
+        // 将账号分组
+        LinkedHashMap<String,List<GiftCardRedeem>> accountGroupMap = new LinkedHashMap<>();
+        for (GiftCardRedeem giftCardRedeem : accountList) {
+            if (isProcessed(giftCardRedeem)){
+                continue;
             }
-
-            for (String key : accountGroupMap.keySet()) {
-                ThreadUtil.execute(()->{
-                    List<GiftCardRedeem> accountList = accountGroupMap.get(key);
-                    // 使用迭代器进行遍历和修改
-                    Iterator<GiftCardRedeem> iterator = accountList.iterator();
-                    while (iterator.hasNext()) {
-                        if (reentrantLock.isLocked()) {
-                            return;
-                        }
-                        GiftCardRedeem giftCardRedeem = iterator.next();
-                        String account=giftCardRedeem.getAccount();
-                        Map<String,Long> countList = countMap.get(account);
-                        if(null==countList){
-                            countList=new HashMap<>();
-                        }
-                        if(null!=countList && countList.size()>=5){
-                            ThreadUtil.sleep(100);
-                            giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
-                            if(execAgainCheckBoxSelected){
-                                giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
-                                LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
-                                if(null==toBeExecutedList){
-                                    toBeExecutedList=new LinkedHashMap<>();
-                                }
-                                toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
-                                toBeExecutedMap.put(account,toBeExecutedList);
-                            }
-                            iterator.remove();
-                        }else{
-                            accountHandlerExpand(giftCardRedeem, false);
-                        }
+            runningList.add(giftCardRedeem);
+            giftCardRedeem.setNote("");
+            String account = giftCardRedeem.getAccount();
+            List<GiftCardRedeem> giftCardRedeemList = accountGroupMap.get(account);
+            if (giftCardRedeemList==null){
+                giftCardRedeemList = new ArrayList<>();
+            }
+            giftCardRedeemList.add(giftCardRedeem);
+            accountGroupMap.put(account,giftCardRedeemList);
+        }
+        for (String key : accountGroupMap.keySet()) {
+            ThreadUtil.execute(()->{
+                List<GiftCardRedeem> accountList = accountGroupMap.get(key);
+                // 使用迭代器进行遍历和修改
+                Iterator<GiftCardRedeem> iterator = accountList.iterator();
+                while (iterator.hasNext()) {
+                    if (reentrantLock.isLocked()) {
+                        return;
                     }
-                });
-            }
-
-        });
+                    GiftCardRedeem giftCardRedeem = iterator.next();
+                    String account=giftCardRedeem.getAccount();
+                    Map<String,Long> countList = countMap.get(account);
+                    if(null==countList){
+                        countList=new HashMap<>();
+                    }
+                    if(null!=countList && countList.size()>=5){
+                        ThreadUtil.sleep(100);
+                        giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
+                        if(execAgainCheckBoxSelected){
+                            giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
+                            LinkedHashMap<String, GiftCardRedeem> toBeExecutedList = toBeExecutedMap.get(account);
+                            if(null==toBeExecutedList){
+                                toBeExecutedList=new LinkedHashMap<>();
+                            }
+                            toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                            toBeExecutedMap.put(account,toBeExecutedList);
+                        }else{
+                            runningList.remove(giftCardRedeem);
+                            insertLocalHistory(new ArrayList<>(){{
+                                add(giftCardRedeem);
+                            }});
+                        }
+                        iterator.remove();
+                    }else{
+                        accountHandlerExpand(giftCardRedeem, false);
+                    }
+                }
+            });
+        }
     }
 
+    @Override
+    public void updateDate(GiftCardRedeem o){
+        runningList.remove(o);
+    }
     private void timer(){
-       scheduledFuture= executorService.scheduleAtFixedRate(() -> {
-           try {
+        scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+            try {
                setExecuteButtonStatus();
                Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();
                while (countMapIterator.hasNext()){
@@ -418,22 +423,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                        toBeExecutedMapIterator.remove();
                    }
                }
-           }catch (Exception e){
+            }catch (Exception e){
 
-           }
-       }, 0, 2, TimeUnit.SECONDS);
+            }
+        }, 0, 3, TimeUnit.SECONDS);
     }
 
     public void setExecuteButtonStatus(){
         Platform.runLater(() -> setExecuteButtonStatus(true));
-        int finishCount=0;
-        for(GiftCardRedeem account:this.accountList){
-            if(!isRunning(account)){
-                finishCount++;
-            }
-        }
-        // 任务执行结束, 恢复执行按钮状态
-        if (finishCount ==this.accountList.size()){
+        if (runningList.size()==0 || accountTableView.getItems().size()==0){
             Platform.runLater(() -> setExecuteButtonStatus(false));
         }
     }
