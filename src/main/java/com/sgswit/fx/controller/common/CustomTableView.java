@@ -104,7 +104,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
-
         // 获取当前stage
         if (url != null) {
             String file = url.getFile();
@@ -194,6 +193,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             return;
         }
 
+        String taskNo = RandomUtil.randomNumbers(6);
+        LoggerManger.info("【"+stage.getTitle()+"】" + "开始任务; 任务编号:" + taskNo);
+
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
 
@@ -219,6 +221,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 while (atomicInteger.get() >= threadCount){
                     ThreadUtil.sleep(1000);
                 }
+                boolean hasTaskNo = ReflectUtil.hasField(account.getClass(), "taskNo");
+                if (hasTaskNo){
+                    ReflectUtil.setFieldValue(account,"taskNo",taskNo + ":" + i);
+                }
 
                 atomicInteger.incrementAndGet();
                 accountHandlerExpand(account);
@@ -227,6 +233,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 if (i == accountList.size() - 1) {
                     // 任务执行结束, 恢复执行按钮状态
                     Platform.runLater(() -> setExecuteButtonStatus(false));
+                    LoggerManger.info("【"+stage.getTitle()+"】" + "任务结束; 任务编号:" + taskNo);
                 }
             }
         });
@@ -279,14 +286,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
-            LoggerManger.info(e.getMessage());
+            //LoggerManger.info(e.getMessage());
         }catch (PointDeduException e){// 部分业务抛出异常,但是还是要扣除点数
             pointCost(account,PointUtil.out,e.getFunCode());
             setAndRefreshNote(account,e.getMessage());
             setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
-            LoggerManger.info(e.getMessage());
+            //LoggerManger.info(e.getMessage());
         }catch (PointCostException e){
             setAndRefreshNote(account,e.getMessage());
             setDataStatus(account,false);
@@ -355,7 +362,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         openImportAccountView(Collections.emptyList(),titile, desc,null);
     }
 
-    public  void  openImportAccountView(List<String> formats,String title, String desc,Stage parentStage) {
+    public void openImportAccountView(List<String> formats,String title, String desc,Stage parentStage) {
         if (!CollUtil.isEmpty(formats)) {
             this.formats = formats;
         }
@@ -581,8 +588,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             e.printStackTrace();
         }finally {
             reentrantLock.lock();
+            LoggerManger.info("【"+stage.getTitle()+"】" + "停止任务");
         }
-
     }
 
     /**
@@ -823,7 +830,18 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             ReflectUtil.invoke(account, "setNote", note);
         }
         accountTableView.refresh();
+
+        // 插入本地日志
+        boolean hasField = ReflectUtil.hasField(account.getClass(), "taskNo");
+        if (hasField){
+            String taskNo = (String) ReflectUtil.getFieldValue(account,"taskNo");
+            LoggerManger.info(taskNo + "->" + note);
+        }else{
+            String account1 = (String) ReflectUtil.getFieldValue(account,"account");
+            LoggerManger.info(account1 + "->" + note);
+        }
     }
+
     public void setNote(T account, String note, String defaultNote) {
         note = StrUtil.isEmpty(note) ? defaultNote : note;
         boolean hasNote = ReflectUtil.hasField(account.getClass(), "note");

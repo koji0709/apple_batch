@@ -10,7 +10,7 @@ import java.util.Map;
  * @description: TODO
  * @date 2023/12/2218:21
  */
-public class AuthData {
+public class AuthData extends BaseInfo{
     private Map<String,Object> authData = new HashMap<>();
     private String step;
     private String authCode = "";

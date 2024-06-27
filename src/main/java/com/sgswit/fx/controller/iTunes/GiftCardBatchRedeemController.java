@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpException;
@@ -321,6 +322,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             //alert("账号都已处理！");
             return;
         }
+
+        String taskNo = RandomUtil.randomNumbers(6);
+        LoggerManger.info("【"+stage.getTitle()+"】" + "开始任务; 任务编号:" + taskNo);
+
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
         timer();
@@ -337,6 +342,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             for (GiftCardRedeem giftCardRedeem : accountList) {
                 if (isProcessed(giftCardRedeem)){
                     continue;
+                }
+                boolean hasTaskNo = ReflectUtil.hasField(giftCardRedeem.getClass(), "taskNo");
+                if (hasTaskNo){
+                    ReflectUtil.setFieldValue(giftCardRedeem,"taskNo",taskNo + ":" + giftCardRedeem.getGiftCardCode());
                 }
                 giftCardRedeem.setNote("");
                 String account = giftCardRedeem.getAccount();
@@ -434,6 +443,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         // 任务执行结束, 恢复执行按钮状态
         if (finishCount ==this.accountList.size()){
+            //String taskNo = this.accountList.get(0).getTaskNo();
+            //LoggerManger.info("【"+stage.getTitle()+"】" + "任务结束; 任务编号:" + taskNo.substring(0,taskNo.indexOf(":")));
             Platform.runLater(() -> setExecuteButtonStatus(false));
         }
     }
