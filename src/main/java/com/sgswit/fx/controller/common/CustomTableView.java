@@ -601,16 +601,24 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             return;
         }
         //判断任务是否进行中
-        for(T account:accountList){
-            if(isRunning(account)){
-                alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
-                return;
-            }
+        if (validateData()){
+            return;
         }
         accountList.clear();
         setAccountNumLabel();
         accountTableView.refresh();
     }
+
+    public boolean validateData(){
+        for(T account:accountList){
+            if(isRunning(account)){
+                alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * 插入本地执行记录

@@ -1,5 +1,6 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.util.ReflectUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
 import javafx.fxml.FXMLLoader;
@@ -94,11 +95,19 @@ public class StageUtil {
                 }
             }else if((source==StageUtil.get(StageEnum.LOGIN)) && null==StageUtil.get(StageEnum.MAIN)){
                 System.exit(0);
+            }else{
+                try {
+                    Object controller = fxmlLoader.getController();
+                    Boolean f = ReflectUtil.invoke(controller,"validateData");
+                    if(f){
+                        event.consume();
+                    }
+                }catch (Exception e){
+
+                }
             }
         });
-
     }
-
     public static void close(StageEnum stageEnum){
         Stage stage = stageMap.get(stageEnum);
         if (stage != null && stage.isShowing()){
