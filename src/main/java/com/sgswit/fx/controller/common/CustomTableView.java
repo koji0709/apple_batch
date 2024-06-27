@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
+import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpResponse;
@@ -17,6 +18,7 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.db.DataSourceFactory;
 import com.sgswit.fx.utils.db.SQLiteUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -46,9 +48,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static cn.hutool.json.XMLTokener.entity;
 
 /**
  * account表格视图
@@ -626,13 +631,20 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if (accountList.isEmpty()) {
             return;
         }
+        List<Entity> insertList = new ArrayList<>();
         for (T account : accountList) {
             Entity entity = new Entity();
             entity.setTableName("local_history");
             entity.set("clz_name", ClassUtil.getClassName(this, false));
             entity.set("row_json", JSONUtil.toJsonStr(account));
             entity.set("create_time", System.currentTimeMillis());
-            LocalhistoryTask.entityList.add(entity);
+            insertList.add(entity);
+        }
+        try {
+            Db.use(DataSourceFactory.getDataSource()).insert(insertList);
+        } catch (SQLException e) {
+            LoggerManger.info("【" + stage.getTitle() + "】" + "插入本地记录失败; data:" + JSONUtil.toJsonStr(insertList),e);
+            LocalhistoryTask.entityList.addAll(insertList);
         }
     }
 

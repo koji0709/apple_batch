@@ -5,6 +5,8 @@ import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.utils.LoggerManger;
 import com.sgswit.fx.utils.db.DataSourceFactory;
 
 import java.util.*;
@@ -16,13 +18,15 @@ public class LocalhistoryTask {
     static {
         CronUtil.schedule("*/5 * * * * *", (Task) () -> {
             while (!CollUtil.isEmpty(entityList)){
+                Entity entity = entityList.getFirst();
                 try {
-                    Entity entity = entityList.getFirst();
+                    LoggerManger.info("【日志定时任务】 entity:" + JSONUtil.toJsonStr(entity));
                     Db.use(DataSourceFactory.getDataSource()).insert(entity);
-                    entityList.remove(entity);
                     Thread.sleep(1000L);
+                    entityList.remove(entity);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    LoggerManger.info("【日志定时任务】 插入失败 data:" + JSONUtil.toJsonStr(entity),e);
                 }
             }
         });
