@@ -323,8 +323,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             return;
         }
         // 修改按钮为执行状态
-        Platform.runLater(() -> setExecuteButtonStatus(true));
-            timer();
+        setExecuteButtonStatus(true);
+        timer();
         // 每一次执行前都释放锁
         if (reentrantLock.isLocked()) {
             reentrantLock.unlock();
@@ -431,7 +431,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     public void setExecuteButtonStatus(){
         Platform.runLater(() -> setExecuteButtonStatus(true));
-        if (runningList.size()==0 || accountTableView.getItems().size()==0){
+        int finishCount=0;
+        for(GiftCardRedeem account:this.accountList){
+            if(!isRunning(account)){
+                finishCount++;
+            }
+        }
+        // 任务执行结束, 恢复执行按钮状态
+        if (finishCount ==this.accountList.size()){
             Platform.runLater(() -> setExecuteButtonStatus(false));
         }
     }
