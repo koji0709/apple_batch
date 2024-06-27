@@ -7,6 +7,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpException;
@@ -322,8 +323,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             //alert("账号都已处理！");
             return;
         }
+
+        String taskNo = RandomUtil.randomNumbers(6);
+        LoggerManger.info("【"+stage.getTitle()+"】" + "开始任务; 任务编号:" + taskNo);
+
         // 修改按钮为执行状态
-        setExecuteButtonStatus(true);
+        Platform.runLater(() -> setExecuteButtonStatus(true));
         timer();
         // 每一次执行前都释放锁
         if (reentrantLock.isLocked()) {
@@ -338,6 +343,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }
             runningList.add(giftCardRedeem);
             giftCardRedeem.setNote("");
+            boolean hasTaskNo = ReflectUtil.hasField(giftCardRedeem.getClass(), "taskNo");
+            if (hasTaskNo){
+                ReflectUtil.setFieldValue(giftCardRedeem,"taskNo",taskNo + ":" + giftCardRedeem.getGiftCardCode());
+            }
             String account = giftCardRedeem.getAccount();
             List<GiftCardRedeem> giftCardRedeemList = accountGroupMap.get(account);
             if (giftCardRedeemList==null){
