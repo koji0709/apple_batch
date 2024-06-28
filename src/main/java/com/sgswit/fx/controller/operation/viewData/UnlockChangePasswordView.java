@@ -22,4 +22,13 @@ public class UnlockChangePasswordView extends CustomTableView<Account> {
      */
     @FXML
     protected TextField pwdTextField;
+
+    /**
+     * 设置每一行执行的间隔频率
+     */
+    @Override
+    public Long getIntervalFrequency() {
+        return 1000L;
+    }
+
 }
