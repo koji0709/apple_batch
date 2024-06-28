@@ -5,6 +5,7 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.*;
 import com.sgswit.fx.controller.common.ServiceException;
@@ -52,7 +53,8 @@ public class ProxyUtil{
        try{
            httpResponse= createRequest(request).execute();
            if(503==httpResponse.getStatus()){
-               ThreadUtil.sleep(1000);
+               int randomInt= RandomUtil.randomInt(1,3);
+               ThreadUtil.sleep(randomInt*1000);
                String failCountStr=request.header("fc503");
                if(StrUtil.isEmpty(failCountStr)){
                    failCountStr="1";
@@ -67,7 +69,8 @@ public class ProxyUtil{
            }
        }catch (IORuntimeException e){
            //链接超时
-           ThreadUtil.sleep(1000);
+           int randomInt= RandomUtil.randomInt(1,3);
+           ThreadUtil.sleep(randomInt*1000);
            String failCountStr=request.header("fc");
            if(StrUtil.isEmpty(failCountStr)){
                failCountStr="1";

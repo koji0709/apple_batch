@@ -328,19 +328,16 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 message="操作频繁，请稍后重试。或开启代理模式";
             }
             setAndRefreshNote(account, message);
-            setNote(account,message,"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);
         } catch (IORuntimeException | HttpException e) {
             setAndRefreshNote(account, "连接异常，请检查网络");
-            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("连接异常，请检查网络",e);
         } catch (Exception e) {// 程序异常
             setAndRefreshNote(account, "数据处理异常");
-            setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("数据处理异常",e);
