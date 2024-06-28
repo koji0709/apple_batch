@@ -483,4 +483,10 @@ public class CommRightContextMenuView<T> extends CommonView {
         node.setTextFill(color);
         node.setFont(Font.font(null, FontWeight.BOLD, fontSize));
     }
+    /**
+     * 窗口关闭前，做一些数据操作
+     */
+    public void closeStageActionBefore() {
+
+    }
 }

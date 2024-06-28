@@ -52,7 +52,6 @@ public class StageToSystemTrayUtil {
                 public void actionPerformed(ActionEvent e) {
                     tray.remove(trayIcon);
                     System.exit(0);
-//                    Platform.exit();
                 }
             });
             // 将菜单项添加到弹出菜单

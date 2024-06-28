@@ -14,16 +14,14 @@ import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -52,8 +50,61 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         updateShowLangComboBox.setItems(FXCollections.observableArrayList(languageList));
 
         nameGenerationTypeChoiceBox.setValue("固定姓名");
+        //读取保存的数据
+        //新密码
+        String newPassword= PropertiesUtil.getOtherConfig("accountInfoModify.newPassword","");
+        pwdTextField.setText(newPassword);
+        //新生日
+        String birthday= PropertiesUtil.getOtherConfig("accountInfoModify.birthday","");
+        birthdayTextField.setText(birthday);
+        //姓氏
+        String lastName= PropertiesUtil.getOtherConfig("accountInfoModify.lastName","");
+        lastNameTextField.setText(lastName);
+        String firstName= PropertiesUtil.getOtherConfig("accountInfoModify.firstName","");
+        firstNameTextField.setText(lastName);
+        getQuestionsAndAnswerFromLocation();
     }
+    @Override
+    public void closeStageActionBefore(){
+        setQuestionsAndAnswerToLocation();
+        //密码
+        PropertiesUtil.setOtherConfig("accountInfoModify.newPassword",pwdTextField.getText());
+        //生日
+        PropertiesUtil.setOtherConfig("accountInfoModify.birthday",birthdayTextField.getText());
+        //姓名
+        PropertiesUtil.setOtherConfig("accountInfoModify.lastName",lastNameTextField.getText());
+        PropertiesUtil.setOtherConfig("accountInfoModify.firstName",firstNameTextField.getText());
+    }
+    private void setQuestionsAndAnswerToLocation(){
+        List<String> questions= new ArrayList<>();
+        String question1ChoiceBoxValue = CustomStringUtils.isEmpty(question1ChoiceBox.getValue())?"":question1ChoiceBox.getValue().toString();
+        String question2ChoiceBoxValue = CustomStringUtils.isEmpty(question2ChoiceBox.getValue())?"":question2ChoiceBox.getValue().toString();
+        String question3ChoiceBoxValue = CustomStringUtils.isEmpty(question3ChoiceBox.getValue())?"":question3ChoiceBox.getValue().toString();
+        String answer1TextFieldText = answer1TextField.getText();
+        String answer2TextFieldText = answer2TextField.getText();
+        String answer3TextFieldText = answer3TextField.getText();
+        questions.add(question1ChoiceBoxValue+"|"+answer1TextFieldText);
+        questions.add(question2ChoiceBoxValue+"|"+answer2TextFieldText);
+        questions.add(question3ChoiceBoxValue+"|"+answer3TextFieldText);
+        String questionsAndAnswer = questions.stream().collect(Collectors.joining("----", "", ""));
+        PropertiesUtil.setOtherConfig("accountInfoModify.questionsAndAnswer",questionsAndAnswer);
+    }
+    private void getQuestionsAndAnswerFromLocation(){
+        String questionsAndAnswer=PropertiesUtil.getOtherConfig("accountInfoModify.questionsAndAnswer");
+        String[] arr=questionsAndAnswer.split("----");
 
+        String[] q1=arr[0].split("\\|",-1);
+        answer1TextField.setText(q1[1]);
+        question1ChoiceBox.getSelectionModel().select(q1[0]);
+
+        String[] q2=arr[1].split("\\|",-1);
+        answer2TextField.setText(q2[1]);
+        question2ChoiceBox.getSelectionModel().select(q2[0]);
+
+        String[] q3=arr[2].split("\\|",-1);
+        answer3TextField.setText(q3[1]);
+        question3ChoiceBox.getSelectionModel().select(q3[0]);
+    }
     /**
      * 设置每一行执行的间隔频率
      */

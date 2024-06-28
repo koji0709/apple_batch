@@ -37,4 +37,10 @@ public class CustomStringUtils extends StringUtils {
         content= content.replaceAll(regex, "");
         return content;
     }
+    public static boolean isEmpty(Object o){
+        if(null==o || "".equals(o)){
+            return true;
+        }
+        return false;
+    }
 }

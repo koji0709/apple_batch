@@ -96,12 +96,19 @@ public class StageUtil {
             }else if((source==StageUtil.get(StageEnum.LOGIN)) && null==StageUtil.get(StageEnum.MAIN)){
                 System.exit(0);
             }else{
+                Object controller = fxmlLoader.getController();
                 try {
-                    Object controller = fxmlLoader.getController();
+                    //校验数据是否存在执行中的数据
                     Boolean f = ReflectUtil.invoke(controller,"validateData");
                     if(f){
                         event.consume();
                     }
+                }catch (Exception e){
+
+                }
+                try {
+                    //关闭窗口前操作
+                    ReflectUtil.invoke(controller,"closeStageActionBefore");
                 }catch (Exception e){
 
                 }
