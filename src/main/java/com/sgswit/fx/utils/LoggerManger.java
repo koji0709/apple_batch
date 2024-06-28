@@ -1,6 +1,8 @@
 package com.sgswit.fx.utils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
@@ -32,6 +34,7 @@ public class LoggerManger {
         }
     }
     public static void info(String message,Throwable thrown){
+        thrown.printStackTrace();
         logger.log(Level.INFO,message,thrown);
     }
     public static void info(String message){
@@ -41,10 +44,23 @@ public class LoggerManger {
     static class DetailedFormatter extends Formatter {
         @Override
         public String format(LogRecord record) {
-            // %1$s - %2$s.%3$s - %4$s %n -> 时间 - 类.方法 - 自定义
-            return String.format("%1$s - %2$s %n",
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("%1$s - %2$s %n",
                     dateFormat.format(new Date(record.getMillis())),
-                    formatMessage(record));
+                    formatMessage(record)));
+
+            if (record.getThrown() != null) {
+                try {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    record.getThrown().printStackTrace(pw);
+                    pw.close();
+                    sb.append(sw);
+                } catch (Exception ex) {
+                    // 异常处理
+                }
+            }
+            return sb.toString();
         }
     }
 
