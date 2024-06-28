@@ -22,6 +22,11 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         openImportAccountView(List.of("account----pwd"),actionEvent);
     }
 
+    @Override
+    public Long getIntervalFrequency() {
+        return 500L;
+    }
+
     /**
      * 账号处理
      * djli0506@163.com----##B0527s0207
