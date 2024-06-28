@@ -237,7 +237,6 @@ public class CommRightContextMenuView<T> extends CommonView {
                             Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", account);
                             if (redeemCheck){
                                 accountHandlerExpand(account);
-                                ReflectUtil.invoke(this,"setExecuteButtonStatus");
                             }
                         });
                     }else{

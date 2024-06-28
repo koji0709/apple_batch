@@ -114,7 +114,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture scheduledFuture;
-    private static List<GiftCardRedeem> runningList=new ArrayList<>();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -396,10 +395,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
     }
 
-    @Override
-    public void updateDate(GiftCardRedeem o){
-        runningList.remove(o);
-    }
     private void timer(){
         scheduledFuture= executorService.scheduleAtFixedRate(() -> {
             try {
@@ -440,14 +435,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
     public void setExecuteButtonStatus(){
         Platform.runLater(() -> setExecuteButtonStatus(true));
-        int finishCount=0;
-        for(GiftCardRedeem account:this.accountList){
-            if(!isRunning(account)){
-                finishCount++;
-            }
-        }
         // 任务执行结束, 恢复执行按钮状态
-        if (finishCount ==this.accountList.size()){
+        if (runningList.size()==0 || accountTableView.getItems().size()==0){
             Platform.runLater(() -> setExecuteButtonStatus(false));
         }
     }
@@ -455,12 +444,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     @Override
     public void setExecuteButtonStatus(boolean isRunning) {
         super.setExecuteButtonStatus(isRunning);
-    }
-    @Override
-    protected boolean isRunning(GiftCardRedeem giftCardRedeem){
-        boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(giftCardRedeem, "hasFinished");
-        boolean running= Constant.REDEEM_WAIT1_DESC.equals(giftCardRedeem.getNote());
-        return (running || !hasFinished);
     }
 
     @Override

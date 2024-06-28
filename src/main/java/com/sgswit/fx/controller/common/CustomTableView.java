@@ -53,14 +53,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static cn.hutool.json.XMLTokener.entity;
-
 /**
  * account表格视图
  *
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
+    protected static List runningList=new ArrayList<>();
     // 登录成功的账号缓存(缓存5分钟,能刷新)
     private static final long time=30*60*1000;
 
@@ -211,6 +210,17 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
 
         // 此处的线程是为了处理,按钮状态等文案显示
+        for (int i = 0; i < accountList.size(); i++) {
+            T account = accountList.get(i);
+            if (reentrantLock.isLocked()) {
+                return;
+            }
+            boolean processed = isProcessed(account);
+            if (processed) {
+                continue;
+            }
+            runningList.add(account);
+        }
         ThreadUtil.execute(() -> {
             // 处理账号
             for (int i = 0; i < accountList.size(); i++) {
@@ -236,8 +246,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 ThreadUtil.sleep(1000);
 
                 if (i == accountList.size() - 1) {
-                    // 任务执行结束, 恢复执行按钮状态
-                    Platform.runLater(() -> setExecuteButtonStatus(false));
                     LoggerManger.info("【"+stage.getTitle()+"】" + "任务结束; 任务编号:" + taskNo);
                 }
             }
@@ -246,6 +254,12 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     @Override
     public void accountHandlerExpand(T account){
+        if(!executeButton.isDisabled()){
+            Platform.runLater(() -> setExecuteButtonStatus(true));
+        }
+        if(!runningList.contains(account)){
+            runningList.add(account);
+        }
         accountHandlerExpand(account,true);
     }
 
@@ -339,14 +353,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
             });
-            updateDate(account);
+            runningList.remove(account);
+            if(runningList.size()==0 || accountTableView.getItems().size()==0){
+                Platform.runLater(() -> setExecuteButtonStatus(false));
+            }
             atomicInteger.decrementAndGet();
         }
     }
 
-    public void updateDate(T o){
-
-    }
 
     /**
      * 导入账号按钮点击
@@ -433,10 +447,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         return new AccountImportUtil().parseAccount(clz, accountStr, formats);
     }
-   protected boolean isRunning(T account){
-        Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-        return !hasFinished;
-   }
 
 
     /**
@@ -594,6 +604,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         try {
             // 停止任务, 恢复按钮状态
             setExecuteButtonStatus(false);
+            runningList.clear();
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
@@ -627,11 +638,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     }
 
     public boolean validateData(){
-        for(T account:accountList){
-            if(isRunning(account)){
-                alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
-                return true;
-            }
+        if(runningList.size()>0){
+            alert("有工作正在进行中，无法执行当前操作！", Alert.AlertType.ERROR);
+            return true;
         }
         return false;
     }
