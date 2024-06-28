@@ -90,7 +90,10 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         PropertiesUtil.setOtherConfig("accountInfoModify.questionsAndAnswer",questionsAndAnswer);
     }
     private void getQuestionsAndAnswerFromLocation(){
-        String questionsAndAnswer=PropertiesUtil.getOtherConfig("accountInfoModify.questionsAndAnswer");
+        String questionsAndAnswer=PropertiesUtil.getOtherConfig("accountInfoModify.questionsAndAnswer","");
+        if (StrUtil.isEmpty(questionsAndAnswer)){
+            return;
+        }
         String[] arr=questionsAndAnswer.split("----");
 
         String[] q1=arr[0].split("\\|",-1);
