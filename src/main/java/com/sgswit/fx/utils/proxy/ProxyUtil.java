@@ -6,7 +6,7 @@ import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.MD5;
 import cn.hutool.http.*;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
@@ -43,31 +43,29 @@ public class ProxyUtil{
     private static final long MIN_INTERVAL_MS = 200;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-    private static Map<String,HttpRequest> map503Error=new HashMap<>();
-    private static Map<String,HttpRequest> mapIoError=new HashMap<>();
+    private static Map<String,Integer> map503Error=new HashMap<>(16);
+    private static Map<String,Integer> mapIoError=new HashMap<>(16);
 
 
     public static HttpResponse execute(HttpRequest request){
         // 限制请求频率
         //lock(request);
-
+        String requestId= MD5.create().digestHex16(request.toString());
         //判断是否设置代理
         HttpRequest.closeCookie();
         HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
-
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
                ThreadUtil.sleep(randomInt*1000);
-               String failCountStr=request.header("fc503");
-               if(StrUtil.isEmpty(failCountStr)){
-                   failCountStr="1";
-               }else{
-                   failCountStr=String.valueOf(Integer.valueOf(failCountStr)+1);
+               Integer int503=map503Error.get(requestId);
+               int failCount=1;
+               if(null!=int503){
+                   failCount=1+int503;
                }
-               request.header("fc503", failCountStr);
-               if(Integer.valueOf(failCountStr)>20){
+               map503Error.put(requestId,failCount);
+               if(failCount>20){
                    throw new UnavailableException();
                }
                return execute(request);
@@ -76,14 +74,13 @@ public class ProxyUtil{
            //链接超时
            int randomInt= RandomUtil.randomInt(1,3);
            ThreadUtil.sleep(randomInt*1000);
-           String failCountStr=request.header("fc");
-           if(StrUtil.isEmpty(failCountStr)){
-               failCountStr="1";
-           }else{
-               failCountStr=String.valueOf(Integer.valueOf(failCountStr)+1);
+           int failCount=1;
+           Integer intIo=mapIoError.get(requestId);
+           if(null!=intIo){
+               failCount=1+intIo;
            }
-           request.header("fc", failCountStr);
-           if(Integer.valueOf(failCountStr)>5){
+           mapIoError.put(requestId,failCount);
+           if(Integer.valueOf(failCount)>5){
              throw new ServiceException("资源请求超时");
            }
            return execute(request);
@@ -91,8 +88,8 @@ public class ProxyUtil{
            //响应超时
            throw new ServiceException("服务端响应超时");
        }finally {
-           System.out.println(1);
-           //unlock(request);
+           map503Error.remove(requestId);
+           mapIoError.remove(requestId);
        }
 
        return httpResponse;
