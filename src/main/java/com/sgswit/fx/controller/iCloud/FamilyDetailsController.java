@@ -46,7 +46,7 @@ public class FamilyDetailsController extends CustomTableView<Account> {
         setAndRefreshNote(account,"正在登录...");
         HttpResponse response;
         String clientId=DataUtil.getClientIdByAppleId(account.getAccount());
-        if(!StringUtils.isEmpty(account.getStep()) && account.getStep().equals("00")){
+        if(!StringUtils.isEmpty(account.getStep()) && "00".equals(account.getStep())){
             response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd()+ account.getAuthCode());
         }else{
             response= ICloudUtil.checkCloudAccount(clientId,account.getAccount(),account.getPwd() );

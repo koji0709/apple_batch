@@ -187,7 +187,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
         }
         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
         Map<String,Object> res=new HashMap<>();
-        if(step.equals("02")){
+        if("02".equals(step)){
             res=account.getAuthData();
             if(null==res){
                 return;

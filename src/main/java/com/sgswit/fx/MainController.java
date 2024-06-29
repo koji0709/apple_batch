@@ -152,12 +152,12 @@ public class MainController implements Initializable {
                 int index=0;
                 Optional<Integer> first = itemNameList.stream().filter(i -> Objects.equals(i.getKey(), button.getId())). map(itemNameList::indexOf).findFirst();
                 if (first.isPresent()) {
-                    if(!button.getId().equalsIgnoreCase("toolbox")){
+                    if(!"toolbox".equalsIgnoreCase(button.getId())){
                         currentMenuIndex= first.get();
                     }
                     index=first.get();
                 }
-                if(!button.getId().equalsIgnoreCase("toolbox")){
+                if(!"toolbox".equalsIgnoreCase(button.getId())){
                     if(rightMainPane.getChildren().size()>0){
                         rightMainPane.getChildren().clear();
                     }

@@ -43,7 +43,7 @@ public class GiftCardUtil {
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
         String url="https://secure.store.apple.com/shop/giftcard/balance";
-        if(!countryCode.equalsIgnoreCase("us")){
+        if(!"us".equalsIgnoreCase(countryCode)){
             url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
         }
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)

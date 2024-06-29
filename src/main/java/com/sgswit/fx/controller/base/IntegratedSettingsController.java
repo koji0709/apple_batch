@@ -111,7 +111,7 @@ public class IntegratedSettingsController implements Initializable {
                     .execute();
             if(result.getStatus()==200){
                 JSON json=JSONUtil.parse(result.body());
-                if(json.getByPath("data.code",String.class).equals("0")){
+                if("0".equals(json.getByPath("data.code",String.class))){
                     String country= json.getByPath("data.country",String.class);
                     String region= json.getByPath("data.region",String.class);
                     String city= json.getByPath("data.city",String.class);

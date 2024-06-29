@@ -86,11 +86,11 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     String service_errors = jsonObject.getStr("service_errors");
                     JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                     String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                    if(code.equals("captchaAnswer.Invalid")){
+                    if("captchaAnswer.Invalid".equals(code)){
                         //返还点数
                         PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                         accountHandler(account);
-                    }else if(code.equals("-20210")){
+                    }else if("-20210".equals(code)){
                         setAndRefreshNote(account,"这个 Apple ID 没有被激活。");
                         insertLocalHistory(List.of(account));
                     }
@@ -123,7 +123,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                 if(null!=jsonArray){
                     String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                    if(code.equals("appleIdNotSupported")){
+                    if("appleIdNotSupported".equals(code)){
                         setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
                         insertLocalHistory(List.of(account));
                     }

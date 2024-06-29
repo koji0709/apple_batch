@@ -61,7 +61,7 @@ public class CustomCountryDetPopupController implements Initializable {
         Iterator iterator = fieldModelList.iterator();
         while (iterator.hasNext()){
             FieldModel fieldModel = (FieldModel) iterator.next();
-            if(fieldModel.getId().equals("country")){
+            if("country".equals(fieldModel.getId())){
                 iterator.remove();
             }
         }
@@ -81,7 +81,7 @@ public class CustomCountryDetPopupController implements Initializable {
                 label1.setTextFill(Color.RED);
             }
             Label label2=createLabel(fieldModel.getTitle(), false,158,25,14);
-            if(fieldModel.getType().equals("dropdown")){
+            if("dropdown".equals(fieldModel.getType())){
                 ChoiceBox<KeyValuePair> choiceBox=new ChoiceBox<>();
                 for(Map<String,String> map:fieldModel.getValues()){
                     choiceBox.getItems().add(new KeyValuePair(map.get("name"),map.get("title")));
@@ -213,7 +213,7 @@ public class CustomCountryDetPopupController implements Initializable {
                     }
                     String finalFieldId = fieldId;
                     List<FieldModel> fieldModelList= addressFormatList.stream().filter(n->n.getId().equals(finalFieldId)).collect(Collectors.toList());
-                    if(parasObj.getType().equals("text")){
+                    if("text".equals(parasObj.getType())){
                         String value=((TextField)node).getText();
                         if(StringUtils.isEmpty(value) && fieldModelList.get(0).isRequired()){
                             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -224,7 +224,7 @@ public class CustomCountryDetPopupController implements Initializable {
                             return;
                         }
                         json.putByPath(newId,value);
-                        if(newId.equals("phoneNumber.countryCode")){
+                        if("phoneNumber.countryCode".equals(newId)){
                             defaultPhoneNumberCountryCode=false;
                         }
                     }else{

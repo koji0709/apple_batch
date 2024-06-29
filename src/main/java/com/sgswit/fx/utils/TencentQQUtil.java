@@ -45,7 +45,7 @@ public class TencentQQUtil {
                         byte[] windowText = new byte[512];
                         user32.GetWindowTextA(hWnd, windowText, 512);
                         String wText = Native.toString(windowText);
-                        if(_filterQQInfo(wText)){
+                        if(filterQQInfo(wText)){
                             list.add(wText.substring(wText.indexOf(QQ_WINDOW_TEXT_PRE) + QQ_WINDOW_TEXT_PRE.length()));
                         }
                         return true;
@@ -64,7 +64,7 @@ public class TencentQQUtil {
      * @param windowText
      * @return 是否为qq窗体信息
      */
-    private static boolean _filterQQInfo(String windowText){
+    private static boolean filterQQInfo(String windowText){
 
         if(windowText.startsWith(QQ_WINDOW_TEXT_PRE)){
             return true;

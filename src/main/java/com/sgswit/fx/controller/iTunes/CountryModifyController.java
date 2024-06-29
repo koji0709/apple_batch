@@ -87,7 +87,7 @@ public class CountryModifyController extends CustomTableView<Account>{
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                if(!t1.toString().equals("-1")){
+                if(!"-1".equals(t1.toString())){
                     customCountryBox.getSelectionModel().clearSelection();
                     fromType="1";
                 }else{
@@ -137,7 +137,7 @@ public class CountryModifyController extends CustomTableView<Account>{
         customCountryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                if(!t1.toString().equals("-1")){
+                if(!"-1".equals(t1.toString())){
                     countryBox.getSelectionModel().clearSelection();
                     fromType="2";
                 }else{
@@ -191,7 +191,7 @@ public class CountryModifyController extends CustomTableView<Account>{
                 setAndRefreshNote(account,"登录成功，正在修改...");
                 String body="",targetCountry="";
                 //自定义国家信息
-                if(fromType.equals("2")){
+                if("2".equals(fromType)){
                     // 创建json文件对象
                     File jsonFile = new File("userNationalData.json");
                     String jsonString = FileUtil.readString(jsonFile,Charset.defaultCharset());

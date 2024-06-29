@@ -31,7 +31,6 @@ import java.util.Map;
  * Hello world!
  */
 public class AppleIDUtil {
-
     public static HttpResponse signin(Account account) {
         HashMap<String, List<String>> headers = new HashMap<>();
 
@@ -1146,11 +1145,11 @@ public class AppleIDUtil {
                 String service_errors = JSONUtil.parse(verifyAppleIdRsp.body()).getByPath("service_errors",String.class);
                 JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                 String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                if(code.equals("captchaAnswer.Invalid")){
+                if("captchaAnswer.Invalid".equals(code)){
                     //延迟半秒
                     ThreadUtil.sleep(500);
                     return captchaAndVerify(account,--retry);
-                }else if(code.equals("-20210")){
+                }else if("-20210".equals(code)){
                     throw new ServiceException("这个 Apple ID 没有被激活。");
                 }
             }else {
@@ -1302,13 +1301,13 @@ public class AppleIDUtil {
         account.updateLoginInfo(resrtPasswordOptionRsp);
         header.put("sstt",List.of(resrtPasswordOptionRsp.header("sstt")));
 
-        String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
-        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(passwordReset1Rsp);
-        account.updateLoginInfo(passwordReset1Rsp);
-        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
+//        String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
+//        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+//                        .header(header)
+//                        .cookie(account.getCookie()));
+//        checkAndThrowUnavailableException(passwordReset1Rsp);
+//        account.updateLoginInfo(passwordReset1Rsp);
+//        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
         HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
                         .header(header)
@@ -1327,9 +1326,7 @@ public class AppleIDUtil {
     public static HttpResponse unlockAndUpdatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         HashMap<String, List<String>> header = buildHeader(account);
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
-
         String host = "https://iforgot.apple.com";
-
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                         .header(header)
@@ -1421,13 +1418,13 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
-        String passwordReset1Location = options2Rsp.header("Location");
-        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(passwordReset1Rsp);
-        account.updateLoginInfo(passwordReset1Rsp);
-        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
+//        String passwordReset1Location = options2Rsp.header("Location");
+//        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+//                        .header(header)
+//                        .cookie(account.getCookie()));
+//        checkAndThrowUnavailableException(passwordReset1Rsp);
+//        account.updateLoginInfo(passwordReset1Rsp);
+//        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
 
         HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
                         .header(header)

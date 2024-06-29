@@ -20,7 +20,7 @@ public class PropertiesUtil {
         boolean f=false;
         try {
             String res = getConfig(key);
-            if(null==res || res.equals("")){
+            if(null==res || "".equals(res)){
                 f= defaultValue;
             }else{
                 f=Boolean.valueOf(res);

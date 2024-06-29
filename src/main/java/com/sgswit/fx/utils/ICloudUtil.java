@@ -288,16 +288,10 @@ public class ICloudUtil {
 
         Map<String,Object> bodyMap=new HashMap<>();
         bodyMap.put("creditCardId",creditCardId);
-//        bodyMap.put("creditCardId","UPCC");
         bodyMap.put("creditCardLastFourDigits",creditCardLastFourDigits);
-//        bodyMap.put("creditCardLastFourDigits","5639");
         bodyMap.put("securityCode",securityCode);
-//        bodyMap.put("securityCode","864");
         bodyMap.put("verificationType",verificationType);
-//        bodyMap.put("verificationType","CVV");
         bodyMap.put("billingType",billingType);
-//        bodyMap.put("billingType","Card");
-
 
 
         HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/verifyCVV")

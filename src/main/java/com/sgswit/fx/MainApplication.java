@@ -99,7 +99,7 @@ public class MainApplication extends Application {
             return false;
         }
         Map<String,Object> userData=new HashMap<>();
-        String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"),platform.equals("1")?"exe":"dmg"});
+        String name= MessageFormat.format("{0}-Apple批量处理{1}.{2}", new String[]{softwareInfoName,versionData.getStr("version"), "1".equals(platform)?"exe":"dmg"});
         userData.put("name",name);
         userData.put("url",versionData.getStr("url"));
 

@@ -97,7 +97,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Thread.sleep(1000);
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
-                if(addMap.get("code").equals("302")){
+                if("302".equals(addMap.get("code"))){
                     Thread.sleep(3000);
                     addMap = ShoppingUtil.add2bag(prodMap);
                     if(!Constant.SUCCESS.equals(addMap.get("code"))){
@@ -180,7 +180,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 boolean disabled = false;
                 if(null!=ja &&ja.size()>0){
                     for(JSONObject o : ja){
-                        if(o.getStr("moduleKey").equals("appleBalance")){
+                        if("appleBalance".equals(o.getStr("moduleKey"))){
                             if("true".equals(o.get("disabled"))){
                                 disabled=true;
                                 break;
@@ -194,7 +194,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                     account.setStatus("禁用");
                 }
                 Object balance = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.availableAppleBalance");
-                account.setBalance((null==balance||balance.equals(""))?"0":balance.toString());
+                account.setBalance((null==balance|| "".equals(balance))?"0":balance.toString());
                 tableRefreshAndInsertLocal(account,"查询成功");
             }
         } catch (IORuntimeException e) {

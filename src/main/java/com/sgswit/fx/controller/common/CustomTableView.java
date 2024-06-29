@@ -257,9 +257,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if(!executeButton.isDisabled()){
             Platform.runLater(() -> setExecuteButtonStatus(true));
         }
-        if(!runningList.contains(account)){
-            runningList.add(account);
-        }
+        new Thread(()->{
+            if(!runningList.contains(account)){
+                runningList.add(account);
+            }
+        });
         accountHandlerExpand(account,true);
     }
 
@@ -305,14 +307,12 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
-            //LoggerManger.info(e.getMessage());
         }catch (PointDeduException e){// 部分业务抛出异常,但是还是要扣除点数
             pointCost(account,PointUtil.out,e.getFunCode());
             setAndRefreshNote(account,e.getMessage());
             setNote(account,e.getMessage(),"");
             pointIncr(account);
             setDataStatus(account,false);
-            //LoggerManger.info(e.getMessage());
         }catch (PointCostException e){
             setAndRefreshNote(account,e.getMessage());
             setDataStatus(account,false);
@@ -602,8 +602,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             // 停止任务, 恢复按钮状态
             setExecuteButtonStatus(false);
             runningList.clear();
-        } catch (Exception e) {
-            e.printStackTrace();
         }finally {
             reentrantLock.lock();
             LoggerManger.info("【"+stage.getTitle()+"】" + "停止任务");
@@ -764,9 +762,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (hasDataStatus) {
                 for(T acc:accountList){
                     String dataStatus = ReflectUtil.invoke(acc, "getDataStatus");
-                    if(dataStatus.equals("1")){
+                    if("1".equals(dataStatus)){
                         successNum++;
-                    }else if(dataStatus.equals("0")){
+                    }else if("0".equals(dataStatus)){
                         failNum++;
                     }
                 }

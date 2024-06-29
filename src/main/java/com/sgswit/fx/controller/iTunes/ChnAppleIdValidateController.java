@@ -70,7 +70,6 @@ public class ChnAppleIdValidateController extends CustomTableView<UserInfo>{
     }
     @Override
     public void accountHandler(UserInfo account){
-//        account.setHasFinished(false);
         setAndRefreshNote(account,"正在登录...");
         String step= StringUtils.isEmpty(account.getStep())?"01":account.getStep();
         Map<String,Object> accountInfoMap=account.getAuthData();

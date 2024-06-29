@@ -208,7 +208,6 @@ public class ConsumptionBillController extends CustomTableView<ConsumptionBill>{
     }
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;
-//        items.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
 
     }

@@ -563,7 +563,7 @@ public class PurchaseBillUtil {
         if(400==loginResponse.getStatus()){
             result.put("code","400");
             String messageBodyLocKey=JSONUtil.parse(loginResponse.body()).getByPath("error.messageBodyLocKey",String.class);
-            if(messageBodyLocKey.equals("RAP2.Error.ACCOUNT_DISABLED.Body")){
+            if("RAP2.Error.ACCOUNT_DISABLED.Body".equals(messageBodyLocKey)){
                 result.put("msg",Constant.errorMap.get(Constant.ACCOUNT_HAS_BEEN_LOCKED));
             }
             return result;

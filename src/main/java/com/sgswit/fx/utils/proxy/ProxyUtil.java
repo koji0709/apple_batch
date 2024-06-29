@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -42,6 +43,9 @@ public class ProxyUtil{
     private static final long MIN_INTERVAL_MS = 200;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+    private static Map<String,HttpRequest> map503Error=new HashMap<>();
+    private static Map<String,HttpRequest> mapIoError=new HashMap<>();
+
 
     public static HttpResponse execute(HttpRequest request){
         // 限制请求频率
@@ -52,6 +56,7 @@ public class ProxyUtil{
         HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
+
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
                ThreadUtil.sleep(randomInt*1000);
@@ -86,6 +91,7 @@ public class ProxyUtil{
            //响应超时
            throw new ServiceException("服务端响应超时");
        }finally {
+           System.out.println(1);
            //unlock(request);
        }
 
@@ -135,9 +141,9 @@ public class ProxyUtil{
                         int proxyPort=MapUtil.getInt(map,"port");
                         String authUser=MapUtil.getStr(map,"account");
                         String authPassword= MapUtil.getStr(map,"pwd");
-                        if(key.equals("2")){
+                        if("2".equals(key)){
                             return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
-                        }else if(key.equals("1")){
+                        }else if("1".equals(key)){
                             String proxyApiUrl= MessageFormat.format("{0}:{1}",new String[]{proxyHost, String.valueOf(proxyPort)});
                             return  apiProxyRequest(request,proxyApiUrl,authUser,authPassword, false,sendTimeOut);
                         }else {
@@ -245,7 +251,7 @@ public class ProxyUtil{
     }
 
     public static String getUrl(HttpRequest request){
-        String  url = request.getUrl().toString();
+        String  url = request.getUrl();
         url = url.contains("?") ? url.substring(0,url.indexOf("?")) : url;
         return url;
     }

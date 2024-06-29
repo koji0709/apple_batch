@@ -237,7 +237,7 @@ public class ToolController extends CommonView{
 
             FileWriter fileWriter = new FileWriter(fileUrl() + "/去重文件" + file.getName());
             for (String string : lines) {
-                if (!string.trim().equals("")) {
+                if (!"".equals(string.trim())) {
                     fileWriter.write(string.trim() + "\r\n");
                 }
             }

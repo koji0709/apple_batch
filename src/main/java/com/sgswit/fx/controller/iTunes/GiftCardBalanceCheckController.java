@@ -397,9 +397,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             String message= MessageFormat.format("查询失败，正在进行第{0}次尝试...",new String[]{giftCard.getFailCount()+""});
             setAndRefreshNote(giftCard, message);
             Map<String,String> result=login();
-            if(result.get("code").equals("-1")) {
+            if("-1".equals(result.get("code"))) {
                 throw new ServiceException("余额查询失败，请稍后重试！");
-            }else if(result.get("code").equals("1")){
+            }else if("1".equals(result.get("code"))){
                 ThreadUtil.sleep(3000);
             }else{
                 checkBalance(giftCard,paras);
@@ -422,9 +422,9 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 String message="";
                 for(Object object:jsonArray){
                     JSONObject jsonObject= (JSONObject) object;
-                    if(jsonObject.getStr("value").equals("transaction.gc_balance.alert.invalid_giftcard")){
+                    if("transaction.gc_balance.alert.invalid_giftcard".equals(jsonObject.getStr("value"))){
                         message=message+"输入的礼品卡无效；";
-                    }else if(jsonObject.getStr("value").equals("transaction.gc_balance.alert.invalid_country_giftcard")){
+                    }else if("transaction.gc_balance.alert.invalid_country_giftcard".equals(jsonObject.getStr("value"))){
                         String countryCode=countryBox.getSelectionModel().getSelectedItem().get("code");
                         message=message+"此代码不属于【"+DataUtil.getNameByCountryCode(countryCode)+"】地区；";
                     }
@@ -486,7 +486,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 hashMap=new HashMap<>();
             }
             hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            if(null!=hashMap.get("code") && MapUtil.getStr(hashMap,"code").equalsIgnoreCase("503")){
+            if(null!=hashMap.get("code") && "503".equalsIgnoreCase(MapUtil.getStr(hashMap,"code"))){
                 res.put("code","-1");
                 res.put("message","登陆失败");
                 return res;
@@ -497,7 +497,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
-                if(authType.equals("hsa2")){
+                if("hsa2".equals(authType)){
                     res.put("code","-1");
                     res.put("message","登陆失败");
                     return res;
