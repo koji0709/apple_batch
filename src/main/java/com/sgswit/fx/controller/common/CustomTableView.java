@@ -590,10 +590,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                for (T account : accountList) {
+                for (Object account : runningList) {
                     Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
                     if(!hasFinished){
-                        setAndRefreshNote(account,"");
+                        setAndRefreshNote((T)account,"请求停止任务");
                     }
                 }
             }
@@ -628,6 +628,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             return;
         }
         accountList.clear();
+        runningList.clear();
         setAccountNumLabel();
         accountTableView.refresh();
     }

@@ -1,6 +1,10 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author DeZh
@@ -42,5 +46,18 @@ public class CustomStringUtils extends StringUtils {
             return true;
         }
         return false;
+    }
+    /**
+     * 礼品卡校验
+     */
+    public static boolean giftCardCodeVerify(String giftCardCode) {
+        if(StrUtil.isEmpty(giftCardCode)){
+            return false;
+        }
+        //判断礼品卡的格式是否正确
+        String regex = "X[a-zA-Z0-9]{15}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
+        return matcher.matches();
     }
 }

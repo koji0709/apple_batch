@@ -61,8 +61,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -247,7 +245,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             giftCardRedeem.setAccount(account);
                             giftCardRedeem.setPwd(pwd);
                             giftCardRedeem.setGiftCardCode(giftCardCode);
-                            boolean success = giftCardCodeVerify(giftCardCode);
+                            boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
                             if (!success){
                                 giftCardRedeem.setGiftCardStatus("无效卡");
                             }
@@ -268,7 +266,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             giftCardRedeem.setPwd(accountComboBoxValueArr[1]);
                             String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
                             giftCardRedeem.setGiftCardCode(giftCardCode);
-                            boolean success = giftCardCodeVerify(giftCardCode);
+                            boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
                             if (!success){
                                 giftCardRedeem.setGiftCardStatus("无效卡");
                             }
@@ -504,7 +502,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         itunesLogin(giftCardRedeem);
         ThreadUtil.sleep(500);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
-        boolean success = giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
+        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
             giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
@@ -954,17 +952,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         stage.showAndWait();
     }
 
-    /**
-     * 礼品卡校验
-     */
-    public boolean giftCardCodeVerify(String giftCardCode){
-        //判断礼品卡的格式是否正确
-        giftCardCode=StringUtils.deleteWhitespace(giftCardCode);
-        String regex = "X[a-zA-Z0-9]{15}";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
-        return matcher.matches();
-    }
 
     public void show2WindowAction(){
         StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM2);

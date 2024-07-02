@@ -34,8 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
 
@@ -138,7 +136,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
         giftCardRedeem.setExecTime(DateUtil.now());
         String giftCardCode = giftCardRedeem.getGiftCardCode();
-        boolean success = giftCardCodeVerify(giftCardCode);
+        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
         if (!success) {
             giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
@@ -320,16 +318,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
         loginBtnAction();
     }
 
-    /**
-     * 礼品卡校验
-     */
-    public boolean giftCardCodeVerify(String giftCardCode) {
-        //判断礼品卡的格式是否正确
-        String regex = "X[a-zA-Z0-9]{15}";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
-        return matcher.matches();
-    }
+
 
     @Override
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
@@ -357,7 +346,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                         giftCardRedeem.setPwd(accountArr[1]);
                         String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
                         giftCardRedeem.setGiftCardCode(giftCardCode);
-                        boolean success = giftCardCodeVerify(giftCardCode);
+                        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
                         if (!success){
                             giftCardRedeem.setGiftCardStatus("无效卡");
                         }

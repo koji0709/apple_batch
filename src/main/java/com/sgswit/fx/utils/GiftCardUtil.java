@@ -14,6 +14,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
@@ -39,9 +40,9 @@ public class GiftCardUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         String url="https://secure.store.apple.com/shop/giftcard/balance";
         if(!"us".equalsIgnoreCase(countryCode)){
             url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
@@ -55,9 +56,9 @@ public class GiftCardUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(pre1.header("Location"))
                         .header(headers)
                         .cookie(getCookies(pre1)));
@@ -70,7 +71,7 @@ public class GiftCardUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(pre2.header("Location"))
                         .header(headers)
                         .cookie(getCookies(pre1)));
@@ -148,7 +149,7 @@ public class GiftCardUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Host",ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList(locationBase));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&language=en_US&skVersion=7&iframeId="+frameId
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
@@ -176,7 +177,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -190,7 +191,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
 
@@ -200,9 +201,10 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse signinInit(String account,String a ,HttpResponse res1,Map<String,Object> paras){
+    public static HttpResponse signinInit(String account,HttpResponse step0Res,Map<String,Object> paras){
         String frameId= MapUtil.getStr(paras,"frameId");
         String clientId= MapUtil.getStr(paras,"clientId");
+        String a= MapUtil.getStr(paras,"a");
         String locationBase= MapUtil.getStr(paras,"locationBase");
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
@@ -218,7 +220,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -232,10 +234,10 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
-        headers.put("scnt",ListUtil.toList(res1.header("scnt")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(step0Res.header("X-Apple-ID-Session-Id")));
+        headers.put("scnt",ListUtil.toList(step0Res.header("scnt")));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
@@ -272,7 +274,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -286,7 +288,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
@@ -361,7 +363,7 @@ public class GiftCardUtil {
 
         headers.put("te",ListUtil.toList("trailers"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
 
         Map<String,String> cookiesMap=new HashMap<>();
@@ -373,7 +375,7 @@ public class GiftCardUtil {
 
         Map<String,Object> paramMap = new HashMap<>();
 
-        paramMap.put("deviceID","");
+        paramMap.put("deviceID",Constant.deviceID);
         paramMap.put("grantCode","");
 
 
@@ -397,7 +399,7 @@ public class GiftCardUtil {
         headers.put("referer",ListUtil.toList(paras.get("locationBase")+ "shop/giftcard/balance"));
         headers.put("origin",ListUtil.toList(MapUtil.getStr(paras,"locationBase")));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("x-aos-model-page", ListUtil.toList("giftCardBalancePage"));
         headers.put("x-aos-stk",ListUtil.toList(MapUtil.getStr(paras,"x_aos_stk")));
@@ -412,6 +414,7 @@ public class GiftCardUtil {
 
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
+        data.put("giftCardBalanceCheck.deviceID",Constant.deviceID);
         String location=MapUtil.getStr(paras,"location");
         String url=location.substring(0,location.indexOf("shop")) + "shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck";
         HttpResponse res4 = ProxyUtil.execute(HttpUtil.createPost(url)

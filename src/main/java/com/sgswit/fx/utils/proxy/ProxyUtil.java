@@ -50,7 +50,7 @@ public class ProxyUtil{
     public static HttpResponse execute(HttpRequest request){
         // 限制请求频率
         //lock(request);
-        String requestId= MD5.create().digestHex16(request.toString());
+        String requestId= MD5.create().digestHex(request.toString());
         //判断是否设置代理
         HttpRequest.closeCookie();
         HttpResponse httpResponse=null;
@@ -65,7 +65,7 @@ public class ProxyUtil{
                    failCount=1+int503;
                }
                map503Error.put(requestId,failCount);
-               if(failCount>20){
+               if(failCount>30){
                    throw new UnavailableException();
                }
                return execute(request);
@@ -80,8 +80,8 @@ public class ProxyUtil{
                failCount=1+intIo;
            }
            mapIoError.put(requestId,failCount);
-           if(Integer.valueOf(failCount)>5){
-             throw new ServiceException("资源请求超时");
+           if(Integer.valueOf(failCount)>10){
+             throw new ServiceException("资源请求超时，请检查网络");
            }
            return execute(request);
        }catch (HttpException e){

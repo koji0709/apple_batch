@@ -167,7 +167,7 @@ public class PurchaseBillUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         String url="https://reportaproblem.apple.com/";
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
                         .header(headers));
@@ -180,7 +180,7 @@ public class PurchaseBillUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         HttpRequest httpRequest=HttpUtil.createGet(pre1.header("Location"))
                 .header(headers);
         HttpResponse res = ProxyUtil.execute(httpRequest);
@@ -195,7 +195,7 @@ public class PurchaseBillUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Host",ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList(locationBase));
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&language=en_US&skVersion=7&iframeId="+frameId
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
@@ -220,7 +220,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -234,7 +234,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         String body = "{\"accountName\":\""+account+"\",\"rememberMe\":false}";
         HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
@@ -260,7 +260,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-Trusted-Domain", ListUtil.toList("https://idmsa.apple.com"));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -276,7 +276,7 @@ public class PurchaseBillUtil {
 
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
         HttpRequest httpRequest=HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
@@ -304,7 +304,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList("{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/115.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Fla44j1e3NlY5BNlY5BSmHACVZXnN92fq9c0K8v0ururJhBR.uMp4UdHz13NlVjV2pNk0ug9WJZuJsejWvEkeUkd5BNlY5CGWY5BOgkLT0XxU..BTM\"}"));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
@@ -318,7 +318,7 @@ public class PurchaseBillUtil {
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
@@ -594,7 +594,7 @@ public class PurchaseBillUtil {
     */
     public static HttpResponse search(List<String> jsonStrList,String dsid,String nextBatchId,String token,String searchCookies) {
         HashMap<String, List<String>> headers =  new HashMap<>();
-        headers.put("User-Agent",ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"));
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*;"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
