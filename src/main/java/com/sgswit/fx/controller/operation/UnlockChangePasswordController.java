@@ -11,6 +11,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
@@ -29,6 +30,9 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.UNLOCK_CHANGE_PASSWORD.getCode())));
         super.initialize(url, resourceBundle);
+
+        String pwdText= PropertiesUtil.getOtherConfig("txtRecoveryPwd","");
+        pwdTextField.setText(pwdText);
     }
     /**
      * 导入账号按钮点击
@@ -81,5 +85,9 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         }};
         super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
     }
-
+    @Override
+    public void closeStageActionBefore() {
+        String pwdText= pwdTextField.getText();
+        PropertiesUtil.setOtherConfig("txtRecoveryPwd",pwdText);
+    }
 }
