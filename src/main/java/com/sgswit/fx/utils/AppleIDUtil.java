@@ -39,6 +39,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
@@ -66,6 +67,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/html, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
@@ -94,6 +96,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
@@ -143,6 +146,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/html, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
@@ -215,6 +219,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
@@ -339,6 +344,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
@@ -371,6 +377,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
@@ -408,6 +415,7 @@ public class AppleIDUtil {
 
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("Host", ListUtil.toList("appleid.apple.com"));
@@ -437,6 +445,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -476,6 +485,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -523,6 +533,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -604,6 +615,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -650,6 +662,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -687,6 +700,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -746,6 +760,7 @@ public class AppleIDUtil {
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
         headers.put("scnt", ListUtil.toList(account.getScnt()));
@@ -797,6 +812,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -837,6 +853,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -881,6 +898,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -919,6 +937,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -1057,6 +1076,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
 
@@ -1689,6 +1709,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
 
         headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
@@ -1703,9 +1724,6 @@ public class AppleIDUtil {
         headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
         headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
         headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
-
-
         return headers;
     }
 
