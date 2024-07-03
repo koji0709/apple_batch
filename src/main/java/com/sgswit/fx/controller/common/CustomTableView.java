@@ -51,7 +51,6 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * account表格视图
@@ -95,8 +94,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
-
-    protected ReentrantLock reentrantLock = new ReentrantLock();
 
     protected AtomicInteger atomicInteger = new AtomicInteger(0);
     protected Integer threadCount = Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","3"));
@@ -203,18 +200,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
 
-        // 每一次执行前都释放锁
-        if (reentrantLock.isLocked()) {
-            reentrantLock.unlock();
-            ThreadUtil.sleep(500);
-        }
 
         // 此处的线程是为了处理,按钮状态等文案显示
         for (int i = 0; i < accountList.size(); i++) {
             T account = accountList.get(i);
-            if (reentrantLock.isLocked()) {
-                return;
-            }
             boolean processed = isProcessed(account);
             if (processed) {
                 continue;
@@ -225,9 +214,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             // 处理账号
             for (int i = 0; i < accountList.size(); i++) {
                 T account = accountList.get(i);
-                if (reentrantLock.isLocked()) {
-                    return;
-                }
                 boolean processed = isProcessed(account);
                 if (processed) {
                     continue;
@@ -257,11 +243,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if(!executeButton.isDisabled()){
             Platform.runLater(() -> setExecuteButtonStatus(true));
         }
-        new Thread(()->{
-            if(!runningList.contains(account)){
-                runningList.add(account);
-            }
-        });
+        if(!runningList.contains(account)){
+            runningList.add(account);
+        }
         accountHandlerExpand(account,true);
     }
 
@@ -593,7 +577,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 for (Object account : runningList) {
                     Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
                     if(!hasFinished){
-                        setAndRefreshNote((T)account,"请求停止任务");
+                        setAndRefreshNote((T)account,"请求失败：停止任务");
                     }
                 }
             }
@@ -603,7 +587,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setExecuteButtonStatus(false);
             runningList.clear();
         }finally {
-            reentrantLock.lock();
             LoggerManger.info("【"+stage.getTitle()+"】" + "停止任务");
         }
     }

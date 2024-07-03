@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
@@ -15,7 +14,6 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.github.javafaker.App;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
@@ -24,7 +22,6 @@ import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1098,17 +1095,18 @@ public class AppleIDUtil {
      * 获取图形验证码
      */
     public static HttpResponse captcha(Account account){
-        String url = "https://iforgot.apple.com/captcha";
+        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("Sec-Fetch-Dest",ListUtil.toList("empty"));
+        headers.put("Sec-Fetch-Mode",ListUtil.toList("cors"));
+        headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("sstt",ListUtil.toList(account.getSstt()));
-        return ProxyUtil.execute(HttpUtil.createPost(url)
-                .body("{\"type\":\"IMAGE\"}")
+        return ProxyUtil.execute(HttpUtil.createGet(url)
                 .cookie(account.getCookie())
                         .header(headers));
     }
@@ -1183,7 +1181,7 @@ public class AppleIDUtil {
      * 通过密保修改密码(如果账号被锁则解锁)
      * @return (unlock && rsp.getStatus() == 206) || (!unlock && rsp.getStatus() == 260) -> success
      */
-    public static HttpResponse updatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd){
+    public static HttpResponse updatePwdByProtection(HttpResponse verifyAppleIdRsp, Account account, String newPwd){
         String location = verifyAppleIdRsp.header("Location");
         HttpResponse rsp = null;
         boolean unlock = location.startsWith("/password/authenticationmethod");
@@ -1198,18 +1196,11 @@ public class AppleIDUtil {
         return rsp;
     }
 
-    public static void main(String[] args) {
-        String str = FileUtil.readUtf8String("/Users/koji/work/sinosoft/apple-batch/src/main/resources/a.txt");
-        String[] nList = str.split("\n");
-        for (String s : nList) {
-            String h1 = s.substring(0, s.indexOf(":"));
-            System.err.println(".header(\""+h1+"\",\""+s.substring(s.indexOf(":")+2)+"\")");
-        }
-    }
-
     public static HttpResponse verifyAppleIdByPwdProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String options1Location = verifyAppleIdRsp.header("Location");
+
+
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
                 .header("Connection","keep-alive")
@@ -1218,17 +1209,16 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
                 .cookie(account.getCookie())
-
         );
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
-
+        ThreadUtil.sleep(500);
         HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1236,17 +1226,16 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-//                .header("Content-Length","35")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body("{\"recoveryOption\":\"reset_password\"}"));
         checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
-
+        ThreadUtil.sleep(500);
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                 .header("Connection","keep-alive")
@@ -1255,10 +1244,10 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(authMethod1Rsp);
@@ -1268,25 +1257,25 @@ public class AppleIDUtil {
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
+        ThreadUtil.sleep(500);
         HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-//                .header("Content-Length","20")
                 .header("Connection","keep-alive")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",authMethod1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body("{\"type\":\"questions\"}"));
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
-
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
+        ThreadUtil.sleep(500);
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1294,10 +1283,10 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",authMethod1Rsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday1Rsp);
@@ -1308,6 +1297,7 @@ public class AppleIDUtil {
         }catch (Exception e){
             throw new ServiceException("出生日期输入错误！");
         }
+        ThreadUtil.sleep(500);
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1315,11 +1305,10 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-//                .header("Content-Length","52")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyBirthday1Rsp.header("sstt"))
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
                 .cookie(account.getCookie()));
@@ -1329,7 +1318,7 @@ public class AppleIDUtil {
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
-
+        ThreadUtil.sleep(500);
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
                 .header("Connection","keep-alive")
@@ -1338,10 +1327,10 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyBirthday1Rsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions1Rsp);
@@ -1363,6 +1352,7 @@ public class AppleIDUtil {
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
+        ThreadUtil.sleep(500);
         HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1370,17 +1360,17 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-//                .header("Content-Length","204")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .body(JSONUtil.toJsonStr(bodyMap))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
+        ThreadUtil.sleep(500);
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1388,15 +1378,15 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(resrtPasswordOptionRsp);
         account.updateLoginInfo(resrtPasswordOptionRsp);
-
+        ThreadUtil.sleep(500);
         String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
                 .header("Connection","keep-alive")
@@ -1405,15 +1395,15 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(passwordReset1Rsp);
         account.updateLoginInfo(passwordReset1Rsp);
-
+        ThreadUtil.sleep(500);
         HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1421,11 +1411,11 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Type","application/json")
-                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",resrtPasswordOptionRsp.header("sstt"))
                 .body("{\"password\":\""+newPwd+"\"}")
                 .cookie(account.getCookie()));
@@ -1714,7 +1704,7 @@ public class AppleIDUtil {
             if (response.getStatus() == 400){
                 StringBuffer message=new StringBuffer();
                 if(!StrUtil.isEmpty(title)){
-                    message.append(title);
+                    message.append(title+"失败");
                     message.append(":");
                 }
                 message.append(getValidationErrors(response,"Bad Request"));

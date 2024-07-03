@@ -327,11 +327,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         // 修改按钮为执行状态
         Platform.runLater(() -> setExecuteButtonStatus(true));
         timer();
-        // 每一次执行前都释放锁
-        if (reentrantLock.isLocked()) {
-            reentrantLock.unlock();
-            ThreadUtil.sleep(300);
-        }
         // 将账号分组
         LinkedHashMap<String,List<GiftCardRedeem>> accountGroupMap = new LinkedHashMap<>();
         for (GiftCardRedeem giftCardRedeem : accountList) {
@@ -358,9 +353,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 使用迭代器进行遍历和修改
                 Iterator<GiftCardRedeem> iterator = accountList.iterator();
                 while (iterator.hasNext()) {
-                    if (reentrantLock.isLocked()) {
-                        return;
-                    }
                     GiftCardRedeem giftCardRedeem = iterator.next();
                     String account=giftCardRedeem.getAccount();
                     Map<String,Long> countList = countMap.get(account);
