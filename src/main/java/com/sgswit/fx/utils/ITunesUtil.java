@@ -524,6 +524,7 @@ public class ITunesUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
                 "<plist version=\"1.0\">" +
@@ -692,7 +693,7 @@ public class ITunesUtil {
         }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
-        headers.put("Content-Type",ListUtil.toList("application/x-apple-plist"));
+        headers.put("Content-Type",ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
         headers.put("X-Apple-Tz",ListUtil.toList("28800"));
         headers.put("X-Dsid",ListUtil.toList(dsPersonId));
         headers.put("X-Apple-Store-Front",ListUtil.toList(storeFront));

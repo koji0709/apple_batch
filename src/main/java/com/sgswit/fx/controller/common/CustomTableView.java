@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -157,6 +158,22 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
+
+        // 监听note变化,刷新table
+        accountList.addListener((ListChangeListener<T>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    List<? extends T> addedSubList = change.getAddedSubList();
+                    if (!CollUtil.isEmpty(addedSubList)){
+                        for (T t : addedSubList) {
+                            if (t instanceof Account){
+                                ((Account) t).noteProperty().addListener((observable, oldValue, newValue) -> accountTableView.refresh());
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**

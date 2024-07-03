@@ -146,6 +146,10 @@ public class Account extends LoginInfo {
         return note.get();
     }
 
+    public SimpleStringProperty noteProperty() {
+        return note;
+    }
+
     public void setNote(String note) {
         this.note.set(note);
     }
