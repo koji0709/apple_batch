@@ -76,6 +76,8 @@ public class StageUtil {
             }
         }else if(stage==StageUtil.get(StageEnum.LOGIN)){
             stage.setAlwaysOnTop(true);
+        }else{
+            stage.setResizable(true);
         }
         if (isWait){
             stage.showAndWait();
