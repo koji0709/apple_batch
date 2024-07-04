@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
@@ -14,6 +15,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.github.javafaker.App;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
@@ -22,6 +24,7 @@ import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1115,18 +1118,17 @@ public class AppleIDUtil {
      * 获取图形验证码
      */
     public static HttpResponse captcha(Account account){
-        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
+        String url = "https://iforgot.apple.com/captcha";
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-        headers.put("Sec-Fetch-Dest",ListUtil.toList("empty"));
-        headers.put("Sec-Fetch-Mode",ListUtil.toList("cors"));
-        headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("sstt",ListUtil.toList(account.getSstt()));
-        return ProxyUtil.execute(HttpUtil.createGet(url)
+        return ProxyUtil.execute(HttpUtil.createPost(url)
+                .body("{\"type\":\"IMAGE\"}")
                 .cookie(account.getCookie())
                         .header(headers));
     }
@@ -1201,7 +1203,7 @@ public class AppleIDUtil {
      * 通过密保修改密码(如果账号被锁则解锁)
      * @return (unlock && rsp.getStatus() == 206) || (!unlock && rsp.getStatus() == 260) -> success
      */
-    public static HttpResponse updatePwdByProtection(HttpResponse verifyAppleIdRsp, Account account, String newPwd){
+    public static HttpResponse updatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd){
         String location = verifyAppleIdRsp.header("Location");
         HttpResponse rsp = null;
         boolean unlock = location.startsWith("/password/authenticationmethod");
@@ -1216,11 +1218,20 @@ public class AppleIDUtil {
         return rsp;
     }
 
+    public static void main(String[] args) {
+        String str = FileUtil.readUtf8String("/Users/koji/work/sinosoft/apple-batch/src/main/resources/a.txt");
+        String[] nList = str.split("\n");
+        for (String s : nList) {
+            String h1 = s.substring(0, s.indexOf(":"));
+            System.err.println(".header(\""+h1+"\",\""+s.substring(s.indexOf(":")+2)+"\")");
+        }
+    }
+
     public static HttpResponse verifyAppleIdByPwdProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
+
+        account.setNote("正在获取重设方式...");
         String options1Location = verifyAppleIdRsp.header("Location");
-
-
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
                 .header("Connection","keep-alive")
@@ -1235,6 +1246,7 @@ public class AppleIDUtil {
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
                 .cookie(account.getCookie())
+
         );
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
@@ -1255,6 +1267,8 @@ public class AppleIDUtil {
                 .body("{\"recoveryOption\":\"reset_password\"}"));
         checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
+        account.setNote("重设方式获取成功...");
+        account.setNote("正在查询是否可使用密保问题重设密码...");
         ThreadUtil.sleep(500);
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
@@ -1264,10 +1278,10 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent",Constant.BROWSER_USER_AGENT)
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240")
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("X-Apple-I-FD-Client-Info","{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10240\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Nla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhp7HeumaururJhBR.uMp4UdHz13NlxXxfs.xLB.Tf1cK0DW_D7TL4y4Iy5JNlY5BNp55BNlan0Os5Apw.0WX\"}")
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(authMethod1Rsp);
@@ -1294,6 +1308,8 @@ public class AppleIDUtil {
                 .body("{\"type\":\"questions\"}"));
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
+        account.setNote("支持密保问题方式解锁改密...");
+        account.setNote("正在验证生日");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
@@ -1334,7 +1350,9 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
+        account.setNote("生日验证通过...");
 
+        account.setNote("正在验证密保");
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
@@ -1389,6 +1407,9 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
+        account.setNote("密保验证通过...");
+
+        account.setNote("正在设置新密码");
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         ThreadUtil.sleep(500);
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
@@ -1454,6 +1475,8 @@ public class AppleIDUtil {
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
 
         String host = "https://iforgot.apple.com";
+
+        account.setNote("正在获取重设方式...");
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
                         .header(header)
@@ -1476,7 +1499,9 @@ public class AppleIDUtil {
                         .body("{\"recoveryOption\":\"reset_password\"}"));
         checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
+        account.setNote("重设方式获取成功...");
 
+        account.setNote("正在查询是否可使用密保问题重设密码...");
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                         .header(header)
@@ -1496,7 +1521,9 @@ public class AppleIDUtil {
                         .body("{\"type\":\"questions\"}"));
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
+        account.setNote("支持密保问题方式解锁改密...");
 
+        account.setNote("正在验证生日");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                         .header(header)
@@ -1517,7 +1544,9 @@ public class AppleIDUtil {
                         .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
+        account.setNote("生日验证通过...");
 
+        account.setNote("正在验证密保");
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
@@ -1552,6 +1581,9 @@ public class AppleIDUtil {
                         .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
+        account.setNote("密保验证通过...");
+
+        account.setNote("正在设置新密码");
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
                         .header(header)
@@ -1586,6 +1618,8 @@ public class AppleIDUtil {
         HashMap<String, List<String>> header = buildHeader(account);
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
         String host = "https://iforgot.apple.com";
+
+        account.setNote("正在查询是否可使用密保问题重设密码...");
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                         .header(header)
@@ -1599,6 +1633,7 @@ public class AppleIDUtil {
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
+
         HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
                         .header(header)
                         .cookie(account.getCookie())
@@ -1606,6 +1641,9 @@ public class AppleIDUtil {
 
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
+        account.setNote("支持密保问题方式解锁改密...");
+
+        account.setNote("正在验证生日");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                         .header(header)
@@ -1627,7 +1665,9 @@ public class AppleIDUtil {
                         .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
+        account.setNote("生日验证通过...");
 
+        account.setNote("正在验证密保");
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
@@ -1668,7 +1708,9 @@ public class AppleIDUtil {
                         .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
+        account.setNote("密保验证通过...");
 
+        account.setNote("正在设置新密码");
         header.put("sstt",List.of(options1Rsp.header("sstt")));
         HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset/options")
                         .header(header)
