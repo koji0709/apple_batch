@@ -32,7 +32,6 @@ import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -198,15 +197,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                 }else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY_ALL.getCode())) {
                     copyAllInfo(accountTableView);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
-                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                    if(!hasFinished){
-                        alert("有工作正在进行中，当前数据无法删除！", Alert.AlertType.ERROR);
-                        return;
-                    }else{
-                        accountTableView.getItems().remove(account);
-                        accountTableView.refresh();
-                        setAccountNumLabel();
-                    }
+                    delSelectedInfo(accountTableView);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
@@ -269,6 +260,33 @@ public class CommRightContextMenuView<T> extends CommonView {
         return buttonList;
     }
 
+    /**
+     * 删除选中的信息
+     *
+     * @param
+     * @param tableView 　* @return void
+     *                    　* @throws
+     *                    　* @author DeZh
+     *                    　* @date 2023/12/22 17:55
+     */
+    private void delSelectedInfo(TableView tableView) {
+        try{
+            ObservableList<T> rowList = tableView.getSelectionModel().getSelectedItems();
+            for(T selectModel :rowList){
+                Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(selectModel, "hasFinished");
+                if(!hasFinished){
+                    alert("有工作正在进行中，当前数据无法删除！", Alert.AlertType.ERROR);
+                    return;
+                }
+            }
+            tableView.getItems().removeAll(rowList);
+            tableView.getSelectionModel().clearSelection();
+            setAccountNumLabel();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
     /**
      * 　* 复制当前行信息
      *
