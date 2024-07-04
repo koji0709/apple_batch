@@ -53,7 +53,9 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * account表格视图
@@ -97,10 +99,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
-
-    protected AtomicInteger atomicInteger = new AtomicInteger(0);
-    protected Integer threadCount = Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","3"));
-
+    //线程池
+    protected ExecutorService executorService = Executors.newFixedThreadPool(Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4")));
     private Class clz = Account.class;
     private List<String> formats;
 
@@ -177,11 +177,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 }
             }
         });
-
-
         // 设置多选模式
         accountTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
         // 鼠标右键清空选中行
         accountTableView.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.PRIMARY) { // 左键点击事件
@@ -249,32 +246,15 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
             runningList.add(account);
         }
-        ThreadUtil.execute(() -> {
-            // 处理账号
-            for (int i = 0; i < accountList.size(); i++) {
-                T account = accountList.get(i);
-                boolean processed = isProcessed(account);
-                if (processed) {
-                    continue;
-                }
-
-                while (atomicInteger.get() >= threadCount){
-                    ThreadUtil.sleep(1000);
-                }
-                boolean hasTaskNo = ReflectUtil.hasField(account.getClass(), "taskNo");
-                if (hasTaskNo){
-                    ReflectUtil.setFieldValue(account,"taskNo",taskNo + ":" + i);
-                }
-
-                atomicInteger.incrementAndGet();
-                accountHandlerExpand(account);
-                ThreadUtil.sleep(1000);
-
-                if (i == accountList.size() - 1) {
-                    LoggerManger.info("【"+stage.getTitle()+"】" + "任务结束; 任务编号:" + taskNo);
-                }
+        // 处理账号
+        for (int i = 0; i < accountList.size(); i++) {
+            T account = accountList.get(i);
+            boolean processed = isProcessed(account);
+            if (processed) {
+                continue;
             }
-        });
+            executorServiceSubmit(account);
+        }
     }
 
     @Override
@@ -295,23 +275,50 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         return 0L;
     }
 
+   /**
+   　* 提交线程任务
+     * @param
+    * @param account
+   　* @return void
+   　* @throws
+   　* @author DeZh
+   　* @date 2024/7/4 23:44
+   */
+    private void executorServiceSubmit(T account){
+        if(executorService.isTerminated()){
+            executorService = Executors.newFixedThreadPool(Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4")));
+        }
+        executorService.submit(()->{
+            Thread thread = Thread.currentThread();
+            try {
+                List<Thread> threads = threadMap.get(stage);
+                if (CollUtil.isEmpty(threads)){
+                    threads = new ArrayList<>();
+                }
+                threads.add(thread);
+                threadMap.put(stage,threads);
+                if(!runningList.contains(account)){
+                    runningList.add(account);
+                }
+                accountHandlerExpandX(account);
+            } catch (Exception e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+    }
+
+
     public void accountHandlerExpand(T account,boolean isAsyn){
         Long intervalFrequency = getIntervalFrequency();
         if (intervalFrequency > 0){
             ThreadUtil.sleep(intervalFrequency);
         }
-        if (isAsyn){
-            Thread thread = new Thread(() -> accountHandlerExpandX(account));
-            thread.start();
-            List<Thread> threads = threadMap.get(stage);
-            if (CollUtil.isEmpty(threads)){
-                threads = new ArrayList<>();
-            }
-            threads.add(thread);
-            threadMap.put(stage,threads);
+        if(isAsyn){
+            executorServiceSubmit(account);
         }else{
             accountHandlerExpandX(account);
         }
+
     }
 
     public void accountHandlerExpandX(T account){
@@ -377,7 +384,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if(runningList.size()==0 || accountTableView.getItems().size()==0){
                 Platform.runLater(() -> setExecuteButtonStatus(false));
             }
-            atomicInteger.decrementAndGet();
         }
     }
 
@@ -599,32 +605,38 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * 停止任务按钮点击
      */
     public void stopTaskButtonAction() {
-        // 不使用杀线程的方式停止
-        List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
-        if (!notForceStopList.contains(stage)){
+        try {
+            Platform.runLater(() -> {
+                executeButton.setText("正在停止");
+                executeButton.setTextFill(Paint.valueOf("#FF0000"));
+                executeButton.setDisable(true);
+            });
+            // 不使用杀线程的方式停止
+//            List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
             List<Thread> threads = threadMap.get(stage);
             if (!CollUtil.isEmpty(threads)){
-                try{
-                    for (Thread thread : threads) {
-                        if (thread != null){
-                            thread.stop();
+                executorService.shutdown();
+                List<Runnable> runnableList=executorService.shutdownNow();
+                if(executorService.awaitTermination(5, TimeUnit.SECONDS)){
+                    for (Object account : runningList) {
+                        Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+                        if(!hasFinished){
+                            setAndRefreshNote((T)account,"请求失败：停止任务");
                         }
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
+                    // 停止任务, 恢复按钮状态
+                    Platform.runLater(() -> {
+                        setExecuteButtonStatus(false);
+                    });
+                    runningList.clear();
                 }
-                for (Object account : runningList) {
-                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                    if(!hasFinished){
-                        setAndRefreshNote((T)account,"请求失败：停止任务");
-                    }
-                }
+            }else {
+                // 停止任务, 恢复按钮状态
+                setExecuteButtonStatus(false);
+                runningList.clear();
             }
-        }
-        try {
-            // 停止任务, 恢复按钮状态
-            setExecuteButtonStatus(false);
-            runningList.clear();
+        }catch (Exception e){
+            e.printStackTrace();
         }finally {
             LoggerManger.info("【"+stage.getTitle()+"】" + "停止任务");
         }
