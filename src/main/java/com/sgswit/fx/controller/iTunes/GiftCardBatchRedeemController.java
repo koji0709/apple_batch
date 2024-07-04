@@ -109,8 +109,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private static int intervalTime=65;
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
-
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    //定时任务
+    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture scheduledFuture;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -354,7 +354,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountGroupMap.put(account,giftCardRedeemList);
         }
         for (String key : accountGroupMap.keySet()) {
-            ThreadUtil.execute(()->{
+            executorService.submit(()->{
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
                 Iterator<GiftCardRedeem> iterator = accountList.iterator();
@@ -392,7 +392,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private void timer(){
-        scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+        scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                setExecuteButtonStatus();
                Iterator<Map.Entry<String, Map<String, Long>>> countMapIterator = countMap.entrySet().iterator();

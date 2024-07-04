@@ -40,6 +40,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author DeZh
  * @title: GiftCardBalanceCheckController
@@ -76,12 +81,17 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private Map<String,Object> hashMap;
-    private boolean hasInit=false;
-    private boolean loginProcess=false;
+    private static Map<String,Object> authMap=new HashMap<>(10);
+    private static boolean hasInit=false;
+    private static boolean loginProcess=false;
+    private static Map<String,String> loginResult=new HashMap<>(2);
+
 
     private static String redColor="red";
     private static String successColor="#238142";
+    private static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static ScheduledFuture scheduledFuture;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
@@ -272,21 +282,18 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
             HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
-            if(null==hashMap){
-                hashMap=new HashMap<>();
-            }
-            hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
+            authMap=GiftCardUtil.jXDocument(pre2, pre3,authMap);
+            HttpResponse step0Res = GiftCardUtil.federate(account,authMap);
             if(200!=step0Res.getStatus()){
                 updateUI("初始化失败，请重试",redColor);
                 return;
             }
-            HttpResponse step1Res = GiftCardUtil.signinInit(account,step0Res,hashMap);
+            HttpResponse step1Res = GiftCardUtil.signinInit(account,step0Res,authMap);
             if(200!=step1Res.getStatus()){
                 updateUI("初始化失败，请重试",redColor);
                 return;
             }
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,authMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
                 if("hsa2".equals(authType)){
@@ -311,19 +318,21 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                 }
             }
             //step3 shop signin
-            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,hashMap);
+            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
             for(String item : resCookies){
                 cookieBuilder.append(";").append(item);
             }
-            cookieBuilder.append(";").append(hashMap.get("as_sfa_cookie"));
+            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
             Map<String,String> cookieMap=new HashMap<>();
             cookieMap=CookieUtils.setCookiesToMap(step3Res,cookieMap);
-            hashMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
+            authMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
 
             PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
             updateUI("初始化成功，下次启动将自动执行初始化",successColor,true);
+            //开启任务
+            timerStart();
         } catch (ServiceException e) {
             updateUI(e.getMessage(),redColor);
         }catch (Exception e){
@@ -335,7 +344,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         updateUI(finalMsg,finalColor,false);
     }
     void updateUI(String finalMsg,String finalColor,boolean hasInit){
-        this.hasInit=hasInit;
+        GiftCardBalanceCheckController.hasInit =hasInit;
         Platform.runLater(new Task<Integer>() {
             @Override
             protected Integer call() {
@@ -346,7 +355,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }
         });
     }
-    protected void checkBalance(GiftCard giftCard,Map<String,Object> paras) {
+    protected void checkBalance(GiftCard giftCard) {
         Date nowDate=new Date();
         if (!CustomStringUtils.giftCardCodeVerify(giftCard.getGiftCardCode())) {
             giftCard.setDataStatus("0");
@@ -356,14 +365,8 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         giftCard.setLogTime(sdf.format(nowDate));
         giftCard.setHasFinished(false);
         setAndRefreshNote(giftCard,"正在查询...");
-        ThreadUtil.sleep(200);
-        if((null==paras || paras.size()==0)){
-            if(!loginProcess){
-                login();
-            }
-            checkBalance(giftCard,hashMap);
-        }
-        HttpResponse step4Res = GiftCardUtil.checkBalance(paras,giftCard.getGiftCardCode());
+        ThreadUtil.sleep(100);
+        HttpResponse step4Res = GiftCardUtil.checkBalance(authMap,giftCard.getGiftCardCode());
         if(200==step4Res.getStatus()){
             JSON bodyJson= JSONUtil.parse(step4Res.body());
             try {
@@ -374,13 +377,18 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
                     }else{
                         giftCard.setFailCount(giftCard.getFailCount()+1);
                     }
-                    giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
-                    this.accountTableView.refresh();
-                    Map<String,String> result=login();
-                    if("-1".equals(result.get("code"))) {
-                        throw new ServiceException("余额查询失败，登录失败，原因未知！");
-                    }
-                    checkBalance(giftCard,paras);
+                    checkBalance(giftCard);
+//                    giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
+//                    this.accountTableView.refresh();
+//                    Map<String,String> result=login();
+//                    if("-1".equals(result.get("code"))) {
+//                        throw new ServiceException("余额查询失败，登录失败，原因未知！");
+//                    }else if("1".equals(result.get("code"))){
+//                        //正在登录
+//
+//                    }else{
+//                        checkBalance(giftCard);
+//                    }
                 }else if(!Constant.SUCCESS.equals(status)){
                     throw new ServiceException("余额查询失败，请稍后重试！");
                 }else{
@@ -420,25 +428,33 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             }else{
                 giftCard.setFailCount(giftCard.getFailCount()+1);
             }
-            giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
-            this.accountTableView.refresh();
-            Map<String,String> result=login();
-            if("-1".equals(result.get("code"))) {
-                throw new ServiceException("余额查询失败，登录失败，原因未知！");
-            }
-            checkBalance(giftCard,paras);
+            checkBalance(giftCard);
+//            giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
+//            this.accountTableView.refresh();
+
+//            Map<String,String> result=login();
+//            if("-1".equals(result.get("code"))) {
+//                throw new ServiceException("余额查询失败，登录失败，原因未知！");
+//            }else if("1".equals(result.get("code"))){
+//                //正在登录
+//
+//            }else{
+//
+//            }
         }
     }
 
     public synchronized Map<String,String> login(){
-        Map<String,String> res=new HashMap<>();
+
         try {
+            //判断是否正在登录
             if(loginProcess){
-                res.put("code","1");
-                res.put("message","登录中");
-                return res;
+                loginResult.put("code","1");
+                loginResult.put("message","登录中");
+                return loginResult;
             }
-            hashMap.clear();
+//            authMap.clear();
+            Map<String,Object> loginMap= new HashMap<>(10);
             loginProcess=true;
             String account=null;
             String pwd=null;
@@ -453,68 +469,65 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             //https://secure.store.apple.com/shop/giftcard/balance
             HttpResponse pre1 = GiftCardUtil.shopPre1(countryCode);
             if(303!=pre1.getStatus()){
-                res.put("code","-1");
-                res.put("message","登陆失败");
-                return res;
+                loginResult.put("code","-1");
+                loginResult.put("message","登陆失败");
+                return loginResult;
             }
             ThreadUtil.sleep(500);
             //https://secure4.store.apple.com/shop/giftcard/balance
             HttpResponse pre2 = GiftCardUtil.shopPre2(pre1);
             if(302!=pre2.getStatus()){
-                res.put("code","-1");
-                res.put("message","登陆失败");
-                return res;
+                loginResult.put("code","-1");
+                loginResult.put("message","登陆失败");
+                return loginResult;
             }
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(200);
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
             HttpResponse pre3 = GiftCardUtil.shopPre3(pre1,pre2);
-            if(null==hashMap){
-                hashMap=new HashMap<>();
-            }
-            hashMap=GiftCardUtil.jXDocument(pre2, pre3,hashMap);
-            ThreadUtil.sleep(500);
-            HttpResponse step0Res = GiftCardUtil.federate(account,hashMap);
-            ThreadUtil.sleep(500);
-            HttpResponse step1Res = GiftCardUtil.signinInit(account,step0Res,hashMap);
-            ThreadUtil.sleep(500);
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,hashMap,step1Res,pre1,pre3);
+            loginMap=GiftCardUtil.jXDocument(pre2, pre3,loginMap);
+            ThreadUtil.sleep(200);
+            HttpResponse step0Res = GiftCardUtil.federate(account,loginMap);
+            ThreadUtil.sleep(200);
+            HttpResponse step1Res = GiftCardUtil.signinInit(account,step0Res,loginMap);
+            ThreadUtil.sleep(200);
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account,pwd,loginMap,step1Res,pre1,pre3);
             if(409==step2Res.getStatus()){
                 String authType=JSONUtil.parse(step2Res.body()).getByPath("authType",String.class);
                 if("hsa2".equals(authType)){
-                    res.put("code","-1");
-                    res.put("message","登陆失败");
-                    return res;
+                    loginResult.put("code","-1");
+                    loginResult.put("message","登陆失败");
+                    return loginResult;
                 }
-            }else if(200==step2Res.getStatus()){
-                hasInit=true;
-            } else{
+            }else if(200!=step2Res.getStatus()){
                 if(null!=JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")){
-                    res.put("code","-1");
-                    res.put("message","登陆失败");
-                    return res;
+                    loginResult.put("code","-1");
+                    loginResult.put("message","登陆失败");
+                    return loginResult;
                 }
             }
             //step3 shop signin
-            ThreadUtil.sleep(500);
-            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,hashMap);
+            ThreadUtil.sleep(200);
+            HttpResponse step3Res= GiftCardUtil.shopSignin(step2Res,pre1,loginMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
             for(String item : resCookies){
                 cookieBuilder.append(";").append(item);
             }
-            cookieBuilder.append(";").append(hashMap.get("as_sfa_cookie"));
+            cookieBuilder.append(";").append(loginMap.get("as_sfa_cookie"));
             Map<String,String> cookieMap=new HashMap<>();
             cookieMap=CookieUtils.setCookiesToMap(step3Res,cookieMap);
-            hashMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
+            loginMap.put("cookies",MapUtil.join(cookieMap,";","=",true));
             PropertiesUtil.setOtherConfig("cardAccount",account_pwd.getText());
             hasInit=true;
-            res.put("code", "0");
+            authMap.clear();
+            authMap=loginMap;
+            loginResult.put("code", "0");
         }catch (Exception e){
-            res.put("code", "-1");
+            loginResult.put("code", "-1");
         }finally {
             loginProcess=false;
         }
-        return res;
+        return loginResult;
     }
 
     private void initAccountTableView(){
@@ -534,11 +547,27 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     }
     @Override
     public void accountHandler(GiftCard giftCard) {
-        checkBalance(giftCard, hashMap);
+        checkBalance(giftCard);
     }
     @FXML
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
         List<String> items=new ArrayList<>(super.menuItem) ;
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
+    @Override
+    public void closeStageActionBefore(){
+        authMap.clear();
+        hasInit=false;
+        loginProcess=false;
+        //关闭任务
+        scheduledFuture.cancel(true);
+    }
+
+    private void timerStart(){
+        // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
+        scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+            login();
+        }, 0, 15, TimeUnit.SECONDS);
+    }
+
 }
