@@ -133,9 +133,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         accountComboBox.setOnKeyReleased(event -> {
             if (event.isShortcutDown()){
                 Clipboard clipboard = Clipboard.getSystemClipboard();
-                String content = clipboard.getString().replaceAll("\t", " ");
-                if (content != null) {
-                    accountComboBox.getSelectionModel().select(content);
+                if (clipboard != null && StrUtil.isNotEmpty(clipboard.getString())){
+                    String content = clipboard.getString().replaceAll("\t", " ");
+                    if (content != null) {
+                        ObservableList<String> items = accountComboBox.getItems();
+                        if (!items.contains(content)){
+                            items.add(content);
+                        }
+                        accountComboBox.getSelectionModel().select(content);
+                    }
                 }
             }
         });
