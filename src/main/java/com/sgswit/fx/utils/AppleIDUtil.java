@@ -15,7 +15,6 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.github.javafaker.App;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
@@ -24,7 +23,6 @@ import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1230,7 +1228,7 @@ public class AppleIDUtil {
     public static HttpResponse verifyAppleIdByPwdProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
 
-        account.setNote("正在获取重设方式...");
+        account.setNote("正在验证账号...");
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
@@ -1250,6 +1248,7 @@ public class AppleIDUtil {
         );
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
+        account.setNote("正在获取重设方式...");
         ThreadUtil.sleep(500);
         HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
                 .header("Connection","keep-alive")
@@ -1267,8 +1266,6 @@ public class AppleIDUtil {
                 .body("{\"recoveryOption\":\"reset_password\"}"));
         checkAndThrowUnavailableException(options3Rsp);
         account.updateLoginInfo(options3Rsp);
-        account.setNote("重设方式获取成功...");
-        account.setNote("正在查询是否可使用密保问题重设密码...");
         ThreadUtil.sleep(500);
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
@@ -1308,7 +1305,6 @@ public class AppleIDUtil {
                 .body("{\"type\":\"questions\"}"));
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
-        account.setNote("支持密保问题方式解锁改密...");
         account.setNote("正在验证生日");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         ThreadUtil.sleep(500);

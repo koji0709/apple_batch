@@ -125,8 +125,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         // 数据绑定
         ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
         for (TableColumn<T, ?> column : columns) {
+            String id=column.getId();
             // 序号自动增长
-            if ("seq".equals(column.getId())) {
+            if ("seq".equals(id)) {
                 column.setCellFactory(new Callback() {
                     @Override
                     public Object call(Object param) {
@@ -146,7 +147,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                     }
                 });
             }else{
-                column.setCellValueFactory(new PropertyValueFactory(column.getId()));
+                column.setCellValueFactory(new PropertyValueFactory(id));
             }
         }
 
@@ -158,7 +159,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
-
+        //允许多选
+        accountTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         // 监听note变化,刷新table
         accountList.addListener((ListChangeListener<T>) change -> {
             while (change.next()) {

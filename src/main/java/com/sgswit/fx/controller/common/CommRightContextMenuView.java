@@ -193,7 +193,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                 }
                 T account = selectedRows.get(0);
                 if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY.getCode())) {
-                    copyInfo(account);
+                    copyInfo(accountTableView);
                 }else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY_ALL.getCode())) {
                     copyAllInfo(accountTableView);
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.DELETE.getCode())) {
@@ -272,30 +272,36 @@ public class CommRightContextMenuView<T> extends CommonView {
      * 　* 复制当前行信息
      *
      * @param
-     * @param selectModel 　* @return void
+     * @param tableView 　* @return void
      *                    　* @throws
      *                    　* @author DeZh
      *                    　* @date 2023/12/22 17:55
      */
-    private void copyInfo(T selectModel) {
+    private void copyInfo(TableView tableView) {
         List<String> resultList = new ArrayList<>();
-        for (Object column : accountTableView.getColumns()) {
-            TableColumn tableColumn = (TableColumn) column;
-            String id = tableColumn.getId();
-            String text = tableColumn.getText();
-            if (!"seq".equals(id)) {
-                if (ReflectUtil.hasField(selectModel.getClass(), id)) {
-                    Object value = ReflectUtil.invoke(
-                            selectModel
-                            , "get" + id.substring(0, 1).toUpperCase() + id.substring(1));
-                    if (value != null && StrUtil.isNotEmpty(value.toString())) {
-                        text = value.toString();
+        List<T> rowList = tableView.getSelectionModel().getSelectedItems();
+        for(T selectModel :rowList){
+            List<String> subResultList = new ArrayList<>();
+            for (Object column : accountTableView.getColumns()) {
+                TableColumn tableColumn = (TableColumn) column;
+                String id = tableColumn.getId();
+                String text = tableColumn.getText();
+                if (!"seq".equals(id)) {
+                    if (ReflectUtil.hasField(selectModel.getClass(), id)) {
+                        Object value = ReflectUtil.invoke(
+                                selectModel
+                                , "get" + id.substring(0, 1).toUpperCase() + id.substring(1));
+                        if (value != null && StrUtil.isNotEmpty(value.toString())) {
+                            text = value.toString();
+                        }
                     }
+                    subResultList.add(text);
                 }
-                resultList.add(text);
             }
+            resultList.add(subResultList.stream().collect(Collectors.joining("----")));
         }
-        String str = resultList.stream().collect(Collectors.joining("----"));
+
+        String str = resultList.stream().collect(Collectors.joining("\n"));
         try {
             ClipboardManager.setClipboard(str);
         } catch (Exception e) {
