@@ -454,7 +454,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             countList=new HashMap<>();
         }
         if(null!=countList && countList.size()>=5){
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(200);
             boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
             giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
             if(execAgainCheckBoxSelected){
@@ -479,7 +479,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
         LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null){
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
         }
         giftCardRedeem.setExecTime(DateUtil.now());
         Map<String, Long> countList = countMap.get(account);
@@ -505,18 +505,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             countMap.put(account,countList);
             redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
         }catch (IORuntimeException e){
-            giftCardRedeem.setTimeOutCount(giftCardRedeem.getTimeOutCount()+1);
-            if(giftCardRedeem.getTimeOutCount()>5){
-                throw e;
-            }else{
-                ThreadUtil.sleep(500);
-                countList.put(account+giftCardCode, System.currentTimeMillis());
-                countMap.put(account,countList);
-                giftCardRedeem.setStartRecordTime(System.currentTimeMillis());
-                toBeExecutedList.put(account+giftCardCode, giftCardRedeem);
-                toBeExecutedMap.put(account,toBeExecutedList);
-                accountHandler(giftCardRedeem);
-            }
+
         }
         String  body = redeemRsp.body();
         if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
