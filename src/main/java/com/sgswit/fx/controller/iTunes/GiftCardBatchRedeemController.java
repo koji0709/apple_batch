@@ -28,8 +28,11 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -145,6 +148,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 }
             }
         });
+        accountComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (!CollUtil.isEmpty(accountComboBox.getItems())){
+                for (String item : accountComboBox.getItems()) {
+                    if (item.replaceAll(" ","").equals(newValue)){
+                        accountComboBox.getSelectionModel().select(item);
+                        break;
+                    }
+                }
+            }
+        });
+
         accountComboBox.getEditor().setOnContextMenuRequested((ContextMenuEvent event) -> {
         });
 
