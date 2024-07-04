@@ -539,7 +539,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             HashMap<Object, Object> params = new HashMap<>();
             params.put("clz_name", ClassUtil.getClassName(this, false));
             if (!StrUtil.isEmpty(keywordsTextField.getText())) {
-                params.put("row_json", keywordsTextField.getText());
+                params.put("row_json", keywordsTextField.getText().trim());
             }else{
                 params.remove("row_json");
             }
@@ -553,7 +553,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             HashMap<Object, Object> params = new HashMap<>();
             params.put("clz_name", ClassUtil.getClassName(this, false));
             if (!StrUtil.isEmpty(keywordsTextField.getText())) {
-                params.put("row_json", keywordsTextField.getText());
+                params.put("row_json", keywordsTextField.getText().trim());
             }
             params.put("limit", "LIMIT 100");
             List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
