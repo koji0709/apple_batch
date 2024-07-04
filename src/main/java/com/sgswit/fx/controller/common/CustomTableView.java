@@ -38,6 +38,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -159,8 +161,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
-        //允许多选
-        accountTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
         // 监听note变化,刷新table
         accountList.addListener((ListChangeListener<T>) change -> {
             while (change.next()) {
@@ -172,6 +173,25 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                                 ((Account) t).noteProperty().addListener((observable, oldValue, newValue) -> accountTableView.refresh());
                             }
                         }
+                    }
+                }
+            }
+        });
+
+
+        // 设置多选模式
+        accountTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        // 鼠标右键清空选中行
+        accountTableView.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.PRIMARY) { // 左键点击事件
+                if (event.getClickCount() == 1) {
+                    double y = event.getY();
+                    double headerHeight = accountTableView.lookup(".column-header-background").getBoundsInParent().getHeight();
+                    double contentHeight = accountTableView.getItems().size() * 24;
+                    // 如果点击了空行，取消所有选中
+                    if (y > headerHeight + contentHeight) {
+                        accountTableView.getSelectionModel().clearSelection();
                     }
                 }
             }
