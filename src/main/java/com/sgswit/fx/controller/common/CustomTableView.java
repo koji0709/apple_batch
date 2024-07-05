@@ -55,7 +55,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 /**
  * account表格视图
@@ -67,7 +67,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     // 登录成功的账号缓存(缓存5分钟,能刷新)
     private static final long time=30*60*1000;
 
-    protected static Map<StageEnum,List<Thread>> threadMap = new HashMap<>();
+    protected static Map<StageEnum,List<Future<?>>> threadMap = new HashMap<>();
 
     protected static TimedCache<String, LoginInfo> loginSuccessMap = CacheUtil.newTimedCache(time);
     static {
@@ -100,7 +100,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     protected StageEnum stage;
     //线程池
-    protected ExecutorService executorService = Executors.newFixedThreadPool(Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4")));
+    protected ExecutorService executorService;
+    protected static int ThreadCount=Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4"));
+
     private Class clz = Account.class;
     private List<String> formats;
 
@@ -285,18 +287,11 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
    　* @date 2024/7/4 23:44
    */
     private void executorServiceSubmit(T account){
-        if(executorService.isTerminated()){
-            executorService = Executors.newFixedThreadPool(Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4")));
+        if(null==executorService || executorService.isTerminated()){
+            executorService = Executors.newFixedThreadPool(ThreadCount);
         }
-        executorService.submit(()->{
-            Thread thread = Thread.currentThread();
+        Future<?> future= executorService.submit(()->{
             try {
-                List<Thread> threads = threadMap.get(stage);
-                if (CollUtil.isEmpty(threads)){
-                    threads = new ArrayList<>();
-                }
-                threads.add(thread);
-                threadMap.put(stage,threads);
                 if(!runningList.contains(account)){
                     runningList.add(account);
                 }
@@ -305,6 +300,12 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 Thread.currentThread().interrupt();
             }
         });
+        List<Future<?>> futureList = threadMap.get(stage);
+        if (CollUtil.isEmpty(futureList)){
+            futureList = new ArrayList<>();
+        }
+        futureList.add(future);
+        threadMap.put(stage,futureList);
     }
 
 
@@ -383,6 +384,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             runningList.remove(account);
             if(runningList.size()==0 || accountTableView.getItems().size()==0){
                 Platform.runLater(() -> setExecuteButtonStatus(false));
+                executorService.shutdownNow();
             }
         }
     }
@@ -606,6 +608,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public void stopTaskButtonAction() {
         try {
+            if(runningList.size()==0){
+                return;
+            }
             Platform.runLater(() -> {
                 executeButton.setText("正在停止");
                 executeButton.setTextFill(Paint.valueOf("#FF0000"));
@@ -613,28 +618,34 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             });
             // 不使用杀线程的方式停止
 //            List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
-            List<Thread> threads = threadMap.get(stage);
-            if (!CollUtil.isEmpty(threads)){
-                executorService.shutdown();
+            List<Future<?>> futureList = threadMap.get(stage);
+            if (!CollUtil.isEmpty(futureList)){
+                // 关闭服务，不再接受新任务，但会等待正在执行的任务完成
+//                executorService.shutdown();
+                //// 立即关闭服务，并尝试停止所有任务,返回待执行的任务集合
                 List<Runnable> runnableList=executorService.shutdownNow();
-                if(executorService.awaitTermination(5, TimeUnit.SECONDS)){
-                    for (Object account : runningList) {
-                        Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                        if(!hasFinished){
-                            setAndRefreshNote((T)account,"请求失败：停止任务");
-                        }
-                    }
-                    // 停止任务, 恢复按钮状态
-                    Platform.runLater(() -> {
-                        setExecuteButtonStatus(false);
-                    });
-                    runningList.clear();
+                for (Future<?> future:futureList){
+                    Thread.sleep(100L);
+                    boolean cancel=future.cancel(true);
+                    Thread.currentThread().interrupt();
+//                    if(cancel){
+//                        System.out.println("任务取消成功");
+//                    }else{
+//                        System.out.println("任务取消失败");
+//                    }
                 }
-            }else {
-                // 停止任务, 恢复按钮状态
-                setExecuteButtonStatus(false);
-                runningList.clear();
+                for (Object account : runningList) {
+                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
+                    if(!hasFinished){
+                        setAndRefreshNote((T)account,"请求失败：停止任务");
+                    }
+                }
             }
+            // 停止任务, 恢复按钮状态
+            Platform.runLater(() -> {
+                setExecuteButtonStatus(false);
+            });
+            runningList.clear();
         }catch (Exception e){
             e.printStackTrace();
         }finally {
@@ -663,6 +674,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         accountList.clear();
         runningList.clear();
+        executorService.shutdownNow();
         setAccountNumLabel();
         accountTableView.refresh();
     }
