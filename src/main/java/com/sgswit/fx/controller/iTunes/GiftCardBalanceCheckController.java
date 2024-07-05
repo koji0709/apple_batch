@@ -89,7 +89,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     private static String redColor="red";
     private static String successColor="#238142";
-    private static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private static ScheduledExecutorService scheduledExecutorService;
     private static ScheduledFuture scheduledFuture;
 
     @Override
@@ -561,11 +561,16 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         loginProcess=false;
         //关闭任务
         scheduledFuture.cancel(true);
+        //关闭线程池
+        scheduledExecutorService.shutdown();
     }
 
     private void timerStart(){
+        if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
+            scheduledExecutorService= Executors.newScheduledThreadPool(1);
+        }
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
-        scheduledFuture= executorService.scheduleAtFixedRate(() -> {
+        scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
             login();
         }, 0, 15, TimeUnit.SECONDS);
     }

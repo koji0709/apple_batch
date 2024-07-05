@@ -28,11 +28,8 @@ import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -60,10 +57,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
@@ -113,7 +107,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
     //定时任务
-    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService scheduledExecutorService;
     private ScheduledFuture scheduledFuture;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -368,7 +362,10 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountGroupMap.put(account,giftCardRedeemList);
         }
         for (String key : accountGroupMap.keySet()) {
-            executorService.submit(()->{
+            if(null==executorService || executorService.isTerminated()){
+                executorService = Executors.newFixedThreadPool(ThreadCount);
+            }
+            Future<?> future= executorService.submit(()->{
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
                 Iterator<GiftCardRedeem> iterator = accountList.iterator();
@@ -402,10 +399,19 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     }
                 }
             });
+            List<Future<?>> futureList = threadMap.get(stage);
+            if (CollUtil.isEmpty(futureList)){
+                futureList = new ArrayList<>();
+            }
+            futureList.add(future);
+            threadMap.put(stage,futureList);
         }
     }
 
     private void timer(){
+        if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
+            scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        }
         scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                setExecuteButtonStatus();
@@ -440,6 +446,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }catch (Exception e){
 
             }
+            if(countMap.size()==0){
+                //关闭线程池
+//                scheduledExecutorService.shutdown();
+//                System.out.println("关闭线程池");
+            }
         }, 0, 3, TimeUnit.SECONDS);
     }
 
@@ -448,6 +459,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         // 任务执行结束, 恢复执行按钮状态
         if (runningList.size()==0 || accountTableView.getItems().size()==0){
             Platform.runLater(() -> setExecuteButtonStatus(false));
+            executorService.shutdownNow();
         }
     }
 
@@ -952,17 +964,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
     }
-
-
-    public void show2WindowAction(){
-        StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM2);
-    }
-
-    public void show3WindowAction(){
-        StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM3);
-    }
     @FXML
     public void chnAppleIdValidateBtnAction(ActionEvent actionEvent) {
         StageUtil.show(StageEnum.CHN_APPLE_ID_VALIDATE);
+    }
+    @Override
+    public void closeStageActionBefore(){
+
     }
 }
