@@ -54,7 +54,6 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     @Override
     public void accountHandler(Account account) {
         String newPassword = pwdTextField.getText();
-        setAndRefreshNote(account,"正在识别验证码...");
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
         HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(HttpUtil.createGet(url));
         String sstt=verifyAppleIdInitRsp.header("sstt");
@@ -65,7 +64,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");
         }
-        setAndRefreshNote(account,"验证码识别成功...");
+        setAndRefreshNote(account,"账户验证成功...");
         // 修改密码 (如果账号被锁定,则解锁改密)
         HttpResponse updatePwdByProtectionRsp = AppleIDUtil.updatePwdByProtection(verifyAppleIdRsp, account, newPassword);
         if (updatePwdByProtectionRsp.getStatus() == 260){

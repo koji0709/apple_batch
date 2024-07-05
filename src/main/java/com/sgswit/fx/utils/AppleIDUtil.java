@@ -1135,6 +1135,7 @@ public class AppleIDUtil {
         return captchaAndVerify(account,10);
     }
     public static HttpResponse captchaAndVerify(Account account,Integer retry){
+        account.setNote("正在获取验证码...");
         HttpResponse captchaRsp = captcha(account);
         account.updateLoginInfo(captchaRsp);
 
@@ -1156,6 +1157,7 @@ public class AppleIDUtil {
 
         String verifyAppleIdBody = "{\"id\":\"%s\",\"captcha\":{\"id\":%d,\"answer\":\"%s\",\"token\":\"%s\"}}";
         verifyAppleIdBody = String.format(verifyAppleIdBody,account.getAccount(),captId,captAnswer,captToken);
+        account.setNote("正在验证账户...");
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleId(account,verifyAppleIdBody);
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
@@ -1370,7 +1372,7 @@ public class AppleIDUtil {
     public static HttpResponse verifyAppleIdByPwdProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
 
-        account.setNote("正在验证账号...");
+        account.setNote("正在获取重设方式...");
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
@@ -1390,7 +1392,6 @@ public class AppleIDUtil {
         );
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
-        account.setNote("正在获取重设方式...");
         ThreadUtil.sleep(500);
         HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
                 .header("Connection","keep-alive")
@@ -1488,9 +1489,8 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
-        account.setNote("生日验证通过...");
 
-        account.setNote("正在验证密保");
+        account.setNote("正在验证密保...");
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
@@ -1545,7 +1545,6 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
         account.updateLoginInfo(verifyQuestions2Rsp);
-        account.setNote("密保验证通过...");
 
         account.setNote("正在设置新密码");
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
@@ -1712,14 +1711,6 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(options1Rsp);
         account.updateLoginInfo(options1Rsp);
 
-//        String passwordReset1Location = options2Rsp.header("Location");
-//        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-//                        .header(header)
-//                        .cookie(account.getCookie()));
-//        checkAndThrowUnavailableException(passwordReset1Rsp);
-//        account.updateLoginInfo(passwordReset1Rsp);
-//        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
-
         HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
                         .header(header)
                         .cookie(account.getCookie())
@@ -1732,7 +1723,7 @@ public class AppleIDUtil {
     public static HttpResponse unlockAndUpdatePwdByProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
 
-        account.setNote("正在查询是否可使用密保问题重设密码...");
+        account.setNote("正在获取重设方式...");
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                 .header("Connection","keep-alive")
@@ -1774,9 +1765,8 @@ public class AppleIDUtil {
 
         checkAndThrowUnavailableException(authMethod2Rsp);
         account.updateLoginInfo(authMethod2Rsp);
-        account.setNote("支持密保问题方式解锁改密...");
-
-        account.setNote("正在验证生日");
+        ThreadUtil.sleep(500);
+        account.setNote("正在验证生日...");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                 .header("Connection","keep-alive")
@@ -1818,9 +1808,8 @@ public class AppleIDUtil {
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
         account.updateLoginInfo(verifyBirthday2Rsp);
-        account.setNote("生日验证通过...");
-
-        account.setNote("正在验证密保");
+        ThreadUtil.sleep(500);
+        account.setNote("正在验证密保...");
         if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
             throw new ServiceException("密保不能为空");
         }
@@ -1909,8 +1898,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(options2Rsp);
         account.updateLoginInfo(options2Rsp);
-        account.setNote("密保验证通过...");
-
+        ThreadUtil.sleep(500);
         String unlock1Location = options2Rsp.header("Location");
         HttpResponse unlock1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unlock1Location)
                 .header("Connection","keep-alive")
@@ -1927,7 +1915,7 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(unlock1Rsp);
         account.updateLoginInfo(unlock1Rsp);
-
+        account.setNote("正在解锁...");
         HttpResponse unlockForgot1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/unlock/forgot")
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1945,8 +1933,8 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(unlockForgot1Rsp);
         account.updateLoginInfo(unlockForgot1Rsp);
-
-        account.setNote("正在设置新密码");
+        ThreadUtil.sleep(500);
+        account.setNote("正在设置新密码...");
         String passwordReset1Location = unlockForgot1Rsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
                 .header("Connection","keep-alive")
