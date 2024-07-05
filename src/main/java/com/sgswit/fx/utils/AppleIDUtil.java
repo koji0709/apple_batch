@@ -23,10 +23,7 @@ import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Hello world!
@@ -1205,12 +1202,10 @@ public class AppleIDUtil {
         String location = verifyAppleIdRsp.header("Location");
         HttpResponse rsp = null;
         boolean unlock = location.startsWith("/password/authenticationmethod");
-        // 解锁并且改密
+        // 解锁并且改密 (六月抓包版本)
         if (unlock){
-            rsp = AppleIDUtil.unlockAndUpdatePwdByProtection(verifyAppleIdRsp,account,newPwd);
+            rsp = AppleIDUtil.unlockAndUpdatePwdByProtection2(verifyAppleIdRsp,account,newPwd);
         }else{//忘记密码
-            //rsp = AppleIDUtil.verifyAppleIdByPwdProtection(verifyAppleIdRsp,account,newPwd);
-            // 6月抓包
             rsp = AppleIDUtil.verifyAppleIdByPwdProtection2(verifyAppleIdRsp,account,newPwd);
         }
         return rsp;
@@ -1221,10 +1216,157 @@ public class AppleIDUtil {
         String[] nList = str.split("\n");
         for (String s : nList) {
             String h1 = s.substring(0, s.indexOf(":"));
-            System.err.println(".header(\""+h1+"\",\""+s.substring(s.indexOf(":")+2)+"\")");
+            if (!Arrays.asList("sstt","Cookie","X-Apple-I-FD-Client-Info").contains(h1)){
+                System.err.println(".header(\""+h1+"\",\""+s.substring(s.indexOf(":")+2)+"\")");
+            }
         }
+        System.err.println(".header(\"X-Apple-I-FD-Client-Info\",Constant.BROWSER_CLIENT_INFO)");
+        System.err.println(".header(\"sstt\",verifyAppleIdRsp.header(\"sstt\"))");
     }
 
+    /**
+     * 忘记密码 1官网版本 2六月版本
+     */
+    public static HttpResponse verifyAppleIdByPwdProtection1(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
+        HashMap<String, List<String>> header = buildHeader(account);
+        header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
+
+        String host = "https://iforgot.apple.com";
+
+        account.setNote("正在获取重设方式...");
+        String options1Location = verifyAppleIdRsp.header("Location");
+        HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(options1Rsp);
+        account.updateLoginInfo(options1Rsp);
+        header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
+
+        List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
+
+        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/recovery/options")
+                .header(header)
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(options2Rsp);
+        account.updateLoginInfo(options2Rsp);
+
+        HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
+                        .header(header)
+                        .cookie(account.getCookie())
+                        .body("{\"recoveryOption\":\"reset_password\"}"));
+        checkAndThrowUnavailableException(options3Rsp);
+        account.updateLoginInfo(options3Rsp);
+        account.setNote("重设方式获取成功...");
+
+        account.setNote("正在查询是否可使用密保问题重设密码...");
+        String authMethod1Location = options3Rsp.header("Location");
+        HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(authMethod1Rsp);
+        account.updateLoginInfo(authMethod1Rsp);
+        header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
+
+        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        if(!authMethodOptions.contains("questions")){
+            throw new ServiceException("不支持密保问题方式解锁改密");
+        }
+        HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
+                        .header(authMethod1Rsp.headers())
+                        .header("Content-Type","application/json")
+                        .cookie(account.getCookie())
+                        .body("{\"type\":\"questions\"}"));
+        checkAndThrowUnavailableException(authMethod2Rsp);
+        account.updateLoginInfo(authMethod2Rsp);
+        account.setNote("支持密保问题方式解锁改密...");
+
+        account.setNote("正在验证生日");
+        String verifyBirthday1Location = authMethod2Rsp.header("Location");
+        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(verifyBirthday1Rsp);
+        account.updateLoginInfo(verifyBirthday1Rsp);
+        header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
+        DateTime birthday=null;
+        try {
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("出生日期输入错误！");
+        }
+        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
+                        .header(header)
+                        .header("Content-Type","application/json")
+                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
+        account.updateLoginInfo(verifyBirthday2Rsp);
+        account.setNote("生日验证通过...");
+
+        account.setNote("正在验证密保");
+        if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+            throw new ServiceException("密保不能为空");
+        }
+
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
+                        .header(header)
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(verifyQuestions1Rsp);
+        account.updateLoginInfo(verifyQuestions1Rsp);
+        header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
+
+        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
+        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+
+        Map<Integer,String> answerMap = new HashMap<>(){{
+            put(1,account.getAnswer1());
+            put(2,account.getAnswer2());
+            put(3,account.getAnswer3());
+        }};
+        for (JSONObject question : questions) {
+            question.remove("locale");
+            //重新排序
+            int number=DataUtil.getQuestionIndex(question.getInt("id"));
+            question.putOnce("answer",answerMap.get(number));
+        }
+        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
+        bodyMap.put("questions",questions);
+        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
+                        .header(header)
+                        .body(JSONUtil.toJsonStr(bodyMap))
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
+        account.updateLoginInfo(verifyQuestions2Rsp);
+        account.setNote("密保验证通过...");
+
+        account.setNote("正在设置新密码");
+        String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
+        HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
+                        .header(header)
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(resrtPasswordOptionRsp);
+        account.updateLoginInfo(resrtPasswordOptionRsp);
+        header.put("sstt",List.of(resrtPasswordOptionRsp.header("sstt")));
+
+//        String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
+//        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+//                        .header(header)
+//                        .cookie(account.getCookie()));
+//        checkAndThrowUnavailableException(passwordReset1Rsp);
+//        account.updateLoginInfo(passwordReset1Rsp);
+//        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
+
+        HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
+                        .header(header)
+                        .header("Content-Type","application/json")
+                        .body("{\"password\":\""+newPwd+"\"}")
+                        .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(passwordReset2Rsp);
+        account.updateLoginInfo(passwordReset2Rsp);
+
+        return passwordReset2Rsp;
+    }
     public static HttpResponse verifyAppleIdByPwdProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
 
@@ -1232,18 +1374,18 @@ public class AppleIDUtil {
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
-                .header("Connection","keep-alive")
-                .header("Accept-Encoding","gzip, deflate, br")
-                .header("Accept-Language","zh-CN,zh;q=0.9")
-                .header("X-Requested-With","XMLHttpRequest")
-                .header("Accept","application/json; charset=utf-8")
-                .header("Content-Type","application/json")
-                .header("User-Agent",Constant.BROWSER_USER_AGENT)
-                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
-                .header("Host","iforgot.apple.com")
-                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
-                .header("sstt",verifyAppleIdRsp.header("sstt"))
-                .cookie(account.getCookie())
+                        .header("Connection","keep-alive")
+                        .header("Accept-Encoding","gzip, deflate, br")
+                        .header("Accept-Language","zh-CN,zh;q=0.9")
+                        .header("X-Requested-With","XMLHttpRequest")
+                        .header("Accept","application/json; charset=utf-8")
+                        .header("Content-Type","application/json")
+                        .header("User-Agent",Constant.BROWSER_USER_AGENT)
+                        .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                        .header("Host","iforgot.apple.com")
+                        .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                        .header("sstt",verifyAppleIdRsp.header("sstt"))
+                        .cookie(account.getCookie())
 
         );
         checkAndThrowUnavailableException(options1Rsp);
@@ -1462,155 +1604,10 @@ public class AppleIDUtil {
         return passwordReset2Rsp;
     }
 
-
     /**
-     * 忘记密码
+     * 解锁改密 1官网版本 2六月版本
      */
-    public static HttpResponse verifyAppleIdByPwdProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
-        HashMap<String, List<String>> header = buildHeader(account);
-        header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
-
-        String host = "https://iforgot.apple.com";
-
-        account.setNote("正在获取重设方式...");
-        String options1Location = verifyAppleIdRsp.header("Location");
-        HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(options1Rsp);
-        account.updateLoginInfo(options1Rsp);
-        header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
-
-        List<String> recoveryOptions = JSONUtil.parse(options1Rsp.body()).getByPath("recoveryOptions", List.class);
-
-        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/recovery/options")
-                .header(header)
-                .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(options2Rsp);
-        account.updateLoginInfo(options2Rsp);
-
-        HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
-                        .header(header)
-                        .cookie(account.getCookie())
-                        .body("{\"recoveryOption\":\"reset_password\"}"));
-        checkAndThrowUnavailableException(options3Rsp);
-        account.updateLoginInfo(options3Rsp);
-        account.setNote("重设方式获取成功...");
-
-        account.setNote("正在查询是否可使用密保问题重设密码...");
-        String authMethod1Location = options3Rsp.header("Location");
-        HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(authMethod1Rsp);
-        account.updateLoginInfo(authMethod1Rsp);
-        header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
-
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
-        if(!authMethodOptions.contains("questions")){
-            throw new ServiceException("不支持密保问题方式解锁改密");
-        }
-        HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
-                        .header(authMethod1Rsp.headers())
-                        .header("Content-Type","application/json")
-                        .cookie(account.getCookie())
-                        .body("{\"type\":\"questions\"}"));
-        checkAndThrowUnavailableException(authMethod2Rsp);
-        account.updateLoginInfo(authMethod2Rsp);
-        account.setNote("支持密保问题方式解锁改密...");
-
-        account.setNote("正在验证生日");
-        String verifyBirthday1Location = authMethod2Rsp.header("Location");
-        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyBirthday1Rsp);
-        account.updateLoginInfo(verifyBirthday1Rsp);
-        header.put("sstt",List.of(verifyBirthday1Rsp.header("sstt")));
-        DateTime birthday=null;
-        try {
-            birthday = DateUtil.parse(account.getBirthday());
-        }catch (Exception e){
-            throw new ServiceException("出生日期输入错误！");
-        }
-        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
-                        .header(header)
-                        .header("Content-Type","application/json")
-                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}")
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
-        account.updateLoginInfo(verifyBirthday2Rsp);
-        account.setNote("生日验证通过...");
-
-        account.setNote("正在验证密保");
-        if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
-            throw new ServiceException("密保不能为空");
-        }
-
-        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
-        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyQuestions1Rsp);
-        account.updateLoginInfo(verifyQuestions1Rsp);
-        header.put("sstt",List.of(verifyQuestions1Rsp.header("sstt")));
-
-        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
-        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
-
-        Map<Integer,String> answerMap = new HashMap<>(){{
-            put(1,account.getAnswer1());
-            put(2,account.getAnswer2());
-            put(3,account.getAnswer3());
-        }};
-        for (JSONObject question : questions) {
-            question.remove("locale");
-            //重新排序
-            int number=DataUtil.getQuestionIndex(question.getInt("id"));
-            question.putOnce("answer",answerMap.get(number));
-        }
-        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
-        bodyMap.put("questions",questions);
-        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
-                        .header(header)
-                        .body(JSONUtil.toJsonStr(bodyMap))
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
-        account.updateLoginInfo(verifyQuestions2Rsp);
-        account.setNote("密保验证通过...");
-
-        account.setNote("正在设置新密码");
-        String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
-        HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
-                        .header(header)
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(resrtPasswordOptionRsp);
-        account.updateLoginInfo(resrtPasswordOptionRsp);
-        header.put("sstt",List.of(resrtPasswordOptionRsp.header("sstt")));
-
-//        String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
-//        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-//                        .header(header)
-//                        .cookie(account.getCookie()));
-//        checkAndThrowUnavailableException(passwordReset1Rsp);
-//        account.updateLoginInfo(passwordReset1Rsp);
-//        header.put("sstt",List.of(passwordReset1Rsp.header("sstt")));
-
-        HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
-                        .header(header)
-                        .header("Content-Type","application/json")
-                        .body("{\"password\":\""+newPwd+"\"}")
-                        .cookie(account.getCookie()));
-        checkAndThrowUnavailableException(passwordReset2Rsp);
-        account.updateLoginInfo(passwordReset2Rsp);
-
-        return passwordReset2Rsp;
-    }
-
-    /**
-     * 解锁改密
-     */
-    public static HttpResponse unlockAndUpdatePwdByProtection(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
+    public static HttpResponse unlockAndUpdatePwdByProtection1(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         HashMap<String, List<String>> header = buildHeader(account);
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
         String host = "https://iforgot.apple.com";
@@ -1727,6 +1724,261 @@ public class AppleIDUtil {
                         .header(header)
                         .cookie(account.getCookie())
                         .body("{\"password\":\""+newPwd+"\"}"));
+
+        checkAndThrowUnavailableException(passwordReset2Rsp);
+        account.updateLoginInfo(passwordReset2Rsp);
+        return passwordReset2Rsp;
+    }
+    public static HttpResponse unlockAndUpdatePwdByProtection2(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
+        String host = "https://iforgot.apple.com";
+
+        account.setNote("正在查询是否可使用密保问题重设密码...");
+        String authMethod1Location = verifyAppleIdRsp.header("Location");
+        HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyAppleIdRsp.header("sstt"))
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(authMethod1Rsp);
+
+        account.updateLoginInfo(authMethod1Rsp);
+
+        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        if(!authMethodOptions.contains("questions")){
+            throw new ServiceException("不支持密保问题方式解锁改密");
+        }
+
+        HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","20")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",authMethod1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body("{\"type\":\"questions\"}"));
+
+        checkAndThrowUnavailableException(authMethod2Rsp);
+        account.updateLoginInfo(authMethod2Rsp);
+        account.setNote("支持密保问题方式解锁改密...");
+
+        account.setNote("正在验证生日");
+        String verifyBirthday1Location = authMethod2Rsp.header("Location");
+        HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",authMethod1Rsp.header("sstt"))
+                .cookie(account.getCookie()));
+
+        checkAndThrowUnavailableException(verifyBirthday1Rsp);
+        account.updateLoginInfo(verifyBirthday1Rsp);
+
+        DateTime birthday=null;
+        try {
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("出生日期输入错误！");
+        }
+        HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","52")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyBirthday1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日信息验证");
+        account.updateLoginInfo(verifyBirthday2Rsp);
+        account.setNote("生日验证通过...");
+
+        account.setNote("正在验证密保");
+        if (StrUtil.isEmpty(account.getAnswer1()) || StrUtil.isEmpty(account.getAnswer2()) || StrUtil.isEmpty(account.getAnswer3())){
+            throw new ServiceException("密保不能为空");
+        }
+
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyBirthday1Rsp.header("sstt"))
+                .cookie(account.getCookie()));
+
+        checkAndThrowUnavailableException(verifyQuestions1Rsp);
+        account.updateLoginInfo(verifyQuestions1Rsp);
+        JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
+        List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
+        Map<Integer,String> answerMap = new HashMap<>(){{
+            put(1,account.getAnswer1());
+            put(2,account.getAnswer2());
+            put(3,account.getAnswer3());
+        }};
+        for (JSONObject question : questions) {
+            question.remove("locale");
+            //重新排序
+            int number=DataUtil.getQuestionIndex(question.getInt("id"));
+            question.putOnce("answer",answerMap.get(number));
+        }
+
+        Map<String,List<JSONObject>> bodyMap = new HashMap<>();
+        bodyMap.put("questions",questions);
+        HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","218")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyQuestions1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body(JSONUtil.toJsonStr(bodyMap)));
+        checkAndThrowUnavailableException(verifyQuestions2Rsp,"密保信息验证");
+        account.updateLoginInfo(verifyQuestions2Rsp);
+        String options1Location = verifyQuestions2Rsp.header("Location");
+        HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyQuestions1Rsp.header("sstt"))
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(options1Rsp);
+        account.updateLoginInfo(options1Rsp);
+
+        HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset/options")
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","25")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",options1Rsp.header("sstt"))
+                .body("{\"type\":\"unlock_account\"}")
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(options2Rsp);
+        account.updateLoginInfo(options2Rsp);
+        account.setNote("密保验证通过...");
+
+        String unlock1Location = options2Rsp.header("Location");
+        HttpResponse unlock1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unlock1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",options1Rsp.header("sstt"))
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(unlock1Rsp);
+        account.updateLoginInfo(unlock1Rsp);
+
+        HttpResponse unlockForgot1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/unlock/forgot")
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","2")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",unlock1Rsp.header("sstt"))
+                .body("{}")
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(unlockForgot1Rsp);
+        account.updateLoginInfo(unlockForgot1Rsp);
+
+        account.setNote("正在设置新密码");
+        String passwordReset1Location = unlockForgot1Rsp.header("Location");
+        HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",unlockForgot1Rsp.header("sstt"))
+                .cookie(account.getCookie()));
+        checkAndThrowUnavailableException(passwordReset1Rsp);
+        account.updateLoginInfo(passwordReset1Rsp);
+
+        HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","25")
+                .header("Connection","keep-alive")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",passwordReset1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body("{\"password\":\""+newPwd+"\"}"));
 
         checkAndThrowUnavailableException(passwordReset2Rsp);
         account.updateLoginInfo(passwordReset2Rsp);
