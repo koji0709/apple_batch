@@ -142,10 +142,6 @@ public class AppleIdView extends CustomTableView<Account> {
 
         HttpResponse tokenRsp = AppleIDUtil.token(account,securityCodeOrReparCompleteRsp);
         checkAndThrowUnavailableException(tokenRsp);
-
-        account.setScnt(tokenRsp.header("scnt"));
-        account.setXAppleIDSessionId(tokenRsp.header("X-Apple-ID-Session-Id"));
-
         if (tokenRsp.getStatus() != 200){
             throw new PointDeduException(FunctionListEnum.ACCOUNT_INFO_MODIFY_INFOERR.getCode(), "登录异常;");
         }

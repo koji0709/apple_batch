@@ -5,6 +5,8 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -15,6 +17,7 @@ import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -237,7 +240,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }else{
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
-                    String message = AppleIDUtil.getValidationErrors(updatePasswordRsp, "修改密码失败");
+                    String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
                     setMessageAndRefreshTable("updatePwd",message,messageMap,account);
                 }else{
                     account.setPwd(newPwd);
@@ -256,7 +259,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String birthdayFormat = DateUtil.format(birthday, "yyyy-MM-dd");
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayFormat);
                 if (updateBirthdayRsp.getStatus() != 200){
-                    String message = AppleIDUtil.getValidationErrors(updateBirthdayRsp, "修改生日失败");
+                    String message = AppleIDUtil.getValidationErrors("修改生日",updateBirthdayRsp, "修改生日失败");
                     setMessageAndRefreshTable("updateBirthday",message,messageMap,account);
                 }else{
                     account.setBirthday(birthdayFormat);
@@ -284,7 +287,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
             HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
             if (updateNameRsp.getStatus() != 200){
-                String message = AppleIDUtil.getValidationErrors(updateNameRsp, "修改姓名失败");
+                String message = AppleIDUtil.getValidationErrors("修改姓名",updateNameRsp, "修改姓名失败");
                 setMessageAndRefreshTable("updateName", message,messageMap,account);
             }else{
                 account.setName(firstName + lastName);
@@ -316,7 +319,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                         ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
-                    String message = AppleIDUtil.getValidationErrors(updateQuestionsRsp, "修改密保失败");
+                    String message = AppleIDUtil.getValidationErrors("修改密保",updateQuestionsRsp, "修改密保失败");
                     setMessageAndRefreshTable("updatePasswordProtection", message,messageMap,account);
                 }else{
                     account.setAnswer1(answer1TextFieldText);
@@ -336,10 +339,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             String body = deviceListRsp.body();
             JSONObject bodyJson = JSONUtil.parseObj(body);
             List<String> deviceIdList = bodyJson.getByPath("devices.id", List.class);
+
             if (CollUtil.isEmpty(deviceIdList)){
                 setMessageAndRefreshTable("removeDevice","该账号下暂无设备",messageMap,account);
             }else{
-                AppleIDUtil.removeDevices(deviceListRsp);
+                AppleIDUtil.removeDevices(account,deviceIdList);
                 setMessageAndRefreshTable("removeDevice","移除设备成功",messageMap,account);
             }
         }
@@ -347,12 +351,16 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         // 移除救援邮箱
         if (removeRescueEmailCheckBoxSelected){
             setMessageAndRefreshTable("removeRescueEmail","正在移除救援邮箱...",messageMap,account);
-            HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
-            if (deleteRescueEmailRsp.getStatus() != 204){
-                String message = AppleIDUtil.getValidationErrors(deleteRescueEmailRsp, "移除救援邮箱失败");
-                setMessageAndRefreshTable("removeRescueEmail", message,messageMap,account);
+            if (StrUtil.isEmpty(account.getRescueEmail())){
+                setMessageAndRefreshTable("removeRescueEmail","该账号下无救援邮箱",messageMap,account);
             }else{
-                setMessageAndRefreshTable("removeRescueEmail","移除救援邮箱成功",messageMap,account);
+                HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
+                if (deleteRescueEmailRsp.getStatus() != 204){
+                    String message = AppleIDUtil.getValidationErrors("移除救援邮箱",deleteRescueEmailRsp, "移除救援邮箱失败");
+                    setMessageAndRefreshTable("removeRescueEmail",message,messageMap,account);
+                }else{
+                    setMessageAndRefreshTable("removeRescueEmail","移除救援邮箱成功",messageMap,account);
+                }
             }
         }
 
@@ -367,7 +375,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String langCode = languageMap.get(showLang);
                 HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
                 if (changeShowLanguageRsp.getStatus() != 200){
-                    String message = AppleIDUtil.getValidationErrors(changeShowLanguageRsp,"修改显示语言失败");
+                    String message = AppleIDUtil.getValidationErrors("修改显示语言",changeShowLanguageRsp,"修改显示语言失败");
                     setMessageAndRefreshTable("updateShowLang", message ,messageMap,account);
                 }else{
                     setMessageAndRefreshTable("updateShowLang","修改显示语言成功",messageMap,account);

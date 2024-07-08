@@ -908,7 +908,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         boolean hasField = ReflectUtil.hasField(account.getClass(), "taskNo");
         if (hasField){
             String taskNo = (String) ReflectUtil.getFieldValue(account,"taskNo");
-            LoggerManger.info(taskNo + "->" + note);
+            LoggerManger.info(StrUtil.isEmpty(taskNo) ? note : taskNo + "->" + note);
         }else{
             String account1 = (String) ReflectUtil.getFieldValue(account,"account");
             LoggerManger.info(account1 + "->" + note);
