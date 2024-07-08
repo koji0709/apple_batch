@@ -2041,10 +2041,16 @@ public class AppleIDUtil {
             }
             if (CollUtil.isEmpty(errorMessageList)){
                 return defaultMessage;
+            }else{
+                if(StrUtil.isEmpty(defaultMessage)){
+                    return String.join(";",errorMessageList);
+                }else{
+                    return defaultMessage+":"+String.join(";",errorMessageList);
+                }
             }
         }catch (Exception e){
             return defaultMessage;
         }
-        return String.join(";",errorMessageList);
+
     }
 }

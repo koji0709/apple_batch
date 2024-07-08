@@ -48,7 +48,7 @@
                                                 <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                                 <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                                 <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <Button mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                             </children>
                                         </GridPane>
 

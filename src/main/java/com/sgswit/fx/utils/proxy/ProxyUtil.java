@@ -56,6 +56,9 @@ public class ProxyUtil{
         HttpResponse httpResponse=null;
        try{
            httpResponse= createRequest(request).execute();
+           if(Thread.currentThread().isInterrupted()){
+               throw new ServiceException("请求失败：停止任务");
+           }
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
                ThreadUtil.sleep(randomInt*1000);
@@ -87,7 +90,7 @@ public class ProxyUtil{
        }catch (HttpException e){
            //响应超时
            throw new ServiceException("服务端响应超时");
-       }finally {
+       } finally {
            map503Error.remove(requestId);
            mapIoError.remove(requestId);
        }

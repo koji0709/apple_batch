@@ -83,6 +83,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected Button executeButton;
 
     @FXML
+    protected Button stopButton;
+
+    @FXML
     protected Button importAccountButton;
 
     @FXML
@@ -99,9 +102,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
-    //线程池
+    /**线程池服务类**/
     protected ExecutorService executorService;
-    protected static int ThreadCount=Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4"));
+    /**线程池大小**/
+    protected static int threadCount=Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4"));
 
     private Class clz = Account.class;
     private List<String> formats;
@@ -110,6 +114,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
+        //禁用停止按钮
+        stopButton.setDisable(true);
         // 获取当前stage
         if (url != null) {
             String file = url.getFile();
@@ -287,9 +293,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
    　* @date 2024/7/4 23:44
    */
     private void executorServiceSubmit(T account){
-        if(null==executorService || executorService.isTerminated()){
-            executorService = Executors.newFixedThreadPool(ThreadCount);
-        }
+        executorService=getExecutorService(threadCount);
         Future<?> future= executorService.submit(()->{
             try {
                 if(!runningList.contains(account)){
@@ -384,7 +388,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             runningList.remove(account);
             if(runningList.size()==0 || accountTableView.getItems().size()==0){
                 Platform.runLater(() -> setExecuteButtonStatus(false));
-                executorService.shutdownNow();
+                stopExecutorService();
             }
         }
     }
@@ -620,24 +624,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 //            List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
             List<Future<?>> futureList = threadMap.get(stage);
             if (!CollUtil.isEmpty(futureList)){
-                // 关闭服务，不再接受新任务，但会等待正在执行的任务完成
-//                executorService.shutdown();
-                //// 立即关闭服务，并尝试停止所有任务,返回待执行的任务集合
-                List<Runnable> runnableList=executorService.shutdownNow();
+                // 立即关闭服务，并尝试停止所有任务,返回待执行的任务集合
+                stopExecutorService();
                 for (Future<?> future:futureList){
-                    Thread.sleep(100L);
                     boolean cancel=future.cancel(true);
-                    Thread.currentThread().interrupt();
-//                    if(cancel){
-//                        System.out.println("任务取消成功");
-//                    }else{
-//                        System.out.println("任务取消失败");
-//                    }
-                }
-                for (Object account : runningList) {
-                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                    if(!hasFinished){
-                        setAndRefreshNote((T)account,"请求失败：停止任务");
+                    if(cancel){
+                        System.out.println("任务取消成功");
+                    }else{
+                        System.out.println("任务取消失败");
                     }
                 }
             }
@@ -674,7 +668,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         accountList.clear();
         runningList.clear();
-        executorService.shutdownNow();
+        stopExecutorService();
         setAccountNumLabel();
         accountTableView.refresh();
     }
@@ -796,6 +790,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
         if (importAccountButton != null){
             importAccountButton.setDisable(isRunning);
+        }
+        if (stopButton != null){
+            stopButton.setDisable(!isRunning);
         }
     }
 
@@ -948,6 +945,35 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
     }
 
+    /*
+     **获取线程池
+     * @param
+     * @return java.util.concurrent.ScheduledExecutorService
+     * @throws
+     * @author DeZh
+     * @date 2024/7/8 15:33
+     */
+    protected ExecutorService getExecutorService(int threadCount){
+        if(null==executorService || executorService.isShutdown()){
+            executorService = Executors.newScheduledThreadPool(threadCount);
+        }
+        return executorService;
+    }
+    /*
+     **停止线程池服务
+     * @param
+     * @return java.util.concurrent.ScheduledExecutorService
+     * @throws
+     * @author DeZh
+     * @date 2024/7/8 15:33
+     */
+    protected void stopExecutorService(){
+        if(null==executorService || executorService.isShutdown()){
+
+        }else{
+            executorService.shutdownNow();
+        }
+    }
     protected String createId(String account,String password){
         return account+":"+password;
     }

@@ -362,9 +362,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountGroupMap.put(account,giftCardRedeemList);
         }
         for (String key : accountGroupMap.keySet()) {
-            if(null==executorService || executorService.isTerminated()){
-                executorService = Executors.newFixedThreadPool(ThreadCount);
-            }
+            executorService=super.getExecutorService(threadCount);
             Future<?> future= executorService.submit(()->{
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
@@ -409,9 +407,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
 
     private void timer(){
-        if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
-            scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        }
+        scheduledExecutorService= getScheduledExecutorService();
         scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                setExecuteButtonStatus();
@@ -446,20 +442,30 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }catch (Exception e){
 
             }
-            if(countMap.size()==0){
-                //关闭线程池
-//                scheduledExecutorService.shutdown();
-//                System.out.println("关闭线程池");
-            }
         }, 0, 3, TimeUnit.SECONDS);
     }
+    /*
+    　**获取线程池
+      * @param
+    　* @return java.util.concurrent.ScheduledExecutorService
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/7/8 15:33
+    */
+    private ScheduledExecutorService getScheduledExecutorService(){
+        if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
+            scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        }
+        return scheduledExecutorService;
+    }
+
 
     public void setExecuteButtonStatus(){
         Platform.runLater(() -> setExecuteButtonStatus(true));
         // 任务执行结束, 恢复执行按钮状态
         if (runningList.size()==0 || accountTableView.getItems().size()==0){
             Platform.runLater(() -> setExecuteButtonStatus(false));
-            executorService.shutdownNow();
+            stopExecutorService();
         }
     }
 
@@ -602,8 +608,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 put("recipientDsid",giftCardRedeem.getDsPersonId());
                 put("initBalance", new BigDecimal(totalMoneyRaw).subtract(new BigDecimal(giftCardMoneyRaw)));
                 put("redeemBalance",giftCardMoneyRaw);
-                //设置东八区时间和服务器一致
-//                put("redeemTime",DateUtil.now());
             }};
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
