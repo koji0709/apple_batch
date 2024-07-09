@@ -55,7 +55,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         //扣除点数
         try {
             account.setHasFinished(false);
-            setAndRefreshNote(account,"查询中...");
+            setAndRefreshNote(account,"正在获取验证码...");
             Thread.sleep(2*1000);
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
@@ -68,9 +68,10 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             JSONObject object = JSONUtil.parseObj(body);
             String capId = object.getStr("id");
             String capToken = object.getStr("token");
+            setAndRefreshNote(account,"正在识别验证码...");
             //解析图片
             try {
-                Thread.sleep(2*1000);
+                Thread.sleep(1*1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -78,6 +79,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             String content = payloadJson.getStr("content");
             String predict = OcrUtil.recognize(content);
             String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
+            setAndRefreshNote(account,"正在验证账户...");
             HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                     .body(bodys)
                     .header(headers));
@@ -118,7 +120,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 }
             }
         }catch (Exception e){
-
+            e.printStackTrace();
         }finally {
             account.setHasFinished(true);
         }

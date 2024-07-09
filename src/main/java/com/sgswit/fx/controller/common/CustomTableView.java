@@ -627,12 +627,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 // 立即关闭服务，并尝试停止所有任务,返回待执行的任务集合
                 stopExecutorService();
                 for (Future<?> future:futureList){
-                    boolean cancel=future.cancel(true);
-                    if(cancel){
-                        System.out.println("任务取消成功");
-                    }else{
-                        System.out.println("任务取消失败");
-                    }
+                   future.cancel(true);
                 }
             }
             // 停止任务, 恢复按钮状态
