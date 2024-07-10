@@ -112,13 +112,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
             alertMessage.setLabelFor(loginBtn);
             alertMessage.setText("等待初始化....");
         }else{
-            new Thread(() -> {
+            ThreadUtil.execAsync(()->{
                 try {
                     loginAndInit();
                 }catch (Exception e){
 
                 }
-            }).start();
+            });
         }
         super.initialize(url,resourceBundle);
     }
@@ -147,13 +147,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-                new Thread(() -> {
+                ThreadUtil.execAsync(()->{
                     try {
                         loginAndInit();
                     }catch (Exception e){
 
                     }
-                }).start();
+                });
             }
         });
     }
@@ -205,13 +205,13 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
-        new Thread(() -> {
+        ThreadUtil.execAsync(()->{
             try {
                 loginAndInit();
             }catch (Exception e){
 
             }
-        }).start();
+        });
     }
 
     @Override
@@ -567,12 +567,12 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
 
     private void timerStart(){
         if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
-            scheduledExecutorService= Executors.newScheduledThreadPool(1);
+            scheduledExecutorService= Executors.newSingleThreadScheduledExecutor();
         }
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
-        scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledFuture= scheduledExecutorService.scheduleWithFixedDelay(() -> {
             login();
-        }, 0, 15, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.SECONDS);
     }
 
 }

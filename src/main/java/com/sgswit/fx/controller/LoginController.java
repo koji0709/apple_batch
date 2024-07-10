@@ -2,6 +2,7 @@ package com.sgswit.fx.controller;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.NetUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -113,7 +114,7 @@ public class LoginController extends CommonView implements Initializable {
             if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
                 return;
             }
-            new Thread(() -> {
+            ThreadUtil.execAsync(() -> {
                 try {
                     Thread.sleep(1500);
                     //JavaFX Application Thread会逐个阻塞的执行这些任务
@@ -127,7 +128,7 @@ public class LoginController extends CommonView implements Initializable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }).start();
+            });
         }
 
         // 在线qq

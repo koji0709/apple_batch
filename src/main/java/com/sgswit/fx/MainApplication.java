@@ -1,5 +1,6 @@
 package com.sgswit.fx;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.controller.common.CommonView;
@@ -165,10 +166,10 @@ public class MainApplication extends Application {
 
 
     protected static void getData(){
-        new Thread(() -> DataUtil.getCountry()).start();
-        new Thread(() -> DataUtil.getNews()).start();
-        new Thread(() -> PointUtil.getPointConfig()).start();
-        new Thread(() -> DataUtil.getProxyConfig()).start();
+        ThreadUtil.execAsync(() -> DataUtil.getCountry());
+        ThreadUtil.execAsync(() -> DataUtil.getNews());
+        ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
+        ThreadUtil.execAsync(() -> DataUtil.getProxyConfig());
     }
     @Override
     public void init() throws Exception {

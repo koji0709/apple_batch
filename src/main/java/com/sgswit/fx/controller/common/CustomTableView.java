@@ -53,9 +53,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * account表格视图
@@ -102,8 +100,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected ObservableList<T> accountList = FXCollections.observableArrayList();
 
     protected StageEnum stage;
-    /**线程池服务类**/
-    protected ExecutorService executorService;
+    /**线程池**/
+    protected ThreadPoolExecutor threadPoolExecutor;
     /**线程池大小**/
     protected static int threadCount=Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4"));
 
@@ -293,8 +291,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
    　* @date 2024/7/4 23:44
    */
     private void executorServiceSubmit(T account){
-        executorService=getExecutorService(threadCount);
-        Future<?> future= executorService.submit(()->{
+        threadPoolExecutor=getExecutorService(threadCount);
+        Future<?> future= threadPoolExecutor.submit(()->{
             try {
                 if(!runningList.contains(account)){
                     runningList.add(account);
@@ -948,11 +946,22 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * @author DeZh
      * @date 2024/7/8 15:33
      */
-    protected ExecutorService getExecutorService(int threadCount){
-        if(null==executorService || executorService.isShutdown()){
-            executorService = Executors.newScheduledThreadPool(threadCount);
+    protected ThreadPoolExecutor getExecutorService(int threadCount){
+        // 核心线程数
+        int corePoolSize = threadCount;
+        // 最大线程数
+        int maximumPoolSize = threadCount;
+        // 空闲线程存活时间（单位：秒）
+        long keepAliveTime = 60L;
+        if(null==threadPoolExecutor || threadPoolExecutor.isShutdown()){
+            threadPoolExecutor = new ThreadPoolExecutor(
+                    corePoolSize,
+                    maximumPoolSize,
+                    keepAliveTime,
+                    TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>());
         }
-        return executorService;
+        return threadPoolExecutor;
     }
     /*
      **停止线程池服务
@@ -963,10 +972,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * @date 2024/7/8 15:33
      */
     protected void stopExecutorService(){
-        if(null==executorService || executorService.isShutdown()){
+        if(null==threadPoolExecutor || threadPoolExecutor.isShutdown()){
 
         }else{
-            executorService.shutdownNow();
+            threadPoolExecutor.shutdownNow();
         }
     }
     protected String createId(String account,String password){

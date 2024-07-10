@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
@@ -220,7 +221,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
      * 登录按钮点击
      */
     public void loginBtnAction() {
-        new Thread(() -> {
+        ThreadUtil.execAsync(() -> {
             try {
                 String accountTextFieldValue = accountTextField.getText();
                 if (StrUtil.isEmpty(accountTextFieldValue)) {
@@ -278,7 +279,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     open2FAViewBtn.setDisable(false);
                 });
             }
-        }).start();
+        });
     }
 
     /**

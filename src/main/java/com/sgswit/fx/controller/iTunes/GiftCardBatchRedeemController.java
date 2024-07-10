@@ -362,8 +362,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountGroupMap.put(account,giftCardRedeemList);
         }
         for (String key : accountGroupMap.keySet()) {
-            executorService=super.getExecutorService(threadCount);
-            Future<?> future= executorService.submit(()->{
+            threadPoolExecutor=super.getExecutorService(threadCount);
+            Future<?> future= threadPoolExecutor.submit(()->{
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
                 Iterator<GiftCardRedeem> iterator = accountList.iterator();
@@ -627,7 +627,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      * 检测账号按钮点击
      */
     public void checkAccountBtnAction(){
-        new Thread(() -> {
+        ThreadUtil.execAsync(() -> {
             try{
                 String accountComboBoxValue = accountComboBox.getValue();
                 if (StrUtil.isEmpty(accountComboBoxValue)){
@@ -721,7 +721,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     editOrImportAccountListBtn.setDisable(false);
                 });
             }
-        }).start();
+        });
     }
 
     /**
