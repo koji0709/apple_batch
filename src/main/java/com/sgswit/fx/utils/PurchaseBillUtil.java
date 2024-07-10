@@ -10,7 +10,10 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
-import cn.hutool.http.*;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -36,8 +39,6 @@ import java.util.Map;
 public class PurchaseBillUtil {
 
     public static void main(String[] args ) throws Exception {
-//        Map<String,Object> res=webLoginAndAuth("gbkrccqrfbg@hotmail.com","Weiqi100287.");
-//        Map<String,Object> res=webLoginAndAuth("djli0506@163.com","##B0527s0207");
 //        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
 //        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 //                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
@@ -45,13 +46,13 @@ public class PurchaseBillUtil {
 //                "<dict>\n" +
 //                "\t<key>sign-sap-setup-buffer</key>\n" +
 //                "\t<data>\n" +
-//                "\tAQhKdD/RkztjkFqunbzm27gmJu58NokfUn6ZGRV7KGnxA1uuT3UmOLzN25YfaV4L3ePR\n" +
-//                "\tLxMeQxdEtUgTQr3DQbzhjd5a63J5+cpljJQQUoBdxm4KD96noRcptMSK9/wZC62H7aBI\n" +
-//                "\t60p7V2e10qyeR0YussFJuMEYKUSD6w1pqK4/NCjvL0WcKeezInOzH89sda548/GLzRen\n" +
-//                "\tFFoOAiLSW3DBI9d+eB49duZTC065+1HW7S0ZNv6cZb6zRnMX743dLbvIqOWAKD3FHQ9h\n" +
-//                "\tEzSkTn/TpT99VsITJqYzitVfNWnBWog/HC8iXF+zz26J70+2RSwIFRFwK42/UCRyJNx8\n" +
-//                "\tOOuVUBRWqSnSVjvoUKH37Hr8J7zlJe9knaQsAAAAMDsu3WljmqxwZ7Kd5uP6mu501XFD\n" +
-//                "\tjwLFEwcqn93ScJ/jBjGNw0bhl3vZpl/31P6r2mVPA/G+ypWMv05wVcNXPYR6mgpy\n" +
+//                "\tAQhKdD/RkztjkIdhy4kw0BkPtgDZiIhjWOLKINBQpoX4ajnXWPit+NMykKtM8l7Vk2fm\n" +
+//                "\tLlHhVWWJyfF+AVS7YkAb+40GuxNiv4vfQKgQk1CWSdR+tQGk/+x2aFOcAdqh//iWBuoQ\n" +
+//                "\tmn8oSq8CE1JfELplZgb5lcAW6Q1y5b94S+7BsXRa97LwuqunlA0OkI9GUdQGiWXa3zli\n" +
+//                "\tbr1Zpd7A4AYdxj9UnIfxNtg/uounVRduyb3ySaSeDCCMdsiyZev5dI3OKtBgX68JRuYh\n" +
+//                "\tu0RZYztnSqEXfuU6PHLe1/IKKt0ydsW8sdEu0yWQYtE+4B9Acub9MPva7vZcjvCNAynr\n" +
+//                "\tyoynKDzuM/NtWvobDa76sXTj7ap/jZMwOYD4AAAAMD9VN64rsnwXQ8TmcrKxw/1mJKDH\n" +
+//                "\tMSo6fN4aw1yM0mBQWd3Hia2qd9YyvAO3lD/hKMOo2CnrimKKjIHNuY0rBI23oEwK\n" +
 //                "\t</data>\n" +
 //                "</dict>\n" +
 //                "</plist>";
@@ -640,7 +641,7 @@ public class PurchaseBillUtil {
         byte[] p = SRPPassword(password, salt, iter);
         // calculateX // x = SHA(s | SHA(U | ":" | p))
         BigInteger X = calculateX(salt, p);
-        BigInteger bigB = new BigInteger(1,Base64.decode(b));
+        BigInteger bigB = new BigInteger(1, Base64.decode(b));
         BigInteger bigA = new BigInteger(HexUtil.encodeHexStr(Base64.decode(a)),16);
 
         byte[] ab = bigA.toByteArray();
@@ -861,16 +862,11 @@ public class PurchaseBillUtil {
         return iTunesLogin(authCode,guid,0,paras);
     }
     private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
-        int num=0;
-        if(null==paras.get("num") || "".equals(MapUtil.getStr(paras,"num"))){
-
-        }else{
-            num=MapUtil.getInt(paras,"num");
-        }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
 //        headers.put("User-Agent", ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
+        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
                 "<plist version=\"1.0\">"+
@@ -925,7 +921,7 @@ public class PurchaseBillUtil {
                 paras.put("code","1");
                 paras.put("msg","出于安全原因，你的账户已被锁定。");
                 return paras;
-            }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"You cannot login because your account has been locked")){
+            }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,Constant.ACCOUNT_HAS_BEEN_LOCKED)){
                 paras.put("code","1");
                 paras.put("msg","帐户存在欺诈行为，已被【双禁】。");
                 return paras;

@@ -40,11 +40,6 @@ public class BirthdayCountryQueryController extends AppleIdView {
     public void accountHandler(Account account) {
         account.setHasFinished(false);
         setAndRefreshNote(account, "正在登录...");
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         // 登录
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...");

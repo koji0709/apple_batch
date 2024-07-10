@@ -94,7 +94,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                         //返还点数
                         PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                         accountHandler(account);
-                    }else if("-20210".equals(code)){
+                    }else{
                         String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
                         setAndRefreshNote(account,message);
                     }
@@ -113,10 +113,8 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 String service_errors = jsonObject.getStr("serviceErrors");
                 JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                 if(null!=jsonArray){
-                    String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                    if("appleIdNotSupported".equals(code)){
-                        setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
-                    }
+                    String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                    setAndRefreshNote(account,message);
                 }
             }
         }catch (Exception e){

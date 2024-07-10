@@ -59,7 +59,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         //扣除点数
         try {
             account.setHasFinished(false);
-            setAndRefreshNote(account,"查询中...");
+            setAndRefreshNote(account,"正在获取验证码...");
             Thread.sleep(2*1000);
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
@@ -68,6 +68,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             HttpResponse captchaResponse =
                     ProxyUtil.execute(HttpUtil.createGet(url)
                             .header(headers));
+            setAndRefreshNote(account,"正在识别验证码...");
             String body = captchaResponse.body();
             JSONObject object = JSONUtil.parseObj(body);
             String capId = object.getStr("id");
@@ -75,6 +76,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
             JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
             String content = payloadJson.getStr("content");
             String predict = OcrUtil.recognize(content);
+            setAndRefreshNote(account,"正在验证账户...");
             String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
             HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
                     .body(bodys)
@@ -90,9 +92,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                         //返还点数
                         PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
                         accountHandler(account);
-                    }else if("-20210".equals(code)){
-                        setAndRefreshNote(account,"这个 Apple ID 没有被激活。");
-                        insertLocalHistory(List.of(account));
+                    }else{
+                        String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                        setAndRefreshNote(account,message);
                     }
                 }
             }else if(verifyAppleIdRes.getStatus() == 302){
@@ -103,7 +105,12 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {
-                        setAndRefreshNote(account,"Apple ID 或密码不正确");
+                        String service_errors = JSONUtil.parseObj(verifyAppleIdRes.body()).getStr("serviceErrors");
+                        JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                        if(null!=jsonArray){
+                            String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                            setAndRefreshNote(account,message);
+                        }
                     }else{
                         setAndRefreshNote(account,"正常账号");
                     }
@@ -111,7 +118,12 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {
-                        setAndRefreshNote(account,"Apple ID 或密码不正确");
+                        String service_errors = JSONUtil.parseObj(verifyAppleIdRes.body()).getStr("serviceErrors");
+                        JSONArray jsonArray = JSONUtil.parseArray(service_errors);
+                        if(null!=jsonArray){
+                            String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                            setAndRefreshNote(account,message);
+                        }
                     }else{
                         setAndRefreshNote(account,"此AppleID已开启双重认证");
                     }
@@ -122,11 +134,8 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 String service_errors = jsonObject.getStr("serviceErrors");
                 JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                 if(null!=jsonArray){
-                    String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
-                    if("appleIdNotSupported".equals(code)){
-                        setAndRefreshNote(account,"此 Apple ID 无效或不受支持。");
-                        insertLocalHistory(List.of(account));
-                    }
+                    String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
+                    setAndRefreshNote(account,message);
                 }
             }
         }catch (Exception e){

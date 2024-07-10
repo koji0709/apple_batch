@@ -98,7 +98,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 if("302".equals(addMap.get("code"))){
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                     addMap = ShoppingUtil.add2bag(prodMap);
                     if(!Constant.SUCCESS.equals(addMap.get("code"))){
                         throw new ServiceException(MapUtil.getStr(addMap,"msg"));
