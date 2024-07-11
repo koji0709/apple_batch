@@ -61,8 +61,8 @@ import java.util.concurrent.*;
  * @author HeHongdong
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
-    protected static List runningList=new ArrayList<>();
-    // 登录成功的账号缓存(缓存5分钟,能刷新)
+    protected List runningList=new ArrayList<>();
+    /**登录成功的账号缓存(缓存30分钟,能刷新)**/
     private static final long time=30*60*1000;
 
     protected static Map<StageEnum,List<Future<?>>> threadMap = new HashMap<>();
