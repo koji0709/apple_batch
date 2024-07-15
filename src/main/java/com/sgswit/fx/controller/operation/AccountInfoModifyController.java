@@ -387,6 +387,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             throw new ServiceException(account.getNote());
         }
     }
+
     private void setMessageAndRefreshTable(String key,String message, Map<String,String> messageMap,Account account){
         String note="";
         messageMap.put(key, message);

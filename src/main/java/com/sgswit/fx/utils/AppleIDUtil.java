@@ -1229,7 +1229,11 @@ public class AppleIDUtil {
         account.updateLoginInfo(authMethod1Rsp);
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        String authMethodBody = authMethod1Rsp.body();
+        if (StrUtil.isEmpty(authMethodBody) || !JSONUtil.parseObj(authMethodBody).containsKey("options")){
+            throw new ServiceException("没有重设密码的方式");
+        }
+        List<String> authMethodOptions = JSONUtil.parse(authMethodBody).getByPath("options", List.class);
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
@@ -1386,8 +1390,11 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         checkAndThrowUnavailableException(authMethod1Rsp);
         account.updateLoginInfo(authMethod1Rsp);
-
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        String authMethodBody = authMethod1Rsp.body();
+        if (StrUtil.isEmpty(authMethodBody) || !JSONUtil.parseObj(authMethodBody).containsKey("options")){
+            throw new ServiceException("没有重设密码的方式");
+        }
+        List<String> authMethodOptions = JSONUtil.parse(authMethodBody).getByPath("options", List.class);
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
@@ -1581,7 +1588,11 @@ public class AppleIDUtil {
         account.updateLoginInfo(authMethod1Rsp);
         header.put("sstt",List.of(authMethod1Rsp.header("sstt")));
 
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        String authMethodBody = authMethod1Rsp.body();
+        if (StrUtil.isEmpty(authMethodBody) || !JSONUtil.parseObj(authMethodBody).containsKey("options")){
+            throw new ServiceException("没有重设密码的方式");
+        }
+        List<String> authMethodOptions = JSONUtil.parse(authMethodBody).getByPath("options", List.class);
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
@@ -1701,8 +1712,11 @@ public class AppleIDUtil {
         checkAndThrowUnavailableException(authMethod1Rsp);
 
         account.updateLoginInfo(authMethod1Rsp);
-
-        List<String> authMethodOptions = JSONUtil.parse(authMethod1Rsp.body()).getByPath("options", List.class);
+        String authMethodBody = authMethod1Rsp.body();
+        if (StrUtil.isEmpty(authMethodBody) || !JSONUtil.parseObj(authMethodBody).containsKey("options")){
+            throw new ServiceException("没有重设密码的方式");
+        }
+        List<String> authMethodOptions = JSONUtil.parse(authMethodBody).getByPath("options", List.class);
         if(!authMethodOptions.contains("questions")){
             throw new ServiceException("不支持密保问题方式解锁改密");
         }
