@@ -1073,7 +1073,7 @@ public class AppleIDUtil {
      * 获取图形验证码
      */
     public static HttpResponse captcha(Account account){
-        String url = "https://iforgot.apple.com/captcha";
+        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
@@ -1082,8 +1082,7 @@ public class AppleIDUtil {
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("sstt",ListUtil.toList(account.getSstt()));
-        return ProxyUtil.execute(HttpUtil.createPost(url)
-                .body("{\"type\":\"IMAGE\"}")
+        return ProxyUtil.execute(HttpUtil.createGet(url)
                 .cookie(account.getCookie())
                         .header(headers));
     }
@@ -1343,7 +1342,7 @@ public class AppleIDUtil {
                         .header("Accept","application/json; charset=utf-8")
                         .header("Content-Type","application/json")
                         .header("User-Agent",Constant.BROWSER_USER_AGENT)
-                        .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                        .header("Referer","https://iforgot.apple.com/")
                         .header("Host","iforgot.apple.com")
                         .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                         .header("sstt",verifyAppleIdRsp.header("sstt"))
@@ -1361,7 +1360,7 @@ public class AppleIDUtil {
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
                 .header("User-Agent",Constant.BROWSER_USER_AGENT)
-                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Referer","https://iforgot.apple.com/")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",verifyAppleIdRsp.header("sstt"))
@@ -2011,7 +2010,7 @@ public class AppleIDUtil {
         if (StrUtil.isEmpty(action)){
             return String.join("、",errorMessageList);
         }
-        
+
         return action + ":" + String.join("、",errorMessageList);
     }
 }
