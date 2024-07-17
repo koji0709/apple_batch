@@ -584,7 +584,7 @@ public class ShoppingUtil {
         String state=addressInfo.get("addressOfficialStateProvince");
         String city=addressInfo.get("addressOfficialCity");
 
-        if(!MapUtil.getBool(paras ,"deliveryFlag")){
+//        if(!MapUtil.getBool(paras ,"deliveryFlag")){
             if("USA".equals(countryCode)){
                 paramMap.put("checkout.shipping.addressContactPhone.address.fullDaytimePhone","4103562000");
                 paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
@@ -593,7 +593,7 @@ public class ShoppingUtil {
                 paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.city",state);
                 paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.state",state);
             }
-        }
+//        }
         if("USA".equals(countryCode) || "JPN".equals(countryCode) ||"DEU".equals(countryCode)
             ||"CAN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2",street2);

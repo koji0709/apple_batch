@@ -305,7 +305,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                 TableColumn tableColumn = (TableColumn) column;
                 String id = tableColumn.getId();
                 String text = tableColumn.getText();
-                if (!"seq".equals(id)) {
+                if (null!=id && !"seq".equals(id)) {
                     if (ReflectUtil.hasField(selectModel.getClass(), id)) {
                         Object value = ReflectUtil.invoke(
                                 selectModel
@@ -323,10 +323,10 @@ public class CommRightContextMenuView<T> extends CommonView {
         String str = resultList.stream().collect(Collectors.joining("\n"));
         try {
             ClipboardManager.setClipboard(str);
+            alert("复制成功！");
         } catch (Exception e) {
             alert("复制失败！");
         }
-        alert("复制成功！");
     }
     /**
     　* 复制全部信息
@@ -357,7 +357,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                     TableColumn tableColumn = (TableColumn) column;
                     String id = tableColumn.getId();
                     String text = "";
-                    if (!"seq".equals(id)) {
+                    if (null!=id && !"seq".equals(id)) {
                         if (ReflectUtil.hasField(selectModel.getClass(), id)) {
                             Object value = ReflectUtil.invoke(
                                     selectModel
@@ -378,10 +378,11 @@ public class CommRightContextMenuView<T> extends CommonView {
             final ClipboardContent content = new ClipboardContent();
             content.putString(clipboardString.toString());
             Clipboard.getSystemClipboard().setContent(content);
+            alert("复制成功！");
         } catch (Exception e) {
+            e.printStackTrace();
             alert("复制失败！");
         }
-        alert("复制成功！");
     }
 
     /**
