@@ -1,14 +1,16 @@
 package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StageUtil;
-import com.sgswit.fx.utils.StyleUtil;
+import com.sgswit.fx.utils.*;
 import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +20,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
@@ -319,6 +324,16 @@ public class MainController implements Initializable {
     }
     @FXML
     public void refreshRemainingPoints() {
+        ThreadUtil.execAsync(()->{
+            String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
+            HttpResponse rsp = HttpUtils.get("/userInfo/getInfoByUserName/"+SM4Util.decryptBase64(base64UserName));
+            JSON json= JSONUtil.parse(rsp.body());
+            if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                remainingPoints.setText( json.getByPath("data.remainingPoints",String.class));
+            }else {
+                remainingPoints.setText("0");
+            }
+        });
         TranslateTransition translateTransition = new TranslateTransition(Duration.millis(100), remainingPoints);
         translateTransition.setFromY(-1);
         translateTransition.setToY(1);
@@ -326,14 +341,6 @@ public class MainController implements Initializable {
         translateTransition.setToX(1);
         translateTransition.setCycleCount(1);
         translateTransition.play();
-        //加载点数
-        Map<String, Object> userInfo = DataUtil.getUserInfo();
-        String points=MapUtil.getStr(userInfo,"remainingPoints");
-        if(StringUtils.isEmpty(points)){
-            remainingPoints.setText("0");
-        }else{
-            remainingPoints.setText(points);
-        }
     }
     @FXML
     public void onLineUpgrader(ActionEvent actionEvent) {

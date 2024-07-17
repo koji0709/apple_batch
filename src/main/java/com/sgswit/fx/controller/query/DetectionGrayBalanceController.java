@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -85,20 +86,20 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("serviceKey", WebLoginUtil.createClientId());
             // 获取产品
             setAndRefreshNote(account,"正在加载商品信息...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             Map<String,Object> prodMap = ShoppingUtil.getProd(paras);
             if(!Constant.SUCCESS.equals(prodMap.get("code"))){
                 throw new ServiceException(MapUtil.getStr(prodMap,"msg"));
             }
             setAndRefreshNote(account,"商品信息加载成功...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             // 添加到购物车
             setAndRefreshNote(account,"添加到购物车中...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 if("302".equals(addMap.get("code"))){
-                    Thread.sleep(1000);
+                    ThreadUtil.sleep(1000);
                     addMap = ShoppingUtil.add2bag(prodMap);
                     if(!Constant.SUCCESS.equals(addMap.get("code"))){
                         throw new ServiceException(MapUtil.getStr(addMap,"msg"));
@@ -111,14 +112,14 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }
             // 查看购物车
             setAndRefreshNote(account,"获取购物车中商品信息");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             Map<String,Object> bag = ShoppingUtil.shopbag(addMap);
             if(!Constant.SUCCESS.equals(bag.get("code"))){
                 throw new ServiceException(MapUtil.getStr(bag,"msg"));
             }
             // 提交购物车
             setAndRefreshNote(account,"购物车中商品信息获取成功");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             setAndRefreshNote(account,"提交购物信息...");
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag);
             if(!Constant.SUCCESS.equals(cheMap.get("code"))){
@@ -126,17 +127,17 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }
             //调登录页面
             setAndRefreshNote(account,"登录页面加载中...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             Map<String,Object> signInMap = ShoppingUtil.shopSignIn(cheMap);
             if(!Constant.SUCCESS.equals(signInMap.get("code"))){
                 throw new ServiceException(MapUtil.getStr(signInMap,"msg"));
             }
             //登录
             setAndRefreshNote(account,"页面加载成功，登录中...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
             setAndRefreshNote(account,"登录成功...");
-            Thread.sleep(1000);
+            ThreadUtil.sleep(1000);
             setAndRefreshNote(account,"正在查询余额...");
             //回调applestore
             Map<String,Object> checkoutStartMap = ShoppingUtil.callBack(signInMap);
@@ -153,13 +154,19 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             if(!Constant.SUCCESS.equals(checkoutMap.get("code"))){
                 throw new ServiceException( MapUtil.getStr(checkoutMap,"msg"));
             }
-            Thread.sleep(1000);
+            //生成随机地址
+            Map<String,String> addressInfo=DataUtil.getAddressInfo(countryCode);
+            checkoutMap.put("addressInfo",addressInfo);
+            if(!MapUtil.getBool(checkoutMap ,"deliveryFlag")){
+                checkoutMap= ShoppingUtil.fulfillmentTodeliveryTab(checkoutMap);
+            }
+            ThreadUtil.sleep(500);
             //选择shipping - 邮寄
             Map<String,Object> shippingMap= ShoppingUtil.fillmentToShipping(checkoutMap);
             if(!Constant.SUCCESS.equals(shippingMap.get("code"))){
                 throw new ServiceException( MapUtil.getStr(shippingMap,"msg"));
             }
-            Thread.sleep(1000);
+            ThreadUtil.sleep(500);
             //填写shipping - 地址
             Map<String, Object> map = ShoppingUtil.shippingToBilling(shippingMap);
             if(!Constant.SUCCESS.equals(map.get("code"))){
@@ -167,7 +174,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }
             account.setState(map.get("address").toString());
             //确认地址 - 显示账户余额
-            Thread.sleep(1000);
+            ThreadUtil.sleep(500);
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);
             if(httpResponse.getStatus() != 200){
                 throw new ServiceException("余额查询失败！");

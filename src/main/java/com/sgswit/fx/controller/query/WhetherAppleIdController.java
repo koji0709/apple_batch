@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
@@ -56,7 +57,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         try {
             account.setHasFinished(false);
             setAndRefreshNote(account,"正在获取验证码...");
-            Thread.sleep(2*1000);
+            ThreadUtil.sleep(1000);
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
             headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
@@ -70,11 +71,7 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
             String capToken = object.getStr("token");
             setAndRefreshNote(account,"正在识别验证码...");
             //解析图片
-            try {
-                Thread.sleep(1*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            ThreadUtil.sleep(1*1000);
             JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
             String content = payloadJson.getStr("content");
             String predict = OcrUtil.recognize(content);

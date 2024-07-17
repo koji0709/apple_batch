@@ -547,7 +547,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         String  body = redeemRsp.body();
         if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
-            throw new ServiceException(Constant.REDEEM_WAIT2_DESC);
+            throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);
         }
         // 兑换
         JSONObject redeemBody = JSONUtil.parseObj(body);

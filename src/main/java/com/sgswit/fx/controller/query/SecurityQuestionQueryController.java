@@ -64,11 +64,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         Account account = new Account();
         account.setAccount(problem.getAccount());
         account.setPwd(problem.getPwd());
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ThreadUtil.sleep(1500);
         HttpResponse step1Res = AppleIDUtil.signin(account);
         setAndRefreshNote(problem,"查询密保问题中...");
         if (step1Res.getStatus() != 409) {

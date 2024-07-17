@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
@@ -60,7 +61,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         try {
             account.setHasFinished(false);
             setAndRefreshNote(account,"正在获取验证码...");
-            Thread.sleep(2*1000);
+            ThreadUtil.sleep(1000);
             HashMap<String, List<String>> headers = new HashMap<>();
             headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
             headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));

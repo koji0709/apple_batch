@@ -99,7 +99,7 @@ public class LoginController extends CommonView implements Initializable {
                 // 模拟加载过程
                 for (int i = 0; i <= 100; i++) {
                     updateProgress(i, 100);
-                    Thread.sleep(50);
+                    ThreadUtil.sleep(50);
                 }
 
                 return null;
@@ -116,7 +116,7 @@ public class LoginController extends CommonView implements Initializable {
             }
             ThreadUtil.execAsync(() -> {
                 try {
-                    Thread.sleep(1500);
+                    ThreadUtil.sleep(1500);
                     //JavaFX Application Thread会逐个阻塞的执行这些任务
                     Platform.runLater(new Task<Integer>() {
                         @Override
@@ -125,7 +125,7 @@ public class LoginController extends CommonView implements Initializable {
                             return 1;
                         }
                     });
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });

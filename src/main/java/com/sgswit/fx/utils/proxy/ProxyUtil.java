@@ -68,7 +68,7 @@ public class ProxyUtil{
                    failCount=1+int503;
                }
                map503Error.put(requestId,failCount);
-               if(failCount>30){
+               if(failCount>40){
                    throw new UnavailableException();
                }
                return execute(request);

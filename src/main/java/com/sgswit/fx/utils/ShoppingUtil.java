@@ -123,6 +123,7 @@ public class ShoppingUtil {
             paras.put("code","1");
             return paras;
         }
+        cookiesMap=CookieUtils.setCookiesToMap(atbRes,cookiesMap);
         if(null != atbRes.headers().get("Set-Cookie")) {
             for (String c : atbRes.headers().get("Set-Cookie")) {
                 int split = c.indexOf(";");
@@ -169,8 +170,9 @@ public class ShoppingUtil {
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
         HttpResponse res = ProxyUtil.execute(httpRequest);
         if(res.getStatus() == 302){
+            String location=res.header("Location");
             paras.put("msg","加入购物车失败！"+res.getStatus());
-            paras.put("code","1");
+            paras.put("code","302");
             return paras;
         }else if(res.getStatus() != 303){
             paras.put("msg","加入购物车失败！"+res.getStatus());
@@ -442,12 +444,64 @@ public class ShoppingUtil {
 
         paras.put("url",checkoutUrl);
         paras.put("code",Constant.SUCCESS);
+
+
+        Elements metricsDataElement = prodDoc.select("script[id=\"metrics\"]");
+
+        JSONObject jsonObject = JSONUtil.parseObj(metricsDataElement.html());
+        String leadQuoteTime=jsonObject.getByPath("data.properties.leadQuoteTime",String.class);
+        //正常格式是："leadQuoteTime": "AOS: CHECKOUT|MUJT3|0|postalCode=99613|Delivery|E2|"
+        if (leadQuoteTime.contains("Delivery")){
+            paras.put("deliveryFlag",true);
+        }else {
+            paras.put("deliveryFlag",false);
+        }
         return paras;
     }
 
     //选择shipping - 邮寄
-    public static Map<String,Object> fillmentToShipping(Map<String,Object> paras) throws Exception{
+    public static Map<String,Object> fulfillmentTodeliveryTab(Map<String,Object> paras){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, *; q=0.01"));
+        headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+
+        headers.put("x-aos-model-page", ListUtil.toList(paras.get("x-aos-model-page").toString()));
+        headers.put("x-aos-stk",ListUtil.toList(paras.get("x-aos-stk").toString()));
+        headers.put("modelVersion",ListUtil.toList(paras.get("modelVersion").toString()));
+        headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
+
+        headers.put("x-requested-with",ListUtil.toList("Fetch"));
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
+        headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
+        Map<String,Object> paramMap = new HashMap<>();
+        Map<String,String> addressInfo=MapUtil.get(paras,"addressInfo",Map.class);
+        String postalCode=addressInfo.get("addressOfficialPostalCode");
+        paramMap.put("checkout.fulfillment.deliveryTab.delivery.deliveryLocation.address.postalCode",postalCode);
+        String url =  paras.get("url") + "x?_a=calculate&_m=checkout.fulfillment.deliveryTab.delivery.deliveryLocation.address";
+        HttpRequest httpRequest=HttpUtil.createPost(url)
+                .header(headers)
+                .form(paramMap)
+                .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
+        HttpResponse resp = ProxyUtil.execute(httpRequest);
+        if(resp.getStatus() != 200){
+            paras.put("code","1");
+            paras.put("msg","余额查询失败，请稍后重试！");
+            return paras;
+        }
+        paras.put("code",Constant.SUCCESS);
+        Map<String,String>  cookiesMap= (Map<String, String>) paras.get("cookiesMap");;
+        paras.put("cookiesMap" , CookieUtils.setCookiesToMap(resp,cookiesMap));
+        return paras;
+    }
+    //选择shipping - 邮寄
+    public static Map<String,Object> fillmentToShipping(Map<String,Object> paras) throws Exception{
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept", ListUtil.toList("application/json, text/javascript, *; q=0.01"));
@@ -523,12 +577,23 @@ public class ShoppingUtil {
         paramMap.put("checkout.shipping.addressSelector.newAddress.address.lastName",faker.name().lastName());
         paramMap.put("checkout.shipping.addressSelector.newAddress.address.firstName",faker.name().firstName());
         BaseAreaInfo areaInfo=DataUtil.getInfoByCountryCode(countryCode);
-        Map<String,String> addressInfo=DataUtil.getAddressInfo(countryCode);
+        Map<String,String> addressInfo=MapUtil.get(paras,"addressInfo",Map.class);
         String postalCode=addressInfo.get("addressOfficialPostalCode");
         String street=addressInfo.get("addressOfficialLineFirst");
         String street2=addressInfo.get("addressOfficialLineSecond");
         String state=addressInfo.get("addressOfficialStateProvince");
         String city=addressInfo.get("addressOfficialCity");
+
+        if(!MapUtil.getBool(paras ,"deliveryFlag")){
+            if("USA".equals(countryCode)){
+                paramMap.put("checkout.shipping.addressContactPhone.address.fullDaytimePhone","4103562000");
+                paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
+                paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode",postalCode);
+                paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
+                paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.city",state);
+                paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.state",state);
+            }
+        }
         if("USA".equals(countryCode) || "JPN".equals(countryCode) ||"DEU".equals(countryCode)
             ||"CAN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2",street2);

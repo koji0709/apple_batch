@@ -1219,7 +1219,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(options3Rsp);
         account.setNote("重设方式获取成功...");
 
-        account.setNote("正在查询是否可使用密保问题重设密码...");
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                         .header(header)
@@ -1577,7 +1576,6 @@ public class AppleIDUtil {
         header.put("sstt",List.of(verifyAppleIdRsp.header("sstt")));
         String host = "https://iforgot.apple.com";
 
-        account.setNote("正在查询是否可使用密保问题重设密码...");
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
                         .header(header)

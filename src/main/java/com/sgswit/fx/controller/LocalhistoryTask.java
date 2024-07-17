@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.cron.CronUtil;
 import cn.hutool.cron.task.Task;
 import cn.hutool.db.Db;
@@ -9,7 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.utils.LoggerManger;
 import com.sgswit.fx.utils.db.DataSourceFactory;
 
-import java.util.*;
+import java.util.LinkedList;
 
 public class LocalhistoryTask {
 
@@ -22,7 +23,7 @@ public class LocalhistoryTask {
                 try {
                     LoggerManger.info("【日志定时任务】 entity:" + JSONUtil.toJsonStr(entity));
                     Db.use(DataSourceFactory.getDataSource()).insert(entity);
-                    Thread.sleep(1000L);
+                    ThreadUtil.sleep(1000);
                     entityList.remove(entity);
                 } catch (Exception e) {
                     e.printStackTrace();

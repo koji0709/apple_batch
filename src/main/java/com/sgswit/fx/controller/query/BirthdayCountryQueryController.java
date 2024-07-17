@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
@@ -43,11 +44,7 @@ public class BirthdayCountryQueryController extends AppleIdView {
         // 登录
         login(account);
         setAndRefreshNote(account,"正在读取用户信息...");
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ThreadUtil.sleep(2000);
         try {
             HttpResponse step4Res = AppleIDUtil.account(account);
             String managerBody = step4Res.body();
