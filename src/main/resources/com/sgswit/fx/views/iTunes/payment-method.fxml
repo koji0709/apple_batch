@@ -49,7 +49,7 @@
                                                <GridPane.margin>
                                                    <Insets left="15.0" />
                                                </GridPane.margin></Button>
-                                           <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号">
+                                           <Button fx:id="importAccountButton" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号">
                                                <GridPane.margin>
                                                    <Insets left="5.0" />
                                                </GridPane.margin></Button>

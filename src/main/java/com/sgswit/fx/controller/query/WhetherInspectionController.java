@@ -62,9 +62,9 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             if(res.get("code").equals(Constant.SUCCESS)){
                 int purchasesLast90Count=0;
                 boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-                if(hasInspectionFlag){
-                    purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
-                }
+//                if(hasInspectionFlag){
+//                    purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
+//                }
                 account.setInspection(hasInspectionFlag? "已过检":"未过检");
                 account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
                 account.setNote("查询成功");

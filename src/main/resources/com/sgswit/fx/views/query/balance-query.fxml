@@ -40,7 +40,7 @@
                                  <children>
                                      <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1" />
                                      <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                     <Button fx:id="accountInputBtn" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号" />
+                                     <Button fx:id="importAccountButton" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号" />
                                      <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" />
                                      <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                  </children>
