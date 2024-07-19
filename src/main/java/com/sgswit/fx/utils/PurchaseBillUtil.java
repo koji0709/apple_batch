@@ -565,7 +565,7 @@ public class PurchaseBillUtil {
             result.put("code","400");
             String messageBodyLocKey=JSONUtil.parse(loginResponse.body()).getByPath("error.messageBodyLocKey",String.class);
             if("RAP2.Error.ACCOUNT_DISABLED.Body".equals(messageBodyLocKey)){
-                result.put("msg",Constant.errorMap.get(Constant.ACCOUNT_HAS_BEEN_LOCKED));
+                result.put("msg","帐户存在欺诈行为，已被【双禁】。");
             }
             return result;
         }
@@ -915,41 +915,17 @@ public class PurchaseBillUtil {
             }
             String rb = res.charset("UTF-8").body();
             JSONObject rspJSON = PListUtil.parse(rb);
-            String failureType = rspJSON.getStr("failureType");
-            String customerMessage = rspJSON.getStr("customerMessage");
-            if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"account is disabled")){
-                paras.put("code","1");
-                paras.put("msg","出于安全原因，你的账户已被锁定。");
-                return paras;
-            }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,Constant.ACCOUNT_HAS_BEEN_LOCKED)){
-                paras.put("code","1");
-                paras.put("msg","帐户存在欺诈行为，已被【双禁】。");
+            Map<String,Object> result=ITunesUtil.checkLoginRes(rb);
+            String code= (String) result.get("code");
+            if(!Constant.SUCCESS.equals(code)){
+                if(Constant.CustomerMessageNotYetUsediTunesStoreCode.equals(code)){
+                    paras.put("hasInspectionFlag",false);
+                }
+                paras.put("msg",result.get("msg"));
+                paras.put("code",code);
                 return paras;
             }
             paras.put("hasInspectionFlag",true);
-            if(!StringUtils.isEmpty(customerMessage) &&failureType.equals(Constant.CustomerMessageNotYetUsediTunesStoreCode)){
-                paras.put("hasInspectionFlag",false);
-                String appStoreOverCheckUrl=rspJSON.getByPath("dialog.okButtonAction.url",String.class);
-                paras.put("appStoreOverCheckUrl",appStoreOverCheckUrl);
-                paras.put("code",Constant.SUCCESS);
-                return paras;
-            }
-
-            if(!StringUtils.isEmpty(failureType) && !StringUtils.isEmpty(customerMessage)){
-                paras.put("code","1");
-                paras.put("msg",customerMessage);
-                return paras;
-            }
-            if(StringUtils.isEmpty(failureType)  && Constant.CustomerMessageBadLogin.equals(customerMessage)){
-                paras.put("code",Constant.TWO_FACTOR_AUTHENTICATION);
-                paras.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
-                return paras;
-            }
-            if(!StringUtils.isEmpty(failureType)){
-                paras.put("code","1");
-                paras.put("msg","登录失败");
-                return paras;
-            }
             paras.put("msg","登录成功");
             paras.put("code",Constant.SUCCESS);
             String firstName = rspJSON.getByPath("accountInfo.address.firstName",String.class);

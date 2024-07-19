@@ -445,7 +445,8 @@ public class ITunesUtil {
         boolean hasInspectionFlag=MapUtil.getBool(paras,"hasInspectionFlag");
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("X-Apple-Store-Front", ListUtil.toList("application/json, text/plain, */*"));
+        headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
+//        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
         headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
         if(hasInspectionFlag){
             headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
@@ -523,6 +524,8 @@ public class ITunesUtil {
     public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
+        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
+
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -734,4 +737,52 @@ public class ITunesUtil {
                             .body(redeemBody));
             return redeemRsp;
     }
+    /**
+    　* 校验iTunes登录结果
+      * @param
+     * @param res
+    　* @return java.util.Map<java.lang.String,java.lang.Object>
+    　* @throws
+    　* @author DeZh
+    　* @date 2024/7/18 11:36
+    */
+    public static Map<String, Object> checkLoginRes(String res){
+        Map<String,Object> result=new HashMap<>();
+        JSONObject rspJSON = PListUtil.parse(res);
+        boolean m_allowed =rspJSON.getByPath("m-allowed",boolean.class);
+        //登录失败
+        if(!m_allowed){
+            String customerMessage=rspJSON.getStr("customerMessage");
+            String failureType=rspJSON.getStr("failureType");
+            if(StringUtils.isEmpty(failureType)  && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+                result.put("code",Constant.TWO_FACTOR_AUTHENTICATION);
+                result.put("msg","Apple ID或密码错误。或需要输入双重验证码！");
+            }else{
+                String dialogId=  rspJSON.getByPath("metrics.dialogId",String.class);
+                if(!StrUtil.isEmpty(dialogId)){
+                    if(dialogId.equalsIgnoreCase(Constant.MZFinanceDisabledAndFraudLocked)){
+                        result.put("code","-1");
+                        result.put("msg","帐户存在欺诈行为，已被【双禁】！");
+                    }else  if(dialogId.equalsIgnoreCase(Constant.MZFinanceAccountDisabled)){
+                        result.put("code","-1");
+                        result.put("msg","出于安全原因，你的账户已被锁定。");
+                    }else  if(dialogId.equalsIgnoreCase(Constant.MZFinanceAccountConversion)){
+                        result.put("code",Constant.CustomerMessageNotYetUsediTunesStoreCode);
+                        result.put("msg","此 Apple ID 尚未用于 App Store。");
+                    }
+                }else{
+                    result.put("code","-1");
+                    result.put("msg",customerMessage);
+                }
+            }
+        }else{
+            //登录成功
+            result.put("code",Constant.SUCCESS);
+            result.put("msg","登录成功！");
+            return result;
+
+        }
+        return result;
+    }
+
 }

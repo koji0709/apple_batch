@@ -60,17 +60,13 @@ public class WhetherInspectionController extends CustomTableView<Account> {
             setAndRefreshNote(account,"查询是否过检中...");
             account.setHasFinished(true);
             if(res.get("code").equals(Constant.SUCCESS)){
-                int purchasesLast90Count=0;
-                boolean hasInspectionFlag= (boolean) res.get("hasInspectionFlag");
-//                if(hasInspectionFlag){
-//                    purchasesLast90Count= PurchaseBillUtil.accountPurchasesLast90Count(res);
-//                }
-                account.setInspection(hasInspectionFlag? "已过检":"未过检");
-                account.setPurchasesLast90Count(String.valueOf(purchasesLast90Count));
-                account.setNote("查询成功");
+                account.setInspection("已过检");
+            } else if(Constant.CustomerMessageNotYetUsediTunesStoreCode.equals(res.get("code"))){
+                account.setInspection("未过检");
             }else {
                 throw new ServiceException(res.get("msg").toString());
             }
+            account.setNote("查询成功");
             accountTableView.refresh();
             insertLocalHistory(List.of(account));
         }catch (Exception e){

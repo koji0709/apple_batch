@@ -1,12 +1,16 @@
 package com.sgswit.fx.controller.common;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.ITunesUtil;
+import com.sgswit.fx.utils.PListUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -73,11 +77,9 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         }catch (Exception e){
             throw new UnavailableException();
         }
+        Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
 
-        String failureType     = json.getStr("failureType","");
-        String customerMessage = json.getStr("customerMessage","");
-
-        boolean verify = !(status != 200 || !StrUtil.isEmpty(failureType)  || !StrUtil.isEmpty(customerMessage));
+        boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
         if (verify){
             setAndRefreshNote(accountModel,"登录成功。");
             accountModel.setAuthCode("");
@@ -92,16 +94,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             loginSuccessMap.put(storeId,accountModel);
             return;
         }
-
-        String message = "登录失败。";
-        if (!StrUtil.isEmpty(customerMessage)){
-            for (Map.Entry<String, String> entry : Constant.errorMap.entrySet()) {
-                if (StringUtils.containsIgnoreCase(customerMessage,entry.getKey())){
-                    message = entry.getValue();
-                    break;
-                }
-            }
-        }
+        String message = MapUtil.getStr(result,"msg");
         throw new ServiceException(message);
     }
 
