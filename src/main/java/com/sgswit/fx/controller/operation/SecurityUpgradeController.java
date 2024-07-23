@@ -73,7 +73,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String format = dialCodeComboBox.getValue().toString();
             String countryDialCode   = format.substring(1,format.indexOf("("));
             JSONObject json = globalMobilePhoneMap.get(countryDialCode);
-            String countryCode = json.getStr("locale");
+            String countryCode = json.getStr("code");
 
             String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\""+countryCode+"\",\"number\":\""+phone+"\",\"countryDialCode\":\""+countryDialCode+"\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
 
