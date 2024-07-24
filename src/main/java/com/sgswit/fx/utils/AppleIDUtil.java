@@ -1042,15 +1042,15 @@ public class AppleIDUtil {
                 .header("sstt",verifyBirthday1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
-        account.updateLoginInfo(verifyBirthday2Rsp);
-
-        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
-        if (StrUtil.isEmpty(verifyQuestions1Location)){
-            throw new ServiceException("生日校验不通过");
+        String verifyBirthdayMessage = getValidationErrors(verifyBirthday2Rsp, "");
+        if (verifyBirthday2Rsp.getStatus() != 200 || !StrUtil.isEmpty(verifyBirthdayMessage)){
+            throw new ServiceException(verifyBirthdayMessage);
         }
         account.setNote("生日验证通过...");
+        account.updateLoginInfo(verifyBirthday2Rsp);
 
         account.setNote("正在验证密保");
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1094,15 +1094,15 @@ public class AppleIDUtil {
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body(JSONUtil.toJsonStr(bodyMap)));
-        account.updateLoginInfo(verifyQuestions2Rsp);
-
-        String unenrollment1Location = verifyQuestions2Rsp.header("Location");
-        if (StrUtil.isEmpty(verifyQuestions1Location)){
-            throw new ServiceException("密保校验不通过");
+        String verifyQuestionsMessage = getValidationErrors(verifyQuestions2Rsp, "");
+        if (verifyQuestions2Rsp.getStatus() != 200 || !StrUtil.isEmpty(verifyQuestionsMessage)){
+            throw new ServiceException(verifyQuestionsMessage);
         }
         account.setNote("密保验证通过...");
+        account.updateLoginInfo(verifyQuestions2Rsp);
 
         account.setNote("正在关闭双重认证");
+        String unenrollment1Location = verifyQuestions2Rsp.header("Location");
         HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
