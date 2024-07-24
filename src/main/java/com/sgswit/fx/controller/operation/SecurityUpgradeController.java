@@ -78,7 +78,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\""+countryCode+"\",\"number\":\""+phone+"\",\"countryDialCode\":\""+countryDialCode+"\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
 
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
-            String failMessage = failMessage(securityUpgradeVerifyPhoneRsp);
+            String failMessage = AppleIDUtil.hasFailMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){
                 throw new ServiceException(failMessage);
             }
@@ -106,19 +106,9 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
             String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
             HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp,account,body2);
-            if (securityUpgradeRsp.getStatus() != 302){
-                throw new ServiceException("绑定双重认证失败");
-            }
-
-            HttpResponse signInRsp = signIn(account);
-            if(signInRsp.getStatus()!=409){
-                throw new ServiceException("绑定双重认证失败");
-            }
-            // Auth
-            String authType = JSONUtil.parse(signInRsp.body()).getByPath("authType",String.class);
-            // 双重认证
-            if (!"hsa2".equals(authType)) {
-                throw new ServiceException("绑定双重认证失败");
+            if (securityUpgradeRsp.getStatus() != 200){
+                String failMessage = AppleIDUtil.getValidationErrors("绑定双重认证", securityUpgradeRsp, "绑定双重认证失败");
+                throw new ServiceException(failMessage);
             }
             setAndRefreshNote(account,"绑定双重认证成功");
         }
