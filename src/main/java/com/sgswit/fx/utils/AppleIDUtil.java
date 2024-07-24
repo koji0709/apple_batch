@@ -951,7 +951,20 @@ public class AppleIDUtil {
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
 
         HttpResponse verifyPhone1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyPhone1Location)
-                        .header(buildHeader(account)));
+                .header("Connection","keep-alive")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",account.getSstt())
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(verifyPhone1Rsp);
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
         if (recoverable == null || !recoverable){
@@ -960,27 +973,93 @@ public class AppleIDUtil {
         }
 
         HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
-                        .header(verifyPhone1Rsp.headers()));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","*")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyPhone1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(verifyPhone2Rsp);
 
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
-                        .header(verifyPhone2Rsp.headers()));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","0")
+                .header("sstt",verifyPhone1Rsp.header("sstt"))//todo
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(unenrollmentRsp);
+
+
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-                        .header(buildHeader(account)));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",unenrollmentRsp.header("sstt"))//todo
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(verifyBirthday1Rsp);
 
         DateTime birthday = DateUtil.parse(account.getBirthday());
-
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
-                        .header(verifyBirthday1Rsp.headers())
-                        .header("Content-Type","application/json")
-                        .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","52")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyBirthday1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
+        account.updateLoginInfo(verifyBirthday2Rsp);
+
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         if (StrUtil.isEmpty(verifyQuestions1Location)){
             account.setNote("生日校验不通过");
             return null;
         }
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-                        .header(buildHeader(account)));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyBirthday1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(verifyQuestions1Rsp);
 
         JSON verifyQuestions1BodyJSON = JSONUtil.parse(verifyQuestions1Rsp.body());
         List<JSONObject> questions = verifyQuestions1BodyJSON.getByPath("questions",List.class);
@@ -996,9 +1075,20 @@ public class AppleIDUtil {
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
         HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/questions")
-                        .header(verifyQuestions1Rsp.headers())
-                        .header("Content-Type","application/json")
-                        .body(JSONUtil.toJsonStr(bodyMap)));
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","207")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyQuestions1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body(JSONUtil.toJsonStr(bodyMap)));
+        account.updateLoginInfo(verifyQuestions2Rsp);
 
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
         if (StrUtil.isEmpty(verifyQuestions1Location)){
@@ -1006,21 +1096,56 @@ public class AppleIDUtil {
             return null;
         }
         HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
-                        .header(buildHeader(account)));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json; charset=utf-8")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/unenrollment/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",verifyQuestions1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(unenrollment1Rsp);
 
         HttpResponse unenrollment2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment")
-                        .header(unenrollment1Rsp.headers()));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","0")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",unenrollment1Rsp.header("sstt"))
+                .cookie(account.getCookie())
+        );
+        account.updateLoginInfo(unenrollment2Rsp);
 
-        String unenrollmentReset1Location = unenrollment2Rsp.header("Location");
-        HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollmentReset1Location)
-                        .header(buildHeader(account)));
+        HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, *; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("Content-Length","27")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",unenrollment2Rsp.header("sstt"))
+                .cookie(account.getCookie())
+                .body("{\"password\":\""+newPwd+"\"}")
+        );
 
-        HttpResponse unenrollmentReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
-                        .header(unenrollmentReset1Rsp.headers())
-                        .header("Content-Type","application/json")
-                        .body("{\"password\":\""+newPwd+"\"}"));
-
-        return unenrollmentReset2Rsp;
+        return unenrollmentReset1Rsp;
     }
 
 
