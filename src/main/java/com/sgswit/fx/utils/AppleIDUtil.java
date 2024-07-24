@@ -1042,8 +1042,8 @@ public class AppleIDUtil {
                 .header("sstt",verifyBirthday1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
-        String verifyBirthdayMessage = getValidationErrors(verifyBirthday2Rsp, "");
-        if (verifyBirthday2Rsp.getStatus() != 200 || !StrUtil.isEmpty(verifyBirthdayMessage)){
+        if (verifyBirthday2Rsp.getStatus() != 200){
+            String verifyBirthdayMessage = getValidationErrors("生日验证",verifyBirthday2Rsp, "生日验证失败");
             throw new ServiceException(verifyBirthdayMessage);
         }
         account.setNote("生日验证通过...");
@@ -1094,8 +1094,8 @@ public class AppleIDUtil {
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body(JSONUtil.toJsonStr(bodyMap)));
-        String verifyQuestionsMessage = getValidationErrors(verifyQuestions2Rsp, "");
-        if (verifyQuestions2Rsp.getStatus() != 200 || !StrUtil.isEmpty(verifyQuestionsMessage)){
+        if (verifyQuestions2Rsp.getStatus() != 200){
+            String verifyQuestionsMessage = getValidationErrors("密保验证",verifyBirthday2Rsp, "密保验证失败");
             throw new ServiceException(verifyQuestionsMessage);
         }
         account.setNote("密保验证通过...");
