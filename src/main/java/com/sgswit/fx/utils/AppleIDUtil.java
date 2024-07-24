@@ -1026,7 +1026,12 @@ public class AppleIDUtil {
         );
         account.updateLoginInfo(verifyBirthday1Rsp);
 
-        DateTime birthday = DateUtil.parse(account.getBirthday());
+        DateTime birthday=null;
+        try {
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("出生日期输入错误！");
+        }
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
