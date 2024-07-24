@@ -55,10 +55,11 @@ public class ProxyUtil{
         HttpRequest.closeCookie();
         HttpResponse httpResponse=null;
        try{
-           httpResponse= createRequest(request).execute();
+
            if(Thread.currentThread().isInterrupted()){
                throw new ServiceException("请求失败：停止任务");
            }
+           httpResponse= createRequest(request).execute();
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
                ThreadUtil.sleep(randomInt*1000);
@@ -68,7 +69,7 @@ public class ProxyUtil{
                    failCount=1+int503;
                }
                map503Error.put(requestId,failCount);
-               if(failCount>40){
+               if(failCount>50){
                    throw new UnavailableException();
                }
                return execute(request);
@@ -142,7 +143,14 @@ public class ProxyUtil{
                         String authUser=MapUtil.getStr(map,"account");
                         String authPassword= MapUtil.getStr(map,"pwd");
                         if("2".equals(key)){
-                            return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
+                            String requestId= MD5.create().digestHex(request.toString());
+                            Integer int503=map503Error.get(requestId);
+                            //设置遇到503错误时，每错误10次 走一次本地IP
+                            if(int503%10==0){
+                                return proxyRequest(request,sendTimeOut);
+                            }else{
+                                return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
+                            }
                         }else if("1".equals(key)){
                             String proxyApiUrl= MessageFormat.format("{0}:{1}",new String[]{proxyHost, String.valueOf(proxyPort)});
                             return  apiProxyRequest(request,proxyApiUrl,authUser,authPassword, false,sendTimeOut);
