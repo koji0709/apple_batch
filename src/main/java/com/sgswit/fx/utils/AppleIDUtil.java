@@ -887,35 +887,27 @@ public class AppleIDUtil {
      * @param body {"acceptedWarnings":[],"phoneNumberVerification":{"phoneNumber":{"countryCode":"CN","number":"17608177103","countryDialCode":"86","nonFTEU":true},"mode":"sms"}}
      */
     public static HttpResponse securityUpgradeVerifyPhone(Account account,String body){
-        HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
-        headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
-        headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
-
-        headers.put("scnt", ListUtil.toList(account.getScnt()));
-
-        headers.put("Origin",ListUtil.toList("https://appleid.apple.com"));
-        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
-
-        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
-        headers.put("X-Apple-I-Request-Context",ListUtil.toList("ca"));
-        headers.put("X-Apple-Api-Key",ListUtil.toList("cbf64fd6843ee630b463f358ea0b707b"));
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
-        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
-        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
-
-
         String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                        .header(headers)
-                        .body(body)
-                        .cookie(account.getCookie()));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("X-Apple-Widget-Key","af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3")
+                .header("X-Apple-Skip-Repair-Attributes","[]")
+                .header("X-Apple-OAuth-Context","RQxRAQ20qFn9ELI0Hqt3DF3+DGBOSLM2U1G6d0f4j80kE1AtzTYVvZR5+MNgjBKSneLdyxKKKtSFgJ+OTWwJlPodqjASiJu+Gf0SKlq+Gep1vsz44l765MopQVPE2N7ELjUbozxhp7x6e0mgb/rB0okLNSm+eyX8R6Ig3rnG+fC9x0nJ5iNbjr3oLh+/EoFB8GtI6gfbdjznYSeyN5IZxC5XACGoUo4b5xE=")
+                .header("X-Apple-Session-Token","Aw7hychvTQ8AZhsZ8TsAO7VteNfnlW/rYICRd4B73vT88hfDl9x7DMMaGWdBUS7K86klmsOl3J/AHeQWX4NqdBku+Q2JhFV8/rNYqTZ74EXOp+8XGGK7z4BPuSm9Gx+LXi1+cpnEHPuo2nHLeKhIpzvgycttaLNrp6T7/9b6/iOqyuoL54zwot+9/bB70r8ffXj8kcreKFXDuZI9AoljrkfzllMO4CRhY2gDB/lv99WNusyEKx1rKGHkrU2v24IhWEomh2rwNhScTguvcNheFxcb/T7lRfJlECQuVRlKovn3Ymnq1sUcGUSIWUnD7tPeXknD6VmD+2wRuznIGAFJGjhoIPSAuLOFiR7YmaZYQXrcLH8lKcvDJpyTuUWsTCkKyhqOD90yQoIZ1GczD7l0HmxUwIsIqdxM1N3xeXOJdQvn0frB3Nw1byWhELqj5MNx2GlCACVUBcwzf+sYjC8koyJ65ok4xmFzwtOPxZijgDRHjnMjGUVWnymT317xfpvNEeDbGsJ32Ef339/aE6N1F6ok9qRsQKHZHNGAxUnrPOTsXLeuyRKgusWqmCgKjpLZgVVarSHsg7vTzSpW7nC1pfnvbfPAqpQ1AqukFJA2q5mDHmzejxQPnCHn/a310y1+ycibJCS7HoehIp+u7uC5SGA+K5dlleLRYwRE0KCSFW8ctgNtf6Pqr/Bfblyl00fRkIiUhM3WTYOvhJjypoc7plE/M0990IrEzjfEp5+LluwE91Dp3YnbUf/HleijyhtalLe/GmceJ7zmaz2udXxpOXzkCD0fyuexXYTWXKkr24O1cA3EoMGZc7llBmn0VsArJXgSlZgOIxAfgx1OGXSDq6BveIPAw1TrLO/LpeU4sWHS+JUNZABCUHU/qUdDCER+FvA60QkvOUFvCQ5EDfX08WVUGuUNBVT8lSj+zS9bpdcoh0HGrayc2AX9xNp4o0261gAhmM/aXZbi")
+                .header("X-Apple-ID-Session-Id","47F6353C35D57795F542DE3993EE7171EAD919D3B4A1F00DE1FC74F0D535190F900830A3187DDD6CB49C3CBCEAB7C5180F4AB1468E7B141627BF846AD7B1B332528C94F1D7AA6BAA97EBDF78E389F138A7C30B4717B9BE2CDE7708BCBC8992CDB956486B7B498CEF57A98BEF56E90BAEB19B783392D4D6AD")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://appleid.apple.com/widget/account/repair?widgetKey=af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3&rv=1&language=zh_CN_CHN")
+                .header("Host","appleid.apple.com")
+                .header("Content-Length","143")
+                .header("scnt",account.getScnt())
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .body(body)
+                .cookie(account.getCookie()));
         int status = rsp.getStatus();
 
         // 需要验证密码
@@ -935,9 +927,26 @@ public class AppleIDUtil {
     public static HttpResponse securityUpgrade(HttpResponse securityUpgradeVerifyPhoneRsp,Account account,String body){
         String url = "https://appleid.apple.com/account/security/upgrade";
         HttpResponse securityUpgradeRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
-                        .header(securityUpgradeVerifyPhoneRsp.headers())
-                        .body(body)
-                        .cookie(account.getCookie()));
+                .header("Connection","keep-alive")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("X-Apple-Widget-Key","af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3")
+                .header("X-Apple-Skip-Repair-Attributes","[]")
+                .header("X-Apple-Session-Token","fp/1WlSzsU4PM2hZKqm6CrGy7dcsl6kQZC7YVWnotLRLXRHgOD7eRwWZUePNbJKvnDhCdMFalzoadL/CaCUt/AwSr54yZg7HQZPmzDH5TLwYcZ09JLa1IKsT0zbIMdpGj6VS2ovHgav0xD5lTgY1O993pipUR9i+6/0YkZp7dmSrKIe6IV+uVeiy06tdBUdQkL7psKGo0wkFZy/MxxI8rWmZkvGheb/QKjifHBWlN2RCMDjfzDsII+ep9jNPVcFdRTHeREB2EAJZS4zXfLe01wsXGUsa5YHQGNNZixMThvP6R/S6D9wLw6QvEDB0QmTxZbBcFW9tmToiO6GaG0nN5JVFojgRIRwaDpfUud1Sb9DFctIlysx6541l9fJVnKHd1V2onlXKVdZPVAxUSVfr0o0ZkIrZi53WzoxOLZKJ2okLd5Wj+bnG7+VWNazF9oG3uGQlhwXhl+HfvczUzim2wB/gBjOY+BXRcVjC0YN4nzvtFMRl40MDwpFeFXySEyUCWwmHpO3D10HTcboSJY4gOB206QnP8YAxhtBDCcvQWWO3PjprLQU2HcyPlKMdCOjo5WgIIuq19WkTPgpFs+H2PZvoXDkBo/1Uu6pk9ACjV/pSN/+qdNEIyDw6cVgQjOALGqFPW9lYQkjh2L+U2ofwqhgvfYgTHmkpNYddx+x+AIP6r/X4gCyEjyH7KDqiMOE1yy8sWd+cta3awsjKLaLy44dg+GR7pU+qQyWdKxb+9SH/ocFVIof7XkZakDuB+Xe8L5LGoQHJeSZVpwQzUBdhq4o0q6cJpsF3xzan4VVhlcoyXdvtOhp7RECkH+L6frrRxG8NOnd+kkQfbwrq5MAEjGf0vfZIBSgMp+TEUgH6HGBEtQBvADVnA2syDZWAWtca4gGC4w9EhTeSnROUdlB7NurARl2gKJ6CrF9rI+AnbelcvDP8Uj/aK6A1yZHuYhz5FwAhmNC2pA+i")
+                .header("X-Apple-OAuth-Context","RQxRAQ20qFn9ELI0Hqt3DF3+DGBOSLM2U1G6d0f4j80kE1AtzTYVvZR5+MNgjBKSneLdyxKKKtSFgJ+OTWwJlPodqjASiJu+Gf0SKlq+Gep1vsz44l765MopQVPE2N7ELjUbozxhp7x6e0mgb/rB0okLNSm+eyX8R6Ig3rnG+fC9x0nJ5iNbjr3oLh+/EoFB8GtI6gfbdjznYSeyN5IZxC5XACGoUo4b5xE=")
+                .header("X-Apple-ID-Session-Id","47F6353C35D57795F542DE3993EE7171EAD919D3B4A1F00DE1FC74F0D535190F900830A3187DDD6CB49C3CBCEAB7C5180F4AB1468E7B141627BF846AD7B1B332528C94F1D7AA6BAA97EBDF78E389F138A7C30B4717B9BE2CDE7708BCBC8992CDB956486B7B498CEF57A98BEF56E90BAEB19B783392D4D6AD")
+                .header("X-Apple-I-Request-Context","ca")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://appleid.apple.com/widget/account/repair?widgetKey=af1139274f266b22b68c2a3e7ad932cb3c0bbe854e13a79af78dcc73136882c3&rv=1&language=zh_CN_CHN")
+                .header("Host","appleid.apple.com")
+                .header("Content-Length","198")
+                .header("scnt",account.getScnt())
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .body(body)
+                .cookie(account.getCookie()));
         return securityUpgradeRsp;
     }
 
@@ -2163,5 +2172,9 @@ public class AppleIDUtil {
         }
 
         return action + ":" + String.join("、",errorMessageList);
+    }
+
+    public static String hasFailMessage(HttpResponse response){
+        return getValidationErrors(response,"");
     }
 }

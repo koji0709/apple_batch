@@ -336,6 +336,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             accountHandler(account);
             setDataStatus(account,true);
         } catch (ServiceException e) {// 业务异常
+            LoggerManger.info("ServiceException",e);
             setAndRefreshNote(account,e.getMessage());
             setNote(account,e.getMessage(),"");
             pointIncr(account);
