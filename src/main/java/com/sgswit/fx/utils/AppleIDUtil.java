@@ -970,7 +970,7 @@ public class AppleIDUtil {
         if (recoverable == null || !recoverable){
             throw new ServiceException("该账号不能关闭双重认证");
         }
-        account.setNote("该帐号可以关闭双重认证");
+        account.setNote("检测通过...");
 
         account.setNote("正在验证手机号");
         HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
