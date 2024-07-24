@@ -949,7 +949,7 @@ public class AppleIDUtil {
     public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
-        account.setNote("正在检测是否可以关闭双重认证");
+        account.setNote("正在检测账户...");
         HttpResponse verifyPhone1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyPhone1Location)
                 .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -968,10 +968,8 @@ public class AppleIDUtil {
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
         if (recoverable == null || !recoverable){
-            throw new ServiceException("该账号不能关闭双重认证");
+            throw new ServiceException("没有双重认证");
         }
-        account.setNote("检测通过...");
-
         account.setNote("正在验证手机号");
         HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
                 .header("Connection","keep-alive")
@@ -988,8 +986,8 @@ public class AppleIDUtil {
         );
         account.updateLoginInfo(verifyPhone2Rsp);
         account.setNote("手机号验证通过...");
-
-        account.setNote("正在取消注册...");
+        ThreadUtil.sleep(300);
+        account.setNote("正在解除绑定手机号...");
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1006,8 +1004,8 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(unenrollmentRsp);
-        account.setNote("取消注册成功...");
-
+        account.setNote("解除绑定手机号成功...");
+        ThreadUtil.sleep(300);
         account.setNote("正在验证生日");
         String verifyBirthday1Location = unenrollmentRsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
@@ -1026,7 +1024,13 @@ public class AppleIDUtil {
         );
         account.updateLoginInfo(verifyBirthday1Rsp);
 
-        DateTime birthday = DateUtil.parse(account.getBirthday());
+        DateTime birthday=null;
+        try{
+            birthday = DateUtil.parse(account.getBirthday());
+        }catch (Exception e){
+            throw new ServiceException("生日校验失败");
+        }
+
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1042,11 +1046,9 @@ public class AppleIDUtil {
                 .header("sstt",verifyBirthday1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
-        if (verifyBirthday2Rsp.getStatus() != 200){
-            String verifyBirthdayMessage = getValidationErrors("生日验证",verifyBirthday2Rsp, "生日验证失败");
-            throw new ServiceException(verifyBirthdayMessage);
-        }
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日验证");
         account.setNote("生日验证通过...");
+        ThreadUtil.sleep(300);
         account.updateLoginInfo(verifyBirthday2Rsp);
 
         account.setNote("正在验证密保");
@@ -1094,11 +1096,9 @@ public class AppleIDUtil {
                 .header("sstt",verifyQuestions1Rsp.header("sstt"))
                 .cookie(account.getCookie())
                 .body(JSONUtil.toJsonStr(bodyMap)));
-        if (verifyQuestions2Rsp.getStatus() != 200){
-            String verifyQuestionsMessage = getValidationErrors("密保验证",verifyBirthday2Rsp, "密保验证失败");
-            throw new ServiceException(verifyQuestionsMessage);
-        }
+        checkAndThrowUnavailableException(verifyBirthday2Rsp,"密保验证");
         account.setNote("密保验证通过...");
+        ThreadUtil.sleep(300);
         account.updateLoginInfo(verifyQuestions2Rsp);
 
         account.setNote("正在关闭双重认证");
@@ -1135,9 +1135,9 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(unenrollment2Rsp);
-        account.setNote("关闭双重认证成功,等待设置新密码...");
-
-        account.setNote("正在设置新密码");
+        account.setNote("双重关闭成功,等待重置密码...");
+        ThreadUtil.sleep(300);
+        account.setNote("正在重置密码...");
         HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1160,7 +1160,7 @@ public class AppleIDUtil {
             throw new ServiceException(msg);
         }
 
-        account.setNote("关闭双重认证成功...");
+        account.setNote("双重关闭成功，密码重置完成");
         return unenrollmentReset1Rsp;
     }
 
