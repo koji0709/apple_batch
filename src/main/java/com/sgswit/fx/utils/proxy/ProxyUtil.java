@@ -146,7 +146,8 @@ public class ProxyUtil{
                             String requestId= MD5.create().digestHex(request.toString());
                             Integer int503=map503Error.get(requestId);
                             //设置遇到503错误时，每错误10次 走一次本地IP
-                            if(int503%10==0){
+                            if(null!=int503 && int503%10==0){
+                                ThreadUtil.sleep(1000);
                                 return proxyRequest(request,sendTimeOut);
                             }else{
                                 return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut);
