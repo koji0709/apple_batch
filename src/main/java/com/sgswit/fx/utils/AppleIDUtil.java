@@ -682,8 +682,6 @@ public class AppleIDUtil {
                 .body(body));
 
         int status = rsp.getStatus();
-
-
         // 需要验证密码
         if (status == 451){
             verifyPassword(rsp,account);
@@ -957,7 +955,7 @@ public class AppleIDUtil {
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
@@ -977,7 +975,7 @@ public class AppleIDUtil {
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","*")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
@@ -995,7 +993,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Length","0")
@@ -1015,7 +1013,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
@@ -1038,7 +1036,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Length","52")
@@ -1060,7 +1058,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
@@ -1088,7 +1086,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Length","207")
@@ -1110,7 +1108,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json; charset=utf-8")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/unenrollment/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
@@ -1126,7 +1124,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json, text/javascript, */*; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Length","0")
@@ -1145,7 +1143,7 @@ public class AppleIDUtil {
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Accept","application/json, text/javascript, *; q=0.01")
                 .header("Content-Type","application/json")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("Content-Length","27")
