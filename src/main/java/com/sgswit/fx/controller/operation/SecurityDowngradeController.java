@@ -54,22 +54,11 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");
         }
-
         setAndRefreshNote(account,"验证码自动校验完毕");
 
         // 关闭双重认证
-        setAndRefreshNote(account,"开始进入关闭双重认证流程...");
-        HttpResponse securityDowngradeRsp = AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
-        if (securityDowngradeRsp == null){
-            throw new ServiceException(account.getNote());
-        }
-
-        if (securityDowngradeRsp.getStatus() != 302){
-            throw new ServiceException("关闭双重验证失败");
-        }
-
+        AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
         account.setPwd(newPassword);
-        setAndRefreshNote(account,"关闭双重验证成功");
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
