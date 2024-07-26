@@ -59,6 +59,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         // 关闭双重认证
         AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
         account.setPwd(newPassword);
+        accountTableView.refresh();
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

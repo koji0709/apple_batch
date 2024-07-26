@@ -608,6 +608,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 put("recipientDsid",giftCardRedeem.getDsPersonId());
                 put("initBalance", new BigDecimal(totalMoneyRaw).subtract(new BigDecimal(giftCardMoneyRaw)));
                 put("redeemBalance",giftCardMoneyRaw);
+                put("salesOrg",StoreFontsUtils.getCountryCodeFromStoreFront(giftCardRedeem.getStoreFront()));
             }};
             HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
