@@ -74,7 +74,7 @@ public class ApiProxyUtil {
             }else {
                 return null;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }finally {
             lock.unlock();

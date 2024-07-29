@@ -140,7 +140,8 @@ public class ProxyUtil{
                         String authPassword= MapUtil.getStr(map,"pwd");
 //                        int randomInt=7;
                         int randomInt=RandomUtil.randomInt(0,10);
-                        int limit=5;
+                        int limit=8;
+                        System.out.println(randomInt);
                         if(limit> randomInt&& randomInt>=0){
                             return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,Proxy.Type.HTTP);
                         }else if(randomInt>=limit){
