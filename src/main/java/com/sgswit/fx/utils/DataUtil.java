@@ -310,18 +310,4 @@ public class DataUtil {
        return userInfo;
    }
 
-//    public static void main(String[] args) {
-//        String str = "checkout.shipping.addressContactPhone.address.fullDaytimePhone=4103562000&" +
-//                "checkout.shipping.addressNotification.address.emailAddress=&checkout.shipping.addressSelector.selectAddress=newAddr&checkout.shipping.addressSelector.newAddress.address.street2=19Chuang4DanYuan801Shi&checkout.shipping.addressSelector.newAddress.address.lastName=Mao&checkout.shipping.addressSelector.newAddress.address.firstName=ZhuJu&checkout.shipping.addressSelector.newAddress.address.companyName=&checkout.shipping.addressSelector.newAddress.address.street=ZuoLingZhen379Hao&checkout.shipping.addressSelector.newAddress.address.isBusinessAddress=false&checkout.shipping.addressSelector.newAddress.address.state=AK&checkout.shipping.addressSelector.newAddress.address.postalCode=99775&checkout.shipping.addressSelector.newAddress.address.city=luobin&checkout.shipping.addressSelector.newAddress.address.zipLookup.city=AK&checkout.shipping.addressSelector.newAddress.address.zipLookup.state=AK&checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode=99775&checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode=US" ;
-//        Map<String, String> map = new HashMap<>();
-//        String[] pairs = str.split("&");
-//        for (String pair : pairs) {
-//            String[] keyValue = pair.split( "=");
-//            String key = keyValue[0];
-//            String value = keyValue.length==1?"":keyValue[1];
-//            String message= MessageFormat.format("paramMap.put(\"{0}\",\"{1}\");",new String[]{key,value});
-//            System.out.println(message);
-//        }
-//
-//    }
 }

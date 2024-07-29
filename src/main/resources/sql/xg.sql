@@ -13,4 +13,15 @@ CREATE TABLE "purchase_record" (
   "estimated_total_amount" text,
   "plis" text
 );
-
+CREATE TABLE "proxy_ip_info" (
+ "id" text NOT NULL,
+ "ip" text NOT NULL,
+ "port" integer NOT NULL,
+ "input_time" integer NOT NULL,
+ "last_update_time" integer NOT NULL,
+ "expiration_time" integer NOT NULL,
+ "username" TEXT,
+ "pwd" TEXT,
+ "protocol_type" TEXT,
+ PRIMARY KEY ("id")
+);

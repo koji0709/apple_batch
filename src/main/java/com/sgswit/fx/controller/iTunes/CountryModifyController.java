@@ -339,8 +339,4 @@ public class CountryModifyController extends CustomTableView<Account>{
         items.add(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());
         super.onContentMenuClick(contextMenuEvent,accountTableView,items);
     }
-
-    public static void main(String[] args) {
-        System.out.println(generateFillData("CHN"));
-    }
 }

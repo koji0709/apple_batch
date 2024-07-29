@@ -33,7 +33,8 @@ public class SQLiteUtil {
         File file = new File(isWindows ? Constant.WIN_DB_URL : Constant.MAC_DB_URL);
         if (!file.exists()){
             FileUtil.touch(file);
-            if (!isWindows){//windows可以忽略权限
+            if (!isWindows){
+                //windows可以忽略权限
                 // 设置文件权限为 rw-rw-rw-
                 Path path = file.toPath();
                 Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
@@ -51,6 +52,23 @@ public class SQLiteUtil {
             }
             reader.close();
             Db.use(DataSourceFactory.getDataSource()).executeBatch(sqlText.toString().split(";"));
+        }else{
+           String sql= "SELECT name FROM sqlite_master WHERE type='table' AND name='proxy_ip_info';";
+            Entity entity= Db.use(DataSourceFactory.getDataSource()).queryOne(sql);
+            if(null==entity){
+                Db.use(DataSourceFactory.getDataSource()).execute("CREATE TABLE \"proxy_ip_info\" (\n" +
+                        "  \"id\" text NOT NULL,\n" +
+                        "  \"ip\" text NOT NULL,\n" +
+                        "  \"port\" integer NOT NULL,\n" +
+                        "  \"input_time\" integer NOT NULL,\n" +
+                        "  \"last_update_time\" integer NOT NULL,\n" +
+                        "  \"expiration_time\" integer NOT NULL,\n" +
+                        "  \"username\" TEXT,\n" +
+                        "  \"pwd\" TEXT,\n" +
+                        "  \"protocol_type\" TEXT,\n" +
+                        "  PRIMARY KEY (\"id\")\n" +
+                        ");");
+            }
         }
     }
 
