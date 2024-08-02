@@ -32,14 +32,11 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.CHECK_GRAY_BALANCE.getCode())));
         super.initialize(url, resourceBundle);
     }
-    public List<String> menuItem =new ArrayList<>(){{
-        add(Constant.RightContextMenu.DELETE.getCode());
-        add(Constant.RightContextMenu.REEXECUTE.getCode());
-        add(Constant.RightContextMenu.COPY.getCode());
-    }};
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+        super.menuItem.add(Constant.RightContextMenu.REEXECUTE.getCode());
+        List<String> arrayList = new ArrayList<>(super.menuItem);
+        super.onContentMenuClick(contextMenuEvent,accountTableView,arrayList,new ArrayList<>());
     }
 
     public void openImportAccountView(ActionEvent actionEvent) {
@@ -57,9 +54,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("serviceKey", "a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
             HttpResponse response= WebLoginUtil.signin(paras);
             if(response.getStatus() == 409){
-                if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
-                    throw new ServiceException("暂不双重认证用户查询余额");
-                }
 
             }else if(response.getStatus()!=200){
                 account.setHasFinished(true);
@@ -136,6 +130,11 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             setAndRefreshNote(account,"页面加载成功，登录中...");
             ThreadUtil.sleep(1000);
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
+            if(response.getStatus() == 409){
+                if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
+                    throw new ServiceException("此账户已开通双重认证，请输入双重验证码");
+                }
+            }
             setAndRefreshNote(account,"登录成功...");
             ThreadUtil.sleep(1000);
             setAndRefreshNote(account,"正在查询余额...");
@@ -185,9 +184,11 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                     throw new ServiceException("余额查询失败！");
                 }
                 boolean disabled = false;
+                boolean hasAppleBalanceInput=false;
                 if(null!=ja &&ja.size()>0){
                     for(JSONObject o : ja){
                         if("appleBalance".equals(o.getStr("moduleKey"))){
+                            hasAppleBalanceInput=true;
                             if("true".equals(o.get("disabled"))){
                                 disabled=true;
                                 break;
@@ -195,14 +196,23 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                         }
                     }
                 }
-                if(!disabled){
-                    account.setStatus("正常");
-                }else {
-                    account.setStatus("禁用");
+                if(!hasAppleBalanceInput){
+                    account.setStatus("未知");
+                }else{
+                    if(!disabled){
+                        account.setStatus("正常");
+                    }else {
+                        account.setStatus("禁用");
+                    }
                 }
                 Object balance = meta.getByPath("body.checkout.billing.billingOptions.selectedBillingOptions.appleBalance.appleBalanceInput.d.availableAppleBalance");
-                account.setBalance((null==balance|| "".equals(balance))?"0":balance.toString());
-                tableRefreshAndInsertLocal(account,"查询成功");
+                account.setBalance((null==balance|| "".equals(balance))?"":balance.toString());
+                if(!hasAppleBalanceInput){
+                    tableRefreshAndInsertLocal(account,"没有查询到余额");
+                }else{
+                    tableRefreshAndInsertLocal(account,"查询成功");
+                }
+
             }
         } catch (IORuntimeException e) {
             throw e;

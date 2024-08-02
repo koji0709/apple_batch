@@ -109,6 +109,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     //定时任务
     private ScheduledExecutorService scheduledExecutorService;
     private ScheduledFuture scheduledFuture;
+    private int limitRedeem=5;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -220,8 +221,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                                     if("无效卡".equals(row.getGiftCardStatus()) || "僵尸卡".equals(row.getGiftCardStatus())
                                             || "旧卡".equals(row.getGiftCardStatus()) || "兑换失败".equals(row.getGiftCardStatus())){
                                         setTextFill(Color.RED);
-                                    }else if ("本卡兑换".equals(row.getGiftCardStatus())){
-                                        setTextFill(Color.CORNFLOWERBLUE);
+                                    }else if ("有效卡".equals(row.getGiftCardStatus())){
+                                        setTextFill(Color.GREEN);
                                     }else{
                                         setTextFill(Color.BLACK);
                                     }
@@ -374,7 +375,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     if(null==countList){
                         countList=new HashMap<>();
                     }
-                    if(null!=countList && countList.size()>=5){
+                    if(null!=countList && countList.size()>=limitRedeem){
                         ThreadUtil.sleep(100);
                         giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);
                         if(execAgainCheckBoxSelected){
@@ -491,7 +492,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         if(null==countList){
             countList=new HashMap<>();
         }
-        if(null!=countList && countList.size()>=5){
+        if(null!=countList && countList.size()>=limitRedeem){
             ThreadUtil.sleep(200);
             boolean execAgainCheckBoxSelected = execAgainCheckBox.isSelected();
             giftCardRedeem.setNote(execAgainCheckBoxSelected?Constant.REDEEM_WAIT1_DESC:Constant.REDEEM_WAIT2_DESC);

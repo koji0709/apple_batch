@@ -940,7 +940,7 @@ public class PurchaseBillUtil {
             paras.put("msg","连接异常，请检查网络");
             paras.put("code","-1");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
 
         return paras;
@@ -990,7 +990,7 @@ public class PurchaseBillUtil {
             paras.put("msg","连接异常，请检查网络");
             paras.put("code","-1");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
         return paras;
     }

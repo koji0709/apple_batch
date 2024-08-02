@@ -6,8 +6,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -35,24 +33,15 @@ public class StageToSystemTrayUtil {
             trayIcon = new TrayIcon(SwingFXUtils.fromFXImage(image, null), toolTip, popupMenu);
             trayIcon.setImageAutoSize(true);
             // 创建打开菜单项
-
             MenuItem openMenuItem = new MenuItem("显示主窗口");
-            openMenuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Platform.runLater(() -> {
-                        showWindow(primaryStage);
-                    });
-                }
-            });
+            openMenuItem.addActionListener(e -> Platform.runLater(() -> {
+                showWindow(primaryStage);
+            }));
             // 创建退出菜单项
             MenuItem exitMenuItem = new MenuItem("退出");
-            exitMenuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    tray.remove(trayIcon);
-                    System.exit(0);
-                }
+            exitMenuItem.addActionListener(e -> {
+                tray.remove(trayIcon);
+                System.exit(0);
             });
             // 将菜单项添加到弹出菜单
             popupMenu.add(openMenuItem);
