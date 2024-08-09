@@ -112,7 +112,7 @@
                                                 </HBox>
                                             </children>
                                         </HBox>
-                                        <Label style="-fx-font-size: 12" textFill="red" text="注意: 训果支持购买付费项目，请根据需求选择是否购买付费项目。"/>
+                                        <Label style="-fx-font-size: 12" textFill="red" text="注意: 支持购买付费项目，请根据需求选择是否购买付费项目。"/>
                                     </children>
                                 </VBox>
                             </content>

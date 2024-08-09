@@ -384,7 +384,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             if(null==toBeExecutedList){
                                 toBeExecutedList=new LinkedHashMap<>();
                             }
-                            toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                            toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode()+RandomUtil.randomNumbers(4),giftCardRedeem);
                             toBeExecutedMap.put(account,toBeExecutedList);
                         }else{
                             runningList.remove(giftCardRedeem);
@@ -502,7 +502,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if(null==toBeExecutedList){
                     toBeExecutedList=new LinkedHashMap<>();
                 }
-                toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode(),giftCardRedeem);
+                toBeExecutedList.put(account+giftCardRedeem.getGiftCardCode()+RandomUtil.randomNumbers(4),giftCardRedeem);
                 toBeExecutedMap.put(account,toBeExecutedList);
             }
             return false;
@@ -531,7 +531,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         // 登录并缓存
         itunesLogin(giftCardRedeem);
-        ThreadUtil.sleep(500);
+        ThreadUtil.sleep(300);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
         boolean success = CustomStringUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
@@ -540,7 +540,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         HttpResponse redeemRsp = null;
         try{
-            countList.put(account+giftCardCode, System.currentTimeMillis());
+            countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
             countMap.put(account,countList);
             redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
         }catch (IORuntimeException e){

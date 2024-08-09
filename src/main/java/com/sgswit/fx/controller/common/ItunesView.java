@@ -13,7 +13,6 @@ import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.PListUtil;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -105,41 +104,27 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
         HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid, url);
         url = authRsp.header("location");
-        int status = authRsp.getStatus();
-
-        if (status == 302){
+        String status = String.valueOf(authRsp.getStatus());
+        if (status .equals(Constant.REDIRECT_CODE)){
             return itunesLogin(accountModel,url,1);
-        }
-
-        if (status != 200){
+        }else if (!status.equals(Constant.SUCCESS)){
             return authRsp;
         }
 
         JSONObject authBody        = PListUtil.parse(authRsp.body());
         String     failureType     = authBody.getStr("failureType","");
-        String     customerMessage = authBody.getStr("customerMessage","");
-
         // 重试
         if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
             return itunesLogin(accountModel,url,1);
         }
-
         // 双重认证
-        if("".equals(failureType) && Constant.CustomerMessageBadLogin.equals(customerMessage)){
+        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp.body());
+        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throw new ServiceException("Apple ID或密码错误。或需要输入双重验证码。");
-        }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"account is disabled")){
-            throw new ServiceException("出于安全原因，你的账户已被锁定。");
-        }else if(!StringUtils.isEmpty(customerMessage) && StringUtils.containsIgnoreCase(customerMessage,"You cannot login because your account has been locked")){
-            throw new ServiceException("帐户存在欺诈行为，已被【双禁】。");
-        }
-        if(!"".equals(failureType) && !"".equals(customerMessage)){
-            return authRsp;
-        }
-
-        if(!"".equals(failureType)){
-            return authRsp;
+            throw new ServiceException(MapUtil.getStr(result,"msg"));
+        }else if(!Constant.SUCCESS.equals(result.get("code"))){
+            throw new ServiceException(MapUtil.getStr(result,"msg"));
         }
         return authRsp;
     }
