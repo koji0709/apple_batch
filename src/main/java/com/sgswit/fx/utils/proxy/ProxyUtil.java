@@ -62,32 +62,37 @@ public class ProxyUtil{
            }
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
-               ThreadUtil.sleep(randomInt*1000);
+               ThreadUtil.sleep(randomInt*500);
                Integer int503=map503Error.get(requestId);
                int failCount=1;
                if(null!=int503){
                    failCount=1+int503;
                }
                map503Error.put(requestId,failCount);
-               if(failCount>50){
+               if(failCount>40){
                    throw new UnavailableException();
                }
                return execute(request);
            }
        }catch (IORuntimeException e){
-           //链接超时
-           int randomInt= RandomUtil.randomInt(1,3);
-           ThreadUtil.sleep(randomInt*1000);
-           int failCount=1;
-           Integer intIo=mapIoError.get(requestId);
-           if(null!=intIo){
-               failCount=1+intIo;
+           boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+           if(has){
+               throw new ServiceException("资源请求超时，发生未知错误");
+           }else{
+              //链接超时
+               int randomInt= RandomUtil.randomInt(1,3);
+               ThreadUtil.sleep(randomInt*500);
+               int failCount=1;
+               Integer intIo=mapIoError.get(requestId);
+               if(null!=intIo){
+                   failCount=1+intIo;
+               }
+               mapIoError.put(requestId,failCount);
+               if(Integer.valueOf(failCount)>10){
+                   throw new ServiceException("资源请求超时，请检查网络");
+               }
+               return execute(request);
            }
-           mapIoError.put(requestId,failCount);
-           if(Integer.valueOf(failCount)>10){
-             throw new ServiceException("资源请求超时，请检查网络");
-           }
-           return execute(request);
        }catch (HttpException e){
            //响应超时
            throw new ServiceException("服务端响应超时");
@@ -95,7 +100,6 @@ public class ProxyUtil{
            map503Error.remove(requestId);
            mapIoError.remove(requestId);
        }
-
        return httpResponse;
     }
 

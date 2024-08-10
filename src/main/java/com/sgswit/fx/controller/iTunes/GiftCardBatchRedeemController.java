@@ -452,7 +452,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }, 0, 3, TimeUnit.SECONDS);
     }
     /*
-    　**获取线程池
+    　* 获取线程池
       * @param
     　* @return java.util.concurrent.ScheduledExecutorService
     　* @throws
@@ -518,6 +518,11 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
+        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
+        if (!success){
+            giftCardRedeem.setGiftCardStatus("无效卡");
+            throw new ServiceException("输入的代码无效。");
+        }
         String account=giftCardRedeem.getAccount();
         String giftCardCode=giftCardRedeem.getGiftCardCode();
         setAndRefreshNote(giftCardRedeem,"账户登录中...");
@@ -539,11 +544,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         itunesLogin(giftCardRedeem);
         ThreadUtil.sleep(300);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
-        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
-        if (!success){
-            giftCardRedeem.setGiftCardStatus("无效卡");
-            throw new ServiceException("输入的代码无效。");
-        }
         HttpResponse redeemRsp = null;
         try{
             countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
