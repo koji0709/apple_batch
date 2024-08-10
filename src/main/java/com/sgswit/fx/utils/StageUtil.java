@@ -52,7 +52,7 @@ public class StageUtil {
             throw new RuntimeException(e);
         }
         scene.getRoot().setStyle("-fx-font-family: '"+stageEnum.getFontStyle()+"'");
-        stage.setTitle(stageEnum.getTitle());
+        stage.setTitle(getTitle(stageEnum,userData));
         stage.initModality(stageEnum.getInitModality());
         stage.setScene(scene);
         stage.setResizable(false);
@@ -84,6 +84,13 @@ public class StageUtil {
         }else{
             stage.show();
         }
+        Object controller = fxmlLoader.getController();
+        try {
+            //打开窗口初始化操作
+            ReflectUtil.invoke(controller,"initStageAction",userData);
+        }catch (Exception e){
+
+        }
         //判断程序是否退出
         Stage finalStage = stage;
         stage.setOnCloseRequest(event -> {
@@ -98,7 +105,6 @@ public class StageUtil {
             }else if((source==StageUtil.get(StageEnum.LOGIN)) && null==StageUtil.get(StageEnum.MAIN)){
                 System.exit(0);
             }else{
-                Object controller = fxmlLoader.getController();
                 try {
                     //校验数据是否存在执行中的数据
                     Boolean f = ReflectUtil.invoke(controller,"validateData");
@@ -133,4 +139,14 @@ public class StageUtil {
         stageMap.clear();
     }
 
+    protected static String getTitle(StageEnum stageEnum,Object userData){
+        if(stageEnum.name().equalsIgnoreCase(StageEnum.GIFTCARD_BATCH_REDEEM.name())){
+            return stageEnum.getTitle()+"-窗口1";
+        }else if(stageEnum.name().equalsIgnoreCase(StageEnum.GIFTCARD_BATCH_REDEEM2.name())){
+            return stageEnum.getTitle()+"-窗口2";
+        }else if(stageEnum.name().equalsIgnoreCase(StageEnum.GIFTCARD_BATCH_REDEEM3.name())){
+            return stageEnum.getTitle()+"-窗口3";
+        }
+        return stageEnum.getTitle();
+    }
 }

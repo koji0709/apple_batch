@@ -184,8 +184,8 @@
                         <CheckBox fx:id="accountGroupCheckBox" text="同账号以单线程工作" />
                         <CheckBox fx:id="hidePwdCheckBox" text="隐藏导入密码" />
                         <CheckBox fx:id="scrollToLastRowCheckBox" text="导入后滚动到最底行" />
-<!--                        <Button onAction="#show2WindowAction" text="工作2窗口" />-->
-<!--                        <Button onAction="#show3WindowAction" text="工作3窗口" />-->
+                        <Button fx:id="show2WindowBtn" onAction="#show2WindowAction" text="工作2窗口" />
+                        <Button fx:id="show3WindowBtn" onAction="#show2WindowAction" text="工作3窗口" />
                         <HBox alignment="CENTER" spacing="2" />
                     </children>
                 </HBox>

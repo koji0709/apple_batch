@@ -514,4 +514,7 @@ public class CommRightContextMenuView<T> extends CommonView {
     public void closeStageActionBefore() {
 
     }
+    public void initStageAction(Object userData) {
+
+    }
 }

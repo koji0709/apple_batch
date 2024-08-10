@@ -58,9 +58,14 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
-
+    @FXML
+    public Button show2WindowBtn;
+    @FXML
+    public Button show3WindowBtn;
     @FXML
     ComboBox<String> accountComboBox;
 
@@ -110,6 +115,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private ScheduledExecutorService scheduledExecutorService;
     private ScheduledFuture scheduledFuture;
     private int limitRedeem=5;
+    private final Pattern pattern = Pattern.compile("\\d+");
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
@@ -978,4 +984,41 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     public void closeStageActionBefore(){
 
     }
+    @Override
+    public void initStageAction(Object userData) {
+        String index="1";
+        if(null!=userData){
+            index=userData.toString();
+        }
+        if(index.equals("1")){
+            show2WindowBtn.setText("工作2窗口");
+            show3WindowBtn.setText("工作3窗口");
+        }else if(index.equals("2")){
+            show2WindowBtn.setText("工作1窗口");
+            show3WindowBtn.setText("工作3窗口");
+        }else if(index.equals("3")){
+            show2WindowBtn.setText("工作1窗口");
+            show3WindowBtn.setText("工作2窗口");
+        }
+
+
+    }
+    @FXML
+    public void show2WindowAction(ActionEvent actionEvent){
+        String text=  ((Button)actionEvent.getSource()).getText();
+        String index="1";
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            System.out.println(matcher.group());
+            index=matcher.group();
+        }
+        if(index.equals("1")){
+            StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM,"1");
+        }else if(index.equals("2")){
+            StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM2,"2");
+        }else if(index.equals("3")){
+            StageUtil.show(StageEnum.GIFTCARD_BATCH_REDEEM3,"3");
+        }
+    }
+
 }
