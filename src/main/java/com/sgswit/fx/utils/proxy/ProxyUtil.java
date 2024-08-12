@@ -1,7 +1,6 @@
 package com.sgswit.fx.utils.proxy;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
@@ -10,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
+import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
@@ -21,14 +21,11 @@ import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * @author DeZh
@@ -55,47 +52,51 @@ public class ProxyUtil{
         //判断是否设置代理
         HttpRequest.closeCookie();
         HttpResponse httpResponse=null;
-       try{
+        boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+        int try503Num=has?20:50;
+        int tryIoNum=10;
+        try{
            httpResponse= createRequest(request).execute();
            if(Thread.currentThread().isInterrupted()){
                throw new ServiceException("请求失败：停止任务");
            }
            if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
-               ThreadUtil.sleep(randomInt*500);
+               ThreadUtil.sleep(randomInt*300);
                Integer int503=map503Error.get(requestId);
                int failCount=1;
                if(null!=int503){
                    failCount=1+int503;
                }
                map503Error.put(requestId,failCount);
-               if(failCount>40){
+               if(failCount>try503Num){
                    throw new UnavailableException();
                }
                return execute(request);
            }
-       }catch (IORuntimeException e){
-           boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
-           if(has){
-               throw new ServiceException("资源请求超时，发生未知错误");
-           }else{
-              //链接超时
-               int randomInt= RandomUtil.randomInt(1,3);
-               ThreadUtil.sleep(randomInt*500);
-               int failCount=1;
-               Integer intIo=mapIoError.get(requestId);
-               if(null!=intIo){
-                   failCount=1+intIo;
-               }
-               mapIoError.put(requestId,failCount);
-               if(Integer.valueOf(failCount)>10){
-                   throw new ServiceException("资源请求超时，请检查网络");
-               }
-               return execute(request);
-           }
-       }catch (HttpException e){
-           //响应超时
-           throw new ServiceException("服务端响应超时");
+       }catch (UnavailableException e){
+            throw e;
+       }catch (Exception e){
+            // 捕获异常
+            if (e.getMessage().contains(Constant.ConnectException) || e instanceof SocketException
+                || e.getMessage().contains(Constant.SocketException)) {
+                int randomInt= RandomUtil.randomInt(1,3);
+                ThreadUtil.sleep(randomInt*200);
+                int failCount=1;
+                Integer intIo=mapIoError.get(requestId);
+                if(null!=intIo){
+                    failCount=1+intIo;
+                }
+                mapIoError.put(requestId,failCount);
+                if(Integer.valueOf(failCount)>tryIoNum){
+                    throw new HttpException("网络连接失败，请稍后重试");
+                }
+                return execute(request);
+            } else if (e.getMessage().contains(Constant.ResponseException) || e instanceof HttpException) {
+                throw new HttpException("网络连接失败，状态未知");
+            } else {
+                throw new ServiceException("网络连接异常，请稍后重试");
+            }
        } finally {
            map503Error.remove(requestId);
            mapIoError.remove(requestId);
@@ -108,7 +109,7 @@ public class ProxyUtil{
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
-            sendTimeOut=sendTimeOut==0?60*1000:sendTimeOut*1000;
+            sendTimeOut=sendTimeOut==0?30*1000:sendTimeOut*1000;
             if(StringUtils.isEmpty(proxyMode)){
                 return proxyRequest(request,sendTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
@@ -131,39 +132,42 @@ public class ProxyUtil{
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
-                    Map<String, List<Map<String, Object>>> skuMap = proxyConfigList.stream().collect(Collectors.groupingBy(e->e.get("proxyType").toString()));
-                    for (Map.Entry<String, List<Map<String, Object>>> entry : skuMap.entrySet()) {
-                        // key=1-API代理，2-隧道道理，3-静态IP代理
-                        String key = entry.getKey();
-                        List<Map<String, Object>> mapList=entry.getValue();
-                        int index= ThreadLocalRandom.current().nextInt(mapList.size()) % mapList.size();
-                        Map<String,Object> map=mapList.get(index);
-                        String proxyHost= MapUtil.getStr(map,"ip");
-                        int proxyPort=MapUtil.getInt(map,"port");
-                        String authUser=MapUtil.getStr(map,"account");
-                        String authPassword= MapUtil.getStr(map,"pwd");
-//                        int randomInt=7;
-                        int randomInt=RandomUtil.randomInt(0,10);
-                        int limit=8;
-                        System.out.println(randomInt);
+                    int randomInt=RandomUtil.randomInt(0,10);
+//                    int randomInt=7;
+                    int limit=6;
+                    if(proxyConfigList.size()>1){
                         if(limit> randomInt&& randomInt>=0){
-                            return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,Proxy.Type.HTTP);
-                        }else if(randomInt>=limit){
+                            Optional<Map<String,Object>> first = proxyConfigList.stream().filter(e -> e.get("proxyType").equals("2")).findFirst();
+                            if(first.isPresent()) { //存在
+                                Map<String,Object> map=first.get();
+                                String proxyHost= MapUtil.getStr(map,"ip");
+                                int proxyPort=MapUtil.getInt(map,"port");
+                                String authUser=MapUtil.getStr(map,"account");
+                                String authPassword= MapUtil.getStr(map,"pwd");
+                                return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,Proxy.Type.HTTP);
+                            }else{
+                                return proxyRequest(request,sendTimeOut);
+                            }
+                        }else{
                             Entity entity=ApiProxyUtil.getRandomIp();
                             if(null==entity){
-                               return createRequest(request);
+                                return createRequest(request);
                             }
-                            proxyHost=entity.getStr("ip");
-                            proxyPort=entity.getInt("port");
+                            String proxyHost=entity.getStr("ip");
+                            int proxyPort=entity.getInt("port");
                             String username=entity.getStr("username");
                             String pwd=entity.getStr("pwd");
                             String protocol_type=entity.getStr("protocol_type");
                             return  proxyRequest(request,proxyHost,proxyPort,username,pwd, sendTimeOut,Proxy.Type.SOCKS);
-                        }else {
-                            return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,getProxyType(""));
                         }
+                    }else{
+                        Map<String,Object> map=proxyConfigList.get(0);
+                        String proxyHost= MapUtil.getStr(map,"ip");
+                        int proxyPort=MapUtil.getInt(map,"port");
+                        String authUser=MapUtil.getStr(map,"account");
+                        String authPassword= MapUtil.getStr(map,"pwd");
+                        return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,Proxy.Type.HTTP);
                     }
-                    return proxyRequest(request,sendTimeOut);
                 }else{
                     return proxyRequest(request,sendTimeOut);
                 }
@@ -272,5 +276,8 @@ public class ProxyUtil{
     private static Object getLock(String uri) {
         return uri.intern();
     }
+
+
+
 
 }

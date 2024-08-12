@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -309,5 +312,26 @@ public class DataUtil {
    public static Map<String,Object> getUserInfo(){
        return userInfo;
    }
+
+   private void scheduledExecutorService(){
+       // 创建一个单线程的ScheduledExecutorService
+       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+       // 延迟1秒后执行任务，然后每1200秒执行一次
+       executorService.scheduleAtFixedRate(()->{
+            //调接口
+           try {
+               HttpResponse rsp = HttpUtils.get("/api/data/getProxyConfig");
+               JSON json=JSONUtil.parse(rsp.body());
+               if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
+                   proxyConfigList=json.getByPath("data",List.class);
+               }
+           }catch (Exception e){
+
+           }
+       }, 1, 20*60, TimeUnit.SECONDS);
+
+   }
+
+
 
 }

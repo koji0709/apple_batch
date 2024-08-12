@@ -529,7 +529,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
         LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null){
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(200);
         }
         giftCardRedeem.setExecTime(DateUtil.now());
         Map<String, Long> countList = countMap.get(account);
@@ -544,14 +544,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         itunesLogin(giftCardRedeem);
         ThreadUtil.sleep(300);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
-        HttpResponse redeemRsp = null;
-        try{
-            countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
-            countMap.put(account,countList);
-            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
-        }catch (IORuntimeException e){
-
-        }
+        countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
+        countMap.put(account,countList);
+        HttpResponse redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
         String  body = redeemRsp.body();
         if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
             throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);

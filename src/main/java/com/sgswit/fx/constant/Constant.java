@@ -46,6 +46,11 @@ public class Constant {
 
     public static final String WIN_DB_URL = "xg.sqlite";
 
+    public static final String ConnectException = "ConnectException";
+    public static final String SocketException = "SocketException";
+
+    public static final String ResponseException = "SocketTimeoutException";
+
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
         put(ACCOUNT_IS_DISABLED,"出于安全原因，你的账户已被锁定。");

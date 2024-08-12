@@ -3,7 +3,6 @@ package com.sgswit.fx.controller.common;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.db.Db;
@@ -53,7 +52,10 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * account表格视图
@@ -365,8 +367,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("UnavailableException",e);
-        } catch (IORuntimeException | HttpException e) {
-            setAndRefreshNote(account, "连接异常，请检查网络");
+        } catch (HttpException e) {
+            setAndRefreshNote(account, e.getMessage());
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("连接异常，请检查网络",e);
