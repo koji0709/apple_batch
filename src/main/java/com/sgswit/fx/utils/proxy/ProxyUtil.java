@@ -97,6 +97,7 @@ public class ProxyUtil{
                     throw new ServiceException("服务响应超时，请稍后重试");
                 }
             }else{
+                e.printStackTrace();
                  throw new ServiceException("网络连接异常，请稍后重试");
             }
        }catch (ServiceException e){
@@ -170,6 +171,7 @@ public class ProxyUtil{
                             }
                         }
                     }else{
+                        //隧道代理
                         return proxyRequest(request,proxyConfigList.get(0),sendTimeOut,readTimeOut,Proxy.Type.HTTP);
                     }
                 }else{

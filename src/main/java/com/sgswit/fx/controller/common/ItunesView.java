@@ -30,71 +30,76 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
     }
 
     public void itunesLogin(T accountModel){
-        String appleId = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
-        String pwd = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
-        String id=super.createId(appleId,pwd);
-        LoginInfo loginInfo = loginSuccessMap.get(id);
-        if (loginInfo != null) {
-            accountModel.setIsLogin(loginInfo.isLogin());
-            accountModel.setItspod(loginInfo.getItspod());
-            accountModel.setStoreFront(loginInfo.getStoreFront());
-            accountModel.setDsPersonId(loginInfo.getDsPersonId());
-            accountModel.setPasswordToken(loginInfo.getPasswordToken());
-            accountModel.setGuid(loginInfo.getGuid());
-            accountModel.setAuthData(loginInfo.getAuthData());
-            accountModel.setCookieMap(loginInfo.getCookieMap());
-            setAndRefreshNote(accountModel,"成功获取登录信息。");
-        }else{
-            accountModel.setIsLogin(false);
-        }
-
-        if (accountModel.isLogin()){
-            return;
-        }
-
-        String guid = DataUtil.getGuidByAppleId(appleId);
-        accountModel.setGuid(guid);
-
-        String url = "";
-        HttpResponse loginRsp;
-        if (StrUtil.isEmpty(accountModel.getAuthCode())){
-            url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
-            loginRsp = itunesLogin(accountModel,url,0);
-        }else{
-            Object authRsp = accountModel.getAuthData().get("authRsp");
-            if (authRsp == null){
-                throw new ServiceException("请先登录鉴权");
-            }
-            url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
-            loginRsp = itunesLogin(accountModel,url,1);
-        }
-
-        int status = loginRsp.getStatus();
-        JSONObject json=null;
+        String message ="";
         try{
-            json = PListUtil.parse(loginRsp.body());
-        }catch (Exception e){
-            throw new UnavailableException();
-        }
-        Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
+            String appleId = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
+            String pwd = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
+            String id=super.createId(appleId,pwd);
+            LoginInfo loginInfo = loginSuccessMap.get(id);
+            if (loginInfo != null) {
+                accountModel.setIsLogin(loginInfo.isLogin());
+                accountModel.setItspod(loginInfo.getItspod());
+                accountModel.setStoreFront(loginInfo.getStoreFront());
+                accountModel.setDsPersonId(loginInfo.getDsPersonId());
+                accountModel.setPasswordToken(loginInfo.getPasswordToken());
+                accountModel.setGuid(loginInfo.getGuid());
+                accountModel.setAuthData(loginInfo.getAuthData());
+                accountModel.setCookieMap(loginInfo.getCookieMap());
+                setAndRefreshNote(accountModel,"成功获取登录信息。");
+            }else{
+                accountModel.setIsLogin(false);
+            }
 
-        boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
-        if (verify){
-            setAndRefreshNote(accountModel,"登录成功。");
-            accountModel.setAuthCode("");
-            accountModel.getAuthData().put("authRsp",loginRsp);
-            accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
-            accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
-            accountModel.setDsPersonId(json.getStr("dsPersonId",""));
-            accountModel.setPasswordToken(json.getStr("passwordToken",""));
-            CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
-            accountModel.setIsLogin(true);
-            String storeId=super.createId(appleId,pwd);
-            loginSuccessMap.put(storeId,accountModel);
-            return;
+            if (accountModel.isLogin()){
+                return;
+            }
+
+            String guid = DataUtil.getGuidByAppleId(appleId);
+            accountModel.setGuid(guid);
+
+            String url = "";
+            HttpResponse loginRsp;
+            if (StrUtil.isEmpty(accountModel.getAuthCode())){
+                url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
+                loginRsp = itunesLogin(accountModel,url,0);
+            }else{
+                Object authRsp = accountModel.getAuthData().get("authRsp");
+                if (authRsp == null){
+                    throw new ServiceException("请先登录鉴权");
+                }
+                url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
+                loginRsp = itunesLogin(accountModel,url,1);
+            }
+
+            int status = loginRsp.getStatus();
+            JSONObject json=null;
+            try{
+                json = PListUtil.parse(loginRsp.body());
+            }catch (Exception e){
+                throw new UnavailableException();
+            }
+            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
+
+            boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
+            if (verify){
+                setAndRefreshNote(accountModel,"登录成功。");
+                accountModel.setAuthCode("");
+                accountModel.getAuthData().put("authRsp",loginRsp);
+                accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
+                accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
+                accountModel.setDsPersonId(json.getStr("dsPersonId",""));
+                accountModel.setPasswordToken(json.getStr("passwordToken",""));
+                CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
+                accountModel.setIsLogin(true);
+                String storeId=super.createId(appleId,pwd);
+                loginSuccessMap.put(storeId,accountModel);
+                return;
+            }
+            message = MapUtil.getStr(result,"msg");
+        }catch (ServiceException e){
+            message=e.getMessage();
         }
-        String message = MapUtil.getStr(result,"msg");
-        throw new ServiceException(message);
+        throw new ServiceException("登录失败："+message);
     }
 
     private HttpResponse itunesLogin(T accountModel,String url,Integer attempt){
