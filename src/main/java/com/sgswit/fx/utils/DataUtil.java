@@ -40,6 +40,11 @@ public class DataUtil {
     private static Map<String,Object> userInfo=new HashMap<>();
     //内置代理信息
     private static List<Map<String,Object>> proxyConfigList;
+
+    static {
+        scheduledExecutorService();
+    }
+
     public static List<Map<String,Object>> getProxyConfig(){
         try {
             if(null==proxyConfigList || proxyConfigList.size()==0){
@@ -313,7 +318,7 @@ public class DataUtil {
        return userInfo;
    }
 
-   private void scheduledExecutorService(){
+   private static void scheduledExecutorService(){
        // 创建一个单线程的ScheduledExecutorService
        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
        // 延迟1秒后执行任务，然后每1200秒执行一次
