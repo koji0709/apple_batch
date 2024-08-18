@@ -52,6 +52,8 @@ public class ProxyUtil{
         HttpRequest.closeCookie();
         HttpResponse httpResponse=null;
         boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+        boolean iTunesFlag =request.getUrl().contains("/WebObjects/MZFinance.woa");
+        int sleepTime=iTunesFlag?300:800;
         int try503Num=has?20:50;
         int tryIoNum=10;
         try{
@@ -61,7 +63,7 @@ public class ProxyUtil{
             }
             if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
-               ThreadUtil.sleep(randomInt*300);
+               ThreadUtil.sleep(randomInt*sleepTime);
                Integer int503=map503Error.get(requestId);
                int failCount=1;
                if(null!=int503){
@@ -79,7 +81,7 @@ public class ProxyUtil{
             if (StringUtils.containsIgnoreCase(e.getMessage(),"connect") ||
                     StringUtils.containsIgnoreCase(e.getMessage(),"connection")){
                 int randomInt= RandomUtil.randomInt(1,3);
-                ThreadUtil.sleep(randomInt*200);
+                ThreadUtil.sleep(randomInt*sleepTime);
                 int failCount=1;
                 Integer intIo=mapIoError.get(requestId);
                 if(null!=intIo){
@@ -118,7 +120,7 @@ public class ProxyUtil{
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
             sendTimeOut=sendTimeOut==0?15*1000:sendTimeOut*1000;
-            int readTimeOut=30*1000;
+            int readTimeOut=45*1000;
             if(StringUtils.isEmpty(proxyMode)){
                 return proxyRequest(request,sendTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){

@@ -47,19 +47,16 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
     @Override
     public void accountHandler(Account account) {
         String newPassword = pwdTextField.getText();
-
         // 识别验证码
         setAndRefreshNote(account,"开始获取验证码..");
-        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerifyPost(account);
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");
         }
         setAndRefreshNote(account,"验证码自动校验完毕");
-
         // 关闭双重认证
         AppleIDUtil.securityDowngrade(verifyAppleIdRsp,account,newPassword);
-        account.setPwd(newPassword);
-        accountTableView.refresh();
+        super.accountTableView.refresh();
     }
 
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {

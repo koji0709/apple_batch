@@ -2,6 +2,10 @@ package com.sgswit.fx.utils;
 
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,5 +63,35 @@ public class CustomStringUtils extends StringUtils {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(giftCardCode.toUpperCase());
         return matcher.matches();
+    }
+    public static String getScriptById(String html, String id) {
+        // 解析 HTML
+        Document doc = Jsoup.parse(html);
+        Elements scripts = doc.select("script[id='"+id+"']");
+        return scripts.html();
+    }
+    public static String getScriptByClass(String html, String className) {
+        // 解析 HTML
+        Document doc = Jsoup.parse(html);
+        // 递归解析和处理 script 标签
+       return processScripts(doc,className);
+    }
+    private static String processScripts(Element element,String className) {
+        // 提取所有 script 标签
+        Elements scripts = element.select("script");
+        for (Element script : scripts) {
+            // 检查 script 标签是否具有特定 class
+            if (script.hasClass(className)) {
+                // 打印具有特定 class 的 script 标签内容
+                return script.html();
+            }
+            // 递归处理嵌套的 script 标签
+            if (script.html().contains("<script")) {
+                // 再次解析内部的 HTML
+                Document innerDoc = Jsoup.parse(script.html());
+               return processScripts(innerDoc,className);
+            }
+        }
+        return "";
     }
 }

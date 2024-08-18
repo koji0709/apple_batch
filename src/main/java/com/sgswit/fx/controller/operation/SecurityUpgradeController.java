@@ -9,7 +9,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
-import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
@@ -64,19 +63,17 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
      */
     @Override
     public void accountHandler(Account account) {
-        // 登录
-        login(account);
-
         String phone = account.getPhone();
         Object verifyCode = account.getAuthData().get("verifyCode");
-        if (verifyCode == null){
+        if (StrUtil.isEmptyIfStr(verifyCode)){
+            // 登录
+            AppleIDUtil.securityUpgradeLogin(account);
             String format = dialCodeComboBox.getValue().toString();
             String countryDialCode   = format.substring(1,format.indexOf("("));
             JSONObject json = globalMobilePhoneMap.get(countryDialCode);
             String countryCode = json.getStr("code");
-
-            String body = "{\"acceptedWarnings\":[],\"phoneNumberVerification\":{\"phoneNumber\":{\"countryCode\":\""+countryCode+"\",\"number\":\""+phone+"\",\"countryDialCode\":\""+countryDialCode+"\",\"nonFTEU\":true},\"mode\":\"sms\"}}";
-
+            countryCode=DataUtil.getInfoByCountryCode(countryCode).getCode2();
+            String body = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"number\":\""+phone+"\",\"countryCode\":\""+countryCode+"\"},\"mode\":\"sms\"}}";
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             String failMessage = AppleIDUtil.hasFailMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){
@@ -90,22 +87,28 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             if (securityUpgradeVerifyPhoneRsp.getStatus() != 200){
                 List meesageList = jsonBody.getByPath("phoneNumberVerification.serviceErrors.message", List.class);
                 String message = String.join(",", meesageList);
-                throw new ServiceException(message,"发送验证码失败");
+                if(securityUpgradeVerifyPhoneRsp.getStatus()==423){
+                    account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
+                    throw new ServiceException(message);
+                }else{
+                    throw new ServiceException(message,"发送验证码失败");
+                }
             }
-
             account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
             setAndRefreshNote(account,"成功发送验证码，请输入验证码。");
         } else {
             Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
             if (securityUpgradeVerifyPhoneObject == null){
+                account.getAuthData().put("verifyCode","");
                 throw new ServiceException("请先发送验证码");
             }
+            account.setNote("正在绑定...");
             HttpResponse securityUpgradeVerifyPhoneRsp = (HttpResponse) securityUpgradeVerifyPhoneObject;
-            JSON jsonBody2 = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
-            JSONObject phoneNumber = jsonBody2.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
+            JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
+            JSONObject phoneNumber = jsonBody.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
 
             String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
-            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(securityUpgradeVerifyPhoneRsp,account,body2);
+            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,body2);
             if (securityUpgradeRsp.getStatus() != 200){
                 String failMessage = AppleIDUtil.getValidationErrors("绑定双重认证", securityUpgradeRsp, "绑定双重认证失败");
                 throw new ServiceException(failMessage);

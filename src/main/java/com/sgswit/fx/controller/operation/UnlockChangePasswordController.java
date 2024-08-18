@@ -60,7 +60,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         account.setSstt(sstt);
         CookieUtils.setCookiesToMap(verifyAppleIdInitRsp,account.getCookieMap());
         // 识别验证码
-        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerify(account);
+        HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerifyPost(account);
         if (verifyAppleIdRsp.getStatus() != 302) {
             throw new ServiceException("验证码自动识别失败");
         }

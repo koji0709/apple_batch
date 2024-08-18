@@ -427,7 +427,7 @@ public class GiftCardUtil {
 
 
 
-    private static Map<String,String> calM(String accountName, String password, String a, Integer iter, String salt, String b, BigInteger g, BigInteger n, BigInteger ra) {
+    protected static Map<String,String> calM(String accountName, String password, String a, Integer iter, String salt, String b, BigInteger g, BigInteger n, BigInteger ra) {
         // calculatek // k = h(n|g) 直接串联,并且按照位数对齐，不足的前面补0凑
         byte[] nb = n.toByteArray();
         byte[] gb = g.toByteArray();
@@ -606,7 +606,7 @@ public class GiftCardUtil {
         return  x;
     }
 
-    private static String calA(BigInteger a,BigInteger n) {
+    protected static String calA(BigInteger a,BigInteger n) {
 
         BigInteger g = new BigInteger("2");
         BigInteger ai = g.modPow(a,n);
