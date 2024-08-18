@@ -1441,7 +1441,8 @@ public class AppleIDUtil {
                 .body(JSONUtil.toJsonStr(bodyParas))
         );
         if(409!=completeRes.getStatus()){
-            throw new ServiceException("登录失败");
+            String message= hasFailMessage(completeRes);
+            throw new ServiceException(StrUtil.isEmpty(message)?"登录失败":"登录失败："+message);
         }else{
             String authType=JSONUtil.parse(completeRes.body()).getByPath("authType",String.class);
             if("hsa2".equals(authType)){
@@ -1477,7 +1478,8 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
         );
         if(200!=authRes.getStatus()){
-            throw new ServiceException("登录失败");
+            String message= hasFailMessage(authRes);
+            throw new ServiceException(StrUtil.isEmpty(message)?"登录失败":"登录失败："+message);
         }
         account.updateLoginInfo(authRes);
         account.setNote("账户密码验证通过...");
@@ -1527,7 +1529,8 @@ public class AppleIDUtil {
                 .body(body)
                 .cookie(account.getCookie()));
         if(412!=questionsResp.getStatus()){
-            throw new ServiceException("密保问题验证失败");
+            String message= hasFailMessage(questionsResp);
+            throw new ServiceException(StrUtil.isEmpty(message)?"密保问题验证失败":"密保问题验证失败："+message);
         }
         account.updateLoginInfo(questionsResp);
 
@@ -1552,7 +1555,8 @@ public class AppleIDUtil {
                 .header("Host","appleid.apple.com")
                 .cookie(account.getCookie()));
         if(200!=repairResp.getStatus()){
-            throw new ServiceException("密保问题验证失败");
+            String message= hasFailMessage(repairResp);
+            throw new ServiceException(StrUtil.isEmpty(message)?"获取阅读协议失败":"获取阅读协议失败："+message);
         }
         account.updateLoginInfo(repairResp);
         boot_args=CustomStringUtils.getScriptById(repairResp.body(),"boot_args");
@@ -1579,7 +1583,8 @@ public class AppleIDUtil {
                 .cookie(account.getCookie()));
         account.setXAppleIDSessionId(sessionId);
         if(200!=optionsResp.getStatus()){
-            throw new ServiceException("密保问题验证失败");
+            String message= hasFailMessage(repairResp);
+            throw new ServiceException(StrUtil.isEmpty(message)?"获取阅读协议失败":"获取阅读协议失败："+message);
         }
         account.updateLoginInfo(optionsResp);
         account.getAuthData().put("optionsResp",optionsResp);
@@ -1604,35 +1609,12 @@ public class AppleIDUtil {
                 .header("Host","appleid.apple.com")
                 .cookie(account.getCookie()));
         if(200!=upgradeResp.getStatus()){
-            throw new ServiceException("密保问题验证失败");
+            String message= hasFailMessage(repairResp);
+            throw new ServiceException(StrUtil.isEmpty(message)?"获取阅读协议失败":"获取阅读协议失败："+message);
         }
         account.updateLoginInfo(upgradeResp);
         account.setNote("协议获取成功...");
         ThreadUtil.sleep(300);
-    }
-
-
-
-
-
-
-    public static void main(String[] args) {
-//        String str = FileUtil.readUtf8String("/Users/koji/work/sinosoft/apple-batch/src/main/resources/a.txt");
-//        String[] nList = str.split("\n");
-//        for (String s : nList) {
-//            String h1 = s.substring(0, s.indexOf(":"));
-//            if (!Arrays.asList("sstt","Cookie","X-Apple-I-FD-Client-Info").contains(h1)){
-//                System.err.println(".header(\""+h1+"\",\""+s.substring(s.indexOf(":")+2)+"\")");
-//            }
-//        }
-//        System.err.println(".header(\"X-Apple-I-FD-Client-Info\",Constant.BROWSER_CLIENT_INFO)");
-        Account account=new Account();
-        account.setAccount("djli0506@163.com");
-        account.setPwd("Bd20240817");
-        account.setAnswer1("塔城");
-        account.setAnswer2("奇瑞");
-        account.setAnswer3("无");
-        securityUpgradeLogin(account);
     }
 
     /**

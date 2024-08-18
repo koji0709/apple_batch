@@ -205,7 +205,7 @@ public class CommRightContextMenuView<T> extends CommonView {
                     String note = ReflectUtil.invoke(account, "getNote");
 
                     if(!hasFinished || Constant.REDEEM_WAIT1_DESC.equals(note)){
-                        alert("执行中，不可重复执行。");
+                        alert("处理中，不可重复操作。");
                         return;
                     }
                     boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");

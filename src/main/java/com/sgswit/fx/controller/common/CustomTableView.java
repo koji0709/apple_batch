@@ -334,7 +334,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (hasField){
                 ReflectUtil.invoke(account,"setHasFinished",false);
             }
-            setAndRefreshNote(account, "执行中");
+            setAndRefreshNote(account, "正在处理...");
             accountHandler(account);
             setDataStatus(account,true);
         } catch (ServiceException e) {// 业务异常
@@ -928,7 +928,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if (hasNote) {
             String note1 = ReflectUtil.invoke(account, "getNote");
             note1 = StrUtil.isEmpty(note1) ? "" : note1;
-            note1 = note1.startsWith("执行中") ? "" : note1;
+            note1 = note1.startsWith("正在处理...") ? "" : note1;
             note = note1 + note + "。";
             ReflectUtil.invoke(account, "setNote", note);
         }
