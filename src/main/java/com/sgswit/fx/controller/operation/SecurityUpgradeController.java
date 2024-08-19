@@ -67,13 +67,24 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         Object verifyCode = account.getAuthData().get("verifyCode");
         if (StrUtil.isEmptyIfStr(verifyCode)){
             // 登录
-            AppleIDUtil.securityUpgradeLogin(account);
-            String format = dialCodeComboBox.getValue().toString();
-            String countryDialCode   = format.substring(1,format.indexOf("("));
-            JSONObject json = globalMobilePhoneMap.get(countryDialCode);
-            String countryCode = json.getStr("code");
-            countryCode=DataUtil.getInfoByCountryCode(countryCode).getCode2();
-            String body = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"number\":\""+phone+"\",\"countryCode\":\""+countryCode+"\"},\"mode\":\"sms\"}}";
+            HttpResponse upgradeResp =AppleIDUtil.securityUpgradeLogin(account);
+            JSON json=JSONUtil.parse(upgradeResp.body());
+            String phoneNumbers=json.getByPath("phoneNumbers",String.class);
+            String countryCode=null;
+            for(Object object:JSONUtil.parseArray(phoneNumbers)){
+                JSON jsonObj= (JSON) object;
+                if(phone.equals(jsonObj.getByPath("number"))){
+                    countryCode=jsonObj.getByPath("countryCode",String.class);
+                    break;
+                }
+            }
+            String[] eligibilityWarnings=json.getByPath("eligibilityWarnings",String[].class);
+            String body  = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"number\":\""+phone+"\",\"countryCode\":\""+countryCode+"\"},\"mode\":\"sms\"}}";;
+            if(null!=eligibilityWarnings && eligibilityWarnings.length>0){
+                JSON bodyJson=JSONUtil.parse(body);
+                bodyJson.putByPath("acceptedWarnings",eligibilityWarnings);
+                body=JSONUtil.toJsonStr(bodyJson);
+            }
             HttpResponse securityUpgradeVerifyPhoneRsp = AppleIDUtil.securityUpgradeVerifyPhone(account, body);
             String failMessage = AppleIDUtil.hasFailMessage(securityUpgradeVerifyPhoneRsp);
             if (!StrUtil.isEmpty(failMessage)){
@@ -106,14 +117,21 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             HttpResponse securityUpgradeVerifyPhoneRsp = (HttpResponse) securityUpgradeVerifyPhoneObject;
             JSON jsonBody = JSONUtil.parse(securityUpgradeVerifyPhoneRsp.body());
             JSONObject phoneNumber = jsonBody.getByPath("phoneNumberVerification.phoneNumber", JSONObject.class);
+            String[] eligibilityWarnings=jsonBody.getByPath("eligibilityWarnings",String[].class);
+            String body="{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
 
-            String body2 = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"id\":"+phoneNumber.getInt("id")+",\"number\":\""+phone+"\",\"countryCode\":\""+phoneNumber.getStr("countryCode")+"\",\"nonFTEU\":"+phoneNumber.getBool("nonFTEU")+"},\"securityCode\":{\"code\":\""+ verifyCode +"\"},\"mode\":\"sms\"}}";
-            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,body2);
+            if(null!=eligibilityWarnings && eligibilityWarnings.length>0){
+                JSON bodyJson=JSONUtil.parse(body);
+                bodyJson.putByPath("acceptedWarnings",eligibilityWarnings);
+                body=JSONUtil.toJsonStr(bodyJson);
+            }
+            HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account,body);
             if (securityUpgradeRsp.getStatus() != 200){
                 String failMessage = AppleIDUtil.getValidationErrors("绑定双重认证", securityUpgradeRsp, "绑定双重认证失败");
+                account.getAuthData().put("verifyCode","");
                 throw new ServiceException(failMessage);
             }
-            setAndRefreshNote(account,"绑定双重认证成功");
+            setAndRefreshNote(account,"开启双重认证成功");
         }
 
     }

@@ -3,20 +3,20 @@ package com.sgswit.fx.controller.operation;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.UnlockChangePasswordView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -55,8 +55,22 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     public void accountHandler(Account account) {
         String newPassword = pwdTextField.getText();
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
-        HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(HttpUtil.createGet(url));
-        String sstt=verifyAppleIdInitRsp.header("sstt");
+        HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(
+                HttpUtil.createGet(url)
+                        .header("Connection", "keep-alive")
+                        .header("Accept-Encoding", "gzip, deflate, br")
+                        .header("Accept-Language", "zh-CN,zh;q=0.9")
+                        .header("Accept", "*")
+                        .header("Host", "iforgot.apple.com")
+                        .header("User-Agent", Constant.BROWSER_USER_AGENT)
+        );
+        String boot_args= CustomStringUtils.getScriptById(verifyAppleIdInitRsp.body(),"boot_args");
+        String sstt= JSONUtil.parse(boot_args).getByPath("sstt", String.class);
+        try {
+            sstt = URLEncoder.encode(sstt, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         account.setSstt(sstt);
         CookieUtils.setCookiesToMap(verifyAppleIdInitRsp,account.getCookieMap());
         // 识别验证码

@@ -5,8 +5,6 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -17,7 +15,6 @@ import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
-import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -231,24 +228,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setNote("查询成功");
         super.accountTableView.refresh();
         Map<String,String> messageMap= new LinkedHashMap<>();
-        // 修改密码
-        if (updatePwdCheckBoxSelected){
-            setMessageAndRefreshTable("updatePwd","正在修改密码...",messageMap,account);
-            String newPwd = pwdTextField.getText();
-            if(StringUtils.isEmpty(newPwd)){
-                setMessageAndRefreshTable("updatePwd","修改密码失败【未设置新密码】",messageMap,account);
-            }else{
-                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
-                if (updatePasswordRsp.getStatus() != 200){
-                    String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
-                    setMessageAndRefreshTable("updatePwd",message,messageMap,account);
-                }else{
-                    account.setPwd(newPwd);
-                    setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
-                }
-            }
-        }
-
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
             setMessageAndRefreshTable("updateBirthday","正在修改生日...",messageMap,account);
@@ -382,7 +361,23 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 }
             }
         }
-
+        // 修改密码
+        if (updatePwdCheckBoxSelected){
+            setMessageAndRefreshTable("updatePwd","正在修改密码...",messageMap,account);
+            String newPwd = pwdTextField.getText();
+            if(StringUtils.isEmpty(newPwd)){
+                setMessageAndRefreshTable("updatePwd","修改密码失败【未设置新密码】",messageMap,account);
+            }else{
+                HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
+                if (updatePasswordRsp.getStatus() != 200){
+                    String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
+                    setMessageAndRefreshTable("updatePwd",message,messageMap,account);
+                }else{
+                    account.setPwd(newPwd);
+                    setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
+                }
+            }
+        }
         if (!account.getNote().contains("成功")){
             throw new ServiceException(account.getNote());
         }

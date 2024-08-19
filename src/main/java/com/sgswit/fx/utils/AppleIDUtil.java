@@ -23,7 +23,9 @@ import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -892,7 +894,13 @@ public class AppleIDUtil {
         HttpResponse questionsResp = (HttpResponse) account.getAuthData().get("questionsResp");
         HttpResponse optionsResp = (HttpResponse) account.getAuthData().get("optionsResp");
         account.setNote("正在发送验证码...");
-        String url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
+        String url ="";
+        if(body.contains("acceptedWarnings")){
+            String acceptedWarnings= JSONUtil.parse(body).getByPath("acceptedWarnings",String[].class)[0];
+            url = "https://appleid.apple.com/account/security/upgrade/verify/phone?warnings="+acceptedWarnings;
+        }else{
+            url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
+        }
         HttpResponse phoneResp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT,url)
                 .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
@@ -928,7 +936,14 @@ public class AppleIDUtil {
     public static HttpResponse securityUpgrade(Account account,String body){
         HttpResponse questionsResp = (HttpResponse) account.getAuthData().get("questionsResp");
         HttpResponse optionsResp = (HttpResponse) account.getAuthData().get("optionsResp");
-        String url = "https://appleid.apple.com/account/security/upgrade";
+        String url ="";
+        if(body.contains("acceptedWarnings")){
+            String acceptedWarnings= JSONUtil.parse(body).getByPath("acceptedWarnings",String[].class)[0];
+            url = "https://appleid.apple.com/account/security/upgrade?warnings="+acceptedWarnings;
+        }else{
+            url = "https://appleid.apple.com/account/security/upgrade";
+        }
+
         HttpResponse securityUpgradeRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -955,7 +970,8 @@ public class AppleIDUtil {
     /**
      * 密保关闭双重认证
      */
-    public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account,String newPwd) {
+    public static HttpResponse securityDowngrade(HttpResponse verifyAppleIdRsp,Account account,String newPwd,String sstt) {
+        //https://iforgot.apple.com/password/verify/phone?sstt=ApTHVltxmj9n81xmZ2Yq%2FpaR9qJmd2fhKGNI4KkIZbd4YOP46XX9LnzLcQDgQ9S9X8O5ZpTrQPW0NDFGe2duTVlhMatZp6KUnnNkxihdnAHhoMkBkPR1LmxBXyEx9K4Y9veQVQERw4t35yemhEHLzDi8V6HMZS7c5FLlxVgtdp2NRidZm0FUursk70ApQgPLK%2B8ad2UdvotfSMnVCzKWnF2PWg9xSkR4xP7%2BwDRkE7Ayi8NHVIdqrxjyHS6E1X4mzmWi%2FiECjvlXcR9Y8gnPTnE%2BmYjcl4ZmQHzWh2pkUhdoyVBGfUKOyxc5pWAOlFRbi2x8dvoY%2BSgciRRpxIApnxQPusn%2BhTfFBd%2BIUQFfAJ3ly6%2FgUmL%2FFI45CCLGZW3b7%2Bf79iPXKhDqaEof%2FTCeFuEQydMDpk6bC0ZCUhPYgZ0bZHtYf2hJDzlUqT2aPZXiJ0wk7m7nSz4crhKVhwY8OfBd0STFxQ%3D%3D
         String host = "https://iforgot.apple.com";
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
         account.setNote("正在检测账户...");
@@ -970,7 +986,7 @@ public class AppleIDUtil {
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
-                .header("sstt",account.getSstt())
+                .header("sstt",sstt)
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(verifyPhone1Rsp);
@@ -997,8 +1013,15 @@ public class AppleIDUtil {
         account.updateLoginInfo(verifyPhone2Rsp);
         account.setNote("手机号验证通过...");
         ThreadUtil.sleep(300);
-        account.setNote("正在解除绑定手机号...");
+        account.setNote("正在关闭双重认证...");
         ThreadUtil.sleep(300);
+        String boot_args= CustomStringUtils.getScriptById(verifyPhone2Rsp.body(),"boot_args");
+        sstt=JSONUtil.parse(boot_args).getByPath("data.sstt", String.class);
+        try {
+            sstt = URLEncoder.encode(sstt, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1009,16 +1032,20 @@ public class AppleIDUtil {
                 .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("sstt",verifyPhone1Rsp.header("sstt"))
+                .header("sstt",sstt)
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(unenrollmentRsp);
-        account.setNote("解除绑定手机号成功...");
+        String verifyBirthday1Location = unenrollmentRsp.header("Location");
+        if(verifyBirthday1Location.contains("/session/timeout")){
+            throw new ServiceException("双重关闭失败");
+        }
         ThreadUtil.sleep(300);
         account.setNote("正在验证生日");
         ThreadUtil.sleep(300);
-        String verifyBirthday1Location = unenrollmentRsp.header("Location");
+
+        //https://iforgot.apple.com/unenrollment/verify/birthday?sstt=aRsmTXWvxfqFqOEhEPBow9iXHopDrYMw3EQ2S1JxrX8cKT0y1Ag2DKQsDfg8PECYQsT9TFijbhoW4cT9WsiAFA2%2B99gP%2FJbdYXXryEEF6BQ2ZnrB8WRRTwkX5jahY2PgA8tCrgS855jGQP7veAlIrAydKNkb173GYZyv0224s0g28wWRoSj%2Fs7e%2By0OSgwLan4Q5UHf%2FrF3Wut2dyW5nEf8gj1ZFzIbfmvbgjvcE9jc3mZ3MMjLfP8Rmz3NYWzTYVi4Gv%2BYSjw%2BLwYiJTvqFLS%2F0jsgXXb98iNfCKqmhVBcbxXlK1EGu7BoeBgXcu34rsqbUHBX0laqCEyc3vInw%2Fh%2B%2FgRGoF3fulYsNN8Qj8tCMa7N73VqvMFUS4%2Fa35QpzuiePKhA8oxIZnn7BkkyDbfWjxJiF%2FXujCZdmId7TPg8RBt8kD%2FK2ffac3uMgP8LHndq2BMPHPcyUQZxNt6FjtjNHzi8%2FXp9ZcCZFVzwKMm2SqN0hJnhH2qi2rqXZ6JFPTGAgUg%3D%3D
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1030,7 +1057,7 @@ public class AppleIDUtil {
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
-                .header("sstt",unenrollmentRsp.header("sstt"))
+                .header("sstt",sstt)
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(verifyBirthday1Rsp);
@@ -1039,7 +1066,7 @@ public class AppleIDUtil {
         try{
             birthday = DateUtil.parse(account.getBirthday());
         }catch (Exception e){
-            throw new ServiceException("生日校验失败");
+            throw new ServiceException("生日验证失败");
         }
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
@@ -1057,13 +1084,18 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body("{\"monthOfYear\":\""+(birthday.month()+1)+"\",\"dayOfMonth\":\""+birthday.dayOfMonth()+"\",\"year\":\""+birthday.year()+"\"}"));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"生日验证");
+        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+        if(verifyQuestions1Location.contains("/session/timeout")){
+            throw new ServiceException("生日验证失败");
+        }
         account.setNote("生日验证通过...");
         ThreadUtil.sleep(300);
         account.updateLoginInfo(verifyBirthday2Rsp);
 
         account.setNote("正在验证密保");
         ThreadUtil.sleep(500);
-        String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
+
+        //https://iforgot.apple.com/unenrollment/verify/questions?sstt=MGCVqOzR2RL%2FzXaJ84CjoQFn3%2F6BiLsOZpGBnlubgiFiIu9b4YDsZjl54oFak4iEiZvr%2FyQ19prv6iCoPd%2Bx8k%2BoLF35c1%2FzL%2BKycUfk5UwYf9dn7lFagDJLd%2F9BDdLaV%2BXzwMv7Fy1YZIzU3S7p1DWbONpL2o7aQUWO6XrZbjHUI9UpjeRZ3bfJpT8vbzTRWIQfUeOs%2B9i0fx5PxvQqtfRSpsDpWvmfNHO155tjtp8oGARrbAukjPn4kjmxrDjgtpQDvjxV9Qcz4LHnibmM%2BLiQrKps%2FyrS0466h02jTww9631yzAHV%2BjGxYt04ihb5lwjM4YpbwyIQ%2F7ieL%2B2KzUM3gfMukgZJl54Jfp3QJL9G6xMFJjUl5rVEURORdbe629Zy7Hb5%2BA99ffkcYc1vZF9GYiYd4IlDW%2BAA4314TZxjJM%2FMnHpT%2BotR%2Bs3Z%2BsxTHrwo3uwhZCXZRI%2F1LlaNMAmt6A2sg8f%2BbTgOt8CpgFTLLHoiyc
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1115,6 +1147,7 @@ public class AppleIDUtil {
         account.setNote("正在关闭双重认证");
         ThreadUtil.sleep(500);
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
+        //"https://iforgot.apple.com/unenrollment?sstt=AZIzj7VgizCyJnmtou0%2BDGo%2F%2Br50CLtqMcROmb9DAif3y8PWzEhqeRF4MPhYlZcV5CmcNuRZBOQOyye%2BfUL1ERSWwYGVupMMTyVwUY7Z5s3uSfdT5N3spoRU5HKGtOud8JVpKn%2FzoWlZJKZiRGZoF%2BpaFBEWkUEaPqG2vnHzxfefNJk5j1V3%2BXYmYbWLiJrNHMh0UJxexLtY1X4NEjVMpQWSVfnppw05xQDslz%2BISm3uDHi%2B8t5E6pjZR4diQD5cQsTmCuU30G5%2F%2F2jtlytyhQ5QQ1pT2vGYDj%2BJIueOXciikYfGbsSWY8%2B4bYiXRktPOXGp9ZvpNI51DnS30XA7wJzDvDSiWL%2BsUQz4oWlzkX6UIY%2FYOm3Ak2GNfwiAWxtCyUiMhaPKsE%2F6seZL%2F6st71rV%2BGTchaRyRBWsMRGMahD%2B7Re715F%2F28OS55sd3xi7fJqoMS6QW5KotSF5cUM%2FcNrsOJBQYnn5EOaQkYR3Q04wtUFXPoLzOEhHHNWGa6L7fDm3I1z5Ty%2FIBSU6jF%2FtnbpAph7TWAYd3Ca7ga08ffWFqAqtwEK8ZCZFp6l4QHOHjw%3D%3D
         HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
                 .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1145,6 +1178,9 @@ public class AppleIDUtil {
                 .header("sstt",unenrollment1Rsp.header("sstt"))
                 .cookie(account.getCookie())
         );
+        if (302!=unenrollment2Rsp.getStatus()){
+            throw new ServiceException("双重关闭成功");
+        }
         account.updateLoginInfo(unenrollment2Rsp);
         account.setNote("双重关闭成功,等待重置密码...");
         ThreadUtil.sleep(300);
@@ -1226,10 +1262,10 @@ public class AppleIDUtil {
      * 获取图形验证码
      */
     public static HttpResponse captchaPost(Account account){
-        String url = "https://iforgot.apple.com/captcha";
+        String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
-        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -1240,9 +1276,9 @@ public class AppleIDUtil {
             headers.put("sstt",ListUtil.toList(account.getSstt()));
         }
         String body="{\"type\":\"IMAGE\"}";
-        return ProxyUtil.execute(HttpUtil.createPost(url)
+        return ProxyUtil.execute(HttpUtil.createGet(url)
                 .cookie(account.getCookie())
-                .body(body)
+//                .body(body)
                         .header(headers));
     }
 
@@ -1311,8 +1347,7 @@ public class AppleIDUtil {
                         .header("Connection","keep-alive")
                         .header("Accept-Encoding","gzip, deflate, br")
                         .header("Accept-Language","zh-CN,zh;q=0.9")
-                        .header("X-Requested-With","XMLHttpRequest")
-                        .header("Accept","application/json; charset=utf-8")
+                        .header("Accept","application/json, text/javascript, */*; q=0.01")
                         .header("Content-Type","application/json")
                         .header("User-Agent",Constant.BROWSER_USER_AGENT)
                         .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
@@ -1341,7 +1376,7 @@ public class AppleIDUtil {
         return rsp;
     }
 
-    public static void securityUpgradeLogin(Account account){
+    public static HttpResponse securityUpgradeLogin(Account account){
         account.setNote("正在处理...");
         String clientId=account.getClientId();
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -1350,7 +1385,7 @@ public class AppleIDUtil {
         BigInteger ra = new BigInteger(1,rb);
         String a = GiftCardUtil.calA(ra,n);
         //step1  signin
-        String frameId=ICloudWeblogin.createFrameId();
+        String frameId=account.getFrameId();
         account.setNote("正在登录...");
         String redirect_uri="https://appleid.apple.com";
         String url = "https://idmsa.apple.com/appleauth/auth/authorize/signin?frame_id="+frameId+"&skVersion=7&iframeId="+frameId
@@ -1614,7 +1649,7 @@ public class AppleIDUtil {
         }
         account.updateLoginInfo(upgradeResp);
         account.setNote("协议获取成功...");
-        ThreadUtil.sleep(300);
+        return upgradeResp;
     }
 
     /**
