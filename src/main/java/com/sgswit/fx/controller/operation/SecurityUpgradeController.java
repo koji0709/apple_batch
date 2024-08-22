@@ -68,16 +68,11 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         if (StrUtil.isEmptyIfStr(verifyCode)){
             // 登录
             HttpResponse upgradeResp =AppleIDUtil.securityUpgradeLogin(account);
-            JSON json=JSONUtil.parse(upgradeResp.body());
-            String phoneNumbers=json.getByPath("phoneNumbers",String.class);
-            String countryCode=null;
-            for(Object object:JSONUtil.parseArray(phoneNumbers)){
-                JSON jsonObj= (JSON) object;
-                if(phone.equals(jsonObj.getByPath("number"))){
-                    countryCode=jsonObj.getByPath("countryCode",String.class);
-                    break;
-                }
-            }
+            String format = dialCodeComboBox.getValue().toString();
+            String countryDialCode   = format.substring(1,format.indexOf("("));
+            JSONObject json = globalMobilePhoneMap.get(countryDialCode);
+            String countryCode = json.getStr("code");
+            countryCode= DataUtil.getInfoByCountryCode(countryCode).getCode2();
             String[] eligibilityWarnings=json.getByPath("eligibilityWarnings",String[].class);
             String body  = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"number\":\""+phone+"\",\"countryCode\":\""+countryCode+"\"},\"mode\":\"sms\"}}";;
             if(null!=eligibilityWarnings && eligibilityWarnings.length>0){
