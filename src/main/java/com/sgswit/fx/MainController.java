@@ -2,6 +2,7 @@ package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
@@ -100,7 +101,9 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        refreshRemainingPoints();
+        //获取剩余点数
+        Map<String,Object> userInfo=DataUtil.getUserInfo();
+        remainingPoints.setText(StrUtil.isEmptyIfStr(userInfo.get("remainingPoints"))?"0":MapUtil.getStr(userInfo,"remainingPoints"));
 
     }
 
