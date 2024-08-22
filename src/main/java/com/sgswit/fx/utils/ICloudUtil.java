@@ -36,10 +36,10 @@ public class ICloudUtil {
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
         headers.put("X-MMe-Country", ListUtil.toList("CN"));
-        headers.put("User-Agent", ListUtil.toList("Accounts/113 CFNetwork/711.2.23 Darwin/14.0.0"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         String auth= Base64.encode(appleId+":"+password);
         headers.put("Authorization", ListUtil.toList("Basic " + auth));
-        headers.put("X-MMe-Client-Info", ListUtil.toList("<iPhone4,1> <iPhone OS;8.4.1;12H321> <com.apple.AppleAccount/1.0 (com.apple.Preferences/1.0)>"));
+        headers.put("X-MMe-Client-Info", ListUtil.toList(Constant.XMMeClientInfo));
 
         String body =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -84,10 +84,10 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList(Constant.XMMeClientInfo));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
         HttpResponse response = ProxyUtil.execute(HttpUtil.createGet("https://setup.icloud.com/setup/family/getFamilyDetails")
@@ -148,11 +148,11 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList(Constant.XMMeClientInfo));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
         Map<String,Object> bodyMap=new HashMap<>();
@@ -197,11 +197,11 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList(Constant.XMMeClientInfo));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
         HttpResponse response = ProxyUtil.execute(HttpUtil.createPost("https://setup.icloud.com/setup/mac/family/leaveFamily")
                         .header(headers));
@@ -243,11 +243,11 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList(Constant.XMMeClientInfo));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
         String format="{\"organizerDSID\":\"%s\",\"userAction\":\"ADDING_FAMILY_MEMBER\",\"sendSMS\":true}";
@@ -278,11 +278,11 @@ public class ICloudUtil {
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-cn"));
-        headers.put("User-Agent", ListUtil.toList("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)"));
+        headers.put("User-Agent", ListUtil.toList(Constant.ICLOUND_USER_AGENT));
         headers.put("X-MMe-LoggedIn-AppleID",ListUtil.toList(appleId));
         headers.put("Accept",ListUtil.toList("*/*"));
         headers.put("Referer",ListUtil.toList("https://setup.icloud.com/setup/mac/family/setupFamilyUI"));
-        headers.put("X-MMe-Client-Info",ListUtil.toList("<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>"));
+        headers.put("X-MMe-Client-Info",ListUtil.toList(Constant.XMMeClientInfo));
         headers.put("Authorization",ListUtil.toList("Basic "+auth));
 
 

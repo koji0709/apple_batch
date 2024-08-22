@@ -56,7 +56,6 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
         HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(
                 HttpUtil.createGet(url)
-                .header("Connection", "keep-alive")
                 .header("Accept-Encoding", "gzip, deflate, br")
                 .header("Accept-Language", "zh-CN,zh;q=0.9")
                 .header("Accept", "*")

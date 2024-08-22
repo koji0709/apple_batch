@@ -146,6 +146,7 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void login(){
+        getData();
         String userName = loginUserNameTextField.getText();
         String pwd = loginPwdTextField.getText();
         if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
@@ -181,14 +182,13 @@ public class LoginController extends CommonView implements Initializable {
             alert("服务异常，请联系管理员", Alert.AlertType.ERROR,true);
             return;
         }
-
-
         DataUtil.setUserInfo(userInfo);
         StageUtil.show(StageEnum.MAIN);
         StageUtil.close(StageEnum.LOGIN);
     }
 
     public void qqLogin(){
+        getData();
         String qq = qqChiceBox.getValue();
         if (StrUtil.isEmpty(qq)){
             alert("选中QQ不能为空！",Alert.AlertType.INFORMATION,true);
@@ -312,5 +312,10 @@ public class LoginController extends CommonView implements Initializable {
         String customerServiceQQ= PropertiesUtil.getConfig("customer.service.qq");
         Desktop.getDesktop().browse(URI.create("tencent://message/?uin="+customerServiceQQ));
     }
-
+    protected static void getData(){
+        ThreadUtil.execAsync(() -> DataUtil.getCountry());
+        ThreadUtil.execAsync(() -> DataUtil.getNews());
+        ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
+        ThreadUtil.execAsync(() -> DataUtil.getProxyModeList());
+    }
 }

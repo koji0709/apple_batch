@@ -444,7 +444,6 @@ public class AppleIDUtil {
         String body = String.format(format, birthdayArr[2], birthdayArr[1], birthdayArr[0]);
 
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                        .header("Connection","keep-alive")
                         .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
                         .header("X-Requested-With","XMLHttpRequest")
                         .header("X-Apple-Domain-Id","1")
@@ -567,7 +566,7 @@ public class AppleIDUtil {
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("Cache-Control","no-cache")
-                .header("Connection","keep-alive")
+
                 .header("Content-Type","application/json")
                 .header("Host","appleid.apple.com")
                 .header("Origin"," https://appleid.apple.com")
@@ -643,7 +642,6 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/password";
         String body = String.format("{\"currentPassword\":\"%s\",\"newPassword\":\"%s\"}",password,newPassword);
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                .header("Connection","keep-alive")
                 .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Domain-Id","1")
@@ -668,7 +666,7 @@ public class AppleIDUtil {
     public static HttpResponse updateQuestions(Account account,String body){
         String url = "https://appleid.apple.com/account/manage/security/questions";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                .header("Connection","keep-alive")
+
                 .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Domain-Id","1")
@@ -748,7 +746,6 @@ public class AppleIDUtil {
             for (String deviceId : deviceIdList) {
                 String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
                 HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE,url)
-                    .header("Connection","keep-alive")
                     .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
                     .header("X-Requested-With","XMLHttpRequest")
                     .header("X-Apple-Domain-Id","1")
@@ -902,7 +899,7 @@ public class AppleIDUtil {
             url = "https://appleid.apple.com/account/security/upgrade/verify/phone";
         }
         HttpResponse phoneResp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT,url)
-                .header("Connection","keep-alive")
+
                 .header("scnt",account.getScnt())
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Skip-Repair-Attributes","[]")
@@ -945,7 +942,6 @@ public class AppleIDUtil {
         }
 
         HttpResponse securityUpgradeRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST,url)
-                .header("Connection","keep-alive")
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Widget-Key",account.getClientId())
                 .header("X-Apple-Skip-Repair-Attributes","[]")
@@ -976,7 +972,7 @@ public class AppleIDUtil {
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
         account.setNote("正在检测账户...");
         HttpResponse verifyPhone1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyPhone1Location)
-                .header("Connection","keep-alive")
+
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -998,7 +994,7 @@ public class AppleIDUtil {
         account.setNote("正在验证手机号");
         ThreadUtil.sleep(500);
         HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1023,7 +1019,7 @@ public class AppleIDUtil {
             e.printStackTrace();
         }
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1047,7 +1043,7 @@ public class AppleIDUtil {
 
         //https://iforgot.apple.com/unenrollment/verify/birthday?sstt=aRsmTXWvxfqFqOEhEPBow9iXHopDrYMw3EQ2S1JxrX8cKT0y1Ag2DKQsDfg8PECYQsT9TFijbhoW4cT9WsiAFA2%2B99gP%2FJbdYXXryEEF6BQ2ZnrB8WRRTwkX5jahY2PgA8tCrgS855jGQP7veAlIrAydKNkb173GYZyv0224s0g28wWRoSj%2Fs7e%2By0OSgwLan4Q5UHf%2FrF3Wut2dyW5nEf8gj1ZFzIbfmvbgjvcE9jc3mZ3MMjLfP8Rmz3NYWzTYVi4Gv%2BYSjw%2BLwYiJTvqFLS%2F0jsgXXb98iNfCKqmhVBcbxXlK1EGu7BoeBgXcu34rsqbUHBX0laqCEyc3vInw%2Fh%2B%2FgRGoF3fulYsNN8Qj8tCMa7N73VqvMFUS4%2Fa35QpzuiePKhA8oxIZnn7BkkyDbfWjxJiF%2FXujCZdmId7TPg8RBt8kD%2FK2ffac3uMgP8LHndq2BMPHPcyUQZxNt6FjtjNHzi8%2FXp9ZcCZFVzwKMm2SqN0hJnhH2qi2rqXZ6JFPTGAgUg%3D%3D
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1070,7 +1066,7 @@ public class AppleIDUtil {
         }
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1097,7 +1093,7 @@ public class AppleIDUtil {
 
         //https://iforgot.apple.com/unenrollment/verify/questions?sstt=MGCVqOzR2RL%2FzXaJ84CjoQFn3%2F6BiLsOZpGBnlubgiFiIu9b4YDsZjl54oFak4iEiZvr%2FyQ19prv6iCoPd%2Bx8k%2BoLF35c1%2FzL%2BKycUfk5UwYf9dn7lFagDJLd%2F9BDdLaV%2BXzwMv7Fy1YZIzU3S7p1DWbONpL2o7aQUWO6XrZbjHUI9UpjeRZ3bfJpT8vbzTRWIQfUeOs%2B9i0fx5PxvQqtfRSpsDpWvmfNHO155tjtp8oGARrbAukjPn4kjmxrDjgtpQDvjxV9Qcz4LHnibmM%2BLiQrKps%2FyrS0466h02jTww9631yzAHV%2BjGxYt04ihb5lwjM4YpbwyIQ%2F7ieL%2B2KzUM3gfMukgZJl54Jfp3QJL9G6xMFJjUl5rVEURORdbe629Zy7Hb5%2BA99ffkcYc1vZF9GYiYd4IlDW%2BAA4314TZxjJM%2FMnHpT%2BotR%2Bs3Z%2BsxTHrwo3uwhZCXZRI%2F1LlaNMAmt6A2sg8f%2BbTgOt8CpgFTLLHoiyc
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1149,7 +1145,7 @@ public class AppleIDUtil {
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
         //"https://iforgot.apple.com/unenrollment?sstt=AZIzj7VgizCyJnmtou0%2BDGo%2F%2Br50CLtqMcROmb9DAif3y8PWzEhqeRF4MPhYlZcV5CmcNuRZBOQOyye%2BfUL1ERSWwYGVupMMTyVwUY7Z5s3uSfdT5N3spoRU5HKGtOud8JVpKn%2FzoWlZJKZiRGZoF%2BpaFBEWkUEaPqG2vnHzxfefNJk5j1V3%2BXYmYbWLiJrNHMh0UJxexLtY1X4NEjVMpQWSVfnppw05xQDslz%2BISm3uDHi%2B8t5E6pjZR4diQD5cQsTmCuU30G5%2F%2F2jtlytyhQ5QQ1pT2vGYDj%2BJIueOXciikYfGbsSWY8%2B4bYiXRktPOXGp9ZvpNI51DnS30XA7wJzDvDSiWL%2BsUQz4oWlzkX6UIY%2FYOm3Ak2GNfwiAWxtCyUiMhaPKsE%2F6seZL%2F6st71rV%2BGTchaRyRBWsMRGMahD%2B7Re715F%2F28OS55sd3xi7fJqoMS6QW5KotSF5cUM%2FcNrsOJBQYnn5EOaQkYR3Q04wtUFXPoLzOEhHHNWGa6L7fDm3I1z5Ty%2FIBSU6jF%2FtnbpAph7TWAYd3Ca7ga08ffWFqAqtwEK8ZCZFp6l4QHOHjw%3D%3D
         HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1165,7 +1161,7 @@ public class AppleIDUtil {
         account.updateLoginInfo(unenrollment1Rsp);
         ThreadUtil.sleep(500);
         HttpResponse unenrollment2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment")
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1187,7 +1183,7 @@ public class AppleIDUtil {
         account.setNote("正在重置密码...");
         ThreadUtil.sleep(500);
         HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
-                .header("Connection","keep-alive")
+
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1315,7 +1311,10 @@ public class AppleIDUtil {
         HttpResponse verifyAppleIdRsp = AppleIDUtil.verifyAppleIdPost(account,verifyAppleIdBody);
         // 验证码错误才重新尝试
         if (verifyAppleIdRsp.getStatus() != 302 && retry > 0){
-            if(verifyAppleIdRsp.getStatus() == 400){
+            if(verifyAppleIdRsp.getStatus() == 200){
+                String message= hasFailMessage(verifyAppleIdRsp);
+                throw new ServiceException(message);
+            }else if(verifyAppleIdRsp.getStatus() == 400){
                 String service_errors = JSONUtil.parse(verifyAppleIdRsp.body()).getByPath("service_errors",String.class);
                 JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                 String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
@@ -1344,7 +1343,7 @@ public class AppleIDUtil {
         String url = "https://iforgot.apple.com/password/verify/appleid";
 
         HttpResponse verifyAppleIdRsp = ProxyUtil.execute(HttpUtil.createPost(url)
-                        .header("Connection","keep-alive")
+
                         .header("Accept-Encoding","gzip, deflate, br")
                         .header("Accept-Language","zh-CN,zh;q=0.9")
                         .header("Accept","application/json, text/javascript, */*; q=0.01")
@@ -1392,7 +1391,6 @@ public class AppleIDUtil {
                 +"&client_id="+clientId+"&redirect_uri="+redirect_uri+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
         HttpResponse signinRes = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header("Connection","keep-alive")
                 .header("Upgrade-Insecure-Requests","1")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1408,7 +1406,6 @@ public class AppleIDUtil {
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+ account.getAccount() +"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
         url="https://idmsa.apple.com/appleauth/auth/signin/init";
         HttpResponse intRes = ProxyUtil.execute(HttpUtil.createPost(url)
-                .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
                 .header("X-Apple-Auth-Attributes",signinRes.header("X-Apple-Auth-Attributes"))
                 .header("X-Apple-Widget-Key",clientId)
@@ -1451,7 +1448,6 @@ public class AppleIDUtil {
             put("m2",map.get("m2"));
         }};
         HttpResponse completeRes = ProxyUtil.execute(HttpUtil.createPost(url)
-                .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
                 .header("X-Apple-Auth-Attributes",signinRes.header("X-Apple-Auth-Attributes"))
                 .header("X-Apple-Widget-Key",clientId)
@@ -1488,7 +1484,6 @@ public class AppleIDUtil {
         //step4 auth
         url="https://idmsa.apple.com/appleauth/auth";
         HttpResponse authRes = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
                 .header("X-Apple-Auth-Attributes",completeRes.header("X-Apple-Auth-Attributes"))
                 .header("X-Apple-Widget-Key",clientId)
@@ -1538,7 +1533,6 @@ public class AppleIDUtil {
         url = "https://idmsa.apple.com/appleauth/auth/verify/questions";
         body = "{\"questions\":" + JSONUtil.parse(qs) + "}";
         HttpResponse questionsResp = ProxyUtil.execute(HttpUtil.createPost(url)
-                .header("Connection","keep-alive")
                 .header("X-Apple-App-Id",clientId)
                 .header("scnt",account.getScnt())
                 .header("X-Apple-Auth-Attributes",authRes.header("X-Apple-Auth-Attributes"))
@@ -1578,7 +1572,6 @@ public class AppleIDUtil {
         ThreadUtil.sleep(300);
         url = "https://appleid.apple.com/widget/account/repair?widgetKey="+clientId+"&rv=1&language=zh_CN_CHN";
         HttpResponse repairResp = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header("Connection","keep-alive")
                 .header("Upgrade-Insecure-Requests","1")
                 .header("X-Apple-Widget-Key",clientId)
                 .header("Accept-Encoding","gzip, deflate, br")
@@ -1599,7 +1592,6 @@ public class AppleIDUtil {
         //step6 options
         url = "https://appleid.apple.com/account/manage/repair/options";
         HttpResponse optionsResp = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Skip-Repair-Attributes","[]")
@@ -1626,7 +1618,6 @@ public class AppleIDUtil {
         //step7 upgrade
         url = "https://appleid.apple.com//account/security/upgrade";
         HttpResponse upgradeResp = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header("Connection","keep-alive")
                 .header("scnt",account.getScnt())
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("X-Apple-Skip-Repair-Attributes","[]")
@@ -1662,7 +1653,6 @@ public class AppleIDUtil {
         String options1Location = verifyAppleIdRsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(
                 HttpUtil.createGet(host + options1Location)
-                        .header("Connection","keep-alive")
                         .header("Accept-Encoding","gzip, deflate, br")
                         .header("Accept-Language","zh-CN,zh;q=0.9")
                         .header("X-Requested-With","XMLHttpRequest")
@@ -1680,7 +1670,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(options1Rsp);
         ThreadUtil.sleep(500);
         HttpResponse options3Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/recovery/options")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1698,7 +1687,6 @@ public class AppleIDUtil {
         ThreadUtil.sleep(500);
         String authMethod1Location = options3Rsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1730,7 +1718,6 @@ public class AppleIDUtil {
                 .header("User-Agent",Constant.BROWSER_USER_AGENT)
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("Connection","keep-alive")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",authMethod1Rsp.header("sstt"))
                 .cookie(account.getCookie())
@@ -1741,7 +1728,6 @@ public class AppleIDUtil {
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1763,7 +1749,6 @@ public class AppleIDUtil {
         }
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1786,7 +1771,6 @@ public class AppleIDUtil {
         ThreadUtil.sleep(500);
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1819,7 +1803,6 @@ public class AppleIDUtil {
         bodyMap.put("questions",questions);
         ThreadUtil.sleep(500);
         HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1839,7 +1822,6 @@ public class AppleIDUtil {
         String resrtPasswordOptionLocation = verifyQuestions2Rsp.header("Location");
         ThreadUtil.sleep(500);
         HttpResponse resrtPasswordOptionRsp = ProxyUtil.execute(HttpUtil.createGet(host + resrtPasswordOptionLocation)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1856,7 +1838,6 @@ public class AppleIDUtil {
         ThreadUtil.sleep(500);
         String passwordReset1Location = resrtPasswordOptionRsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1872,7 +1853,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(passwordReset1Rsp);
         ThreadUtil.sleep(500);
         HttpResponse passwordReset2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1901,7 +1881,6 @@ public class AppleIDUtil {
         account.setNote("正在获取重设方式...");
         String authMethod1Location = verifyAppleIdRsp.header("Location");
         HttpResponse authMethod1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + authMethod1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1926,7 +1905,6 @@ public class AppleIDUtil {
         }
 
         HttpResponse authMethod2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/authenticationmethod")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1946,7 +1924,6 @@ public class AppleIDUtil {
         account.setNote("正在验证生日...");
         String verifyBirthday1Location = authMethod2Rsp.header("Location");
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1969,7 +1946,6 @@ public class AppleIDUtil {
             throw new ServiceException("出生日期输入错误！");
         }
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/birthday")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1992,7 +1968,6 @@ public class AppleIDUtil {
 
         String verifyQuestions1Location = verifyBirthday2Rsp.header("Location");
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2024,7 +1999,6 @@ public class AppleIDUtil {
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();
         bodyMap.put("questions",questions);
         HttpResponse verifyQuestions2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/questions")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2041,7 +2015,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(verifyQuestions2Rsp);
         String options1Location = verifyQuestions2Rsp.header("Location");
         HttpResponse options1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + options1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2057,7 +2030,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(options1Rsp);
 
         HttpResponse options2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/reset/options")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2075,7 +2047,6 @@ public class AppleIDUtil {
         ThreadUtil.sleep(500);
         String unlock1Location = options2Rsp.header("Location");
         HttpResponse unlock1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unlock1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2091,7 +2062,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(unlock1Rsp);
         account.setNote("正在解锁...");
         HttpResponse unlockForgot1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/unlock/forgot")
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2110,7 +2080,6 @@ public class AppleIDUtil {
         account.setNote("正在设置新密码...");
         String passwordReset1Location = unlockForgot1Rsp.header("Location");
         HttpResponse passwordReset1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + passwordReset1Location)
-                .header("Connection","keep-alive")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -2134,7 +2103,6 @@ public class AppleIDUtil {
                 .header("User-Agent","Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
                 .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
                 .header("Host","iforgot.apple.com")
-                .header("Connection","keep-alive")
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("sstt",passwordReset1Rsp.header("sstt"))
                 .cookie(account.getCookie())

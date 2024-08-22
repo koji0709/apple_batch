@@ -545,8 +545,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
 
         // 按钮绑定事件
-
-
         Class finalClz = clz;
         searchBtn.setOnAction(actionEvent -> {
             HashMap<Object, Object> params = new HashMap<>();
@@ -622,16 +620,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 executeButton.setDisable(true);
             });
             // 不使用杀线程的方式停止
-//            List<StageEnum> notForceStopList = Arrays.asList(StageEnum.ACCOUNT_INFO_MODIFY,StageEnum.UPDATE_APPLE_ID);
             List<Future<?>> futureList = threadMap.get(stage);
             if (!CollUtil.isEmpty(futureList)){
                 // 立即关闭服务，并尝试停止所有任务,返回待执行的任务集合
                 stopExecutorService();
                 for (Future<?> future:futureList){
-                   future.cancel(true);
+                    future.cancel(true);
                 }
             }
-            // 停止任务, 恢复按钮状态
             Platform.runLater(() -> {
                 setExecuteButtonStatus(false);
             });
@@ -967,7 +963,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         return threadPoolExecutor;
     }
     /*
-     **停止线程池服务
+     ** 停止线程池服务
      * @param
      * @return java.util.concurrent.ScheduledExecutorService
      * @throws
@@ -978,6 +974,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if(null==threadPoolExecutor || threadPoolExecutor.isShutdown()){
 
         }else{
+            //方法会尝试立即停止所有正在执行的任务，并返回等待执行的任务列表
             threadPoolExecutor.shutdownNow();
         }
     }

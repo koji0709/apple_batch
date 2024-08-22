@@ -169,7 +169,7 @@ public class MainApplication extends Application {
         ThreadUtil.execAsync(() -> DataUtil.getCountry());
         ThreadUtil.execAsync(() -> DataUtil.getNews());
         ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
-        ThreadUtil.execAsync(() -> DataUtil.getProxyConfig());
+        ThreadUtil.execAsync(() -> DataUtil.getProxyModeList());
     }
     @Override
     public void init() throws Exception {

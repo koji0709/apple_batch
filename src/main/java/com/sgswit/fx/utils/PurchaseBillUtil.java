@@ -396,7 +396,6 @@ public class PurchaseBillUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Connection",ListUtil.toList("keep-alive"));
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
         HttpRequest httpRequest=HttpUtil.createGet(scUrl)
                 .header(headers);
@@ -422,8 +421,6 @@ public class PurchaseBillUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Connection",ListUtil.toList("keep-alive"));
-
         String scUrl = "https://appleid.apple.com/account/security/upgrade";
         HttpResponse res2 = ProxyUtil.execute(HttpUtil.createGet(scUrl)
                 .header(headers));
@@ -448,7 +445,6 @@ public class PurchaseBillUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Connection",ListUtil.toList("keep-alive"));
 
         String scUrl = "https://appleid.apple.com/account/security/upgrade/setuplater";
         HttpResponse res2 = ProxyUtil.execute(HttpUtil.createGet(scUrl)
@@ -475,7 +471,6 @@ public class PurchaseBillUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Connection",ListUtil.toList("keep-alive"));
         headers.put("X-Apple-Skip-Repair-Attributes", ListUtil.toList("[\"hsa2_enrollment\"]"));
 
         String scUrl = "https://appleid.apple.com/account/manage/repair/options";
@@ -515,9 +510,6 @@ public class PurchaseBillUtil {
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Connection",ListUtil.toList("keep-alive"));
-
-
         String scUrl = "https://idmsa.apple.com/appleauth/auth/repair/complete";
         HttpResponse res2 = ProxyUtil.execute(HttpUtil.createPost(scUrl)
                 .header(headers));

@@ -7,9 +7,16 @@ public class Constant {
     public static final String BROWSER_USER_AGENT = " Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36";
 
     public static final String BROWSER_CLIENT_INFO = "{\"U\":\"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"kla44j1e3NlY5BNlY5BSmHACVZXnNA9dEQg0F..B1zLu_dYV6Hycfx9MsFY5C7JajV2pNk0ug9WJ3u6eRMfuZjn4Ukd5BNlY5CGWY5BOgkLT0XxU..B6g\"}";
+
+
+
     public static final String CONFIGURATOR_USER_AGENT = "Configurator/2.15 (Macintosh; OS X 11.0.0; 16G29) AppleWebKit/2603.3.8";
-    public static final String deviceID = "TF1%3B015%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3BMozilla%3BNetscape%3B5.0%2520%2528Windows%2520NT%252010.0%253B%2520Win64%253B%2520x64%2529%2520AppleWebKit%2F537.36%2520%2528KHTML%252C%2520like%2520Gecko%2529%2520Chrome%2F86.0.4240.183%2520Safari%2F537.36%3B20030107%3Bundefined%3Btrue%3B%3Btrue%3BWin32%3Bundefined%3BMozilla%2F5.0%2520%2528Windows%2520NT%252010.0%253B%2520Win64%253B%2520x64%2529%2520AppleWebKit%2F537.36%2520%2528KHTML%252C%2520like%2520Gecko%2529%2520Chrome%2F86.0.4240.183%2520Safari%2F537.36%3Bzh-CN%3Bundefined%3Bsecure6.store.apple.com%3Bundefined%3Bundefined%3Bundefined%3Bundefined%3Bfalse%3Bfalse%3B1719842479552%3B8%3B2005%2F6%2F7%2520%25u4E0B%25u53489%253A33%253A44%3B1920%3B1080%3B%3B%3B%3B%3B%3B%3B%3B-480%3B-480%3B2024%252f07%252f01%2b%25e4%25b8%258b%25e5%258d%258822%253a01%253a19%3B24%3B1920%3B1040%3B0%3B0%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B25%3B";
     public static final String MACAPPSTORE20_USER_AGENT ="MacAppStore/2.0 (Macintosh; OS X 12.10) AppleWebKit/600.1.3.41";
+    public static final String XMMeClientInfo ="<MacBook Pro> <Mac OS X;10.10;14A314h> <com.apple.AOSKit/203 (com.apple.systempreferences/14.0)>";
+    public static final String ICLOUND_USER_AGENT ="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/600.1.3 (KHTML, like Gecko)";
+
+
+
     public static final String 	SUCCESS     = "200";
     public static final String 	REDIRECT_CODE     = "302";
     public static final String 	TWO_FACTOR_AUTHENTICATION     = "401";
@@ -45,11 +52,6 @@ public class Constant {
     public static final String MAC_DB_URL = System.getProperty("user.home") + "/.db/xg.sqlite";
 
     public static final String WIN_DB_URL = "xg.sqlite";
-
-    public static final String ConnectException = "ConnectException";
-    public static final String SocketException = "SocketException";
-
-    public static final String ResponseException = "SocketTimeoutException";
 
 
     public static final Map<String,String> errorMap = new HashMap<>(){{
