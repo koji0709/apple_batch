@@ -169,7 +169,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             String content = FileUtil.readUtf8String(file);
             if (StrUtil.isNotEmpty(content)){
                 content = content.replaceAll("\t"," ");
-                content=CustomStringUtils.removeBlankLines(content);
+                content=StrUtils.removeBlankLines(content);
                 String[] split = content.split("\n");
                 accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();
@@ -266,7 +266,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             giftCardRedeem.setAccount(account);
                             giftCardRedeem.setPwd(pwd);
                             giftCardRedeem.setGiftCardCode(giftCardCode);
-                            boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
+                            boolean success = StrUtils.giftCardCodeVerify(giftCardCode);
                             if (!success){
                                 giftCardRedeem.setGiftCardStatus("无效卡");
                             }
@@ -285,9 +285,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                             GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                             giftCardRedeem.setAccount(accountComboBoxValueArr[0]);
                             giftCardRedeem.setPwd(accountComboBoxValueArr[1]);
-                            String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
+                            String giftCardCode=StrUtils.replaceMultipleSpaces(acc,"");
                             giftCardRedeem.setGiftCardCode(giftCardCode);
-                            boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
+                            boolean success = StrUtils.giftCardCodeVerify(giftCardCode);
                             if (!success){
                                 giftCardRedeem.setGiftCardStatus("无效卡");
                             }
@@ -518,7 +518,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     }
     @Override
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
-        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
+        boolean success = StrUtils.giftCardCodeVerify(giftCardRedeem.getGiftCardCode());
         if (!success){
             giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
@@ -603,19 +603,19 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String message = MessageFormat.format("兑换成功,加载金额:{0}, ID总金额: {1}",new String[]{giftCardAmount,creditDisplay});
         setAndRefreshNote(giftCardRedeem,message);
         ThreadUtil.execute(()->{
-            Map<String,Object> params1 = new HashMap<>(){{
+            Map<String,Object> params = new HashMap<>(){{
                 put("code",giftCardRedeem.getGiftCardCode());
-                put("user",SM4Util.decryptBase64(PropertiesUtil.getOtherConfig("login.userName")));
+                put("user",SignUtil.decryptBase64(PropertiesUtil.getOtherConfig("login.userName")));
                 put("recipientAccount", account);
                 put("recipientDsid",giftCardRedeem.getDsPersonId());
                 put("initBalance", new BigDecimal(totalMoneyRaw).subtract(new BigDecimal(giftCardMoneyRaw)));
                 put("redeemBalance",giftCardMoneyRaw);
                 put("salesOrg",StoreFontsUtils.getCountryCodeFromStoreFront(giftCardRedeem.getStoreFront()));
             }};
-            HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params1);
+            HttpResponse addGiftcardRedeemLogRsp = HttpUtils.post("/giftcardRedeemLog", params);
             boolean addSuccess = HttpUtils.verifyRsp(addGiftcardRedeemLogRsp);
             if (!addSuccess){
-                LoggerManger.info("同步兑换记录失败: status: " + addGiftcardRedeemLogRsp.getStatus() + ", params: " + JSONUtil.toJsonStr(params1));
+                LoggerManger.info("同步兑换记录失败: status: " + addGiftcardRedeemLogRsp.getStatus() + ", params: " + JSONUtil.toJsonStr(params));
             }
         });
     }
@@ -811,7 +811,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 FileUtil.del(file1);
             }
             if (StrUtil.isNotEmpty(content)){
-                content=CustomStringUtils.removeBlankLines(content);
+                content=StrUtils.removeBlankLines(content);
                 String[] split = content.split("\n");
                 accountComboBox.setValue(split[0]);
                 accountComboBox.getItems().clear();

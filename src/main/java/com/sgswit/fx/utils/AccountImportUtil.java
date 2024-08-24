@@ -111,7 +111,7 @@ public class AccountImportUtil<T>{
     public static String[] parseAccountAndPwd(String accountStr){
         String account="";
         String pwd="";
-        accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
+        accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
         String[]  array=accountStr.split(SPLIT_STRING);
         if(array.length>=2){
             account=array[0];
@@ -124,7 +124,7 @@ public class AccountImportUtil<T>{
             }else{
                 accountStr=accountStr.replace("{-}", REPLACE_MEANT);
                 accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
-                accountStr= CustomStringUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
+                accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
                 String []accountArr=accountStr.split(SPLIT_STRING,2);
                 account=accountArr[0];
                 if(accountArr.length>1){
@@ -133,7 +133,7 @@ public class AccountImportUtil<T>{
             }
         }
         pwd= StringUtils.replacePattern(pwd, "-| ", " ").trim();
-        pwd= CustomStringUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
+        pwd= StrUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
         if(!StringUtils.isEmpty(account)){
             list.add(account);

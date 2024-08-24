@@ -329,7 +329,7 @@ public class MainController implements Initializable {
     public void refreshRemainingPoints() {
         ThreadUtil.execAsync(()->{
             String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
-            HttpResponse rsp = HttpUtils.get("/userInfo/getInfoByUserName/"+SM4Util.decryptBase64(base64UserName));
+            HttpResponse rsp = HttpUtils.get("/userInfo/getInfoByUserName/"+SignUtil.decryptBase64(base64UserName));
             JSON json= JSONUtil.parse(rsp.body());
             if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
                 remainingPoints.setText( json.getByPath("data.remainingPoints",String.class));

@@ -43,7 +43,7 @@ public class ApiProxyUtil {
             String proxyUrl= PropertiesUtil.getConfig("proxyUrl");
             HashMap<String, List<String>> headers = new HashMap<>(10);
             HttpResponse result = HttpRequest.get(proxyUrl)
-                    .timeout(20000)
+                    .timeout(10000)
                     .header(headers)
                     .execute();
             JSON jsonObject=JSONUtil.parse(result.body());
@@ -103,7 +103,7 @@ public class ApiProxyUtil {
             Db.use(DataSourceFactory.getDataSource()).tx(db->{
                 delete();
                 long currentTimeMillis=System.currentTimeMillis();
-                Entity queryOne= Db.use(DataSourceFactory.getDataSource()).queryOne("SELECT * FROM proxy_ip_info where (expiration_time-3000)>? and (last_update_time+5*1000<?) ORDER BY expiration_time LIMIT 1",currentTimeMillis,currentTimeMillis);
+                Entity queryOne= Db.use(DataSourceFactory.getDataSource()).queryOne("SELECT * FROM proxy_ip_info where (expiration_time-3000)>? and (last_update_time+5*1000<?) ORDER BY last_update_time LIMIT 1",currentTimeMillis,currentTimeMillis);
                 if(null!=queryOne){
                     one.set(queryOne);
                     queryOne.set("last_update_time", System.currentTimeMillis());

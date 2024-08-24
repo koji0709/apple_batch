@@ -357,7 +357,7 @@ public class GiftCardBalanceCheckController  extends CustomTableView<GiftCard> {
     }
     protected void checkBalance(GiftCard giftCard) {
         Date nowDate=new Date();
-        if (!CustomStringUtils.giftCardCodeVerify(giftCard.getGiftCardCode())) {
+        if (!StrUtils.giftCardCodeVerify(giftCard.getGiftCardCode())) {
             giftCard.setDataStatus("0");
             tableRefreshAndInsertLocal(giftCard,"输入代码不符合查询格式");
             return;

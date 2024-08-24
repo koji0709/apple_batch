@@ -70,8 +70,6 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
                 url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
                 loginRsp = itunesLogin(accountModel,url,1);
             }
-
-            int status = loginRsp.getStatus();
             JSONObject json=null;
             try{
                 json = PListUtil.parse(loginRsp.body());

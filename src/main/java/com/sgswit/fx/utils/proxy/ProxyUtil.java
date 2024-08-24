@@ -15,6 +15,7 @@ import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.StrUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -53,13 +54,13 @@ public class ProxyUtil{
         HttpResponse httpResponse=null;
         boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
         boolean iTunesFlag =request.getUrl().contains("/WebObjects/MZFinance.woa");
-        int sleepTime=iTunesFlag?300:800;
+        int sleepTime=iTunesFlag?200:500;
         int try503Num=has?20:50;
         int tryIoNum=10;
         try{
             httpResponse=  createRequest(request).execute();
             if(Thread.currentThread().isInterrupted()){
-               throw new ServiceException("请求失败：停止任务");
+                throw new ServiceException("请求失败：停止任务");
             }
             if(503==httpResponse.getStatus()){
                int randomInt= RandomUtil.randomInt(1,3);
@@ -79,7 +80,10 @@ public class ProxyUtil{
             throw e;
        }catch (IORuntimeException | HttpException e){
             if (StringUtils.containsIgnoreCase(e.getMessage(),"connect") ||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"connection")){
+                    StringUtils.containsIgnoreCase(e.getMessage(),"connection")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"503 Service Unavailable")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS : authentication failed")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")){
                 int randomInt= RandomUtil.randomInt(1,3);
                 ThreadUtil.sleep(randomInt*sleepTime);
                 int failCount=1;
@@ -119,10 +123,10 @@ public class ProxyUtil{
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
-            sendTimeOut=sendTimeOut==0?15*1000:sendTimeOut*1000;
-            int readTimeOut=45*1000;
+            sendTimeOut=sendTimeOut==0?10*1000:sendTimeOut*1000;
+            int readTimeOut=20*1000;
             if(StringUtils.isEmpty(proxyMode)){
-                return proxyRequest(request,sendTimeOut);
+                return proxyRequest(request,sendTimeOut,readTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
                 //判断是否为空
                 String proxyApiUrl= PropertiesUtil.getOtherConfig("proxyApiUrl");
@@ -132,7 +136,7 @@ public class ProxyUtil{
                 if(!StringUtils.isEmpty(proxyApiUrl)){
                     apiProxyRequest(request,proxyApiUrl,proxyApiUser,proxyApiPass, proxyApiNeedPass,sendTimeOut,readTimeOut);
                 }
-                return request.timeout(sendTimeOut);
+                return proxyRequest(request,sendTimeOut,readTimeOut);
             }else if(ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)){
                 String address= PropertiesUtil.getOtherConfig("proxyTunnelAddress");
                 String proxyHost=address.split(":")[0];
@@ -143,44 +147,40 @@ public class ProxyUtil{
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
-                    int randomInt=RandomUtil.randomInt(0,10);
-//                    int randomInt=7;
-                    int limit=6;
-                    if(proxyConfigList.size()>1){
-                        if(limit> randomInt&& randomInt>=0){
-                            Optional<Map<String,Object>> first = proxyConfigList.stream().filter(e -> e.get("proxyType").equals("2")).findFirst();
-                            if(first.isPresent()) { //存在
-                                return proxyRequest(request,first.get(),sendTimeOut,readTimeOut,Proxy.Type.HTTP);
-                            }else{
-                                return proxyRequest(request,sendTimeOut);
-                            }
-                        }else{
-                            Entity entity=ApiProxyUtil.getRandomIp();
-                            if(null==entity){
-                                Optional<Map<String,Object>> first = proxyConfigList.stream().filter(e -> e.get("proxyType").equals("2")).findFirst();
-                                if(first.isPresent()) { //存在
-                                    return proxyRequest(request,first.get(),sendTimeOut,readTimeOut,Proxy.Type.HTTP);
-                                }else{
-                                    return proxyRequest(request,sendTimeOut);
-                                }
-                            }else{
-                                String proxyHost=entity.getStr("ip");
-                                int proxyPort=entity.getInt("port");
-                                String username=entity.getStr("username");
-                                String pwd=entity.getStr("pwd");
-                                String protocol_type=entity.getStr("protocol_type");
-                                return  proxyRequest(request,proxyHost,proxyPort,username,pwd, sendTimeOut,readTimeOut,Proxy.Type.SOCKS);
-                            }
-                        }
-                    }else{
-                        //隧道代理
-                        return proxyRequest(request,proxyConfigList.get(0),sendTimeOut,readTimeOut,Proxy.Type.HTTP);
+                    //根据权重配比，随机获取一种
+                    int[] weights=new int[proxyConfigList.size()];
+                    int i=0;
+                    for (Map<String, Object> map:proxyConfigList){
+                        weights[i]=MapUtil.getInt(map,"weight");
+                        i++;
                     }
-                }else{
-                    return proxyRequest(request,sendTimeOut);
+                    int index= StrUtils.getWeightedRandomIndex(weights);
+                    Map<String, Object> proxyConfigMap= proxyConfigList.get(index);
+                    String proxyType=MapUtil.getStr(proxyConfigMap,"proxyType");
+                    if("1".equals(proxyType)){
+                        Entity entity=ApiProxyUtil.getRandomIp();
+                        if(null==entity){
+                            return proxyRequest(request,sendTimeOut,readTimeOut);
+//                            return createRequest(request);
+                        }else{
+                            String proxyHost=entity.getStr("ip");
+                            int proxyPort=entity.getInt("port");
+                            String username=entity.getStr("username");
+                            String pwd=entity.getStr("pwd");
+                            String protocol_type=entity.getStr("protocol_type");
+                            return  proxyRequest(request,proxyHost,proxyPort,username,pwd, sendTimeOut,readTimeOut,getProxyType(protocol_type));
+                        }
+                    }else if("2".equals(proxyType)){
+                        String protocolType=MapUtil.getStr(proxyConfigMap,"protocolType");
+                        return proxyRequest(request,proxyConfigMap,sendTimeOut,readTimeOut,getProxyType(protocolType));
+                    }else {
+                        return proxyRequest(request,sendTimeOut,readTimeOut);
+                    }
+                }else {
+                    return proxyRequest(request,sendTimeOut,readTimeOut);
                 }
             }else{
-                return proxyRequest(request,sendTimeOut);
+                return proxyRequest(request,sendTimeOut,readTimeOut);
             }
         }catch (Exception e){
             throw e;
@@ -233,8 +233,8 @@ public class ProxyUtil{
         String authPassword= MapUtil.getStr(map,"pwd");
         return proxyRequest(request,proxyHost,proxyPort,authUser,authPassword,sendTimeOut,readTimeout,proxyType);
     }
-    private static HttpRequest proxyRequest(HttpRequest request,Integer sendTimeOut){
-        return request.timeout(sendTimeOut);
+    private static HttpRequest proxyRequest(HttpRequest request,Integer sendTimeOut,Integer readTimeOut){
+        return request.setConnectionTimeout(sendTimeOut).setReadTimeout(readTimeOut);
     }
     private static Proxy.Type getProxyType(String type){
         Proxy.Type proxyType;

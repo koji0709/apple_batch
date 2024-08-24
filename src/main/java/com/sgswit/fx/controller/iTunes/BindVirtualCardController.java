@@ -64,7 +64,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
             boolean f=false;
             //判断是否符合正则表达式
             CreditCard creditCard = new CreditCard();
-            item= CustomStringUtils.replaceMultipleSpaces(item, AccountImportUtil.SPLIT_STRING);
+            item= StrUtils.replaceMultipleSpaces(item, AccountImportUtil.SPLIT_STRING);
             String[]  array=item.split(AccountImportUtil.SPLIT_STRING);
             if(array.length==2){
                 account=array[0];
@@ -78,11 +78,11 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                     account=AccountImportUtil.getEmailByStr(item);
                     pwd= item.substring(item.lastIndexOf(account)+account.length()).replace("{-}", AccountImportUtil.REPLACE_MEANT);
                     pwd=StringUtils.replacePattern(pwd, "-| ", " ").trim();
-                    pwd= CustomStringUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
+                    pwd= StrUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
                 }else{
                     item=item.replace("{-}", AccountImportUtil.REPLACE_MEANT);
                     item= StringUtils.replacePattern(item, "-| ", " ").trim();
-                    item= CustomStringUtils.replaceMultipleSpaces(item,AccountImportUtil.SPLIT_STRING);
+                    item= StrUtils.replaceMultipleSpaces(item,AccountImportUtil.SPLIT_STRING);
                     String []accountArr=item.split(AccountImportUtil.SPLIT_STRING,2);
                     account=accountArr[0];
                     if(accountArr.length>1){
@@ -91,7 +91,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                 }
             }
             pwd=StringUtils.replacePattern(pwd, "-| ", " ").trim();
-            pwd= CustomStringUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
+            pwd= StrUtils.replaceMultipleSpaces(pwd,AccountImportUtil.SPLIT_STRING).replace(AccountImportUtil.REPLACE_MEANT,"-");
             if(!StringUtils.isEmpty(pwd)){
                 String[] a=pwd.split(AccountImportUtil.SPLIT_STRING);
                 if(a.length==2){

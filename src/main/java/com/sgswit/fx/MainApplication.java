@@ -1,6 +1,5 @@
 package com.sgswit.fx;
 
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.controller.common.CommonView;
@@ -38,7 +37,7 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws IOException {
         LoggerManger.info("启动软件...");
         HostServicesUtil.setHostServices(getHostServices());
-        getData();
+        DataUtil.getData();
         //进程锁
         FileLock lock = FileChannel.open(
                 Paths.get(System.getProperty("user.dir"), "single_instance.lock"),
@@ -162,14 +161,6 @@ public class MainApplication extends Application {
         } else {
             return diff > 0 ? 1 : -1;
         }
-    }
-
-
-    protected static void getData(){
-        ThreadUtil.execAsync(() -> DataUtil.getCountry());
-        ThreadUtil.execAsync(() -> DataUtil.getNews());
-        ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
-        ThreadUtil.execAsync(() -> DataUtil.getProxyModeList());
     }
     @Override
     public void init() throws Exception {

@@ -11,7 +11,7 @@ import org.bouncycastle.util.encoders.Hex;
  * @description: TODO
  * @date 2024/2/511:31
  */
-public class SM4Util {
+public class SignUtil {
     private static final String key ="1012BADD542E2C182DFD84795E65A019";
     /**
     　* 加密后返回base64

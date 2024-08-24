@@ -1011,7 +1011,7 @@ public class AppleIDUtil {
         ThreadUtil.sleep(300);
         account.setNote("正在关闭双重认证...");
         ThreadUtil.sleep(300);
-        String boot_args= CustomStringUtils.getScriptById(verifyPhone2Rsp.body(),"boot_args");
+        String boot_args= StrUtils.getScriptById(verifyPhone2Rsp.body(),"boot_args");
         sstt=JSONUtil.parse(boot_args).getByPath("data.sstt", String.class);
         try {
             sstt = URLEncoder.encode(sstt, "UTF-8");
@@ -1517,7 +1517,7 @@ public class AppleIDUtil {
 
         //step4 questions
         account.setNote("正在验证密保问题...");
-        String boot_args=CustomStringUtils.getScriptByClass(authRes.body(),"boot_args");
+        String boot_args=StrUtils.getScriptByClass(authRes.body(),"boot_args");
         String questions = JSONUtil.parse(boot_args).getByPath("direct.twoSV.securityQuestions.questions",String.class);
         List<Question> qs = JSONUtil.toList(questions, Question.class);
         for (int i = 0; i < qs.size(); i++) {
@@ -1587,7 +1587,7 @@ public class AppleIDUtil {
             throw new ServiceException(StrUtil.isEmpty(message)?"获取阅读协议失败":"获取阅读协议失败："+message);
         }
         account.updateLoginInfo(repairResp);
-        boot_args=CustomStringUtils.getScriptById(repairResp.body(),"boot_args");
+        boot_args=StrUtils.getScriptById(repairResp.body(),"boot_args");
         String sessionId=JSONUtil.parse(boot_args).getByPath("direct.sessionId",String.class);
         //step6 options
         url = "https://appleid.apple.com/account/manage/repair/options";

@@ -76,6 +76,7 @@ public class LoginController extends CommonView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        DataUtil.getData();
         // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
         Setting config = new Setting("config.properties");
         // 检测是否开启服务, 如果没有开启就直接到主页面方便测试
@@ -89,8 +90,8 @@ public class LoginController extends CommonView implements Initializable {
         if (rememberMe){
             String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
             String base64Pwd=PropertiesUtil.getOtherConfig("login.pwd");
-            loginUserNameTextField.setText(SM4Util.decryptBase64(base64UserName));
-            loginPwdTextField.setText(SM4Util.decryptBase64(base64Pwd));
+            loginUserNameTextField.setText(SignUtil.decryptBase64(base64UserName));
+            loginPwdTextField.setText(SignUtil.decryptBase64(base64Pwd));
             rememberMeCheckBox.setSelected(true);
         }
         Task<Void> loadChartTask = new Task<Void>() {
@@ -101,7 +102,6 @@ public class LoginController extends CommonView implements Initializable {
                     updateProgress(i, 100);
                     ThreadUtil.sleep(50);
                 }
-
                 return null;
             }
         };
@@ -146,7 +146,6 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void login(){
-        getData();
         String userName = loginUserNameTextField.getText();
         String pwd = loginPwdTextField.getText();
         if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
@@ -157,8 +156,8 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin= autoLoginCheckBox.isSelected();
         PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
         PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
-        PropertiesUtil.setOtherConfig("login.userName",SM4Util.encryptBase64(userName));
-        PropertiesUtil.setOtherConfig("login.pwd",SM4Util.encryptBase64(pwd));
+        PropertiesUtil.setOtherConfig("login.userName",SignUtil.encryptBase64(userName));
+        PropertiesUtil.setOtherConfig("login.pwd",SignUtil.encryptBase64(pwd));
         //利用hutool工具类中的封装方法获取本机mac地址
         String macAddress ="";
         try {
@@ -188,7 +187,6 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void qqLogin(){
-        getData();
         String qq = qqChiceBox.getValue();
         if (StrUtil.isEmpty(qq)){
             alert("选中QQ不能为空！",Alert.AlertType.INFORMATION,true);
@@ -311,11 +309,5 @@ public class LoginController extends CommonView implements Initializable {
     public void showDocument() throws IOException {
         String customerServiceQQ= PropertiesUtil.getConfig("customer.service.qq");
         Desktop.getDesktop().browse(URI.create("tencent://message/?uin="+customerServiceQQ));
-    }
-    protected static void getData(){
-        ThreadUtil.execAsync(() -> DataUtil.getCountry());
-        ThreadUtil.execAsync(() -> DataUtil.getNews());
-        ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
-        ThreadUtil.execAsync(() -> DataUtil.getProxyModeList());
     }
 }

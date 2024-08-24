@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  * @description: TODO
  * @date 2024/1/2211:35
  */
-public class CustomStringUtils extends StringUtils {
+public class StrUtils extends StringUtils {
     /**
     　*将多个连续空格替换为指定字符串 移除换行\r、回车\n、制表\t符的字符串
       * @param
@@ -93,5 +94,27 @@ public class CustomStringUtils extends StringUtils {
             }
         }
         return "";
+    }
+    public static int getWeightedRandomIndex(int[] weights) {
+        // 计算总权重
+        int totalWeight = 0;
+        for (int weight : weights) {
+            totalWeight += weight;
+        }
+
+        // 生成一个 [0, 总权重) 范围内的随机数
+        Random random = new Random();
+        int randomValue = random.nextInt(totalWeight);
+
+        // 根据随机数和权重数组，选择一个索引
+        int cumulativeWeight = 0;
+        for (int i = 0; i < weights.length; i++) {
+            cumulativeWeight += weights[i];
+            if (randomValue < cumulativeWeight) {
+                return i;
+            }
+        }
+        // 这种情况下不会到达这里，防止编译错误返回一个默认值
+        return -1;
     }
 }

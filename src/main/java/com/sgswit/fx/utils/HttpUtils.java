@@ -24,7 +24,7 @@ public class HttpUtils {
 
     public static HttpResponse post(String url,Map<String,Object> paramMap){
         String body=JSONUtil.toJsonStr(paramMap);
-//        body=SM4Util.encryptBase64(body);
+//        body=SignUtil.encryptBase64(body);
         url = getServiceUrl() + url;
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")
@@ -35,7 +35,7 @@ public class HttpUtils {
     }
 
     public static HttpResponse post(String url,String body){
-//        body=SM4Util.encryptBase64(body);
+//        body=SignUtil.encryptBase64(body);
         url = getServiceUrl() + url;
         HttpResponse rsp = HttpUtil.createPost(url)
                 .header("Content-Type", "application/json")

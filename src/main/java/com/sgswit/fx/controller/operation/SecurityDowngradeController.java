@@ -10,7 +10,7 @@ import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.CustomStringUtils;
+import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
@@ -63,7 +63,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
                 .header("User-Agent", Constant.BROWSER_USER_AGENT)
         );
 
-        String boot_args= CustomStringUtils.getScriptById(verifyAppleIdInitRsp.body(),"boot_args");
+        String boot_args= StrUtils.getScriptById(verifyAppleIdInitRsp.body(),"boot_args");
         String sstt= JSONUtil.parse(boot_args).getByPath("sstt", String.class);
         try {
             sstt = URLEncoder.encode(sstt, "UTF-8");

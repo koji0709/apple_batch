@@ -137,7 +137,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
     public void accountHandler(GiftCardRedeem giftCardRedeem) {
         giftCardRedeem.setExecTime(DateUtil.now());
         String giftCardCode = giftCardRedeem.getGiftCardCode();
-        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
+        boolean success = StrUtils.giftCardCodeVerify(giftCardCode);
         if (!success) {
             giftCardRedeem.setGiftCardStatus("无效卡");
             throw new ServiceException("输入的代码无效。");
@@ -345,9 +345,9 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                         GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                         giftCardRedeem.setAccount(accountArr[0]);
                         giftCardRedeem.setPwd(accountArr[1]);
-                        String giftCardCode=CustomStringUtils.replaceMultipleSpaces(acc,"");
+                        String giftCardCode=StrUtils.replaceMultipleSpaces(acc,"");
                         giftCardRedeem.setGiftCardCode(giftCardCode);
-                        boolean success = CustomStringUtils.giftCardCodeVerify(giftCardCode);
+                        boolean success = StrUtils.giftCardCodeVerify(giftCardCode);
                         if (!success){
                             giftCardRedeem.setGiftCardStatus("无效卡");
                         }

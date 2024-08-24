@@ -77,9 +77,9 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     }
     private void setQuestionsAndAnswerToLocation(){
         List<String> questions= new ArrayList<>();
-        String question1ChoiceBoxValue = CustomStringUtils.isEmpty(question1ChoiceBox.getValue())?"":question1ChoiceBox.getValue().toString();
-        String question2ChoiceBoxValue = CustomStringUtils.isEmpty(question2ChoiceBox.getValue())?"":question2ChoiceBox.getValue().toString();
-        String question3ChoiceBoxValue = CustomStringUtils.isEmpty(question3ChoiceBox.getValue())?"":question3ChoiceBox.getValue().toString();
+        String question1ChoiceBoxValue = StrUtils.isEmpty(question1ChoiceBox.getValue())?"":question1ChoiceBox.getValue().toString();
+        String question2ChoiceBoxValue = StrUtils.isEmpty(question2ChoiceBox.getValue())?"":question2ChoiceBox.getValue().toString();
+        String question3ChoiceBoxValue = StrUtils.isEmpty(question3ChoiceBox.getValue())?"":question3ChoiceBox.getValue().toString();
         String answer1TextFieldText = answer1TextField.getText();
         String answer2TextFieldText = answer2TextField.getText();
         String answer3TextFieldText = answer3TextField.getText();

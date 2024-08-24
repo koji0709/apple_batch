@@ -63,7 +63,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
                         .header("Host", "iforgot.apple.com")
                         .header("User-Agent", Constant.BROWSER_USER_AGENT)
         );
-        String boot_args= CustomStringUtils.getScriptById(verifyAppleIdInitRsp.body(),"boot_args");
+        String boot_args= StrUtils.getScriptById(verifyAppleIdInitRsp.body(),"boot_args");
         String sstt= JSONUtil.parse(boot_args).getByPath("sstt", String.class);
         try {
             sstt = URLEncoder.encode(sstt, "UTF-8");

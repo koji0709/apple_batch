@@ -47,7 +47,7 @@ public class PointUtil {
         try{
             //获取当前登录账号的用户名
             String username=PropertiesUtil.getOtherConfig("login.userName");
-            username=SM4Util.decryptBase64(username);
+            username=SignUtil.decryptBase64(username);
             Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);
             map.put("type",type);

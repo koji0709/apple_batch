@@ -1,6 +1,7 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -336,7 +337,13 @@ public class DataUtil {
        }, 1, 20*60, TimeUnit.SECONDS);
 
    }
-
+    public static void getData(){
+        ThreadUtil.execAsync(() -> DataUtil.getCountry());
+        ThreadUtil.execAsync(() -> DataUtil.getNews());
+        ThreadUtil.execAsync(() -> PointUtil.getPointConfig());
+        ThreadUtil.execAsync(() -> DataUtil.getProxyModeList());
+        ThreadUtil.execAsync(() -> DataUtil.getProxyConfig());
+    }
 
 
 }
