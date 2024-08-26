@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
@@ -139,15 +139,6 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
-<!--        <dependency>-->
-<!--            <groupId>net.java.dev.jna</groupId>-->
-<!--            <artifactId>jna-platform</artifactId>-->
-<!--            <version>5.13.0</version>-->
-<!--        </dependency>-->
-
-
-
     </dependencies>
 
     <build>

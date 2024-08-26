@@ -13,6 +13,7 @@ import cn.hutool.http.*;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
+import com.sgswit.fx.utils.AesUtil;
 import com.sgswit.fx.utils.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StrUtils;
@@ -24,7 +25,10 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -43,6 +47,7 @@ public class ProxyUtil{
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
     private static Map<String,Integer> map503Error=new HashMap<>(16);
     private static Map<String,Integer> mapIoError=new HashMap<>(16);
+    private static Map<String,Integer> tryNumMap=new HashMap<>(16);
 
 
     public static HttpResponse execute(HttpRequest request){
@@ -120,11 +125,12 @@ public class ProxyUtil{
 
 
     private static HttpRequest createRequest(HttpRequest request){
+        String requestId= MD5.create().digestHex(request.toString());
         try {
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
             sendTimeOut=sendTimeOut==0?10*1000:sendTimeOut*1000;
-            int readTimeOut=20*1000;
+            int readTimeOut=30*1000;
             if(StringUtils.isEmpty(proxyMode)){
                 return proxyRequest(request,sendTimeOut,readTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
@@ -160,18 +166,50 @@ public class ProxyUtil{
                     if("1".equals(proxyType)){
                         Entity entity=ApiProxyUtil.getRandomIp();
                         if(null==entity){
-                            return proxyRequest(request,sendTimeOut,readTimeOut);
-//                            return createRequest(request);
+                            int failCount=1;
+                            Integer intIo=tryNumMap.get(requestId);
+                            if(null!=intIo){
+                                failCount=1+intIo;
+                            }
+                            tryNumMap.put(requestId,failCount);
+                            if(Integer.valueOf(failCount)>=10){
+                                throw new ServiceException("网络连接失败，请稍后重试");
+                            }
+                            return createRequest(request);
                         }else{
                             String proxyHost=entity.getStr("ip");
                             int proxyPort=entity.getInt("port");
                             String username=entity.getStr("username");
                             String pwd=entity.getStr("pwd");
                             String protocol_type=entity.getStr("protocol_type");
+                            try{
+                                username= AesUtil.decrypt(username);
+                            }catch (Exception e){
+
+                            }
+                            try{
+                                pwd= AesUtil.decrypt(pwd);
+                            }catch (Exception e){
+
+                            }
                             return  proxyRequest(request,proxyHost,proxyPort,username,pwd, sendTimeOut,readTimeOut,getProxyType(protocol_type));
                         }
                     }else if("2".equals(proxyType)){
                         String protocolType=MapUtil.getStr(proxyConfigMap,"protocolType");
+                        String authUser=MapUtil.getStr(proxyConfigMap,"account");
+                        try{
+                            authUser= AesUtil.decrypt(authUser);
+                        }catch (Exception e){
+
+                        }
+                        String authPassword= MapUtil.getStr(proxyConfigMap,"pwd");
+                        try{
+                            authPassword= AesUtil.decrypt(authPassword);
+                        }catch (Exception e){
+
+                        }
+                        proxyConfigMap.put("account",authUser);
+                        proxyConfigMap.put("pwd",authPassword);
                         return proxyRequest(request,proxyConfigMap,sendTimeOut,readTimeOut,getProxyType(protocolType));
                     }else {
                         return proxyRequest(request,sendTimeOut,readTimeOut);
@@ -184,6 +222,8 @@ public class ProxyUtil{
             }
         }catch (Exception e){
             throw e;
+        }finally {
+            tryNumMap.remove(requestId);
         }
     }
     private static HttpRequest apiProxyRequest(HttpRequest request,String proxyApiUrl,String proxyApiUser,String proxyApiPass,Boolean proxyApiNeedPass,int sendTimeOut,int readTimeout){
