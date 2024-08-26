@@ -53,6 +53,7 @@ public class ProxyUtil{
     public static HttpResponse execute(HttpRequest request){
         // 限制请求频率
         //lock(request);
+
         String requestId= MD5.create().digestHex(request.toString());
         //判断是否设置代理
         HttpRequest.closeCookie();
@@ -87,6 +88,7 @@ public class ProxyUtil{
             if (StringUtils.containsIgnoreCase(e.getMessage(),"connect") ||
                     StringUtils.containsIgnoreCase(e.getMessage(),"connection")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"503 Service Unavailable")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"407 Proxy Authentication Required")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS : authentication failed")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")){
                 int randomInt= RandomUtil.randomInt(1,3);
