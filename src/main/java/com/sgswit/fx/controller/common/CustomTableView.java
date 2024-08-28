@@ -515,6 +515,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         TableView localHistoryTableView = new TableView();
         localHistoryTableView.setPrefWidth(1180);
         localHistoryTableView.setPrefHeight(460);
+        localHistoryTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
 
         // 动态渲染列,且增加操作时间字段
         for (TableColumn<T, ?> tableViewColumn : this.accountTableView.getColumns()) {
