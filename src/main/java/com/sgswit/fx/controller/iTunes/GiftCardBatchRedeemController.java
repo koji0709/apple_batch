@@ -374,7 +374,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
                 Iterator<GiftCardRedeem> iterator = accountList.iterator();
-                while (iterator.hasNext()) {
+                while (!Thread.currentThread().isInterrupted() && iterator.hasNext()) {
+                    System.out.println(Thread.currentThread().isInterrupted());
                     GiftCardRedeem giftCardRedeem = iterator.next();
                     String account=giftCardRedeem.getAccount();
                     Map<String,Long> countList = countMap.get(account);

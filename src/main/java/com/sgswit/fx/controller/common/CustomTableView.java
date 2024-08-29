@@ -772,21 +772,32 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     public void setExecuteButtonStatus(boolean isRunning) {
         // 修改按钮状态
         if (executeButton != null) {
+            boolean disabled = executeButton.isDisabled();
             if (isRunning) {
-                executeButton.setText("正在查询");
-                executeButton.setTextFill(Paint.valueOf("#FF0000"));
-                executeButton.setDisable(true);
+                if (!disabled){
+                    executeButton.setText("正在查询");
+                    executeButton.setTextFill(Paint.valueOf("#FF0000"));
+                    executeButton.setDisable(true);
+                }
             } else {
-                executeButton.setTextFill(Paint.valueOf("#238142"));
-                executeButton.setText("开始执行");
-                executeButton.setDisable(false);
+                if (disabled){
+                    executeButton.setTextFill(Paint.valueOf("#238142"));
+                    executeButton.setText("开始执行");
+                    executeButton.setDisable(false);
+                }
             }
         }
         if (importAccountButton != null){
-            importAccountButton.setDisable(isRunning);
+            boolean disabled = importAccountButton.isDisabled();
+            if (isRunning != disabled){
+                importAccountButton.setDisable(isRunning);
+            }
         }
         if (stopButton != null){
-            stopButton.setDisable(!isRunning);
+            boolean disabled = stopButton.isDisabled();
+            if (isRunning == disabled){
+                stopButton.setDisable(!isRunning);
+            }
         }
     }
 
