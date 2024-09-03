@@ -132,13 +132,6 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>13.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -202,10 +195,11 @@
 
             <!-- javapackager mac打包关掉代理  -->
             <!-- javapackager  -->
+            <!-- https://mvnrepository.com/artifact/io.github.fvarrui/javapackager -->
             <plugin>
                 <groupId>io.github.fvarrui</groupId>
                 <artifactId>javapackager</artifactId>
-                <version>1.6.7</version>
+                <version>1.7.6</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -214,7 +208,6 @@
                         </goals>
                         <configuration>
                             <version>3.4.2</version>
-                            <organizationName>组织名称</organizationName>
                             <name>Apple批量处理</name>
                             <!-- mandatory -->
                             <mainClass>com.sgswit.fx.AppLauncher</mainClass>
