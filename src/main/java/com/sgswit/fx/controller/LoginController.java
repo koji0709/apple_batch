@@ -146,6 +146,9 @@ public class LoginController extends CommonView implements Initializable {
     }
 
     public void login(){
+        ThreadUtil.execAsync(()->{
+            DataUtil.getData();
+        });
         String userName = loginUserNameTextField.getText();
         String pwd = loginPwdTextField.getText();
         if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
@@ -206,6 +209,7 @@ public class LoginController extends CommonView implements Initializable {
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
         }catch (Exception e){
+            LoggerManger.info("登录失败",e);
             alert("登录失败，服务异常", Alert.AlertType.ERROR,true);
             return;
         }
