@@ -89,7 +89,8 @@ public class ProxyUtil{
                     StringUtils.containsIgnoreCase(e.getMessage(),"connection")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"503 Service Unavailable")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"407 Proxy Authentication Required")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS : authentication failed")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"authentication failed")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"Remote host terminated the handshake")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")){
                 int randomInt= RandomUtil.randomInt(1,3);
                 ThreadUtil.sleep(randomInt*sleepTime);
@@ -266,7 +267,8 @@ public class ProxyUtil{
     private static HttpRequest proxyRequest(HttpRequest request,String proxyHost,Integer proxyPort,String authUser,String authPassword,int sendTimeOut,int readTimeout,Proxy.Type proxyType){
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
-        return  request.setProxy(new Proxy(proxyType,new InetSocketAddress(proxyHost, proxyPort))).setConnectionTimeout(sendTimeOut).setReadTimeout(readTimeout);
+        Proxy proxy= new Proxy(proxyType,new InetSocketAddress(proxyHost, proxyPort));
+        return  request.setProxy(proxy).setConnectionTimeout(sendTimeOut).setReadTimeout(readTimeout);
     }
     private static HttpRequest proxyRequest(HttpRequest request,Map<String,Object> map,int sendTimeOut,int readTimeout,Proxy.Type proxyType){
         String proxyHost= MapUtil.getStr(map,"ip");
