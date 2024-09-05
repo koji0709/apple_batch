@@ -13,10 +13,7 @@ import cn.hutool.http.*;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
-import com.sgswit.fx.utils.AesUtil;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.PropertiesUtil;
-import com.sgswit.fx.utils.StrUtils;
+import com.sgswit.fx.utils.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -85,13 +82,16 @@ public class ProxyUtil{
        }catch (UnavailableException e){
             throw e;
        }catch (IORuntimeException | HttpException e){
+            LoggerManger.info("网络异常",e);
             if (StringUtils.containsIgnoreCase(e.getMessage(),"connect") ||
                     StringUtils.containsIgnoreCase(e.getMessage(),"connection")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"503 Service Unavailable")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"407 Proxy Authentication Required")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"authentication failed")||
                     StringUtils.containsIgnoreCase(e.getMessage(),"Remote host terminated the handshake")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")){
+                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")||
+                    StringUtils.containsIgnoreCase(e.getMessage(),"460 Proxy Authentication Invalid")
+            ){
                 int randomInt= RandomUtil.randomInt(1,3);
                 ThreadUtil.sleep(randomInt*sleepTime);
                 int failCount=1;
@@ -125,7 +125,6 @@ public class ProxyUtil{
        }
        return httpResponse;
     }
-
 
     private static HttpRequest createRequest(HttpRequest request){
         String requestId= MD5.create().digestHex(request.toString());
@@ -166,6 +165,9 @@ public class ProxyUtil{
                     int index= StrUtils.getWeightedRandomIndex(weights);
                     Map<String, Object> proxyConfigMap= proxyConfigList.get(index);
                     String proxyType=MapUtil.getStr(proxyConfigMap,"proxyType");
+
+                    // todo
+
                     if("1".equals(proxyType)){
                         Entity entity=ApiProxyUtil.getRandomIp();
                         if(null==entity){
@@ -265,6 +267,7 @@ public class ProxyUtil{
         return proxyRequest(request,host,port,authUser,authPassword,sendTimeOut,readTimeout,getProxyType(""));
     }
     private static HttpRequest proxyRequest(HttpRequest request,String proxyHost,Integer proxyPort,String authUser,String authPassword,int sendTimeOut,int readTimeout,Proxy.Type proxyType){
+        LoggerManger.info(String.format("uri = %s, proxy = %s:%d",request.getUrl(),proxyHost,proxyPort));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy= new Proxy(proxyType,new InetSocketAddress(proxyHost, proxyPort));

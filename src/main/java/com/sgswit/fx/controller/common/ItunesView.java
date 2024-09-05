@@ -7,10 +7,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
-import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -95,6 +92,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             }
             message = MapUtil.getStr(result,"msg");
         }catch (ServiceException e){
+            LoggerManger.info("itunesLogin登陆失败",e);
             message=e.getMessage();
         }
         throw new ServiceException("登录失败："+message);
@@ -108,7 +106,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid, url);
         url = authRsp.header("location");
         String status = String.valueOf(authRsp.getStatus());
-        if (status .equals(Constant.REDIRECT_CODE)){
+        if (status.equals(Constant.REDIRECT_CODE)){
             return itunesLogin(accountModel,url,1);
         }else if (!status.equals(Constant.SUCCESS)){
             return authRsp;

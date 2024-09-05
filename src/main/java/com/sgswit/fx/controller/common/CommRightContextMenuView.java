@@ -188,7 +188,8 @@ public class CommRightContextMenuView<T> extends CommonView {
             button.setOnMouseClicked(event -> {
                 String buttonId = button.getId();
                 ObservableList<T> selectedRows = accountTableView.getSelectionModel().getSelectedItems();
-                if (selectedRows.size() == 0) {
+                int selectRowsSize = selectedRows.size();
+                if (selectRowsSize == 0) {
                     return;
                 }
                 T account = selectedRows.get(0);
@@ -201,38 +202,42 @@ public class CommRightContextMenuView<T> extends CommonView {
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.CODE.getCode());
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.REEXECUTE.getCode())) {
-                    Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(account, "hasFinished");
-                    String note = ReflectUtil.invoke(account, "getNote");
+                    for (T accountRow : selectedRows) {
+                        Boolean hasFinished= (Boolean) ReflectUtil.getFieldValue(accountRow, "hasFinished");
+                        String note = ReflectUtil.invoke(accountRow, "getNote");
+                        if(!hasFinished || Constant.REDEEM_WAIT1_DESC.equals(note)){
+                            //alert("处理中，不可重复操作。");
+                            continue;
+                        }
 
-                    if(!hasFinished || Constant.REDEEM_WAIT1_DESC.equals(note)){
-                        alert("处理中，不可重复操作。");
-                        return;
-                    }
-                    boolean securityCode = ReflectUtil.hasField(account.getClass(), "securityCode");
-                    if(securityCode){
-                        ReflectUtil.invoke(account,"setSecurityCode","");
-                    }
-                    boolean authCode = ReflectUtil.hasField(account.getClass(), "authCode");
-                    if(authCode){
-                        ReflectUtil.invoke(account,"setAuthCode","");
-                    }
-                    boolean step = ReflectUtil.hasField(account.getClass(), "step");
-                    if(step){
-                        ReflectUtil.invoke(account,"setStep","");
-                    }
-                    boolean verify = executeButtonActionBefore();
-                    if (!verify) {
-                        return;
-                    }
-                    if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
-                        ThreadUtil.execute(()-> {
-                            Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", account);
-                            if (redeemCheck){
-                                accountHandlerExpand(account);
-                            }
-                        });
-                    }else{
-                        accountHandlerExpand(account);
+                        boolean verify = executeButtonActionBefore();
+                        if (!verify) {
+                            continue;
+                        }
+
+                        boolean securityCode = ReflectUtil.hasField(accountRow.getClass(), "securityCode");
+                        if(securityCode){
+                            ReflectUtil.invoke(accountRow,"setSecurityCode","");
+                        }
+                        boolean authCode = ReflectUtil.hasField(accountRow.getClass(), "authCode");
+                        if(authCode){
+                            ReflectUtil.invoke(accountRow,"setAuthCode","");
+                        }
+                        boolean step = ReflectUtil.hasField(accountRow.getClass(), "step");
+                        if(step){
+                            ReflectUtil.invoke(accountRow,"setStep","");
+                        }
+
+                        if ("GiftCardBatchRedeemController".equals(this.getClass().getSimpleName())){
+                            ThreadUtil.execute(()-> {
+                                Boolean redeemCheck = ReflectUtil.invoke(this, "redeemCheck", accountRow);
+                                if (redeemCheck){
+                                    accountHandlerExpand(accountRow);
+                                }
+                            });
+                        }else{
+                            ThreadUtil.execute(()-> accountHandlerExpand(accountRow));
+                        }
                     }
                 } else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.TWO_FACTOR_CODE.getCode())) {
                     openCodePopup(account, title, Constant.RightContextMenu.TWO_FACTOR_CODE.getCode());

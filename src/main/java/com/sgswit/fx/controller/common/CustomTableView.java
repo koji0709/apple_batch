@@ -64,8 +64,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected List runningList=new ArrayList<>();
-    /**登录成功的账号缓存(缓存30分钟,能刷新)**/
-    private static final long time=30*60*1000;
+    /**登录成功的账号缓存(缓存20分钟)**/
+    private static final long time=20*60*1000;
 
     protected static Map<StageEnum,List<Future<?>>> threadMap = new HashMap<>();
 
@@ -397,7 +397,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
     /**
      * 导入账号按钮点击
-     * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考GiftCardBatchRedeemController.java)
+     * ⚠注意：如果是一些特殊的解析账号方法,可以自定义说明文案，以及重写TableView.parseAccount方法。可参考 GiftCardBatchRedeemController.java)
      */
     public void openImportAccountView(List<String> formats, ActionEvent actionEvent) {
         String desc = "说明：\n" +
@@ -410,8 +410,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         Stage stage = (Stage) scene.getWindow();
         openImportAccountView(formats,"导入账号", desc,stage);
     }
-    public void openImportAccountView(List<String> formats) {
 
+    public void openImportAccountView(List<String> formats) {
         openImportAccountView(formats,null);
     }
 

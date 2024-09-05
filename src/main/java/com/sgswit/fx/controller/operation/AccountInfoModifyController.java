@@ -34,7 +34,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.ACCOUNT_INFO_MODIFY.getCode())));
         super.initialize(url,resourceBundle);
         initViewData();
-        menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
+        //menuItem.add(Constant.RightContextMenu.WEB_TWO_FACTOR_CODE.getCode());
     }
 
     /**
@@ -120,7 +120,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
-        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"),actionEvent);
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"),actionEvent);
     }
 
     @Override

@@ -50,7 +50,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            String message="Apple ID或密码不正确";
+            String message="签名验证失败";
             if("-1".equals(code)){
                 message="此账号已被锁定";
             }
@@ -76,6 +76,7 @@ public class AppleIdView extends CustomTableView<Account> {
             if (authRsp == null){
                 throw new ServiceException("请先执行程序;");
             }
+            // todo 双重认证调整
             securityCodeOrReparCompleteRsp = AppleIDUtil.securityCode(account,authRsp);
             checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
         }else{
@@ -105,13 +106,14 @@ public class AppleIdView extends CustomTableView<Account> {
                     throw new ServiceException("密保问题验证失败;");
                 }
                 setAndRefreshNote(account,"密保问题验证通过");
+
                 ThreadUtil.sleep(500);
                 setAndRefreshNote(account,"正在阅读协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
-
-
-
-                checkAndThrowUnavailableException(authRsp);
+                if(200 != accountRepairRsp.getStatus()){
+                    String message= AppleIDUtil.getValidationErrors(accountRepairRsp,"获取阅读协议失败");
+                    throw new ServiceException(message);
+                }
 
                 String XAppleIDSessionId = "";
                 String scnt = accountRepairRsp.header("scnt");
@@ -138,6 +140,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
             }
         }
+
 
         HttpResponse tokenRsp = AppleIDUtil.token(account,securityCodeOrReparCompleteRsp);
         checkAndThrowUnavailableException(tokenRsp);
