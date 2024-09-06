@@ -46,84 +46,80 @@ public class ProxyUtil{
     private static Map<String,Integer> mapIoError=new HashMap<>(16);
     private static Map<String,Integer> tryNumMap=new HashMap<>(16);
 
-
-    public static HttpResponse execute(HttpRequest request){
-        // 限制请求频率
-        //lock(request);
-
-        String requestId= MD5.create().digestHex(request.toString());
-        //判断是否设置代理
+    public static HttpResponse execute(HttpRequest request) {
         HttpRequest.closeCookie();
-        HttpResponse httpResponse=null;
-        boolean has =request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
-        boolean iTunesFlag =request.getUrl().contains("/WebObjects/MZFinance.woa");
-        int sleepTime=iTunesFlag?200:500;
-        int try503Num=has?20:50;
-        int tryIoNum=10;
-        try{
-            httpResponse=  createRequest(request).execute();
-            if(Thread.currentThread().isInterrupted()){
+
+        String requestId = MD5.create().digestHex(request.toString());
+        boolean isRedeem = request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+        boolean isITunes = request.getUrl().contains("/WebObjects/MZFinance.woa");
+
+        //int sleepTime = isITunes ? 200 : 500;
+        int sleepTime = isITunes ? 100 : 200;
+        int try503Num = isRedeem ? 20 : 50;
+        int tryIoNum = 10;
+
+        HttpResponse httpResponse;
+        try {
+            httpResponse = createRequest(request).execute();
+            if (Thread.currentThread().isInterrupted()) {
                 throw new ServiceException("请求失败：停止任务");
             }
-            if(503==httpResponse.getStatus()){
-               int randomInt= RandomUtil.randomInt(1,3);
-               ThreadUtil.sleep(randomInt*sleepTime);
-               Integer int503=map503Error.get(requestId);
-               int failCount=1;
-               if(null!=int503){
-                   failCount=1+int503;
-               }
-               map503Error.put(requestId,failCount);
-               if(failCount>try503Num){
-                   throw new UnavailableException();
-               }
-               return execute(request);
-            }
-       }catch (UnavailableException e){
-            throw e;
-       }catch (IORuntimeException | HttpException e){
-            LoggerManger.info("网络异常",e);
-            if (StringUtils.containsIgnoreCase(e.getMessage(),"connect") ||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"connection")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"503 Service Unavailable")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"407 Proxy Authentication Required")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"authentication failed")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"Remote host terminated the handshake")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"SOCKS: Network unreachable")||
-                    StringUtils.containsIgnoreCase(e.getMessage(),"460 Proxy Authentication Invalid")
-            ){
-                int randomInt= RandomUtil.randomInt(1,3);
-                ThreadUtil.sleep(randomInt*sleepTime);
-                int failCount=1;
-                Integer intIo=mapIoError.get(requestId);
-                if(null!=intIo){
-                    failCount=1+intIo;
-                }
-                mapIoError.put(requestId,failCount);
-                if(Integer.valueOf(failCount)>=tryIoNum){
-                    throw new ServiceException("网络连接失败，请稍后重试");
-                }
+            if (httpResponse.getStatus() == 503) {
+                // 重试
+                handleRetry(requestId, sleepTime, try503Num, map503Error);
                 return execute(request);
-            }else if(StringUtils.containsIgnoreCase(e.getMessage(),"read")){
-                if(has){
-                    throw new ServiceException("网络连接失败，未知状态");
-                }else{
-                    throw new ServiceException("服务响应超时，请稍后重试");
-                }
-            }else{
-                e.printStackTrace();
-                 throw new ServiceException("网络连接异常，请稍后重试");
             }
-       }catch (ServiceException e){
+        } catch (UnavailableException | ServiceException e) {
             throw e;
-       }catch (Exception e){
-            // 捕获异常
+        } catch (IORuntimeException | HttpException e) {
+            // 网络异常处理
+            handleIoException(requestId, sleepTime, tryIoNum, e, isRedeem);
+            return execute(request);
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new ServiceException("网络连接异常，未知错误");
-       } finally {
-           map503Error.remove(requestId);
-           mapIoError.remove(requestId);
-       }
-       return httpResponse;
+        } finally {
+            map503Error.remove(requestId);
+            mapIoError.remove(requestId);
+        }
+        return httpResponse;
+    }
+
+    private static void handleRetry(String requestId, int sleepTime, int maxRetries, Map<String, Integer> errorMap) {
+        int randomInt = RandomUtil.randomInt(1, 3);
+        //ThreadUtil.sleep(randomInt * sleepTime);
+
+        int failCount = errorMap.getOrDefault(requestId, 0) + 1;
+        errorMap.put(requestId, failCount);
+
+        if (failCount > maxRetries) {
+            throw new UnavailableException();
+        }
+    }
+
+    private static void handleIoException(String requestId, int sleepTime, int maxRetries, Exception e, boolean isRedeem) {
+        LoggerManger.info("网络异常", e);
+
+        // 需要重试的异常
+        if (isRetryableError(e.getMessage())) {
+            // 重试
+            handleRetry(requestId, sleepTime, maxRetries, mapIoError);
+        } else if (StringUtils.containsIgnoreCase(e.getMessage(), "read")) {
+            throw new ServiceException(isRedeem ? "网络连接失败，未知状态" : "服务响应超时，请稍后重试");
+        } else {
+            throw new ServiceException("网络连接异常，请稍后重试");
+        }
+    }
+
+    private static boolean isRetryableError(String message) {
+        return StringUtils.containsIgnoreCase(message, "connect") ||
+                StringUtils.containsIgnoreCase(message, "connection") ||
+                StringUtils.containsIgnoreCase(message, "503 Service Unavailable") ||
+                StringUtils.containsIgnoreCase(message, "407 Proxy Authentication Required") ||
+                StringUtils.containsIgnoreCase(message, "authentication failed") ||
+                StringUtils.containsIgnoreCase(message, "Remote host terminated the handshake") ||
+                StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
+                StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid");
     }
 
     private static HttpRequest createRequest(HttpRequest request){
@@ -132,7 +128,7 @@ public class ProxyUtil{
             String proxyMode= PropertiesUtil.getOtherConfig("proxyMode");
             int sendTimeOut=PropertiesUtil.getOtherInt("sendTimeOut");
             sendTimeOut=sendTimeOut==0?10*1000:sendTimeOut*1000;
-            int readTimeOut=30*1000;
+            int readTimeOut=10*1000;
             if(StringUtils.isEmpty(proxyMode)){
                 return proxyRequest(request,sendTimeOut,readTimeOut);
             }else if(ProxyEnum.Mode.API.getKey().equals(proxyMode)){
@@ -155,6 +151,9 @@ public class ProxyUtil{
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
+
+
+
                     //根据权重配比，随机获取一种
                     int[] weights=new int[proxyConfigList.size()];
                     int i=0;
@@ -231,6 +230,7 @@ public class ProxyUtil{
             tryNumMap.remove(requestId);
         }
     }
+
     private static HttpRequest apiProxyRequest(HttpRequest request,String proxyApiUrl,String proxyApiUser,String proxyApiPass,Boolean proxyApiNeedPass,int sendTimeOut,int readTimeout){
         if(Validator.isUrl(proxyApiUrl)){
             HttpResponse response=HttpUtil.createRequest(Method.GET,proxyApiUrl).execute();
