@@ -1,5 +1,6 @@
 package com.sgswit.fx.utils.proxy;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
@@ -10,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
+import com.sgswit.fx.ThreadLocalProxyInfo;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
@@ -87,7 +89,7 @@ public class ProxyUtil{
 
     private static void handleRetry(String requestId, int sleepTime, int maxRetries, Map<String, Integer> errorMap) {
         int randomInt = RandomUtil.randomInt(1, 3);
-        //ThreadUtil.sleep(randomInt * sleepTime);
+        ThreadUtil.sleep(randomInt * sleepTime);
 
         int failCount = errorMap.getOrDefault(requestId, 0) + 1;
         errorMap.put(requestId, failCount);
@@ -229,6 +231,39 @@ public class ProxyUtil{
         }finally {
             tryNumMap.remove(requestId);
         }
+    }
+
+    private static HttpRequest createRequestTest(HttpRequest request) {
+        int sendTimeOut = 10 * 1000;
+        int readTimeOut = 10 * 1000;
+
+        Entity entity        = getProxyInfo();
+        String protocol_type = entity.getStr("protocol_type");
+
+        String proxyHost = entity.getStr("ip");
+        int    proxyPort = entity.getInt("port");
+        String username  = entity.getStr("username");
+        String pwd       = entity.getStr("pwd");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
+    }
+
+    public static Entity getProxyInfo() {
+        Entity entity = ThreadLocalProxyInfo.get();
+        if (CollUtil.isEmpty(entity)){
+            entity = new Entity();
+            entity.set("protocol_type","1");
+            entity.set("ip","k786.kdltps.com");
+            entity.set("port","15818");
+            entity.set("username","t11194129891958");
+            entity.set("pwd","7gz517yn" + ":" + RandomUtil.randomNumbers(5));
+            ThreadLocalProxyInfo.set(entity);
+        }
+        return entity;
     }
 
     private static HttpRequest apiProxyRequest(HttpRequest request,String proxyApiUrl,String proxyApiUser,String proxyApiPass,Boolean proxyApiNeedPass,int sendTimeOut,int readTimeout){

@@ -542,6 +542,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         // 登录并缓存
         itunesLogin(giftCardRedeem);
+
+        HttpResponse authRsp = (HttpResponse) giftCardRedeem.getAuthData().get("authRsp");
+        JSONObject rspJSON = PListUtil.parse(authRsp.body());
+        Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
+        if (isDisabledAccount){
+            throw new ServiceException("账户已被单禁。");
+        }
+
         ThreadUtil.sleep(300);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
         countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
@@ -679,14 +687,17 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
                 country = StrUtil.isEmpty(country) ? "未知" : country.split("-")[1];
                 JSONObject rspJSON = PListUtil.parse(authRsp.body());
-                String  balance           = rspJSON.getStr("creditDisplay","0");
-                Boolean isDisabledAccount = rspJSON.getBool("accountFlags.isDisabledAccount",false);
-                String  status            = !isDisabledAccount ? "正常" : "禁用";
+                String  balance           = StrUtil.isEmpty(rspJSON.getStr("creditDisplay")) ? "0" : rspJSON.getStr("creditDisplay");
+                Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
                 String finalCountry = country;
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + finalCountry);
                     balanceLabel.setText( "余额：" + balance);
-                    statusLabel.setText( "状态：" + status);
+                    statusLabel.setText( "状态：" + (!isDisabledAccount ? "正常" : "禁用"));
+                    statusLabel.setTextFill(isDisabledAccount ? Color.RED : Color.BLACK);
+                    if (isDisabledAccount){
+                        checkAccountDescLabel.setText("账号已被单禁");
+                    }
                 });
             }catch (ServiceException e){
                 Platform.runLater(() -> {
