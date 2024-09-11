@@ -595,6 +595,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             }else if("MZFreeProductCode.NoBalance".equals(messageKey) || "MZFreeProductCode.NoSuch".equals(messageKey)){
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("无效卡");
+            }else if ("MZCommerce.XCardProblem".equals(messageKey)){
+                // 访问你的店面可用金额时服务器发生问题。请稍后再试
+                if (giftCardRedeem.getFailCount() == 0){
+                    giftCardRedeem.setFailCount(1);
+                    accountHandler(giftCardRedeem);
+                }
             }else{
                 message = String.format(message,userPresentableErrorMessage);
                 giftCardRedeem.setGiftCardStatus("兑换失败");

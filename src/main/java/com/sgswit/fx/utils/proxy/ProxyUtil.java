@@ -63,6 +63,7 @@ public class ProxyUtil{
         HttpResponse httpResponse;
         try {
             httpResponse = createRequest(request).execute();
+            LoggerManger.info(String.format("rsp.status = %d",httpResponse.getStatus()));
             if (Thread.currentThread().isInterrupted()) {
                 throw new ServiceException("请求失败：停止任务");
             }
@@ -121,7 +122,6 @@ public class ProxyUtil{
                 StringUtils.containsIgnoreCase(message, "authentication failed") ||
                 StringUtils.containsIgnoreCase(message, "Remote host terminated the handshake") ||
                 StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
-                StringUtils.containsIgnoreCase(message, "454 Proxy Authentication Expired") ||
                 StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid");
     }
 
@@ -160,8 +160,6 @@ public class ProxyUtil{
                             map.put("weight",0);
                         }
                     }
-
-
                     //根据权重配比，随机获取一种
                     int[] weights=new int[proxyConfigList.size()];
                     int i=0;
@@ -172,11 +170,8 @@ public class ProxyUtil{
                     int index= StrUtils.getWeightedRandomIndex(weights);
                     Map<String, Object> proxyConfigMap= proxyConfigList.get(index);
                     String proxyType=MapUtil.getStr(proxyConfigMap,"proxyType");
-
-                    // todo
-
                     if("1".equals(proxyType)){
-                        Map<String, Object> entity=ApiProxyUtil.getRandomIp();
+                        Entity entity=ApiProxyUtil.getRandomIp();
                         if(null==entity){
                             int failCount=1;
                             Integer intIo=tryNumMap.get(requestId);
@@ -189,11 +184,11 @@ public class ProxyUtil{
                             }
                             return createRequest(request);
                         }else{
-                            String proxyHost=MapUtil.getStr(entity,"ip");
-                            int proxyPort=MapUtil.getInt(entity,"port");
-                            String username=MapUtil.getStr(entity,"username");
-                            String pwd=MapUtil.getStr(entity,"pwd");
-                            String protocol_type=MapUtil.getStr(entity,"protocol_type");
+                            String proxyHost=entity.getStr("ip");
+                            int proxyPort=entity.getInt("port");
+                            String username=entity.getStr("username");
+                            String pwd=entity.getStr("pwd");
+                            String protocol_type=entity.getStr("protocol_type");
                             try{
                                 username= AesUtil.decrypt(username);
                             }catch (Exception e){
@@ -308,7 +303,8 @@ public class ProxyUtil{
         return proxyRequest(request,host,port,authUser,authPassword,sendTimeOut,readTimeout,getProxyType(""));
     }
     private static HttpRequest proxyRequest(HttpRequest request,String proxyHost,Integer proxyPort,String authUser,String authPassword,int sendTimeOut,int readTimeout,Proxy.Type proxyType){
-        LoggerManger.info(String.format("uri = %s, proxy = %s:%d",request.getUrl(),proxyHost,proxyPort));
+        authPassword = authPassword + ":" + RandomUtil.randomNumbers(8);
+        LoggerManger.info(String.format("uri = %s, proxy = %s:%d, unique = %s",request.getUrl(),proxyHost,proxyPort,authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy= new Proxy(proxyType,new InetSocketAddress(proxyHost, proxyPort));
