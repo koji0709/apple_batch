@@ -63,6 +63,7 @@ public class ProxyUtil{
         HttpResponse httpResponse;
         try {
             httpResponse = createRequest(request).execute();
+            LoggerManger.info(String.format("rsp.status = %d",httpResponse.getStatus()));
             if (Thread.currentThread().isInterrupted()) {
                 throw new ServiceException("请求失败：停止任务");
             }
@@ -153,9 +154,12 @@ public class ProxyUtil{
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
-
-
-
+                    for (Map<String, Object> map:proxyConfigList){
+                        String proxyType=MapUtil.getStr(map,"proxyType");
+                        if("1".equals(proxyType)){
+                            map.put("weight",0);
+                        }
+                    }
                     //根据权重配比，随机获取一种
                     int[] weights=new int[proxyConfigList.size()];
                     int i=0;
@@ -166,9 +170,6 @@ public class ProxyUtil{
                     int index= StrUtils.getWeightedRandomIndex(weights);
                     Map<String, Object> proxyConfigMap= proxyConfigList.get(index);
                     String proxyType=MapUtil.getStr(proxyConfigMap,"proxyType");
-
-                    // todo
-
                     if("1".equals(proxyType)){
                         Entity entity=ApiProxyUtil.getRandomIp();
                         if(null==entity){
@@ -302,7 +303,8 @@ public class ProxyUtil{
         return proxyRequest(request,host,port,authUser,authPassword,sendTimeOut,readTimeout,getProxyType(""));
     }
     private static HttpRequest proxyRequest(HttpRequest request,String proxyHost,Integer proxyPort,String authUser,String authPassword,int sendTimeOut,int readTimeout,Proxy.Type proxyType){
-        LoggerManger.info(String.format("uri = %s, proxy = %s:%d",request.getUrl(),proxyHost,proxyPort));
+        authPassword = authPassword + ":" + RandomUtil.randomNumbers(8);
+        LoggerManger.info(String.format("uri = %s, proxy = %s:%d, unique = %s",request.getUrl(),proxyHost,proxyPort,authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy= new Proxy(proxyType,new InetSocketAddress(proxyHost, proxyPort));
