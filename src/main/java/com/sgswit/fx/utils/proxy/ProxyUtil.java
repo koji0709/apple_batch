@@ -121,6 +121,7 @@ public class ProxyUtil{
                 StringUtils.containsIgnoreCase(message, "authentication failed") ||
                 StringUtils.containsIgnoreCase(message, "Remote host terminated the handshake") ||
                 StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
+                StringUtils.containsIgnoreCase(message, "454 Proxy Authentication Expired") ||
                 StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid");
     }
 
@@ -153,7 +154,12 @@ public class ProxyUtil{
             }else if(ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode)){
                 List<Map<String, Object>> proxyConfigList= DataUtil.getProxyConfig();
                 if(null!=proxyConfigList && !proxyConfigList.isEmpty()){
-
+                    for (Map<String, Object> map:proxyConfigList){
+                        String proxyType=MapUtil.getStr(map,"proxyType");
+                        if("1".equals(proxyType)){
+                            map.put("weight",0);
+                        }
+                    }
 
 
                     //根据权重配比，随机获取一种
@@ -170,7 +176,7 @@ public class ProxyUtil{
                     // todo
 
                     if("1".equals(proxyType)){
-                        Entity entity=ApiProxyUtil.getRandomIp();
+                        Map<String, Object> entity=ApiProxyUtil.getRandomIp();
                         if(null==entity){
                             int failCount=1;
                             Integer intIo=tryNumMap.get(requestId);
@@ -183,11 +189,11 @@ public class ProxyUtil{
                             }
                             return createRequest(request);
                         }else{
-                            String proxyHost=entity.getStr("ip");
-                            int proxyPort=entity.getInt("port");
-                            String username=entity.getStr("username");
-                            String pwd=entity.getStr("pwd");
-                            String protocol_type=entity.getStr("protocol_type");
+                            String proxyHost=MapUtil.getStr(entity,"ip");
+                            int proxyPort=MapUtil.getInt(entity,"port");
+                            String username=MapUtil.getStr(entity,"username");
+                            String pwd=MapUtil.getStr(entity,"pwd");
+                            String protocol_type=MapUtil.getStr(entity,"protocol_type");
                             try{
                                 username= AesUtil.decrypt(username);
                             }catch (Exception e){
