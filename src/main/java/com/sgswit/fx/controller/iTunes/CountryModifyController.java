@@ -12,10 +12,7 @@ import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ITunesUtil;
-import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.utils.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -178,6 +175,10 @@ public class CountryModifyController extends CustomTableView<Account>{
             }else{
                 res=new HashMap<>();
             }
+            Boolean isDisabledAccount = MapUtil.getBool(res, "isDisabledAccount", Boolean.FALSE);
+            if (isDisabledAccount){
+                throw new ServiceException("账户已被单禁, 不支持修改国家。");
+            }
             account.setOriginalCountry(MapUtil.getStr(res,"countryName"));
             if(Constant.TWO_FACTOR_AUTHENTICATION.equals(res.get("code"))) {
                 account.setNote(String.valueOf(res.get("msg")));
@@ -235,6 +236,7 @@ public class CountryModifyController extends CustomTableView<Account>{
                     String id=super.createId(account.getAccount(),account.getPwd());
                     loginSuccessMap.remove(id);
                 }else{
+                    LoggerManger.info(String.format("修改国家失败, code = %s, Request.body = ",MapUtil.getStr(editBillingInfoRes,"code"),body));
                     account.setDataStatus("0");
                     throw new ServiceException(account.getNote());
                 }
