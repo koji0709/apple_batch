@@ -21,9 +21,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -37,11 +36,14 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author DeZh
@@ -276,9 +278,12 @@ public class MainController implements Initializable {
         try {
             String osName = System.getProperty("os.name", "");
             if (osName.startsWith("Mac OS")) {
-                Class fileMgr = Class.forName("com.apple.eio.FileManager");
-                Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
-                openURL.invoke(null, url);
+                URI uri = new URI(url);
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    Desktop.getDesktop().browse(uri);
+                } else {
+                    //CommonView.alert("自动打开系统默认浏览器失败，请手动下载。\n" + "地址：" + url);
+                }
             } else if (osName.startsWith("Windows")) {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
             } else {

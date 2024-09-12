@@ -734,7 +734,7 @@ public class ITunesUtil {
             HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl)
                             .header(headers)
                             .cookie(giftCardRedeem.getCookie())
-                            .body(redeemBody));
+                            .body(redeemBody),false);
             return redeemRsp;
     }
     /**

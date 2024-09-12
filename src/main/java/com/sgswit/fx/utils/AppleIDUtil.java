@@ -541,7 +541,7 @@ public class AppleIDUtil {
                         .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                         .header("scnt",account.getScnt())
                         .body(body)
-                        .cookie(account.getCookie()));
+                        .cookie(account.getCookie()),false);
         return rsp;
     }
 
@@ -575,7 +575,7 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE, url)
                         .header(headers)
-                        .cookie(account.getCookie()));
+                        .cookie(account.getCookie()),false);
 
         int status = rsp.getStatus();
 
@@ -625,7 +625,7 @@ public class AppleIDUtil {
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST, url)
                         .header(headers)
                         .body("{\"address\":\""+account.getEmail()+"\"}")
-                        .cookie(account.getCookie()));
+                        .cookie(account.getCookie()),false);
 
         int status = rsp.getStatus();
 
@@ -668,7 +668,7 @@ public class AppleIDUtil {
                 .header("sec-ch-ua-mobile","?0")
                 .header("sec-ch-ua-platform","macOS")
                 .body(body);
-        HttpResponse rsp = ProxyUtil.execute(request);
+        HttpResponse rsp = ProxyUtil.execute(request,false);
         return rsp;
     }
 
@@ -705,7 +705,7 @@ public class AppleIDUtil {
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
                 .header(headers)
                 .cookie(account.getCookie())
-                .body(body));
+                .body(body),false);
 
         int status = rsp.getStatus();
 
@@ -739,7 +739,7 @@ public class AppleIDUtil {
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("scnt",account.getScnt())
                 .cookie(account.getCookie())
-                .body(body));
+                .body(body),false);
         return rsp;
     }
 
@@ -843,7 +843,6 @@ public class AppleIDUtil {
                     .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                     .header("scnt",account.getScnt())
                     .cookie(account.getCookie()));
-                System.err.println(rsp.getStatus());
             }
     }
 
@@ -962,7 +961,7 @@ public class AppleIDUtil {
         HttpResponse updateAppleIdRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT,url)
                         .header(headers)
                         .cookie(account.getCookie())
-                        .body(body));
+                        .body(body),false);
         return updateAppleIdRsp;
     }
 
@@ -1042,7 +1041,7 @@ public class AppleIDUtil {
                 .header("scnt",account.getScnt())
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .body(body)
-                .cookie(account.getCookie()));
+                .cookie(account.getCookie()),false);
         return securityUpgradeRsp;
     }
 

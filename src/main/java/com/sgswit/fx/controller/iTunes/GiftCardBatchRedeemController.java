@@ -586,8 +586,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                     loginSuccessMap.remove(id);
                     giftCardRedeem.setFailCount(1);
                     accountHandler(giftCardRedeem);
+                    return;
                 }
-                return;
             }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
                 //卡正常, 但是和账号商城不匹配
                 message = String.format(message,userPresentableErrorMessage);
@@ -600,6 +600,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 if (giftCardRedeem.getFailCount() == 0){
                     giftCardRedeem.setFailCount(1);
                     accountHandler(giftCardRedeem);
+                    return;
                 }
             }else{
                 message = String.format(message,userPresentableErrorMessage);

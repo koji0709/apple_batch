@@ -1,7 +1,9 @@
 package com.sgswit.fx.utils;
 
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
@@ -52,31 +54,34 @@ public class AesUtil {
     　* @author DeZh
     　* @date 2024/8/26 8:38
     */
-    public static String decrypt(String encryptedData) throws Exception {
-        // 将字符串密钥转换为SecretKeySpec
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
-
-        // 创建AES Cipher实例
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
-
-        // 初始化Cipher为解密模式
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-
-        // 执行解密操作
-        byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
-
-        // 返回解密后的字符串
-        return new String(decryptedData);
+    public static String decrypt(String encryptedData) {
+        try{
+            // 将字符串密钥转换为SecretKeySpec
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+            // 创建AES Cipher实例
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            // 初始化Cipher为解密模式
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            // 执行解密操作
+            byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+            // 返回解密后的字符串
+            return new String(decryptedData);
+        }catch (IllegalBlockSizeException | BadPaddingException e) { // 未加密数据
+        }
+        catch (Exception e){
+            LoggerManger.info("AES解密失败: " + e.getMessage() + ", encryptedData: " + encryptedData);
+        }
+        return encryptedData;
     }
+
     public static void main(String[] args) {
         try {
             // 明文数据
-            String data = "Hello, World!";
+            String data = "";
 
             // 加密数据
             String encryptedData = AesUtil.encrypt(data);
             System.out.println("加密后的数据: " + encryptedData);
-
             // 解密数据
             String decryptedData = AesUtil.decrypt(encryptedData);
             System.out.println("解密后的数据: " + decryptedData);
