@@ -25,10 +25,7 @@ import org.bouncycastle.crypto.util.DigestFactory;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author DELL
@@ -167,7 +164,6 @@ public class WebLoginUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 

@@ -50,7 +50,7 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            String message="签名验证失败";
+            String message="登录失败，响应状态："+signInRsp.getStatus();
             if("-1".equals(code)){
                 message="此账号已被锁定";
             }
@@ -108,7 +108,7 @@ public class AppleIdView extends CustomTableView<Account> {
                 setAndRefreshNote(account,"密保问题验证通过");
 
                 ThreadUtil.sleep(500);
-                setAndRefreshNote(account,"正在阅读协议...");
+                setAndRefreshNote(account,"正在获取协议...");
                 HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account,questionRsp);
                 if(200 != accountRepairRsp.getStatus()){
                     String message= AppleIDUtil.getValidationErrors(accountRepairRsp,"获取阅读协议失败");

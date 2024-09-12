@@ -100,7 +100,7 @@ public class IntegratedSettingsController implements Initializable {
             int proxyPort=Integer.valueOf(address.split(":")[1]);
             String authUser=PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword= PropertiesUtil.getOtherConfig("proxyTunnelPass");
-            String url = "http://39.99.59.122:15000/api/data/getIp";
+            String url = PropertiesUtil.getOtherConfig("online.checkIp");
             // JDK 8u111版本后，目标页面为HTTPS协议，启用proxy用户密码鉴权
             System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
             Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
