@@ -39,28 +39,29 @@ import java.util.Map;
 public class PurchaseBillUtil {
 
     public static void main(String[] args ) throws Exception {
-//        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
-//        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-//                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-//                "<plist version=\"1.0\">\n" +
-//                "<dict>\n" +
-//                "\t<key>sign-sap-setup-buffer</key>\n" +
-//                "\t<data>\n" +
-//                "\tAQhKdD/RkztjkIdhy4kw0BkPtgDZiIhjWOLKINBQpoX4ajnXWPit+NMykKtM8l7Vk2fm\n" +
-//                "\tLlHhVWWJyfF+AVS7YkAb+40GuxNiv4vfQKgQk1CWSdR+tQGk/+x2aFOcAdqh//iWBuoQ\n" +
-//                "\tmn8oSq8CE1JfELplZgb5lcAW6Q1y5b94S+7BsXRa97LwuqunlA0OkI9GUdQGiWXa3zli\n" +
-//                "\tbr1Zpd7A4AYdxj9UnIfxNtg/uounVRduyb3ySaSeDCCMdsiyZev5dI3OKtBgX68JRuYh\n" +
-//                "\tu0RZYztnSqEXfuU6PHLe1/IKKt0ydsW8sdEu0yWQYtE+4B9Acub9MPva7vZcjvCNAynr\n" +
-//                "\tyoynKDzuM/NtWvobDa76sXTj7ap/jZMwOYD4AAAAMD9VN64rsnwXQ8TmcrKxw/1mJKDH\n" +
-//                "\tMSo6fN4aw1yM0mBQWd3Hia2qd9YyvAO3lD/hKMOo2CnrimKKjIHNuY0rBI23oEwK\n" +
-//                "\t</data>\n" +
-//                "</dict>\n" +
-//                "</plist>";
+
+        
+        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
+        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
+                "<plist version=\"1.0\">\n" +
+                "<dict>\n" +
+                "\t<key>sign-sap-setup-buffer</key>\n" +
+                "\t<data>\n" +
+                "AnZ4Hj9lnZTXlUd6PodSFuwOX9XiqIVb4X97k3lXJWJvAAAB0AMAAAACAAABAKvN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76sAAAAeeJfJJ89t2u89s2vxAMJBUaK5ImgZUOHkTpJ3k3JLAAAAnwFS6jUy6SO/LE9fBSmftJUoR2387QAAAIYJAcmjalt4Rbs5o/KlRllNpuxm4+SyWBolXso7uGv5Mc9HwpM6tXHlRl7LiSOYRPxQxl4EcwMzL1zOaRvDbPQB6GNfyzfbMkPa/S3BBIU3RIjKXIEowSIFIyMT0/hZmk0BrtYD714aMjNXnbEnhXZpJTCzyBzSZiRHU3PllJUcSfGKtVbJHgAA%" +
+                "\t</data>\n" +
+                "</dict>\n" +
+                "</plist>";
+
+        HttpResponse execute = HttpUtil.createPost(url).body(body).execute();
+        System.err.println(execute);
+
+
 //        HttpResponse step4Res = ProxyUtil.createRequest(Method.POST,url)
 //                .body(body)
 //                .execute();
 
-        Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
+        //Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
 //        ITunesUtil.getPaymentInfos(res);
     }
     ///网页版版
@@ -179,6 +180,7 @@ public class PurchaseBillUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
@@ -193,6 +195,7 @@ public class PurchaseBillUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Host",ListUtil.toList("idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList(locationBase));
@@ -859,6 +862,8 @@ public class PurchaseBillUtil {
 //        headers.put("User-Agent", ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
                 "<plist version=\"1.0\">"+
@@ -1003,6 +1008,7 @@ public class PurchaseBillUtil {
         headers.put("Accept", ListUtil.toList("application/json, text/plain, */*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
 
         headers.put("Host", ListUtil.toList(host));
         headers.put("Referer", ListUtil.toList("https://finance-app.itunes.apple.com/"));

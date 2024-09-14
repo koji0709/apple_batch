@@ -103,7 +103,12 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
         String pwd     = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
 
-        HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid, url);
+        String signatureUrl = "http://192.168.31.68:9000/signature";
+//        HttpResponse actionSignatureRsp = ITunesUtil.actionSignature(account, pwd, accountModel.getAuthCode(), guid, signatureUrl);
+//        String signature = actionSignatureRsp.body();
+        String signature = "";
+//        System.err.println("【签名✍️✍️✍️✍️✍️】" + signature);
+        HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid,signature, url);
         url = authRsp.header("location");
         String status = String.valueOf(authRsp.getStatus());
         if (status.equals(Constant.REDIRECT_CODE)){

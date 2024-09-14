@@ -65,7 +65,7 @@ public class ProxyUtil {
         HttpResponse httpResponse;
         try {
             httpResponse = createRequest(request).execute();
-            LoggerManger.info(String.format("uri = %s, Response.status = %d",request.getUrl(), httpResponse.getStatus()));
+            LoggerManger.info(String.format("uri = %s, Response.status = %d",request.getUrl().split("\\?")[0], httpResponse.getStatus()));
             if (httpResponse.getStatus() == 503) {
                 // 重试
                 handleRetry(requestId, sleepTime, try503Num, map503Error);
@@ -287,7 +287,7 @@ public class ProxyUtil {
     }
 
     private static HttpRequest proxyRequest(HttpRequest request, String proxyHost, Integer proxyPort, String authUser, String authPassword, int sendTimeOut, int readTimeout, Proxy.Type proxyType) {
-        LoggerManger.info(String.format("uri = %s, proxy = %s:%d, unique = %s", request.getUrl(), proxyHost, proxyPort, authPassword));
+        LoggerManger.info(String.format("uri = %s, proxy = %s:%d, unique = %s", request.getUrl().split("\\?")[0], proxyHost, proxyPort, authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy = new Proxy(proxyType, new InetSocketAddress(proxyHost, proxyPort));

@@ -521,11 +521,42 @@ public class ITunesUtil {
         return result;
     }
 
-    public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String authUrl){
+    public static HttpResponse actionSignature(String account,String pwd,String authCode,String guid,String url){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Content-Type", ListUtil.of("text/plain"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
+
+        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
+                "<plist version=\"1.0\">" +
+                "    <dict>" +
+                "        <key>appleId</key>" +
+                "        <string>%s</string>" +
+                "        <key>attempt</key>" +
+                "        <string>4</string>" +
+                "        <key>createSession</key>" +
+                "        <string>true</string>" +
+                "        <key>guid</key>" +
+                "        <string>%s</string>" +
+                "        <key>password</key>" +
+                "        <string>%s%s</string>" +
+                "        <key>rmp</key>" +
+                "        <string>0</string>" +
+                "        <key>why</key>" +
+                "        <string>signIn</string>" +
+                "    </dict>" +
+                "</plist>";
+        body = String.format(body,account,guid,pwd,authCode);
+        return HttpUtil.createPost(url).header(headers).body(body).execute();
+    }
+
+    public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String xAppleActionSignature,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
-
+        if (!StrUtil.isEmpty(xAppleActionSignature)){
+            headers.put("X-Apple-ActionSignature",ListUtil.toList(xAppleActionSignature));
+        }
         headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
