@@ -18,10 +18,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
-import com.sgswit.fx.controller.common.CommCodePopupView;
-import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.PointCostException;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.common.*;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -556,9 +553,15 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         countMap.put(account,countList);
         HttpResponse redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
         String  body = redeemRsp.body();
-        if(StrUtil.isEmpty(body)||redeemRsp.getStatus() == 429) {
+
+        checkAndThrowUnavailableException(redeemRsp);
+        if(redeemRsp.getStatus() == 429) {
             throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);
         }
+        if (StrUtil.isEmpty(body)){
+            throw new ServiceException("响应状态:,"+redeemRsp.getStatus()+"，未知错误");
+        }
+
         // 兑换
         JSONObject redeemBody = JSONUtil.parseObj(body);
         if (redeemBody.keySet().contains("plist")){

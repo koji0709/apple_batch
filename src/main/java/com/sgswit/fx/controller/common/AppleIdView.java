@@ -30,8 +30,8 @@ public class AppleIdView extends CustomTableView<Account> {
         HttpResponse signInRsp = AppleIDUtil.signin(account);
         String status = "正常";
         String code="";
+        String failMessage = "";
         if (!StrUtil.isEmpty(signInRsp.body())){
-            String failMessage = "";
             JSONArray errorArr = JSONUtil.parseObj(signInRsp.body())
                     .getByPath("serviceErrors",JSONArray.class);
             if (errorArr != null && errorArr.size()>0){
@@ -50,9 +50,9 @@ public class AppleIdView extends CustomTableView<Account> {
         }
 
         if(signInRsp.getStatus()!=409){
-            String message="登录失败，响应状态："+signInRsp.getStatus();
+            String message= StrUtil.isEmpty(failMessage) ? "登录失败，响应状态："+signInRsp.getStatus() : failMessage;
             if("-1".equals(code)){
-                message="此账号已被锁定";
+                message = "此账号已被锁定";
             }
             throw new ServiceException(message);
         }
