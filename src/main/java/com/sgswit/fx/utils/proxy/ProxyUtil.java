@@ -65,7 +65,7 @@ public class ProxyUtil {
         HttpResponse httpResponse;
         try {
             httpResponse = createRequest(request).execute();
-            LoggerManger.info(String.format("uri = %s, Response.status = %d",request.getUrl().split("\\?")[0], httpResponse.getStatus()));
+            LoggerManger.info(String.format("[%s] %s, Response.status = %d",request.getMethod(),request.getUrl().split("\\?")[0], httpResponse.getStatus()));
             if (httpResponse.getStatus() == 503) {
                 // 重试
                 handleRetry(requestId, sleepTime, try503Num, map503Error);
@@ -106,7 +106,7 @@ public class ProxyUtil {
             if (readTimeoutTry){
                 handleRetry(requestId,sleepTime,tryIoNum,mapIoError);
             }else{
-                throw new ServiceException(isRedeem ? "网络连接失败，未知状态" : "服务响应超时，请稍后重试");
+                throw new ServiceException(isRedeem ? "兑换响应超时, 请检查兑换状态" : "服务响应超时, 请稍后重试");
             }
         }
     }
@@ -287,7 +287,7 @@ public class ProxyUtil {
     }
 
     private static HttpRequest proxyRequest(HttpRequest request, String proxyHost, Integer proxyPort, String authUser, String authPassword, int sendTimeOut, int readTimeout, Proxy.Type proxyType) {
-        LoggerManger.info(String.format("uri = %s, proxy = %s:%d, unique = %s", request.getUrl().split("\\?")[0], proxyHost, proxyPort, authPassword));
+        LoggerManger.info(String.format("[%s] %s, proxy = %s:%d, unique = %s",request.getMethod(), request.getUrl().split("\\?")[0], proxyHost, proxyPort, authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy = new Proxy(proxyType, new InetSocketAddress(proxyHost, proxyPort));

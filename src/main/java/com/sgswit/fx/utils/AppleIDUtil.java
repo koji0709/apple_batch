@@ -1054,7 +1054,6 @@ public class AppleIDUtil {
         String verifyPhone1Location = verifyAppleIdRsp.header("Location");
         account.setNote("正在检测账户...");
         HttpResponse verifyPhone1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyPhone1Location)
-
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
                 .header("X-Requested-With","XMLHttpRequest")
@@ -1070,13 +1069,14 @@ public class AppleIDUtil {
         account.updateLoginInfo(verifyPhone1Rsp);
 
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
+        LoggerManger.info("【关闭双重认证】检测账号认证状态: recoverable = " + recoverable);
         if (recoverable == null || !recoverable){
-            throw new ServiceException("没有双重认证");
+            throw new ServiceException("该账号没有双重认证");
         }
+
         account.setNote("正在验证手机号");
         ThreadUtil.sleep(500);
         HttpResponse verifyPhone2Rsp = ProxyUtil.execute(HttpUtil.createGet(host + "/password/verify/phone")
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1089,9 +1089,6 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
         );
         account.updateLoginInfo(verifyPhone2Rsp);
-        account.setNote("手机号验证通过...");
-        ThreadUtil.sleep(300);
-        account.setNote("正在关闭双重认证...");
         ThreadUtil.sleep(300);
         String boot_args= StrUtils.getScriptById(verifyPhone2Rsp.body(),"boot_args");
         sstt=JSONUtil.parse(boot_args).getByPath("data.sstt", String.class);
@@ -1101,7 +1098,6 @@ public class AppleIDUtil {
             e.printStackTrace();
         }
         HttpResponse unenrollmentRsp = ProxyUtil.execute(HttpUtil.createPost(host + "/password/verify/phone/unenrollment")
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1119,13 +1115,14 @@ public class AppleIDUtil {
         if(verifyBirthday1Location.contains("/session/timeout")){
             throw new ServiceException("双重关闭失败");
         }
+        account.setNote("手机号验证通过...");
+
         ThreadUtil.sleep(300);
         account.setNote("正在验证生日");
         ThreadUtil.sleep(300);
 
         //https://iforgot.apple.com/unenrollment/verify/birthday?sstt=aRsmTXWvxfqFqOEhEPBow9iXHopDrYMw3EQ2S1JxrX8cKT0y1Ag2DKQsDfg8PECYQsT9TFijbhoW4cT9WsiAFA2%2B99gP%2FJbdYXXryEEF6BQ2ZnrB8WRRTwkX5jahY2PgA8tCrgS855jGQP7veAlIrAydKNkb173GYZyv0224s0g28wWRoSj%2Fs7e%2By0OSgwLan4Q5UHf%2FrF3Wut2dyW5nEf8gj1ZFzIbfmvbgjvcE9jc3mZ3MMjLfP8Rmz3NYWzTYVi4Gv%2BYSjw%2BLwYiJTvqFLS%2F0jsgXXb98iNfCKqmhVBcbxXlK1EGu7BoeBgXcu34rsqbUHBX0laqCEyc3vInw%2Fh%2B%2FgRGoF3fulYsNN8Qj8tCMa7N73VqvMFUS4%2Fa35QpzuiePKhA8oxIZnn7BkkyDbfWjxJiF%2FXujCZdmId7TPg8RBt8kD%2FK2ffac3uMgP8LHndq2BMPHPcyUQZxNt6FjtjNHzi8%2FXp9ZcCZFVzwKMm2SqN0hJnhH2qi2rqXZ6JFPTGAgUg%3D%3D
         HttpResponse verifyBirthday1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyBirthday1Location)
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1148,7 +1145,6 @@ public class AppleIDUtil {
         }
         ThreadUtil.sleep(500);
         HttpResponse verifyBirthday2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/verify/birthday")
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1175,7 +1171,6 @@ public class AppleIDUtil {
 
         //https://iforgot.apple.com/unenrollment/verify/questions?sstt=MGCVqOzR2RL%2FzXaJ84CjoQFn3%2F6BiLsOZpGBnlubgiFiIu9b4YDsZjl54oFak4iEiZvr%2FyQ19prv6iCoPd%2Bx8k%2BoLF35c1%2FzL%2BKycUfk5UwYf9dn7lFagDJLd%2F9BDdLaV%2BXzwMv7Fy1YZIzU3S7p1DWbONpL2o7aQUWO6XrZbjHUI9UpjeRZ3bfJpT8vbzTRWIQfUeOs%2B9i0fx5PxvQqtfRSpsDpWvmfNHO155tjtp8oGARrbAukjPn4kjmxrDjgtpQDvjxV9Qcz4LHnibmM%2BLiQrKps%2FyrS0466h02jTww9631yzAHV%2BjGxYt04ihb5lwjM4YpbwyIQ%2F7ieL%2B2KzUM3gfMukgZJl54Jfp3QJL9G6xMFJjUl5rVEURORdbe629Zy7Hb5%2BA99ffkcYc1vZF9GYiYd4IlDW%2BAA4314TZxjJM%2FMnHpT%2BotR%2Bs3Z%2BsxTHrwo3uwhZCXZRI%2F1LlaNMAmt6A2sg8f%2BbTgOt8CpgFTLLHoiyc
         HttpResponse verifyQuestions1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + verifyQuestions1Location)
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1218,6 +1213,11 @@ public class AppleIDUtil {
                 .cookie(account.getCookie())
                 .body(JSONUtil.toJsonStr(bodyMap)));
         checkAndThrowUnavailableException(verifyBirthday2Rsp,"密保验证");
+        if (verifyQuestions2Rsp.getStatus() != 302){
+            String validationErrors = getValidationErrors(verifyQuestions2Rsp, "密保验证失败, 请检查密保答案是否正确");
+            throw new ServiceException(validationErrors);
+        }
+
         account.setNote("密保验证通过...");
         ThreadUtil.sleep(300);
         account.updateLoginInfo(verifyQuestions2Rsp);
@@ -1227,7 +1227,6 @@ public class AppleIDUtil {
         String unenrollment1Location = verifyQuestions2Rsp.header("Location");
         //"https://iforgot.apple.com/unenrollment?sstt=AZIzj7VgizCyJnmtou0%2BDGo%2F%2Br50CLtqMcROmb9DAif3y8PWzEhqeRF4MPhYlZcV5CmcNuRZBOQOyye%2BfUL1ERSWwYGVupMMTyVwUY7Z5s3uSfdT5N3spoRU5HKGtOud8JVpKn%2FzoWlZJKZiRGZoF%2BpaFBEWkUEaPqG2vnHzxfefNJk5j1V3%2BXYmYbWLiJrNHMh0UJxexLtY1X4NEjVMpQWSVfnppw05xQDslz%2BISm3uDHi%2B8t5E6pjZR4diQD5cQsTmCuU30G5%2F%2F2jtlytyhQ5QQ1pT2vGYDj%2BJIueOXciikYfGbsSWY8%2B4bYiXRktPOXGp9ZvpNI51DnS30XA7wJzDvDSiWL%2BsUQz4oWlzkX6UIY%2FYOm3Ak2GNfwiAWxtCyUiMhaPKsE%2F6seZL%2F6st71rV%2BGTchaRyRBWsMRGMahD%2B7Re715F%2F28OS55sd3xi7fJqoMS6QW5KotSF5cUM%2FcNrsOJBQYnn5EOaQkYR3Q04wtUFXPoLzOEhHHNWGa6L7fDm3I1z5Ty%2FIBSU6jF%2FtnbpAph7TWAYd3Ca7ga08ffWFqAqtwEK8ZCZFp6l4QHOHjw%3D%3D
         HttpResponse unenrollment1Rsp = ProxyUtil.execute(HttpUtil.createGet(host + unenrollment1Location)
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1243,7 +1242,6 @@ public class AppleIDUtil {
         account.updateLoginInfo(unenrollment1Rsp);
         ThreadUtil.sleep(500);
         HttpResponse unenrollment2Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment")
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1265,7 +1263,6 @@ public class AppleIDUtil {
         account.setNote("正在重置密码...");
         ThreadUtil.sleep(500);
         HttpResponse unenrollmentReset1Rsp = ProxyUtil.execute(HttpUtil.createPost(host + "/unenrollment/reset")
-
                 .header("X-Requested-With","XMLHttpRequest")
                 .header("Accept-Encoding","gzip, deflate, br")
                 .header("Accept-Language","zh-CN,zh;q=0.9")
@@ -1664,6 +1661,22 @@ public class AppleIDUtil {
                 .header("Referer","https://idmsa.apple.com/")
                 .header("Host","appleid.apple.com")
                 .cookie(account.getCookie()));
+
+        if (302 == repairResp.getStatus()){
+            account.updateLoginInfo(repairResp);
+            repairResp = ProxyUtil.execute(HttpUtil.createGet(repairResp.header("Location"))
+                    .header("Upgrade-Insecure-Requests","1")
+                    .header("X-Apple-Widget-Key",clientId)
+                    .header("Accept-Encoding","gzip, deflate, br")
+                    .header("Accept-Language","zh-CN,zh;q=0.9")
+                    .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                    .header("Content-Type","text/html;charset=UTF-8")
+                    .header("User-Agent",Constant.BROWSER_USER_AGENT)
+                    .header("Referer","https://idmsa.apple.com/")
+                    .header("Host","appleid.apple.com")
+                    .cookie(account.getCookie()));
+        }
+
         if(200!=repairResp.getStatus()){
             String message= hasFailMessage(repairResp);
             throw new ServiceException(StrUtil.isEmpty(message)?"获取阅读协议失败":"获取阅读协议失败："+message);
