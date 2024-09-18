@@ -12,7 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -26,7 +25,7 @@ import javafx.util.Duration;
 public class ToastUtil {
 
     private static HostServices hostServices;
-    private static PauseTransition pause;
+    private static PauseTransition autoCloseTransition;
     private static Stage existingToastStage; // 记录现有的提示框
 
     // 初始化 HostServices，主程序调用时传入
@@ -46,12 +45,6 @@ public class ToastUtil {
         toastStage.setResizable(false);
         toastStage.initStyle(StageStyle.TRANSPARENT);
 
-        // 创建透明背景矩形
-        Rectangle background = new Rectangle();
-        background.setWidth(230);
-        background.setHeight(90);
-        background.setFill(Color.TRANSPARENT);
-
         // 创建消息的内容
         Label toastLabel = new Label(message);
         toastLabel.setTextFill(Color.WHITE);
@@ -59,7 +52,7 @@ public class ToastUtil {
         toastLabel.setWrapText(true); // 允许换行
 
         // 创建超链接
-        Hyperlink downloadLink = new Hyperlink("下载地址");
+        Hyperlink downloadLink = new Hyperlink("下载新版本");
         downloadLink.setTextFill(Color.WHITE);
         downloadLink.setFont(new Font("Arial", 12)); // 与消息相同的字体大小
         downloadLink.setOnAction(e -> {
@@ -72,7 +65,7 @@ public class ToastUtil {
         // 使用 VBox 布局来放置消息文本和超链接
         VBox contentBox = new VBox(5, toastLabel, downloadLink);
         contentBox.setAlignment(Pos.CENTER_LEFT);
-        contentBox.setStyle("-fx-padding: 10px; -fx-background-color: rgba(0, 0, 0, 0.8);"); // 设置深色背景色
+        contentBox.setStyle("-fx-padding: 10px; -fx-background-color: rgba(0, 0, 0, 0.8);"); // 设置深色背景色，并去掉圆角
 
         // 创建关闭按钮
         Button closeButton = new Button("X");
@@ -85,6 +78,9 @@ public class ToastUtil {
             fadeOut.setOnFinished(event -> {
                 toastStage.close();
                 existingToastStage = null; // 关闭后，重置现有提示框
+                if (autoCloseTransition != null) {
+                    autoCloseTransition.stop(); // 停止自动关闭计时器
+                }
             });
             fadeOut.play();
         });
@@ -97,8 +93,8 @@ public class ToastUtil {
             closeButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px;");
         });
 
-        // 使用 StackPane 将背景矩形、内容和关闭按钮放置在一起
-        StackPane root = new StackPane(background, contentBox, closeButton);
+        // 使用 StackPane 将内容和关闭按钮放置在一起
+        StackPane root = new StackPane(contentBox, closeButton);
         root.setAlignment(Pos.BOTTOM_LEFT);
         StackPane.setAlignment(closeButton, Pos.TOP_RIGHT);
 
@@ -139,8 +135,8 @@ public class ToastUtil {
         fadeIn.play();
 
         // 创建一个 PauseTransition 以在 1 分钟后关闭弹出框
-        pause = new PauseTransition(Duration.minutes(1));
-        pause.setOnFinished(e -> {
+        autoCloseTransition = new PauseTransition(Duration.minutes(1));
+        autoCloseTransition.setOnFinished(e -> {
             // 创建淡出效果
             FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), toastStage.getScene().getRoot());
             fadeOut.setFromValue(1.0);
@@ -151,10 +147,13 @@ public class ToastUtil {
             });
             fadeOut.play();
         });
+        autoCloseTransition.play();
 
-        // 停止计时器当点击时
+        // 停止自动关闭计时器当点击时
         root.setOnMouseClicked(e -> {
-            pause.stop(); // 停止计时器
+            if (autoCloseTransition != null) {
+                autoCloseTransition.stop(); // 停止计时器
+            }
         });
     }
 
