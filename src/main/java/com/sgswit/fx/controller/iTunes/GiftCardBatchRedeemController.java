@@ -549,21 +549,40 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
 
         ThreadUtil.sleep(300);
         setAndRefreshNote(giftCardRedeem,"兑换中...");
-        countList.put(account+giftCardCode+RandomUtil.randomNumbers(4), System.currentTimeMillis());
+        String key = account + giftCardCode + RandomUtil.randomNumbers(4);
+        countList.put(key, System.currentTimeMillis());
         countMap.put(account,countList);
         HttpResponse redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
         String  body = redeemRsp.body();
 
         checkAndThrowUnavailableException(redeemRsp);
+
+        // 429重试一次
+        Integer i = 3;
+        while (i-- >= 0 && redeemRsp.getStatus() == 429){
+            ThreadUtil.sleep(200L);
+            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+            body = redeemRsp.body();
+        }
+
+        // 如果是429则不计入统计
         if(redeemRsp.getStatus() == 429) {
+            countList.remove(key);
+            countMap.put(account,countList);
             throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);
         }
         if (StrUtil.isEmpty(body)){
-            throw new ServiceException("响应状态:,"+redeemRsp.getStatus()+"，未知错误");
+            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据为空, 请检查兑换状态");
+        }
+        // 兑换
+        JSONObject redeemBody = new JSONObject();
+        try {
+            redeemBody = JSONUtil.parseObj(body);
+        }catch (Exception e) {
+            LoggerManger.info("响应状态 = "+redeemRsp.getStatus()+", 响应数据 = " + redeemBody);
+            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据异常, 请检查兑换状态");
         }
 
-        // 兑换
-        JSONObject redeemBody = JSONUtil.parseObj(body);
         if (redeemBody.keySet().contains("plist")){
             redeemBody = PListUtil.parse(body);
         }
