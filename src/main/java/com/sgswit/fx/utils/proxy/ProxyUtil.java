@@ -45,8 +45,6 @@ public class ProxyUtil {
     private static Map<String, Integer> map503Error = new HashMap<>(16);
     private static Map<String, Integer> mapIoError = new HashMap<>(16);
 
-    private static final ReentrantLock lock = new ReentrantLock();
-
     public static HttpResponse execute(HttpRequest request) {
         return execute(request,true);
     }
@@ -67,9 +65,6 @@ public class ProxyUtil {
 
         HttpResponse httpResponse;
         try {
-            if (isRedeem){
-                lock.lock();
-            }
             httpResponse = createRequest(request).execute();
             LoggerManger.info(String.format("[%s] %s, Response.status = %d",request.getMethod(),request.getUrl().split("\\?")[0], httpResponse.getStatus()));
             if (httpResponse.getStatus() == 503) {
@@ -82,13 +77,6 @@ public class ProxyUtil {
             handleIoException(requestId, sleepTime, tryIoNum, e, isRedeem,readTimeoutTry);
             return execute(request);
         } finally {
-            if (isRedeem){
-                try {
-                    Thread.sleep(500L);
-                } catch (InterruptedException e) {
-                }
-                lock.unlock();
-            }
             map503Error.remove(requestId);
             mapIoError.remove(requestId);
         }
@@ -189,7 +177,6 @@ public class ProxyUtil {
         Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
         String proxyType = MapUtil.getStr(proxyConfigMap, "proxyType");
 
-        //LoggerManger.info("权重计算代理IP信息。 proxyConfigList= " + proxyConfigList + ", proxyConfigMap = " + proxyConfigMap);
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理
             if ( "1".equals(proxyType)) {
@@ -311,7 +298,7 @@ public class ProxyUtil {
         String proxyHost = MapUtil.getStr(map, "ip");
         int proxyPort = MapUtil.getInt(map, "port");
         String authUser = MapUtil.getStr(map, "account");
-        String authPassword = proxyHost.equals("k786.kdltps.com") ? MapUtil.getStr(map, "pwd") + ":" + RandomUtil.randomNumbers(4) : MapUtil.getStr(map, "pwd");
+        String authPassword = MapUtil.getStr(map, "pwd");
         return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeout, proxyType);
     }
 
