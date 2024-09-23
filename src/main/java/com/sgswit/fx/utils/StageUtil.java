@@ -79,6 +79,10 @@ public class StageUtil {
         }else{
             stage.setResizable(true);
         }
+        // 暂时这样
+        if (stage == StageUtil.get(StageEnum.GIFTCARD_BATCH_REDEEM)){
+            scene.getRoot().setStyle("-fx-font-family: '"+stageEnum.getFontStyle()+"'; -fx-padding: 14");
+        }
         if (isWait){
             stage.showAndWait();
         }else{
