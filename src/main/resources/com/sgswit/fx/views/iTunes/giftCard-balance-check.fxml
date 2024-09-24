@@ -10,8 +10,7 @@
     <children>
         <HBox spacing="14">
             <children>
-                <TitledPane HBox.hgrow="ALWAYS" alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="165.0"
-                            prefWidth="410.0" minWidth="410.0" text="操作">
+                <TitledPane HBox.hgrow="ALWAYS" alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="165.0" prefWidth="410.0" text="操作">
                     <content>
                         <GridPane fx:id="outer" prefHeight="140.0" prefWidth="402.0">
                             <columnConstraints>
@@ -87,8 +86,7 @@
                         </GridPane>
                     </content>
                 </TitledPane>
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" prefHeight="165.0" prefWidth="530.0" minWidth="530.0"
-                            text="">
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" prefHeight="165.0" prefWidth="530.0" text="">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="508.0">
                             <children>
@@ -117,8 +115,7 @@
                         </AnchorPane>
                     </content>
                 </TitledPane>
-                <TitledPane HBox.hgrow="ALWAYS" fx:id="accNum" prefHeight="165.0" prefWidth="115.0" minWidth="115.0"
-                            text="操作说明">
+                <TitledPane HBox.hgrow="ALWAYS" fx:id="accNum" prefHeight="165.0" prefWidth="115.0" text="操作说明">
                     <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
                               prefHeight="141.0" prefWidth="115.0">
