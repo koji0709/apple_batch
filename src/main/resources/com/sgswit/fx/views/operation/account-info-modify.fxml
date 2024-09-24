@@ -75,7 +75,7 @@
                 </TitledPane>
 
                 <!--修改资料-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="930" text="修改资料">
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="950" text="修改资料">
                     <content>
                         <GridPane alignment="CENTER_LEFT" style="-fx-hgap: 10; -fx-vgap: 10">
                             <children>
@@ -91,21 +91,21 @@
                                 <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                     <children>
                                         <Label text="新密码"/>
-                                        <TextField fx:id="pwdTextField"/>
+                                        <TextField fx:id="pwdTextField" prefWidth="100"/>
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <children>
                                         <Label text="新生日"/>
-                                        <TextField fx:id="birthdayTextField"/>
+                                        <TextField fx:id="birthdayTextField" prefWidth="100"/>
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                     <children>
                                         <Label text="姓"/>
-                                        <TextField fx:id="lastNameTextField" prefWidth="88"/>
+                                        <TextField fx:id="lastNameTextField" prefWidth="55"/>
                                         <Label text="名"/>
-                                        <TextField fx:id="firstNameTextField" prefWidth="88"/>
+                                        <TextField fx:id="firstNameTextField" prefWidth="55"/>
                                     </children>
                                 </HBox>
 
@@ -132,19 +132,19 @@
                                 <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0">
                                     <children>
                                         <Label text="新问题1"/>
-                                        <ChoiceBox fx:id="question1ChoiceBox" prefWidth="80"/>
+                                        <ChoiceBox fx:id="question1ChoiceBox" prefWidth="160"/>
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1">
                                     <children>
                                         <Label text="新问题2"/>
-                                        <ChoiceBox fx:id="question2ChoiceBox" prefWidth="80"/>
+                                        <ChoiceBox fx:id="question2ChoiceBox" prefWidth="160"/>
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="2">
                                     <children>
                                         <Label text="新问题3"/>
-                                        <ChoiceBox fx:id="question3ChoiceBox" prefWidth="80"/>
+                                        <ChoiceBox fx:id="question3ChoiceBox" prefWidth="160"/>
                                     </children>
                                 </HBox>
 
