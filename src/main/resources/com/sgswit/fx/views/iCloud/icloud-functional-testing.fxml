@@ -5,145 +5,145 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iCloud.ICloudFunctionalTestingController">
+
+<!--上下布局。上面功能区，下面表格，设置内边距14px-->
+<VBox spacing="14" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iCloud.ICloudFunctionalTestingController">
     <children>
-        <!--上下布局。上面功能区，下面表格，设置内边距14px-->
-        <VBox style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+        <!--功能区-->
+        <HBox style="-fx-spacing: 14">
             <children>
-                <!--功能区-->
-                <HBox style="-fx-spacing: 14">
-                    <children>
-                        <!--操作-->
-                        <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
-                            <content>
-                                <GridPane alignment="TOP_CENTER" prefHeight="140" prefWidth="400">
+                <!--操作-->
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
+                    <content>
+                        <GridPane alignment="TOP_CENTER" prefHeight="140" prefWidth="400">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <!--开始执行-->
+                                <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0">
+                                    <font>
+                                        <Font name="System Bold" size="15" />
+                                    </font>
+                                </Button>
+
+                                <!--操作按钮-->
+                                <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="130" prefWidth="130" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="320" minWidth="10" prefWidth="270" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="95" minHeight="10" prefHeight="95" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <!--开始执行-->
-                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60" prefWidth="100" text="开始执行" textFill="#238142" GridPane.columnIndex="0">
-                                            <font>
-                                                <Font name="System Bold" size="15" />
-                                            </font>
-                                        </Button>
-
-                                        <!--操作按钮-->
-                                        <GridPane alignment="CENTER" prefHeight="95" prefWidth="290" GridPane.columnIndex="1">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="130" minWidth="10" prefWidth="130" />
-                                            </columnConstraints>
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                            </rowConstraints>
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#importAccountButtonAction" prefWidth="100" text="导入账号" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                                <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                                <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                                <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                            </children>
-                                        </GridPane>
-
+                                        <Button mnemonicParsing="false" onAction="#importAccountButtonAction" prefWidth="100" text="导入账号" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
-                            </content>
-                        </TitledPane>
 
-                        <!--说明-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="520.0" text="说明">
-                            <content>
-                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
-                                    <children>
-                                        <Label text="导入格式：帐号----密码" textFill="#169BD5" />
-                                        <Label text="功能说明：iCloud功能检测。" textFill="#169BD5" />
-                                        <Label text="操作提示：检测账号是否iCloud账户，是否拥有iCloud邮箱，邮箱功能是否激活。" textFill="#169BD5" />
-                                    </children>
-                                </VBox>
+                            </children>
+                        </GridPane>
+                    </content>
+                </TitledPane>
 
-                            </content>
-                        </TitledPane>
-
-                        <!--执行结果-->
-                        <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="110" text="执行结果">
-                            <content>
-                                <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
-                                    <children>
-                                        <HBox prefHeight="30.0" prefWidth="340.0">
-                                            <Label text="账号总数：" wrapText="true">
-                                                <VBox.margin>
-                                                    <Insets bottom="3.0" top="2.0" />
-                                                </VBox.margin>
-                                            </Label>
-                                            <Label fx:id="accountNumLabel" text="0" />
-                                        </HBox>
-                                        <HBox prefHeight="30.0" prefWidth="340.0">
-                                            <Label text="成功数：" wrapText="true">
-                                                <VBox.margin>
-                                                    <Insets bottom="3.0" top="2.0" />
-                                                </VBox.margin>
-                                            </Label>
-                                            <Label fx:id="successNumLabel" text="0" />
-                                        </HBox>
-                                        <HBox prefHeight="30.0" prefWidth="340.0">
-                                            <Label text="失败数：" wrapText="true">
-                                                <VBox.margin>
-                                                    <Insets bottom="3.0" top="2.0" />
-                                                </VBox.margin>
-                                            </Label>
-                                            <Label fx:id="failNumLabel" text="0" />
-                                        </HBox>
-                                        <HBox prefHeight="35.0" prefWidth="340.0">
-                                            <children>
-                                                <Label prefHeight="25.0" prefWidth="50.0" text="消耗点：">
-                                                    <HBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </HBox.margin>
-                                                </Label>
-                                                <Label fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
-                                                    <font>
-                                                        <Font name="System Bold" size="16.0" />
-                                                    </font>
-                                                    <HBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </HBox.margin>
-                                                </Label>
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-                            </content>
-                        </TitledPane>
-
-                    </children>
-                </HBox>
-
-                <!--账号列表-->
-                <TitledPane animated="false" collapsible="false" text="账号列表">
+                <!--说明-->
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="520.0" text="说明">
                     <content>
-                        <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0" prefWidth="1030.0">
-                            <columns>
-                                <TableColumn fx:id="seq" text="序号" />
-                                <TableColumn fx:id="account" prefWidth="150" text="账号" />
-                                <TableColumn fx:id="pwd" prefWidth="100" text="密码" />
-                                <TableColumn fx:id="area" prefWidth="100" text="账号地区" />
-                                <TableColumn fx:id="mailStatus" prefWidth="100" text="邮箱功能" />
-                                <TableColumn fx:id="icloudMail" prefWidth="120" text="iCloud专属邮箱" />
-                                <TableColumn fx:id="isIcloudAccount" prefWidth="120" text="iCloud账户" />
-                                <TableColumn fx:id="note" prefWidth="240" text="执行信息" />
-                            </columns>
-                        </TableView>
+                        <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
+                            <children>
+                                <Label text="导入格式：帐号----密码" textFill="#169BD5" />
+                                <Label text="功能说明：iCloud功能检测。" textFill="#169BD5" />
+                                <Label text="操作提示：检测账号是否iCloud账户，是否拥有iCloud邮箱，邮箱功能是否激活。" textFill="#169BD5" />
+                            </children>
+                        </VBox>
+
+                    </content>
+                </TitledPane>
+
+                <!--执行结果-->
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="130" text="执行结果">
+                    <content>
+                        <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
+                            <children>
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="账号总数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="accountNumLabel" text="0" />
+                                </HBox>
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="成功数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="successNumLabel" text="0" />
+                                </HBox>
+                                <HBox prefHeight="30.0" prefWidth="340.0">
+                                    <Label text="失败数：" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="3.0" top="2.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label fx:id="failNumLabel" text="0" />
+                                </HBox>
+                                <HBox prefHeight="35.0" prefWidth="340.0">
+                                    <children>
+                                        <Label prefHeight="25.0" prefWidth="70.0" text="消耗点：">
+                                            <HBox.margin>
+                                                <Insets top="5.0" />
+                                            </HBox.margin>
+                                        </Label>
+                                        <Label fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="80" textFill="RED">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                            <HBox.margin>
+                                                <Insets top="5.0" />
+                                            </HBox.margin>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
                     </content>
                 </TitledPane>
 
             </children>
-        </VBox>
+        </HBox>
+
+        <!--账号列表-->
+        <TitledPane animated="false" collapsible="false" text="账号列表">
+            <content>
+                <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0" prefWidth="1030.0">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" text="序号" />
+                        <TableColumn fx:id="account" prefWidth="150" text="账号" />
+                        <TableColumn fx:id="pwd" prefWidth="100" text="密码" />
+                        <TableColumn fx:id="area" prefWidth="100" text="账号地区" />
+                        <TableColumn fx:id="mailStatus" prefWidth="100" text="邮箱功能" />
+                        <TableColumn fx:id="icloudMail" prefWidth="120" text="iCloud专属邮箱" />
+                        <TableColumn fx:id="isIcloudAccount" prefWidth="120" text="iCloud账户" />
+                        <TableColumn fx:id="note" prefWidth="240" minWidth="200.0" text="执行信息" />
+                    </columns>
+                </TableView>
+            </content>
+        </TitledPane>
+
     </children>
-</AnchorPane>
+</VBox>
