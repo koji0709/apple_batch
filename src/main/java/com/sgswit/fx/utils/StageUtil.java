@@ -79,9 +79,9 @@ public class StageUtil {
         }else{
             stage.setResizable(true);
         }
-        // 暂时这样
-        if (stage == StageUtil.get(StageEnum.GIFTCARD_BATCH_REDEEM)){
-            scene.getRoot().setStyle("-fx-font-family: '"+stageEnum.getFontStyle()+"'; -fx-padding: 14");
+        // 暂时这样, 如果全局, 则有些页面布局会乱
+        if (stage == StageUtil.get(StageEnum.GIFTCARD_BATCH_REDEEM) || stage == StageUtil.get(StageEnum.ACCOUNT_INFO_MODIFY )){
+            scene.getRoot().setStyle("-fx-font-family: '"+stageEnum.getFontStyle()+"'; -fx-padding: 14;");
         }
         if (isWait){
             stage.showAndWait();
