@@ -12,7 +12,7 @@
         <HBox spacing="14">
             <children>
                 <!--操作-->
-                <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" minWidth="380" text="操作">
                     <content>
                         <GridPane prefHeight="140" minWidth="380">
                             <columnConstraints>
@@ -56,7 +56,7 @@
                 </TitledPane>
 
                 <!--配置信息-->
-                <TitledPane animated="false" collapsible="false" prefHeight="165" minWidth="760" text="配置信息">
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" minWidth="760" text="配置信息">
                     <content>
                         <VBox alignment="CENTER" spacing="14" style="-fx-font-size: 12">
                             <children>
@@ -213,8 +213,5 @@
                 </TableView>
             </content>
         </TitledPane>
-
-
-
     </children>
 </VBox>
