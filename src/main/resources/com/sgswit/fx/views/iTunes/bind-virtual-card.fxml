@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.BindVirtualCardController">
+<VBox spacing="14" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.BindVirtualCardController">
    <children>
-       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="620.0" prefWidth="1000.0">
+       <HBox spacing="14">
          <children>
-             <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="10.0" layoutY="14.0" prefHeight="165.0" prefWidth="375.0" text="操作">
+             <TitledPane HBox.hgrow="ALWAYS" alignment="TOP_LEFT" contentDisplay="CENTER"  prefHeight="165.0" prefWidth="375.0" text="操作">
                  <content>
                      <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
                          <columnConstraints>
@@ -70,7 +70,7 @@
                      </GridPane>
                  </content>
              </TitledPane>
-             <TitledPane fx:id="accNum" layoutX="400.0" layoutY="14.0" prefHeight="165.0" prefWidth="440.0" text="操作说明">
+             <TitledPane HBox.hgrow="ALWAYS" fx:id="accNum"  prefHeight="165.0" prefWidth="440.0" text="操作说明">
                 <content>
                     <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="419.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                         <children>
@@ -82,7 +82,7 @@
                     </VBox>
                 </content>
             </TitledPane>
-             <TitledPane layoutY="14.0" prefHeight="165.0" prefWidth="120.0" text="" AnchorPane.rightAnchor="10.0">
+             <TitledPane HBox.hgrow="ALWAYS" prefHeight="165.0" prefWidth="130.0" text="" >
                  <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                      <children>
                          <HBox prefHeight="30.0" prefWidth="340.0">
@@ -111,7 +111,7 @@
                          </HBox>
                          <HBox prefHeight="35.0" prefWidth="340.0">
                              <children>
-                                 <Label prefHeight="25.0" prefWidth="50.0" text="消耗点：">
+                                 <Label prefHeight="25.0" prefWidth="70.0" text="消耗点：">
                                      <HBox.margin>
                                          <Insets top="5.0" />
                                      </HBox.margin>
@@ -129,20 +129,23 @@
                      </children>
                  </VBox>
              </TitledPane>
-             <TitledPane layoutX="13.0" layoutY="197.0" text="账号列表">
-               <content>
-                  <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0" prefWidth="980.0">
-                      <columns>
-                          <TableColumn fx:id="seq" text="序号" />
-                          <TableColumn fx:id="account" prefWidth="114" text="账号" />
-                          <TableColumn fx:id="pwd" prefWidth="114.0" text="密码" />
-                          <TableColumn fx:id="creditInfo" prefWidth="292.0" text="卡号" />
-                          <TableColumn fx:id="note" prefWidth="371.0" text="执行信息" />
-                      </columns>
-                  </TableView>
-               </content>
-            </TitledPane>
          </children>
-       </AnchorPane>
+       </HBox>
+       <TitledPane text="账号列表">
+           <content>
+               <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick" prefHeight="400.0" prefWidth="980.0">
+                   <columnResizePolicy>
+                       <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                   </columnResizePolicy>
+                   <columns>
+                       <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" text="序号" />
+                       <TableColumn fx:id="account" prefWidth="114" text="账号" />
+                       <TableColumn fx:id="pwd" prefWidth="114.0" text="密码" />
+                       <TableColumn fx:id="creditInfo" prefWidth="292.0" text="卡号" />
+                       <TableColumn fx:id="note" prefWidth="371.0" minWidth="200.0" text="执行信息" />
+                   </columns>
+               </TableView>
+           </content>
+       </TitledPane>
    </children>
 </VBox>
