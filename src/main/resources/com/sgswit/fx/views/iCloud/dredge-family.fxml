@@ -152,7 +152,7 @@
                 </TitledPane>
             </children>
         </HBox>
-        <TitledPane prefHeight="427.0" prefWidth="1150.0" text="账号列表">
+        <TitledPane text="账号列表">
             <content>
                 <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick">
                     <columnResizePolicy>

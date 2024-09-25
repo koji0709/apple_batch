@@ -132,6 +132,19 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
 
+        // 监听窗口大小的变化, 变更accountTableView的高度
+        accountTableView.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) {
+                // 监听 Scene 宽高变化
+                newScene.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+                    accountTableView.setPrefWidth(newWidth.doubleValue());
+                });
+                newScene.heightProperty().addListener((obs, oldHeight, newHeight) -> {
+                    accountTableView.setPrefHeight(newHeight.doubleValue()); // 减去一些高度，给其他控件留空间
+                });
+            }
+        });
+
         // 数据绑定
         ObservableList<TableColumn<T, ?>> columns = accountTableView.getColumns();
         for (TableColumn<T, ?> column : columns) {
@@ -169,7 +182,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 this.clz = ReflectUtil.newInstance(typeEntry.getValue().getTypeName()).getClass();
             }
         }
-
         // 监听note变化,刷新table
         accountList.addListener((ListChangeListener<T>) change -> {
             while (change.next()) {

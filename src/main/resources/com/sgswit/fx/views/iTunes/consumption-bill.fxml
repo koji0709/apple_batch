@@ -87,7 +87,7 @@
                       <Label layoutX="5.0" layoutY="25.0" text="搜素关键字" />
                       <TextField layoutX="68.0" layoutY="21.0" prefHeight="23.0" prefWidth="141.0" />
                       <Button layoutX="243.0" layoutY="21.0" mnemonicParsing="false" text="查询" />
-                      <Label disable="true" layoutX="5.0" layoutY="60.0" prefHeight="45.0" prefWidth="181.0" text="搜索列表中已保存CSV文件内容，多个关键字请用“-&quot; (杠号)隔开" wrapText="true" />
+                      <Label disable="true" layoutX="5.0" layoutY="60.0"  prefWidth="181.0" text="搜索列表中已保存CSV文件内容，多个关键字请用“-&quot; (杠号)隔开" wrapText="true" />
                       <Button layoutX="197.0" layoutY="67.0" mnemonicParsing="false" text="打开匹配目录" />
                    </children>
                 </AnchorPane>
@@ -142,7 +142,7 @@
                 </TitledPane>
             </children>
         </HBox>
-        <TitledPane prefHeight="427.0" prefWidth="1150.0" text="账号列表">
+        <TitledPane text="账号列表">
             <content>
                 <TableView fx:id="accountTableView" onContextMenuRequested="#onContentMenuClick">
                     <columnResizePolicy>
