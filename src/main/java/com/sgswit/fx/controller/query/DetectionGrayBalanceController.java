@@ -74,7 +74,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 paras.put("code2",code2.toLowerCase());
             }
             accountTableView.refresh();
-            paras.clear();
+            //paras.clear();
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
             paras.put("serviceKey", WebLoginUtil.createClientId());
@@ -156,6 +156,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //生成随机地址
             Map<String,String> addressInfo=DataUtil.getAddressInfo(countryCode);
             checkoutMap.put("addressInfo",addressInfo);
+            LoggerManger.info("【检测灰余额】 addressInfo = " + JSONUtil.toJsonStr(addressInfo));
             if(!MapUtil.getBool(checkoutMap ,"deliveryFlag")){
                 checkoutMap= ShoppingUtil.fulfillmentTodeliveryTab(checkoutMap);
             }
@@ -175,6 +176,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //确认地址 - 显示账户余额
             ThreadUtil.sleep(500);
             HttpResponse httpResponse = ShoppingUtil.selectedAddress(map);
+
             if(httpResponse.getStatus() != 200){
                 throw new ServiceException("余额查询失败！");
             }else {
@@ -217,10 +219,13 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         } catch (IORuntimeException e) {
             throw e;
         }catch (ServiceException ae){
+            ae.printStackTrace();
             throw ae;
         }catch (Exception e){
+            e.printStackTrace();
             throw new ServiceException("余额查询失败，请稍后重试！");
         }
 
     }
+
 }
