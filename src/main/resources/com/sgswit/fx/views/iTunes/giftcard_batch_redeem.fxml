@@ -12,7 +12,7 @@
         <HBox spacing="14">
             <children>
                 <!--操作-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
+                <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
                     <content>
                         <GridPane prefHeight="140" minWidth="380">
                             <columnConstraints>
@@ -56,7 +56,7 @@
                 </TitledPane>
 
                 <!--配置信息-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="760" text="配置信息">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" minWidth="760" text="配置信息">
                     <content>
                         <VBox alignment="CENTER" spacing="14" style="-fx-font-size: 12">
                             <children>
@@ -113,7 +113,7 @@
                 </TitledPane>
 
                 <!--执行结果-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="130" text="执行结果">
+                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="130" minWidth="130" text="执行结果">
                     <content>
                         <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
                             <children>
@@ -200,12 +200,12 @@
                     </columnResizePolicy>
                     <columns>
                         <!-- 固定宽度的列，限制最大宽度 -->
-                        <TableColumn fx:id="seq" text="序号" maxWidth="60"  prefWidth="60" />
-                        <TableColumn fx:id="account" text="账号" prefWidth="250" />
-                        <TableColumn fx:id="pwd" text="密码" prefWidth="100" visible="false" />
-                        <TableColumn fx:id="giftCardCode" text="礼品卡" prefWidth="150" />
-                        <TableColumn fx:id="giftCardStatus" text="卡片状态" prefWidth="100" />
-                        <TableColumn fx:id="execTime" text="执行时间" prefWidth="130" />
+                        <TableColumn fx:id="seq" text="序号" maxWidth="60" minWidth="60" prefWidth="60" />
+                        <TableColumn fx:id="account" text="账号" maxWidth="250" minWidth="250" prefWidth="250" />
+                        <TableColumn fx:id="pwd" text="密码" maxWidth="100" minWidth="100" prefWidth="100" visible="false" />
+                        <TableColumn fx:id="giftCardCode" text="礼品卡" maxWidth="150" minWidth="150" prefWidth="150" />
+                        <TableColumn fx:id="giftCardStatus" text="卡片状态" maxWidth="100" minWidth="100" prefWidth="100" />
+                        <TableColumn fx:id="execTime" text="执行时间" maxWidth="130" minWidth="130" prefWidth="130" />
 
                         <!-- note 列自适应剩余宽度 -->
                         <TableColumn fx:id="note" text="执行信息" prefWidth="200" minWidth="200" />
@@ -213,5 +213,8 @@
                 </TableView>
             </content>
         </TitledPane>
+
+
+
     </children>
 </VBox>
