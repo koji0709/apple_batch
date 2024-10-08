@@ -50,7 +50,7 @@ public class ShoppingUtil {
 
         if (accRes.getStatus() == 301){
             String location = accRes.header("Location");
-            code2 = "uk";
+            code2 = location.substring(1,location.indexOf("/",1));
             paras.put("code2",code2);
             accRes = ProxyUtil.execute(HttpUtil.createGet("https://www.apple.com" + location)
                     .header(headers));
