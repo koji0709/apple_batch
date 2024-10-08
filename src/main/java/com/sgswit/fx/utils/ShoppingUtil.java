@@ -47,6 +47,15 @@ public class ShoppingUtil {
         }
         HttpResponse accRes = ProxyUtil.execute(HttpUtil.createGet(accessoriesUrl)
                 .header(headers));
+
+        if (accRes.getStatus() == 301){
+            String location = accRes.header("Location");
+            code2 = location.substring(1,location.indexOf("/",1));
+            paras.put("code2",code2);
+            accRes = ProxyUtil.execute(HttpUtil.createGet("https://www.apple.com" + location)
+                    .header(headers));
+        }
+
         if(accRes.getStatus() != 200){
             paras.put("msg","商城信息加载失败！");
             paras.put("code","1");
@@ -58,9 +67,11 @@ public class ShoppingUtil {
         Document doc = Jsoup.parse(accRes.body());
         Elements elements;
         if(StringUtils.isEmpty(code2)){
-            elements = doc.select("a[href^=/shop/product/"+goodsCode+"/41mm-black-unity-sport-loop]");
+            //elements = doc.select("a[href^=/shop/product/"+goodsCode+"/40mm-black-unity-sport-loop]");
+            elements = doc.select("a[href^=/shop/product/]");
         }else{
-            elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"41mm-black-unity-sport-loop]");
+            //elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"40mm-black-unity-sport-loop]");
+            elements = doc.select("a[href^=/"+code2+"/shop/product/]");
         }
 
         String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
@@ -140,11 +151,12 @@ public class ShoppingUtil {
             }
         }
         paras.put("prod",goodsCode);
-        if(StringUtils.isEmpty(code2)){
-            paras.put("url","https://www.apple.com" + action);
-        }else{
-            paras.put("url","https://www.apple.com/"+code2 + action);
-        }
+        paras.put("url","https://www.apple.com" + action);
+//        if(StringUtils.isEmpty(code2)){
+//            paras.put("url","https://www.apple.com" + action);
+//        }else{
+//            paras.put("url","https://www.apple.com/"+code2 + action);
+//        }
 
         paras.put("body",inputMap);
         paras.put("referer",productUrl);
@@ -266,7 +278,9 @@ public class ShoppingUtil {
         headers.put("s-aos-model-page",ListUtil.toList(header.get("x-aos-model-page").toString()));
         headers.put("modelVersion",ListUtil.toList(header.get("modelVersion").toString()));
         headers.put("syntax",ListUtil.toList(header.get("syntax").toString()));
-        HttpRequest httpRequest=HttpUtil.createPost("https://www.apple.com/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
+        String code2 = MapUtil.getStr(paras, "code2", "");
+        String host = StringUtils.isEmpty(code2) ? "https://www.apple.com" : "https://www.apple.com/" + code2;
+        HttpRequest httpRequest=HttpUtil.createPost(host + "/shop/bagx/checkout_now?_a=checkout&_m=shoppingCart.actions")
                 .header(headers)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true))
                 .form(MapUtil.getStr(paras,"body"));
@@ -456,6 +470,8 @@ public class ShoppingUtil {
         }else {
             paras.put("deliveryFlag",false);
         }
+        String[] split = leadQuoteTime.split("\\|");
+        paras.put("selectShippingOption",split[split.length-1]);
         return paras;
     }
 
@@ -522,7 +538,7 @@ public class ShoppingUtil {
         headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
         headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption","E2");
+        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption",paramMap.get("selectShippingOption"));
         paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
 
         String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";

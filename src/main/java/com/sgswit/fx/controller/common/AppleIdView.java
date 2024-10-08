@@ -59,13 +59,13 @@ public class AppleIdView extends CustomTableView<Account> {
 
         return signInRsp;
     }
-//    /**
-//     * appleid官网登录(不区分登录方式)
-//     */
+    /**
+     * appleid官网登录(不区分登录方式)
+     */
     public void login(Account account){
-//        if (account.isLogin()){
-//            return;
-//        }
+        if (account.isLogin()){
+            return;
+        }
 
         HttpResponse securityCodeOrReparCompleteRsp = null;
 

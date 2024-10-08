@@ -526,7 +526,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         HBox box2 = new HBox();
         TableView localHistoryTableView = new TableView();
         localHistoryTableView.setPrefWidth(1180);
-        localHistoryTableView.setPrefHeight(460);
+        localHistoryTableView.setPrefHeight(490);
         localHistoryTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 

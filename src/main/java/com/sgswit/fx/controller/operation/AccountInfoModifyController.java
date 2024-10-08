@@ -228,6 +228,9 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setNote("查询成功");
         super.accountTableView.refresh();
         Map<String,String> messageMap= new LinkedHashMap<>();
+
+        boolean errorExist = false;
+
         // 修改生日
         if (updateBirthdayCheckBoxSelected){
             setMessageAndRefreshTable("updateBirthday","正在修改生日...",messageMap,account);
@@ -238,6 +241,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String birthdayFormat = DateUtil.format(birthday, "yyyy-MM-dd");
                 HttpResponse updateBirthdayRsp = AppleIDUtil.updateBirthday(account, birthdayFormat);
                 if (updateBirthdayRsp.getStatus() != 200){
+                    errorExist = true;
                     String message = AppleIDUtil.getValidationErrors("修改生日",updateBirthdayRsp, "修改生日失败");
                     setMessageAndRefreshTable("updateBirthday",message,messageMap,account);
                 }else{
@@ -266,6 +270,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
             HttpResponse updateNameRsp = AppleIDUtil.updateName(account, account.getPwd(), firstName, lastName);
             if (updateNameRsp.getStatus() != 200){
+                errorExist = true;
                 String message = AppleIDUtil.getValidationErrors("修改姓名",updateNameRsp, "修改姓名失败");
                 setMessageAndRefreshTable("updateName", message,messageMap,account);
             }else{
@@ -298,6 +303,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                         ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
                 HttpResponse updateQuestionsRsp = AppleIDUtil.updateQuestions(account, body);
                 if (updateQuestionsRsp.getStatus() != 200){
+                    errorExist = true;
                     String message = AppleIDUtil.getValidationErrors("修改密保",updateQuestionsRsp, "修改密保失败");
                     setMessageAndRefreshTable("updatePasswordProtection", message,messageMap,account);
                 }else{
@@ -335,6 +341,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }else{
                 HttpResponse deleteRescueEmailRsp = AppleIDUtil.deleteRescueEmail(account);
                 if (deleteRescueEmailRsp.getStatus() != 204){
+                    errorExist = true;
                     String message = AppleIDUtil.getValidationErrors("移除救援邮箱",deleteRescueEmailRsp, "移除救援邮箱失败");
                     setMessageAndRefreshTable("removeRescueEmail",message,messageMap,account);
                 }else{
@@ -354,6 +361,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 String langCode = languageMap.get(showLang);
                 HttpResponse changeShowLanguageRsp = AppleIDUtil.changeShowLanguage(account,langCode);
                 if (changeShowLanguageRsp.getStatus() != 200){
+                    errorExist = true;
                     String message = AppleIDUtil.getValidationErrors("修改显示语言",changeShowLanguageRsp,"修改显示语言失败");
                     setMessageAndRefreshTable("updateShowLang", message ,messageMap,account);
                 }else{
@@ -370,6 +378,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }else{
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
                 if (updatePasswordRsp.getStatus() != 200){
+                    errorExist = true;
                     String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
                     setMessageAndRefreshTable("updatePwd",message,messageMap,account);
                 }else{
@@ -377,6 +386,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                     setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
                 }
             }
+        }
+
+        // 如果有错误存在, 则把该数据登陆状态设置为false
+        if (errorExist){
+            account.setIsLogin(false);
         }
         if (!account.getNote().contains("成功")){
             throw new ServiceException(account.getNote());
