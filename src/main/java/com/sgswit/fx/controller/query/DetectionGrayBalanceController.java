@@ -80,20 +80,20 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("serviceKey", WebLoginUtil.createClientId());
             // 获取产品
             setAndRefreshNote(account,"正在加载商品信息...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             Map<String,Object> prodMap = ShoppingUtil.getProd(paras);
             if(!Constant.SUCCESS.equals(prodMap.get("code"))){
                 throw new ServiceException(MapUtil.getStr(prodMap,"msg"));
             }
             setAndRefreshNote(account,"商品信息加载成功...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             // 添加到购物车
             setAndRefreshNote(account,"添加到购物车中...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             Map<String, Object> addMap = ShoppingUtil.add2bag(prodMap);
             if(!Constant.SUCCESS.equals(addMap.get("code"))){
                 if("302".equals(addMap.get("code"))){
-                    ThreadUtil.sleep(1000);
+                    ThreadUtil.sleep(500);
                     addMap = ShoppingUtil.add2bag(prodMap);
                     if(!Constant.SUCCESS.equals(addMap.get("code"))){
                         throw new ServiceException(MapUtil.getStr(addMap,"msg"));
@@ -106,14 +106,14 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }
             // 查看购物车
             setAndRefreshNote(account,"获取购物车中商品信息");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             Map<String,Object> bag = ShoppingUtil.shopbag(addMap);
             if(!Constant.SUCCESS.equals(bag.get("code"))){
                 throw new ServiceException(MapUtil.getStr(bag,"msg"));
             }
             // 提交购物车
             setAndRefreshNote(account,"购物车中商品信息获取成功");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             setAndRefreshNote(account,"提交购物信息...");
             Map<String, Object> cheMap = ShoppingUtil.checkoutCart(bag);
             if(!Constant.SUCCESS.equals(cheMap.get("code"))){
@@ -121,14 +121,14 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             }
             //调登录页面
             setAndRefreshNote(account,"登录页面加载中...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             Map<String,Object> signInMap = ShoppingUtil.shopSignIn(cheMap);
             if(!Constant.SUCCESS.equals(signInMap.get("code"))){
                 throw new ServiceException(MapUtil.getStr(signInMap,"msg"));
             }
             //登录
             setAndRefreshNote(account,"页面加载成功，登录中...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(500);
             HttpResponse signInResp = WebLoginUtil.signin(signInMap);
             if(response.getStatus() == 409){
                 if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
@@ -136,7 +136,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 }
             }
             setAndRefreshNote(account,"登录成功...");
-            ThreadUtil.sleep(1000);
+            ThreadUtil.sleep(300);
             setAndRefreshNote(account,"正在查询余额...");
             //回调applestore
             Map<String,Object> checkoutStartMap = ShoppingUtil.callBack(signInMap);
