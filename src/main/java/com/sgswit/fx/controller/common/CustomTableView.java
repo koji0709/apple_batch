@@ -505,11 +505,39 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
         Label keywordsLabel = new Label("输入关键字");
         TextField keywordsTextField = new TextField();
+
+        HBox hbox = new HBox();
+        hbox.setSpacing(3);
+        Label label1 = new Label("显示");
+
+        ComboBox<String> comboBox = new ComboBox();
+        comboBox.setPrefWidth(110);
+        comboBox.getItems().addAll("全部","20","50","100","200","500");
+        comboBox.setValue("全部");
+        comboBox.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setStyle("-fx-alignment: CENTER;"); // 设置文本居中
+                }
+            }
+        });
+        comboBox.setEditable(true);
+        Label label2 = new Label("条");
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        hbox.getChildren().addAll(label1,comboBox,label2);
+
         Button searchBtn = new Button("搜索");
         searchBtn.setPrefWidth(150);
 
         Button search100Btn = new Button("显示最新100条数据");
         search100Btn.setPrefWidth(150);
+
+
 
         Button clearBtn = new Button("清空该数据分支数据");
         clearBtn.setPrefWidth(150);
@@ -520,7 +548,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         HBox box1 = new HBox();
         box1.setSpacing(15);
         box1.setAlignment(Pos.CENTER_LEFT);
-        box1.getChildren().addAll(branchLabel, keywordsLabel, keywordsTextField, searchBtn, search100Btn, clearBtn, countLabel);
+        box1.getChildren().addAll(branchLabel, keywordsLabel, keywordsTextField,hbox, searchBtn, clearBtn, countLabel);
 
         // 表格区
         HBox box2 = new HBox();
@@ -568,6 +596,17 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }else{
                 params.remove("row_json");
             }
+            String value = comboBox.getValue().replaceAll(" ","");
+            if (StrUtil.isNotEmpty(value) && !"全部".equals(value) && !NumberUtil.isInteger(value)){
+                alert("查询条数只能为整数");
+                return;
+            }
+            if (StrUtil.isEmpty(value) || "全部".equals(value)){
+                params.remove("limit");
+            }else{
+                params.put("limit", "LIMIT " + value);
+            }
+
             List<T> accountList = SQLiteUtil.selectLocalHistoryList(params, finalClz);
             countLabel.setText("匹配数量：" + accountList.size());
             localHistoryTableView.getItems().clear();
@@ -586,6 +625,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             localHistoryTableView.getItems().clear();
             localHistoryTableView.getItems().addAll(accountList);
         });
+
         clearBtn.setOnAction(actionEvent -> {
             SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
             localHistoryTableView.getItems().clear();
