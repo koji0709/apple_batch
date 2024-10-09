@@ -72,6 +72,7 @@ public class Constant {
         REEXECUTE("reexecute","重新执行",""),
         COPY("copy","复制账号信息",""),
         COPY_ALL("copyAll","复制全部信息",""),
+        COPY_CARD_NO("copyCardNo","复制礼品卡代码",""),
         TWO_FACTOR_CODE("twoFactorCode","输入双重验证码","views/comm-code-popup.fxml"),
         WEB_TWO_FACTOR_CODE("webTwoFactorCode","输入双重验证码","views/securitycode-popup.fxml"),
         CODE("code","输入验证码","views/comm-code-popup.fxml"),

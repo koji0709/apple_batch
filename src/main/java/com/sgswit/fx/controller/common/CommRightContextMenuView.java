@@ -257,6 +257,8 @@ public class CommRightContextMenuView<T> extends CommonView {
                             twoFactorCodeExecute(account, securityCode);
                         }
                     }
+                }else if (buttonId.equalsIgnoreCase(Constant.RightContextMenu.COPY_CARD_NO.getCode())){
+                    copyCardNo(accountTableView);
                 }
                 stage.close();
             });
@@ -390,6 +392,30 @@ public class CommRightContextMenuView<T> extends CommonView {
         }
     }
 
+    /**
+     * 复制礼品卡号码
+     */
+    private void copyCardNo(TableView tableView){
+        List<String> resultList = new ArrayList<>();
+        List<T> rowList = tableView.getSelectionModel().getSelectedItems();
+        for(T selectModel :rowList){
+            boolean hasField = ReflectUtil.hasField(selectModel.getClass(), "giftCardCode");
+            if (!hasField){
+                alert("未配置礼品卡号码字段");
+                return;
+            }
+
+            String giftCardCode = ((SimpleStringProperty) ReflectUtil.getFieldValue(selectModel, "giftCardCode")).getValue();
+            resultList.add(giftCardCode);
+        }
+        String str = resultList.stream().collect(Collectors.joining("\n"));
+        try {
+            ClipboardManager.setClipboard(str);
+            alert("复制成功！");
+        } catch (Exception e) {
+            alert("复制失败！");
+        }
+    }
     /**
      * 　* 弹出验证码弹出框
      *

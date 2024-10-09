@@ -120,6 +120,8 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         scrollToLastRowCheckBox.setSelected(true);
         accountGroupCheckBox.setSelected(true);
 
+        menuItem.add(Constant.RightContextMenu.COPY_CARD_NO.getCode());
+
         hidePwdCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             // newValue true = 隐藏密码, false = 展示密码
             accountTableView.getColumns().forEach(tableColumn -> {
