@@ -3,13 +3,13 @@ package com.sgswit.fx.controller.operation;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
-import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
@@ -121,6 +121,46 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
         openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"),actionEvent);
+    }
+
+    public List<Account> parseAccount(String accountStr) {
+        if (StrUtil.isEmpty(accountStr)){
+            return Collections.emptyList();
+        }
+        String[] accList = accountStr.split("\n");
+        if (accList.length == 0){
+            return Collections.emptyList();
+        }
+        List<String> fieldList = Arrays.asList("account","pwd","answer1","answer2","answer3");
+        accountStr = accountStr.trim();
+
+        List<Account> accountList = new ArrayList<>();
+        for (int i = 0; i < accList.length; i++) {
+            String acc = accList[i];
+            if(StringUtils.isEmpty(acc)){
+                continue;
+            }
+            acc = acc.trim();
+            acc = acc.replaceAll(" ","-")
+                    .replaceAll("----","-");
+            acc = StrUtil.replace(acc,"{-}","-");
+            List<String> fieldValueList = Arrays.asList(acc.split("-"));
+            if (fieldValueList.size() < fieldList.size()){
+                continue;
+            }
+
+            Account account = new Account();
+            for (int i1 = 0; i1 < fieldList.size(); i1++) {
+                String field = fieldList.get(i1);
+                ReflectUtil.invoke(
+                        account
+                        , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
+                        , fieldValueList.get(i1));
+            }
+            accountList.add(account);
+
+        }
+        return accountList;
     }
 
     @Override

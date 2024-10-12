@@ -59,6 +59,7 @@ public class AccountImportUtil<T>{
         if (StrUtil.isEmpty(accountStr)){
             return new ArrayList<>();
         }
+        accountStr = accountStr.trim();
         String[] accList = accountStr.split("\n");
         if (accList.length == 0){
             return new ArrayList<>();
@@ -71,6 +72,7 @@ public class AccountImportUtil<T>{
             if(StringUtils.isEmpty(acc)){
                 continue;
             }
+            acc = acc.trim();
             List<String> fieldValueList = Arrays.asList(parseAccountAndPwd(acc));
 
             Map<Integer, List<String>> formatMap = formatList
