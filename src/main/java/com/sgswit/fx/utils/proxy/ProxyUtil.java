@@ -12,6 +12,7 @@ import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
 import com.sgswit.fx.ThreadLocalProxyInfo;
+import com.sgswit.fx.controller.common.ResponseTimeoutException;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.controller.common.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
@@ -107,7 +108,7 @@ public class ProxyUtil {
             if (readTimeoutTry){
                 handleRetry(requestId,sleepTime,tryIoNum,mapIoError);
             }else{
-                throw new ServiceException(isRedeem ? "兑换响应超时, 请检查兑换状态" : "服务响应超时, 请稍后重试");
+                throw new ResponseTimeoutException(isRedeem ? "兑换响应超时, 请检查兑换状态" : "服务响应超时, 请稍后重试");
             }
         }
     }

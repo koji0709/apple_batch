@@ -554,12 +554,20 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String key = account + giftCardCode + RandomUtil.randomNumbers(4);
         countList.put(key, System.currentTimeMillis());
         countMap.put(account,countList);
-        HttpResponse redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
-        String  body = redeemRsp.body();
 
-        checkAndThrowUnavailableException(redeemRsp);
+        HttpResponse redeemRsp;
+        String body;
+        try{
+            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+            body = redeemRsp.body();
+            checkAndThrowUnavailableException(redeemRsp);
+        }catch (ResponseTimeoutException e){// 响应超时不计入次数统计
+            countList.remove(key);
+            countMap.put(account,countList);
+            throw new ServiceException(e.getMessage());
+        }
 
-        // 429重试一次
+        // status = 429重试
         Integer i = 3;
         while (i-- >= 0 && redeemRsp.getStatus() == 429){
             ThreadUtil.sleep(200L);
@@ -567,7 +575,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             body = redeemRsp.body();
         }
 
-        // 如果是429则不计入统计
+        // 如果是status = 429则不计入统计
         if(redeemRsp.getStatus() == 429) {
             countList.remove(key);
             countMap.put(account,countList);
