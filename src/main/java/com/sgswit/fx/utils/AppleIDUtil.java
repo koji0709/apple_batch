@@ -18,7 +18,6 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -739,7 +738,7 @@ public class AppleIDUtil {
                 .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                 .header("scnt",account.getScnt())
                 .cookie(account.getCookie())
-                .body(body),false);
+                .body(body));
         return rsp;
     }
 

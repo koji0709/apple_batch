@@ -142,6 +142,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }
             acc = acc.trim();
             acc = acc.replaceAll(" ","-")
+                    .replaceAll("\t","-")
                     .replaceAll("----","-");
             acc = StrUtil.replace(acc,"{-}","-");
             List<String> fieldValueList = Arrays.asList(acc.split("-"));
@@ -256,6 +257,9 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         setAndRefreshNote(account,"正在读取用户信息...");
         HttpResponse accountRsp = AppleIDUtil.account(account);
         checkAndThrowUnavailableException(accountRsp);
+        if (StrUtil.isEmpty(accountRsp.body()) || !JSONUtil.isTypeJSON(accountRsp.body())){
+            throw new ServiceException("读取用户信息失败");
+        }
         JSON accountJson = JSONUtil.parse(accountRsp.body());
         account.setArea(accountJson.getByPath("account.person.primaryAddress.countryName",String.class));
         account.setBirthday(accountJson.getByPath("account.person.birthday",String.class));
@@ -417,10 +421,22 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 setMessageAndRefreshTable("updatePwd","修改密码失败【未设置新密码】",messageMap,account);
             }else{
                 HttpResponse updatePasswordRsp = AppleIDUtil.updatePassword(account, account.getPwd(), newPwd);
+
                 if (updatePasswordRsp.getStatus() != 200){
-                    errorExist = true;
-                    String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
-                    setMessageAndRefreshTable("updatePwd",message,messageMap,account);
+                    List<String> errorCodeList = new ArrayList<>();
+                    String body = updatePasswordRsp.body();
+                    if (StrUtil.isNotEmpty(body) && JSONUtil.isTypeJSON(body)){
+                        JSONObject jsonObject= JSONUtil.parseObj(body);
+                        errorCodeList = jsonObject.getByPath("validationErrors.code", List.class);
+                    }
+                    if (CollUtil.isNotEmpty(errorCodeList) && errorCodeList.contains("matchCurrent")){
+                        account.setPwd(newPwd);
+                        setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
+                    }else{
+                        errorExist = true;
+                        String message = AppleIDUtil.getValidationErrors("修改密码",updatePasswordRsp, "修改密码失败");
+                        setMessageAndRefreshTable("updatePwd",message,messageMap,account);
+                    }
                 }else{
                     account.setPwd(newPwd);
                     setMessageAndRefreshTable("updatePwd","修改密码成功",messageMap,account);
