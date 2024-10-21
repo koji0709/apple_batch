@@ -1067,10 +1067,17 @@ public class AppleIDUtil {
         );
         account.updateLoginInfo(verifyPhone1Rsp);
 
+        JSONObject bodyJSON = JSONUtil.parseObj(verifyPhone1Rsp.body());
+        Boolean containsTrustedPhones = bodyJSON.containsKey("trustedPhones");
+        LoggerManger.info("【关闭双重认证】检测账号认证状态: containsTrustedPhones = " + containsTrustedPhones);
+        if (containsTrustedPhones == null || !containsTrustedPhones){
+            throw new ServiceException("该账号没有双重认证");
+        }
+
         Boolean recoverable = JSONUtil.parse(verifyPhone1Rsp.body()).getByPath("recoverable",Boolean.class);
         LoggerManger.info("【关闭双重认证】检测账号认证状态: recoverable = " + recoverable);
         if (recoverable == null || !recoverable){
-            throw new ServiceException("该账号没有双重认证");
+            throw new ServiceException("此账号开通双重认证已超过两周, 不能关闭双重");
         }
 
         account.setNote("正在验证手机号");
