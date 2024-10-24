@@ -64,6 +64,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected List runningList=new ArrayList<>();
+    protected volatile boolean running = false;
+
     /**登录成功的账号缓存(缓存20分钟)**/
     private static final long time=20*60*1000;
 
@@ -255,7 +257,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
 
         // 修改按钮为执行状态
         setExecuteButtonStatus(true);
-
+        running = true;
 
         // 此处的线程是为了处理,按钮状态等文案显示
         for (int i = 0; i < accountList.size(); i++) {
@@ -311,7 +313,10 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 if(!runningList.contains(account)){
                     runningList.add(account);
                 }
-                accountHandlerExpandX(account);
+                // 检查线程中断状态
+                while (!Thread.currentThread().isInterrupted() && running) {
+                    accountHandlerExpandX(account);
+                }
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
@@ -673,6 +678,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 executeButton.setTextFill(Paint.valueOf("#FF0000"));
                 executeButton.setDisable(true);
             });
+            running = false;
             // 不使用杀线程的方式停止
             List<Future<?>> futureList = threadMap.get(stage);
             if (!CollUtil.isEmpty(futureList)){
@@ -1036,6 +1042,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * @date 2024/7/8 15:33
      */
     protected void stopExecutorService(){
+        running = false;
         if(null==threadPoolExecutor || threadPoolExecutor.isShutdown()){
 
         }else{
