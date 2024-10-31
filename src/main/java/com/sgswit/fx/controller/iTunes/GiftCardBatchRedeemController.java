@@ -105,6 +105,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
     private GiftCardRedeem singleGiftCardRedeem = new GiftCardRedeem();
 
     Stage redeemLogStage;
+
     private static int intervalTime=65;
     private static Map<String, Map<String,Long>> countMap = new HashMap<>();
     private static Map<String, LinkedHashMap<String,GiftCardRedeem>> toBeExecutedMap = new HashMap<>();
@@ -1025,6 +1026,14 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         stage.initStyle(StageStyle.DECORATED);
         stage.showAndWait();
     }
+
+    /**
+     * 批量ID加卡
+     */
+    public void batchAccountParseAction(){
+       StageUtil.show(StageEnum.GIFTCARD_BATCH_PARSE_ACCOUNT);
+    }
+
     @FXML
     public void chnAppleIdValidateBtnAction(ActionEvent actionEvent) {
         StageUtil.show(StageEnum.CHN_APPLE_ID_VALIDATE);

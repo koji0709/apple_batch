@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.GiftCardBatchParseAccountController">
+    <children>
+        <HBox spacing="50">
+            <children>
+                <VBox spacing="10">
+                    <children>
+                        <Label text="批量ID加卡 格式1，多个id，请换行" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                        <TextField prefWidth="300" disable="true" promptText="账号---密码----卡密"/>
+                        <Label text="按以上两个格式导入账号和密码"/>
+                    </children>
+                </VBox>
+                <VBox spacing="10">
+                    <children>
+                        <Label text="批量ID加卡 格式2，多个id，请换行" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                        <TextField prefWidth="300" disable="true" promptText="账号---密码----卡密----卡密----卡密....卡密"/>
+                        <Label text="例如：aaabbbexx.com----Fp112211----aaaa----bbb----ccc"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+        <VBox spacing="16">
+            <children>
+                <Label text="卡密快速整理" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                <Label text="该功能应用场景：假设有100个ID和300张卡密，每个ID需要兑换三张卡密，使用此功能就可以快速生成导入格式"/>
+                <HBox spacing="14">
+                    <children>
+                        <CheckBox disable="true" selected="true" text="文本1是ID请勾选"/>
+                        <CheckBox fx:id="checkbox2" text="合并之后删除原数据"/>
+                        <CheckBox disable="true" text="固定文本2"/>
+                    </children>
+                </HBox>
+                <HBox spacing="5">
+                    <children>
+                        <TitledPane collapsible="false" animated="false" text="账号密码或文本1">
+                            <content>
+                                <TextArea fx:id="textArea1" prefWidth="200" prefHeight="340"/>
+                            </content>
+                        </TitledPane>
+
+                        <TitledPane collapsible="false" animated="false" text="输入卡密或文本2">
+                            <content>
+                                <TextArea fx:id="textArea2" prefWidth="200" prefHeight="340"/>
+                            </content>
+                        </TitledPane>
+
+                        <VBox prefWidth="140" spacing="5">
+                            <children>
+                                <Label text="左边文本一行数量合并右边多少文本数量" wrapText="true"/>
+                                <VBox spacing="3">
+                                    <children>
+                                        <HBox spacing="3" alignment="CENTER_LEFT">
+                                            <children>
+                                                <TextField fx:id="numTextField" prefWidth="80"/><Label text="数量"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="3" alignment="CENTER_LEFT">
+                                            <children>
+                                                <TextField fx:id="delimiterTextField" prefWidth="40" promptText="----"/><Label text="合并分隔符"/>
+                                            </children>
+                                        </HBox>
+                                        <Button onAction="#mergeAndOrganizeAction" prefWidth="138" text="合并整理"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <children>
+                                <Label text="合并生成的结果，需要导入之后，才能执行兑换"/>
+                                <TextArea fx:id="textArea3" prefWidth="290" prefHeight="343"/>
+                            </children>
+                        </VBox>
+
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>
