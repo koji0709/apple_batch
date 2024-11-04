@@ -330,7 +330,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         if (intervalFrequency > 0){
             ThreadUtil.sleep(intervalFrequency);
         }
-        running = true;
         if(isAsyn){
             executorServiceSubmit(account);
         }else{
