@@ -132,7 +132,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             return Collections.emptyList();
         }
         List<String> fieldList = Arrays.asList("account","pwd","answer1","answer2","answer3");
-        accountStr = accountStr.trim();
 
         List<Account> accountList = new ArrayList<>();
         for (int i = 0; i < accList.length; i++) {
@@ -141,11 +140,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 continue;
             }
             acc = acc.trim();
-            acc = acc.replaceAll(" ","-")
-                    .replaceAll("\t","-")
-                    .replaceAll("----","-");
-            acc = StrUtil.replace(acc,"{-}","-");
-            List<String> fieldValueList = Arrays.asList(acc.split("-"));
+            List<String> fieldValueList = splitfieldValue(acc);
             if (fieldValueList.size() < fieldList.size()){
                 continue;
             }
@@ -162,6 +157,17 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
 
         }
         return accountList;
+    }
+
+    public static List<String> splitfieldValue(String acc) {
+        // 判断字符串是否包含空格或制表符
+        if (acc.contains(" ") || acc.contains("\t")) {
+            // 使用空格或制表符作为分隔符分割字符串
+            return Arrays.asList(acc.split("[ \t]+"));
+        } else {
+            // 使用 ---- 或 - 作为分隔符分割字符串
+            return Arrays.asList(acc.split("[-]+"));
+        }
     }
 
     @Override

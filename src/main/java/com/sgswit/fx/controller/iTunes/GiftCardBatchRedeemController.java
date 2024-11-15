@@ -191,7 +191,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
         String desc = "说明：\n" +
-                "    1.格式为: 账号----密码----礼品卡(可多个) 或 单礼品卡\n" +
+                "    1.格式为: 账号----密码-礼品卡(可多个) 或 单礼品卡\n" +
                 "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
         Button button = (Button) actionEvent.getSource();
         // 获取按钮所在的场景
