@@ -413,8 +413,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      */
     public void openImportAccountView(List<String> formats, ActionEvent actionEvent) {
         String desc = "说明：\n" +
-                "    1.格式为: " + AccountImportUtil.buildNote(formats) + "\n" +
-                "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中有“-”符号,则使用{-}替换。";
+                "    1.格式为: " + AccountImportUtil.buildNote(formats) + ", 或空格分割\n" +
+                "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中包含“-”符号, 只能使用空格分割。";
         Button button = (Button) actionEvent.getSource();
         // 获取按钮所在的场景
         Scene scene = button.getScene();
