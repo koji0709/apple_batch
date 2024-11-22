@@ -273,8 +273,8 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         account.setRescueEmail(accountJson.getByPath("account.security.rescueEmail",String.class));
         String createdDate = accountJson.getByPath("account.person.reachableAtOptions.primaryEmailAddress.createdDate", String.class);
         String updateDate = accountJson.getByPath("account.person.reachableAtOptions.primaryEmailAddress.updateDate", String.class);
-        account.setCreatedDate(DateUtil.format(new Date(Long.valueOf(createdDate.substring(0,10))*1000),"yyyy年MM月dd日"));
-        account.setUpdateDate(DateUtil.format(new Date(Long.valueOf(updateDate.substring(0,10))*1000),"yyyy年MM月dd日"));
+        account.setCreatedDate(DateUtil.format(new Date(Long.valueOf(createdDate.split("\\.")[0])*1000),"yyyy年MM月dd日"));
+        account.setUpdateDate(DateUtil.format(new Date(Long.valueOf(updateDate.split("\\.")[0])*1000),"yyyy年MM月dd日"));
         account.setNote("查询成功");
         super.accountTableView.refresh();
         Map<String,String> messageMap= new LinkedHashMap<>();
