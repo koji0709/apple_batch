@@ -145,7 +145,9 @@ public class StoreFontsUtils {
     public static String getCountryCodeFromStoreFront(String storeFront){
         List<String> sf = StrUtil.split(storeFront, "-");
         if(!sf.isEmpty()){
-            return getCountryCode(sf.get(0)).split("-")[0];
+            String countryCode = getCountryCode(sf.get(0));
+
+            return StrUtil.isNotEmpty(countryCode) ? countryCode.split("-")[0] : null;
         }
         return null;
     }
