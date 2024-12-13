@@ -98,7 +98,9 @@ public class ProxyUtil {
     }
 
     private static void handleIoException(String requestId, int sleepTime, int tryIoNum, Exception e, boolean isRedeem,boolean readTimeoutTry) {
-        LoggerManger.info("网络异常, message = " + e.getMessage());
+        Proxy proxy = threadLocalProxy.get();
+        LoggerManger.info("网络异常, message = " + e.getMessage() + ", proxy = " + proxy);
+
         // 需要重试的异常
         if (isRetryableError(e.getMessage())) {
             // 重试
@@ -110,8 +112,6 @@ public class ProxyUtil {
             if (readTimeoutTry){
                 handleRetry(requestId,sleepTime,tryIoNum,mapIoError);
             }else{
-                Proxy proxy = threadLocalProxy.get();
-                LoggerManger.info("超时代理信息: " + proxy);
                 throw new ResponseTimeoutException(isRedeem ? "兑换响应超时, 请检查兑换状态" : "服务响应超时, 请稍后重试");
             }
         }
@@ -190,8 +190,8 @@ public class ProxyUtil {
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理
             if ( "1".equals(proxyType)) {
-                // todo 获取ip
                 //Entity entity = ApiProxyUtil.getRandomIp();
+                //Entity entity = JuliangIPUtil.getInstance().getIP();
                 Entity entity = IPManager.getInstance().getIP();
                 if (!CollUtil.isEmpty(entity)) {
                     String proxyHost = entity.getStr("ip");
