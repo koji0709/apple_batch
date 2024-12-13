@@ -150,7 +150,7 @@ public class ShoppingUtil {
                 }
             }
         }
-        paras.put("prod",goodsCode);
+        paras.put("prod",item.child(0).attr("value"));
         paras.put("url","https://www.apple.com" + action);
 //        if(StringUtils.isEmpty(code2)){
 //            paras.put("url","https://www.apple.com" + action);

@@ -38,6 +38,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ProxyUtil {
 
+    private static final ThreadLocal<Proxy> threadLocalProxy = ThreadLocal.withInitial(() -> null);
+
     private static final ConcurrentHashMap<String, Instant> uriTimestamps = new ConcurrentHashMap<>();
 
     private static final long MIN_INTERVAL_MS = 200;
@@ -57,7 +59,7 @@ public class ProxyUtil {
         }
 
         String requestId = MD5.create().digestHex(request.toString());
-        boolean isRedeem = request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+        boolean isRedeem = isRedeem(request);
         boolean isITunes = request.getUrl().contains("/WebObjects/MZFinance.woa");
 
         int sleepTime = isITunes ? 50 : 100;
@@ -108,6 +110,8 @@ public class ProxyUtil {
             if (readTimeoutTry){
                 handleRetry(requestId,sleepTime,tryIoNum,mapIoError);
             }else{
+                Proxy proxy = threadLocalProxy.get();
+                LoggerManger.info("超时代理信息: " + proxy);
                 throw new ResponseTimeoutException(isRedeem ? "兑换响应超时, 请检查兑换状态" : "服务响应超时, 请稍后重试");
             }
         }
@@ -126,11 +130,15 @@ public class ProxyUtil {
                 ;
     }
 
+    public static boolean isRedeem(HttpRequest request) {
+        return request.getUrl().contains("/WebObjects/MZFinance.woa/wa/redeemCodeSrv");
+    }
+
     private static HttpRequest createRequest(HttpRequest request) {
         String proxyMode = PropertiesUtil.getOtherConfig("proxyMode");
         int sendTimeOut = PropertiesUtil.getOtherInt("sendTimeOut");
         sendTimeOut = sendTimeOut == 0 ? 5 * 1000 : sendTimeOut * 1000;
-        int readTimeOut = 5 * 1000;
+        int readTimeOut = isRedeem(request) ? 30 * 1000 : 10 * 1000;
 
         // 未选择代理, 或者配置错误, 则不使用代理
         if (StringUtils.isEmpty(proxyMode)
@@ -176,12 +184,15 @@ public class ProxyUtil {
         }
         int index = StrUtils.getWeightedRandomIndex(weights);
         Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
-        String proxyType = MapUtil.getStr(proxyConfigMap, "proxyType");
+
+        String proxyType = isRedeem(request) ? "1" : MapUtil.getStr(proxyConfigMap, "proxyType");
 
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理
             if ( "1".equals(proxyType)) {
-                Entity entity = ApiProxyUtil.getRandomIp();
+                // todo 获取ip
+                //Entity entity = ApiProxyUtil.getRandomIp();
+                Entity entity = IPManager.getInstance().getIP();
                 if (!CollUtil.isEmpty(entity)) {
                     String proxyHost = entity.getStr("ip");
                     int proxyPort = entity.getInt("port");
@@ -288,14 +299,19 @@ public class ProxyUtil {
     }
 
     private static HttpRequest proxyRequest(HttpRequest request, String proxyHost, Integer proxyPort, String authUser, String authPassword, int sendTimeOut, int readTimeout, Proxy.Type proxyType) {
+        request.header("Connection","close");
+        request.keepAlive(false);
         LoggerManger.info(String.format("[%s] %s, proxy = %s:%d, unique = %s",request.getMethod(), request.getUrl().split("\\?")[0], proxyHost, proxyPort, authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy = new Proxy(proxyType, new InetSocketAddress(proxyHost, proxyPort));
+        threadLocalProxy.set(proxy);
         return request.setProxy(proxy).setConnectionTimeout(sendTimeOut).setReadTimeout(readTimeout);
     }
 
     private static HttpRequest proxyRequest(HttpRequest request, Map<String, Object> map, int sendTimeOut, int readTimeout, Proxy.Type proxyType) {
+        request.header("Connection","close");
+        request.keepAlive(false);
         String proxyHost = MapUtil.getStr(map, "ip");
         int proxyPort = MapUtil.getInt(map, "port");
         String authUser = MapUtil.getStr(map, "account");

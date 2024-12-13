@@ -761,8 +761,7 @@ public class ITunesUtil {
                 "\t\t<string>application/json</string>\n" +
                 "\t</dict>\n" +
                 "</plist>";
-
-            HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl)
+            HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl + "?_time=" + System.currentTimeMillis())
                             .header(headers)
                             .cookie(giftCardRedeem.getCookie())
                             .body(redeemBody),false);
