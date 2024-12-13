@@ -138,7 +138,7 @@ public class ProxyUtil {
         String proxyMode = PropertiesUtil.getOtherConfig("proxyMode");
         int sendTimeOut = PropertiesUtil.getOtherInt("sendTimeOut");
         sendTimeOut = sendTimeOut == 0 ? 5 * 1000 : sendTimeOut * 1000;
-        int readTimeOut = isRedeem(request) ? 30 * 1000 : 10 * 1000;
+        int readTimeOut = isRedeem(request) ? 15 * 1000 : 10 * 1000;
 
         // 未选择代理, 或者配置错误, 则不使用代理
         if (StringUtils.isEmpty(proxyMode)
