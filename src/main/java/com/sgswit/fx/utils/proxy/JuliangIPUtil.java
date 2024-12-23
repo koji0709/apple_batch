@@ -3,11 +3,13 @@ package com.sgswit.fx.utils.proxy;
 import cn.hutool.db.Entity;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 
-import java.time.Instant;
+import java.net.Authenticator;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -17,21 +19,24 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class IPManager {
+public class JuliangIPUtil {
+
+    // 用户名密码认证(动态代理/独享代理)
+    final static String ProxyUser = "17608177103";
+    final static String ProxyPass = "33KNiSOX";
+
     private final Queue<Entity> ipPool = new ConcurrentLinkedQueue<>();
     private final Lock lock = new ReentrantLock();
     private final Condition notEmpty = lock.newCondition();
 
     // 单例实例
-    private static volatile IPManager instance;
+    private static volatile JuliangIPUtil instance;
 
     // 定期清理过期数据的线程池
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     // 私有构造方法，防止外部实例化
-    private IPManager() {
-        //reloadIPs(); // 初始化 IP 池
-        startExpirationChecker(); // 启动过期检查任务
+    private JuliangIPUtil() {
     }
 
     /**
@@ -39,11 +44,11 @@ public class IPManager {
      *
      * @return IPManager 实例
      */
-    public static IPManager getInstance() {
+    public static JuliangIPUtil getInstance() {
         if (instance == null) {
             synchronized (IPManager.class) {
                 if (instance == null) {
-                    instance = new IPManager();
+                    instance = new JuliangIPUtil();
                 }
             }
         }
@@ -60,6 +65,7 @@ public class IPManager {
 
         int retryCount = 0;
         int maxRetries = 3;
+
         while ((ip = ipPool.poll()) == null) {
             if (retryCount >= maxRetries) {
                 return null;
@@ -80,49 +86,44 @@ public class IPManager {
             if (!ipPool.isEmpty()) {
                 return;
             }
+
+            String url1 = "http://v2.api.juliangip.com/dynamic/getips?auto_white=1&filter=1&num=20&pt=1&result_type=json&trade_no=1806944562528701&sign=dbf4ee798584a31aae559a5db8c1f4b4";
+            String resp = HttpUtil.get(url1);
+            JSON response = JSONUtil.parse(resp);
+            JSONArray proxyArr = response.getByPath("data.proxy_list", JSONArray.class);
+
             System.out.println("重新加载 IP 池...");
-            String proxyUrl = PropertiesUtil.getConfig("proxyUrl");
-            HashMap<String, List<String>> headers = new HashMap<>(10);
-            HttpResponse result = HttpRequest.get(proxyUrl)
-                    .timeout(10000)
-                    .header(headers)
-                    .execute();
-            JSON jsonObject = JSONUtil.parse(result.body());
-            String code = jsonObject.getByPath("code", String.class);
-            if ("0".equals(code)) {
-                List<Map<String, Object>> dataList = jsonObject.getByPath("data", List.class);
-                for (Map<String, Object> map : dataList) {
+            proxyArr.forEach(proxy -> {
+                String p = (String) proxy;
                     Entity entity = new Entity();
                     entity.setTableName("proxy_ip_info");
-                    entity.set("id", map.get("id"));
-                    entity.set("ip", map.get("ip"));
-                    entity.set("port", map.get("port"));
-                    entity.set("username", map.get("username"));
-                    entity.set("pwd", map.get("pwd"));
+                    entity.set("ip", p.split(":")[0]);
+                    entity.set("port", p.split(":")[1]);
+                    entity.set("username", "17608177103");
+                    entity.set("pwd", "33KNiSOX");
                     entity.set("last_update_time", 0);
                     entity.set("input_time", System.currentTimeMillis());
-                    entity.set("expiration_time", map.get("expiration_time"));
-                    entity.set("protocol_type", map.get("protocol_type"));
+                    entity.set("expiration_time", System.currentTimeMillis() + 60 * 1000);
+                    entity.set("protocol_type", "1");
                     ipPool.offer(entity);
-                }
-            }
+            });
             notEmpty.signalAll(); // 通知等待的线程
         } finally {
             lock.unlock();
         }
     }
 
-    /**
-     * 启动一个定时任务，清理过期的 IP。
-     */
-    private void startExpirationChecker() {
-        scheduler.scheduleAtFixedRate(() -> {
-            long currentTime = System.currentTimeMillis();
-            ipPool.removeIf(entity -> {
-                long expirationTime = entity.getLong("expiration_time");
-                return expirationTime <= currentTime - 3000;
-            });
-        }, 0, 1, TimeUnit.SECONDS); // 每秒检查一次
+    public static void main(String[] args) {
+
+        String url1 = "http://v2.api.juliangip.com/dynamic/getips?auto_white=1&filter=1&num=20&pt=1&result_type=json&trade_no=1806944562528701&sign=dbf4ee798584a31aae559a5db8c1f4b4";
+        String resp = HttpUtil.get(url1);
+        JSON response = JSONUtil.parse(resp);
+        JSONArray proxyArr = response.getByPath("data.proxy_list", JSONArray.class);
+
+        proxyArr.forEach(proxy -> {
+            String p = (String) proxy;
+            System.err.println(p);
+        });
     }
 
 }

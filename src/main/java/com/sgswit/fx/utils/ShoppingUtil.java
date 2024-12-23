@@ -39,6 +39,8 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode", ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("document"));
         headers.put("Sec-Fetch-User", ListUtil.toList("?1"));
+        headers.put("Host", ListUtil.toList("www.apple.com"));
+        headers.put("Referer", List.of(" https://www.apple.com/shop/watch/bands"));
         String accessoriesUrl;
         if(StringUtils.isEmpty(code2)){
             accessoriesUrl="https://www.apple.com/shop/watch/bands";
@@ -74,7 +76,8 @@ public class ShoppingUtil {
             elements = doc.select("a[href^=/"+code2+"/shop/product/]");
         }
 
-        String productUrl = "https://www.apple.com" + elements.get(0).attr("href");
+        Element element = elements.first();
+        String productUrl = "https://www.apple.com" + element.attr("href");
 
         HttpResponse prodRes = ProxyUtil.execute(HttpUtil.createGet(productUrl)
                 .header(headers));
@@ -176,6 +179,7 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
         headers.put("Sec-Fetch-Dest",ListUtil.toList("document"));
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
+        headers.put("Host",List.of("www.apple.com"));
         HttpRequest httpRequest=HttpUtil.createPost(paras.get("url").toString())
                 .header(headers)
                 .form((Map<String,Object>)paras.get("body"))
@@ -202,6 +206,7 @@ public class ShoppingUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
         headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Host",List.of("www.apple.com"));
 
         headers.put("Sec-Fetch-Site",ListUtil.toList("same-origin"));
         headers.put("Sec-Fetch-Mode",ListUtil.toList("navigate"));
@@ -535,7 +540,7 @@ public class ShoppingUtil {
         headers.put("syntax",ListUtil.toList(paras.get("syntax").toString()));
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
-        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Shipping-init"));
+        headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Fulfillment-init"));
         headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption",paramMap.get("selectShippingOption"));
