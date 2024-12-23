@@ -7,43 +7,29 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class IPManager {
-    private final Queue<Entity> ipPool = new ConcurrentLinkedQueue<>();
+public class IPManager2 {
+    private final List<Entity> ipPool = new CopyOnWriteArrayList<>();
     private final Lock lock = new ReentrantLock();
     private final Condition notEmpty = lock.newCondition();
 
-    // 单例实例
-    private static volatile IPManager instance;
-
-    // 定期清理过期数据的线程池
+    private static volatile IPManager2 instance;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    // 私有构造方法，防止外部实例化
-    private IPManager() {
-        //reloadIPs(); // 初始化 IP 池
+    private IPManager2() {
         startExpirationChecker(); // 启动过期检查任务
     }
 
-    /**
-     * 获取单例实例
-     *
-     * @return IPManager 实例
-     */
-    public static IPManager getInstance() {
+    public static IPManager2 getInstance() {
         if (instance == null) {
-            synchronized (IPManager.class) {
+            synchronized (IPManager2.class) {
                 if (instance == null) {
-                    instance = new IPManager();
+                    instance = new IPManager2();
                 }
             }
         }
@@ -51,32 +37,55 @@ public class IPManager {
     }
 
     /**
-     * 获取一个 IP。如果池为空，会阻塞直到新的 IP 加入。
+     * 获取一个使用次数最少的随机 IP。如果池为空，会阻塞直到新的 IP 加入。
      *
      * @return 一个可用的 IP 对象
      */
     public Entity getIP() {
-        Entity ip;
-
+        Entity ip = null;
         int retryCount = 0;
         int maxRetries = 3;
-        while ((ip = ipPool.poll()) == null) {
-            if (retryCount >= maxRetries) {
-                return null;
+
+        while (ip == null) {
+            lock.lock();
+            try {
+                if (ipPool.isEmpty()) {
+                    if (retryCount >= maxRetries) {
+                        return null;
+                    }
+                    reloadIPs();
+                    retryCount++;
+                } else {
+                    // 筛选出使用次数最少的 IP
+                    int minUseCount = ipPool.stream()
+                            .mapToInt(entity -> entity.getInt("useCount"))
+                            .min()
+                            .orElse(0);
+
+                    List<Entity> leastUsedIPs = new ArrayList<>();
+                    for (Entity entity : ipPool) {
+                        if (entity.getInt("useCount") == minUseCount) {
+                            leastUsedIPs.add(entity);
+                        }
+                    }
+
+                    // 从使用次数最少的 IP 中随机选择一个
+                    int randomIndex = ThreadLocalRandom.current().nextInt(leastUsedIPs.size());
+                    ip = leastUsedIPs.get(randomIndex);
+
+                    // 更新使用次数
+                    ip.set("useCount", ip.getInt("useCount") + 1);
+                }
+            } finally {
+                lock.unlock();
             }
-            reloadIPs();
-            retryCount++;
         }
         return ip;
     }
 
-    /**
-     * 从外部接口重新加载 IP。
-     */
     private void reloadIPs() {
         lock.lock();
         try {
-            // 防止多线程同时触发 reload
             if (!ipPool.isEmpty()) {
                 return;
             }
@@ -103,7 +112,8 @@ public class IPManager {
                     entity.set("input_time", System.currentTimeMillis());
                     entity.set("expiration_time", map.get("expiration_time"));
                     entity.set("protocol_type", map.get("protocol_type"));
-                    ipPool.offer(entity);
+                    entity.set("useCount", 0); // 初始化使用次数
+                    ipPool.add(entity);
                 }
             }
             notEmpty.signalAll(); // 通知等待的线程
@@ -112,17 +122,13 @@ public class IPManager {
         }
     }
 
-    /**
-     * 启动一个定时任务，清理过期的 IP。
-     */
     private void startExpirationChecker() {
         scheduler.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
             ipPool.removeIf(entity -> {
                 long expirationTime = entity.getLong("expiration_time");
-                return expirationTime <= currentTime - 3000;
+                return expirationTime <= currentTime - 10000;
             });
-        }, 0, 1, TimeUnit.SECONDS); // 每秒检查一次
+        }, 0, 1, TimeUnit.SECONDS);
     }
-
 }

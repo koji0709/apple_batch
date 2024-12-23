@@ -1,6 +1,8 @@
 package com.sgswit.fx.utils.proxy;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
@@ -23,6 +25,7 @@ import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
@@ -38,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ProxyUtil {
 
-    private static final ThreadLocal<Proxy> threadLocalProxy = ThreadLocal.withInitial(() -> null);
+    private static final ThreadLocal<ProxyInfo> threadLocalProxy = ThreadLocal.withInitial(() -> null);
 
     private static final ConcurrentHashMap<String, Instant> uriTimestamps = new ConcurrentHashMap<>();
 
@@ -66,10 +69,13 @@ public class ProxyUtil {
         int try503Num = isRedeem ? 10 : 25;
         int tryIoNum = 4;
 
-        HttpResponse httpResponse;
+        HttpResponse httpResponse = null;
+        // 创建一个 StopWatch 实例
+        StopWatch stopWatch = new StopWatch();
+        Date now = new Date();
         try {
+            stopWatch.start("HTTP Request");
             httpResponse = createRequest(request).execute();
-            LoggerManger.info(String.format("[%s] %s, Response.status = %d",request.getMethod(),request.getUrl().split("\\?")[0], httpResponse.getStatus()));
             if (httpResponse.getStatus() == 503) {
                 // 重试
                 handleRetry(requestId, sleepTime, try503Num, map503Error);
@@ -80,6 +86,17 @@ public class ProxyUtil {
             handleIoException(requestId, sleepTime, tryIoNum, e, isRedeem,readTimeoutTry);
             return execute(request);
         } finally {
+            // todo 请求日志记录
+            ProxyInfo proxy = threadLocalProxy.get();
+            // 停止计时
+            stopWatch.stop();
+            long timeInMillis = stopWatch.getTotalTimeMillis();
+            String host = proxy != null ? proxy.getHost() : "127.0.0.1";
+            String message = AppleIDUtil.getValidationErrors(httpResponse, "");
+            String url = request.getUrl().split("\\?")[0];
+            LoggerManger.info(String.format("[%s] %s, host = %s, message = %s, status = %s took = %s s"
+                    ,request.getMethod(), url,host,message,httpResponse.getStatus(),timeInMillis / 1000));
+            RequestLogUtil.record(url,request.getMethod().toString(),proxy,timeInMillis,httpResponse.getStatus(),now,message);
             map503Error.remove(requestId);
             mapIoError.remove(requestId);
         }
@@ -98,9 +115,6 @@ public class ProxyUtil {
     }
 
     private static void handleIoException(String requestId, int sleepTime, int tryIoNum, Exception e, boolean isRedeem,boolean readTimeoutTry) {
-        Proxy proxy = threadLocalProxy.get();
-        LoggerManger.info("网络异常, message = " + e.getMessage() + ", proxy = " + proxy);
-
         // 需要重试的异常
         if (isRetryableError(e.getMessage())) {
             // 重试
@@ -138,7 +152,7 @@ public class ProxyUtil {
         String proxyMode = PropertiesUtil.getOtherConfig("proxyMode");
         int sendTimeOut = PropertiesUtil.getOtherInt("sendTimeOut");
         sendTimeOut = sendTimeOut == 0 ? 5 * 1000 : sendTimeOut * 1000;
-        int readTimeOut = isRedeem(request) ? 15 * 1000 : 10 * 1000;
+        int readTimeOut = isRedeem(request) ? 10 * 1000 : 10 * 1000;
 
         // 未选择代理, 或者配置错误, 则不使用代理
         if (StringUtils.isEmpty(proxyMode)
@@ -301,11 +315,13 @@ public class ProxyUtil {
     private static HttpRequest proxyRequest(HttpRequest request, String proxyHost, Integer proxyPort, String authUser, String authPassword, int sendTimeOut, int readTimeout, Proxy.Type proxyType) {
         request.header("Connection","close");
         request.keepAlive(false);
-        LoggerManger.info(String.format("[%s] %s, proxy = %s:%d, unique = %s",request.getMethod(), request.getUrl().split("\\?")[0], proxyHost, proxyPort, authPassword));
         // 设置请求验证信息
         Authenticator.setDefault(new ProxyAuthenticator(authUser, authPassword));
         Proxy proxy = new Proxy(proxyType, new InetSocketAddress(proxyHost, proxyPort));
-        threadLocalProxy.set(proxy);
+        ProxyInfo proxyInfo = new ProxyInfo();
+        proxyInfo.setHost(proxyHost);
+        proxyInfo.setPort(proxyPort);
+        threadLocalProxy.set(proxyInfo);
         return request.setProxy(proxy).setConnectionTimeout(sendTimeOut).setReadTimeout(readTimeout);
     }
 
