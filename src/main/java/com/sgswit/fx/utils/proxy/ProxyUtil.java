@@ -94,9 +94,11 @@ public class ProxyUtil {
             String host = proxy != null ? proxy.getHost() : "127.0.0.1";
             String message = AppleIDUtil.getValidationErrors(httpResponse, "");
             String url = request.getUrl().split("\\?")[0];
+
             LoggerManger.info(String.format("[%s] %s, host = %s, message = %s, status = %s took = %s s"
-                    ,request.getMethod(), url,host,message,httpResponse.getStatus(),timeInMillis / 1000));
-            RequestLogUtil.record(url,request.getMethod().toString(),proxy,timeInMillis,httpResponse.getStatus(),now,message);
+                        ,request != null ? request.getMethod() : "null", url,host,message,httpResponse != null ? httpResponse.getStatus() : "null",timeInMillis / 1000));
+            RequestLogUtil.record(url,request != null ? request.getMethod().toString() : "null",proxy,timeInMillis,httpResponse != null ? httpResponse.getStatus() : null,now,message);
+
             map503Error.remove(requestId);
             mapIoError.remove(requestId);
         }

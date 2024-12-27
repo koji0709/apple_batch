@@ -16,7 +16,7 @@ public class RequestLogUtil {
     private static final int BATCH_SIZE = 100;
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public static void record(String url, String method, ProxyInfo proxy, long timeInMillis, int status,Date reqeustTime, String message) {
+    public static void record(String url, String method, ProxyInfo proxy, Long timeInMillis, Integer status,Date reqeustTime, String message) {
         // 创建请求日志的参数
         String localIp = NetUtil.getLocalhostStr();
 
