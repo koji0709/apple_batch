@@ -51,7 +51,7 @@ public class IntegratedSettingsController implements Initializable {
     @FXML
     public TextField sendTimeOut;
     @FXML
-    public GridPane rootPane;
+    public TextField readTimeOut;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,6 +82,7 @@ public class IntegratedSettingsController implements Initializable {
         proxyTunnelUser.setText(PropertiesUtil.getOtherConfig("proxyTunnelUser"));
         proxyTunnelPass.setText(PropertiesUtil.getOtherConfig("proxyTunnelPass"));
         sendTimeOut.setText(PropertiesUtil.getOtherConfig("sendTimeOut"));
+        readTimeOut.setText(PropertiesUtil.getOtherConfig("readTimeOut"));
         if(StringUtils.isEmpty(PropertiesUtil.getOtherConfig("proxyApiNeedPass")) || !Boolean.valueOf(PropertiesUtil.getOtherConfig("proxyApiNeedPass"))){
             proxyApiNeedPass.setSelected(false);
         }else{
@@ -139,6 +140,7 @@ public class IntegratedSettingsController implements Initializable {
         PropertiesUtil.setOtherConfig("proxyTunnelUser", proxyTunnelUser.getText());
         PropertiesUtil.setOtherConfig("proxyTunnelPass", proxyTunnelPass.getText());
         PropertiesUtil.setOtherConfig("sendTimeOut", sendTimeOut.getText());
+        PropertiesUtil.setOtherConfig("readTimeOut", readTimeOut.getText());
         PropertiesUtil.setOtherConfig("proxyApiNeedPass", proxyApiNeedPass.isSelected()?"true":"");
         int index=proxyType.getSelectionModel().getSelectedIndex()+1;
         PropertiesUtil.setOtherConfig("proxyType", index>0?String.valueOf(index):"");

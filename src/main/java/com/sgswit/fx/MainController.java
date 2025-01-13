@@ -311,8 +311,9 @@ public class MainController implements Initializable {
     @FXML
     protected void onIpProxyAndThreadSettingsBtnClick(ActionEvent actionEvent) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/base/integrated-settings.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 745, 450);
-        scene.getRoot().setStyle("-fx-font-family: 'serif'");
+        Scene scene = new Scene(fxmlLoader.load());
+        scene.getRoot().setStyle("-fx-font-family: 'serif';-fx-padding: 14;");
+
         Stage popupStage = new Stage();
         popupStage.setTitle("综合设置");
         popupStage.initModality(Modality.APPLICATION_MODAL);

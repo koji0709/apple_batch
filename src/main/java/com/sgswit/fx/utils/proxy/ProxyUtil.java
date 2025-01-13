@@ -123,6 +123,7 @@ public class ProxyUtil {
             handleRetry(requestId, sleepTime, tryIoNum, mapIoError);
         } else {
             if (!StringUtils.containsIgnoreCase(e.getMessage(), "Read timed out")){
+                e.printStackTrace();
                 throw new ServiceException("网络连接异常，请稍后重试");
             }
             if (readTimeoutTry){
@@ -154,7 +155,11 @@ public class ProxyUtil {
         String proxyMode = PropertiesUtil.getOtherConfig("proxyMode");
         int sendTimeOut = PropertiesUtil.getOtherInt("sendTimeOut");
         sendTimeOut = sendTimeOut == 0 ? 5 * 1000 : sendTimeOut * 1000;
-        int readTimeOut = isRedeem(request) ? 10 * 1000 : 10 * 1000;
+
+        //int readTimeOut = isRedeem(request) ? 10 * 1000 : 10 * 1000;
+        int readTimeOut = PropertiesUtil.getOtherInt("readTimeOut");
+        readTimeOut = readTimeOut == 0 ? 10 * 1000 : sendTimeOut * 1000;
+
 
         // 未选择代理, 或者配置错误, 则不使用代理
         if (StringUtils.isEmpty(proxyMode)
