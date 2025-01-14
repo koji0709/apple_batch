@@ -494,6 +494,200 @@ public class AppleIDUtil {
         return rsp;
     }
 
+    public static HttpResponse repareOptions2(Account account,HttpResponse signInRes,String XAppleIDSessionId) {
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+        headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("scnt",ListUtil.toList(account.getScnt()));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(signInRes.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+
+
+        String url = "https://appleid.apple.com/account/manage/repair/options";
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
+                .header(headers)
+                .cookie(account.getCookie()));
+        account.updateLoginInfo(rsp);
+        return rsp;
+    }
+
+    public static HttpResponse repareBirthday(Account account,HttpResponse signInRes,String XAppleIDSessionId,String birthday) {
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+        headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("scnt",ListUtil.toList(account.getScnt()));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(signInRes.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+
+
+        String url = "https://appleid.apple.com/account/manage/repair";
+        String body = "{\n" +
+                "  \"security\": {\n" +
+                "    \"birthday\": \""+birthday+"\"\n" +
+                "  }\n" +
+                "}";
+        HttpRequest request = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .body(body)
+                .cookie(account.getCookie());
+        HttpResponse rsp = ProxyUtil.execute(request);
+        account.updateLoginInfo(rsp);
+        return rsp;
+    }
+
+    public static HttpResponse repareQuestions(Account account,HttpResponse signInRes,String XAppleIDSessionId,String body) {
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[]"));
+        headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("scnt",ListUtil.toList(account.getScnt()));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(signInRes.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+
+        String url = "https://appleid.apple.com/account/manage/repair/questions";
+        HttpRequest request = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .body(body)
+                .cookie(account.getCookie());
+        HttpResponse rsp = ProxyUtil.execute(request);
+        account.updateLoginInfo(rsp);
+        return rsp;
+    }
+
+    public static HttpResponse privacyAccept(Account account,HttpResponse signInRes,String XAppleIDSessionId){
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("Host",ListUtil.toList("appleid.apple.com"));
+
+        headers.put("User-Agent", ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Accept",ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+        headers.put("X-Apple-OAuth-Context",ListUtil.toList(signInRes.header("X-Apple-OAuth-Context")));
+        headers.put("X-Apple-Skip-Repair-Attributes",ListUtil.toList("[hsa2_enrollment]"));
+        headers.put("X-Apple-Offer-Security-Upgrade",ListUtil.toList("1"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("Referer",ListUtil.toList("https://appleid.apple.com/"));
+
+        headers.put("scnt",ListUtil.toList(account.getScnt()));
+        headers.put("X-Apple-Session-Token",ListUtil.toList(signInRes.header("X-Apple-Repair-Session-Token")));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+
+        String url = "https://appleid.apple.com/account/manage/privacy/accept";
+        HttpRequest request = HttpUtil.createRequest(Method.PUT, url)
+                .header(headers)
+                .cookie(account.getCookie());
+        HttpResponse rsp = ProxyUtil.execute(request);
+        account.updateLoginInfo(rsp);
+        return rsp;
+    }
+
+    public static HttpResponse repareComplete1(Account account,HttpResponse signInRes,String XAppleIDSessionId) {
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("sec-ch-ua",ListUtil.toList("\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\""));
+        headers.put("sec-ch-ua-mobile",ListUtil.toList("?0"));
+        headers.put("sec-ch-ua-platform",ListUtil.toList("\"macOS\""));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList(account.getDomainId()));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
+
+        headers.put("User-Agent",ListUtil.toList(Constant.BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(XAppleIDSessionId));
+        headers.put("scnt",ListUtil.toList(signInRes.header("scnt")));
+
+        String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
+        HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
+                .header(headers)
+                .cookie(account.getCookie()));
+        account.updateLoginInfo(rsp);
+        return rsp;
+    }
+
     public static HttpResponse securityUpgrade(Account account,HttpResponse repareOptionsRsp,String XAppleIDSessionId,String scnt) {
         HashMap<String, List<String>> headers = new HashMap<>();
 

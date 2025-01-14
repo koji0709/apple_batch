@@ -120,7 +120,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3"),actionEvent);
+        openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"),actionEvent);
     }
 
     public List<Account> parseAccount(String accountStr) {
@@ -141,20 +141,17 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
             }
             acc = acc.trim();
             List<String> fieldValueList = splitfieldValue(acc);
-            if (fieldValueList.size() < fieldList.size()){
-                continue;
-            }
-
             Account account = new Account();
             for (int i1 = 0; i1 < fieldList.size(); i1++) {
-                String field = fieldList.get(i1);
-                ReflectUtil.invoke(
-                        account
-                        , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
-                        , fieldValueList.get(i1));
+                if (i1 < fieldValueList.size()){
+                    String field = fieldList.get(i1);
+                    ReflectUtil.invoke(
+                            account
+                            , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
+                            , fieldValueList.get(i1));
+                }
             }
             accountList.add(account);
-
         }
         return accountList;
     }
@@ -457,6 +454,43 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         if (!account.getNote().contains("成功")){
             throw new ServiceException(account.getNote());
         }
+    }
+
+    public Map<String,String> getRepareInfo(){
+        Map<String,String> map = new HashMap<>();
+        boolean updateBirthdayCheckBoxSelected = updateBirthdayCheckBox.isSelected();
+        // 修改生日
+        if (updateBirthdayCheckBoxSelected){
+            DateTime birthday = DateUtil.parse(birthdayTextField.getText());
+            String birthdayFormat = DateUtil.format(birthday, "yyyy-MM-dd");
+            map.put("birthday",birthdayFormat);
+        }
+
+        boolean updatePasswordProtectionCheckBoxSelected = updatePasswordProtectionCheckBox.isSelected();
+        if (updatePasswordProtectionCheckBoxSelected){
+            Object question1ChoiceBoxValue = question1ChoiceBox.getValue();
+            Object question2ChoiceBoxValue = question2ChoiceBox.getValue();
+            Object question3ChoiceBoxValue = question3ChoiceBox.getValue();
+            String answer1TextFieldText = answer1TextField.getText();
+            String answer2TextFieldText = answer2TextField.getText();
+            String answer3TextFieldText = answer3TextField.getText();
+
+            LinkedHashMap<String, Integer> questionMap = DataUtil.getQuestionMap();
+            String body = "{\"security\":{\"questions\":[{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}" +
+                    ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}" +
+                    ",{\"answer\":\"%s\",\"id\":\"%s\",\"question\":\"%s\"}]}}";
+
+            body = String.format(body
+                    ,answer1TextFieldText,questionMap.get(question1ChoiceBoxValue.toString()),question1ChoiceBoxValue
+                    ,answer2TextFieldText,questionMap.get(question2ChoiceBoxValue.toString()),question2ChoiceBoxValue
+                    ,answer3TextFieldText,questionMap.get(question3ChoiceBoxValue.toString()),question3ChoiceBoxValue);
+            map.put("ppBody",body);
+            map.put("answer1",answer1TextFieldText);
+            map.put("answer2",answer2TextFieldText);
+            map.put("answer3",answer3TextFieldText);
+        }
+
+        return map;
     }
 
     private void setMessageAndRefreshTable(String key,String message, Map<String,String> messageMap,Account account){

@@ -633,8 +633,18 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         });
 
         clearBtn.setOnAction(actionEvent -> {
-            SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
-            localHistoryTableView.getItems().clear();
+            // 创建确认对话框
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("确认清空");
+            confirmationAlert.setHeaderText(null);
+            confirmationAlert.setContentText("您确定要清空该数据分支吗？\n此操作不可撤销，请确认！");
+            // 显示对话框并等待用户选择
+            Optional<ButtonType> result = confirmationAlert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                SQLiteUtil.clearLocalHistoryByClzName(ClassUtil.getClassName(this, false));
+                localHistoryTableView.getItems().clear();
+            }
         });
 
         box2.getChildren().add(localHistoryTableView);

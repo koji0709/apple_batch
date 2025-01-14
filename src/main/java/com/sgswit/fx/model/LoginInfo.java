@@ -43,7 +43,12 @@ public class LoginInfo extends AuthData{
     // -----------------
     private boolean isLogin;
 
-    
+    public void clearLoginInfo() {
+        this.isLogin = false;
+        this.scnt = null;
+        this.cookieMap = null;
+        this.XAppleIDSessionId = null;
+    }
 
     public void updateLoginInfo(HttpResponse rsp){
         CookieUtils.setCookiesToMap(rsp,getCookieMap());
