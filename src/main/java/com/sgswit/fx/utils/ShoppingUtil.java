@@ -26,7 +26,7 @@ import java.util.Map;
  * @author DELL
  */
 public class ShoppingUtil {
-    static String goodsCode="MUJT3AM/A";
+    static String goodsCode="MAXJ4AM/A";
     // 获取产品
     public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
 
@@ -41,43 +41,8 @@ public class ShoppingUtil {
         headers.put("Sec-Fetch-User", ListUtil.toList("?1"));
         headers.put("Host", ListUtil.toList("www.apple.com"));
         headers.put("Referer", List.of(" https://www.apple.com/shop/watch/bands"));
-        String accessoriesUrl;
-        if(StringUtils.isEmpty(code2)){
-            accessoriesUrl="https://www.apple.com/shop/watch/bands";
-        }else{
-            accessoriesUrl="https://www.apple.com/"+code2+"/shop/watch/bands";
-        }
-        HttpResponse accRes = ProxyUtil.execute(HttpUtil.createGet(accessoriesUrl)
-                .header(headers));
-
-        if (accRes.getStatus() == 301){
-            String location = accRes.header("Location");
-            code2 = location.substring(1,location.indexOf("/",1));
-            paras.put("code2",code2);
-            accRes = ProxyUtil.execute(HttpUtil.createGet("https://www.apple.com" + location)
-                    .header(headers));
-        }
-
-        if(accRes.getStatus() != 200){
-            paras.put("msg","商城信息加载失败！");
-            paras.put("code","1");
-            return paras;
-        }
         Map<String,String> cookiesMap= new HashMap<>();
-        cookiesMap=CookieUtils.setCookiesToMap(accRes,cookiesMap);
-        paras.put("cookiesMap" , cookiesMap);
-        Document doc = Jsoup.parse(accRes.body());
-        Elements elements;
-        if(StringUtils.isEmpty(code2)){
-            //elements = doc.select("a[href^=/shop/product/"+goodsCode+"/40mm-black-unity-sport-loop]");
-            elements = doc.select("a[href^=/shop/product/]");
-        }else{
-            //elements = doc.select("a[href^=/"+code2+"/shop/product/"+goodsCode+"40mm-black-unity-sport-loop]");
-            elements = doc.select("a[href^=/"+code2+"/shop/product/]");
-        }
-
-        Element element = elements.first();
-        String productUrl = "https://www.apple.com" + element.attr("href");
+        String productUrl = "https://www.apple.com/shop/product/MAXJ4AM/A/40mm-ultramarine-sport-loop?fnode=4938404445dcca13f3a47569bbd69b2eb93b22f511f48d06687c6361d812729c1bb7ca5064129826daa245830f635ba2b2983882363393aeeaaf6a0bf8edfe53d6583b72cbc7be0d56ec6c1b59561aaa3026a6e139abe1ce69e39add385568e6";
 
         HttpResponse prodRes = ProxyUtil.execute(HttpUtil.createGet(productUrl)
                 .header(headers));
@@ -154,12 +119,11 @@ public class ShoppingUtil {
             }
         }
         paras.put("prod",item.child(0).attr("value"));
-        paras.put("url","https://www.apple.com" + action);
-//        if(StringUtils.isEmpty(code2)){
-//            paras.put("url","https://www.apple.com" + action);
-//        }else{
-//            paras.put("url","https://www.apple.com/"+code2 + action);
-//        }
+        if(StringUtils.isEmpty(code2)){
+            paras.put("url","https://www.apple.com" + action);
+        }else{
+            paras.put("url","https://www.apple.com/"+code2 + action);
+        }
 
         paras.put("body",inputMap);
         paras.put("referer",productUrl);
@@ -463,20 +427,6 @@ public class ShoppingUtil {
 
         paras.put("url",checkoutUrl);
         paras.put("code",Constant.SUCCESS);
-
-
-        Elements metricsDataElement = prodDoc.select("script[id=\"metrics\"]");
-
-        JSONObject jsonObject = JSONUtil.parseObj(metricsDataElement.html());
-        String leadQuoteTime=jsonObject.getByPath("data.properties.leadQuoteTime",String.class);
-        //正常格式是："leadQuoteTime": "AOS: CHECKOUT|MUJT3|0|postalCode=99613|Delivery|E2|"
-        if (leadQuoteTime.contains("Delivery")){
-            paras.put("deliveryFlag",true);
-        }else {
-            paras.put("deliveryFlag",false);
-        }
-        String[] split = leadQuoteTime.split("\\|");
-        paras.put("selectShippingOption",split[split.length-1]);
         return paras;
     }
 
@@ -511,6 +461,13 @@ public class ShoppingUtil {
                 .form(paramMap)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
         HttpResponse resp = ProxyUtil.execute(httpRequest);
+
+        JSONObject jsonObject = JSONUtil.parseObj(resp.body());
+        String selectFulfillmentLocation=jsonObject.getByPath("body.checkout.fulfillment.fulfillmentOptions.d.selectFulfillmentLocation",String.class);
+        String selectShippingOption=jsonObject.getByPath("body.checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.d.selectShippingOption",String.class);
+        paras.put("selectFulfillmentLocation",selectFulfillmentLocation);
+        paras.put("selectShippingOption",selectShippingOption);
+
         if(resp.getStatus() != 200){
             paras.put("code","1");
             paras.put("msg","余额查询失败，请稍后重试！");
@@ -543,10 +500,10 @@ public class ShoppingUtil {
         headers.put("referer",ListUtil.toList(paras.get("url")+"?_s=Fulfillment-init"));
         headers.put("Upgrade-Insecure-Requests",ListUtil.toList("1"));
         Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption",paramMap.get("selectShippingOption"));
-        paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation","HOME");
+        paramMap.put("checkout.fulfillment.deliveryTab.delivery.shipmentGroups.shipmentGroup-1.shipmentOptionsGroups.shipmentOptionsGroup-1.shippingOptions.selectShippingOption",paras.get("selectShippingOption"));
+        paramMap.put("checkout.fulfillment.fulfillmentOptions.selectFulfillmentLocation",paras.get("selectFulfillmentLocation"));
 
-        String url =  paras.get("url") + "x?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
+        String url =  paras.get("url") + "x/fulfillment?_a=continueFromFulfillmentToShipping&_m=checkout.fulfillment";
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
                 .form(paramMap)
@@ -650,10 +607,26 @@ public class ShoppingUtil {
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.addressLookup.fieldList.countryCode",areaInfo.getCode2());
         }
 
+        paramMap.clear();
+
+
+
         String url = paras.get("url") + "x?_a=continueFromShippingToBilling&_m=checkout.shipping";
+
+        Map<String, Object> map = new HashMap<String, Object>(0);
+        String param="checkout.shipping.addressContactPhone.address.daytimePhoneAreaCode=907&checkout.shipping.addressContactPhone.address.daytimePhone=9803545&checkout.shipping.addressContactPhone.address.isDaytimePhoneSelected=true&checkout.shipping.addressNotification.address.emailAddress=&checkout.shipping.addressSelector.selectAddress=newAddr&checkout.shipping.addressSelector.newAddress.address.street2=DanYuan101Shi&checkout.shipping.addressSelector.newAddress.address.lastName=Collins&checkout.shipping.addressSelector.newAddress.address.firstName=Henry&checkout.shipping.addressSelector.newAddress.address.companyName=&checkout.shipping.addressSelector.newAddress.address.street=2375+College+Street&checkout.shipping.addressSelector.newAddress.address.isBusinessAddress=false&checkout.shipping.addressSelector.newAddress.address.state=AK&checkout.shipping.addressSelector.newAddress.address.postalCode=99503&checkout.shipping.addressSelector.newAddress.address.city=luobin&checkout.shipping.addressSelector.newAddress.address.zipLookup.city=AK&checkout.shipping.addressSelector.newAddress.address.zipLookup.state=AK&checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode=99503&checkout.shipping.addressSelector.newAddress.address.zipLookup.countryCode=US&checkout.shipping.addressContactPhone.address.fullDaytimePhone=(125)%20125-1512";
+        String[] params = param.split("&");
+        for (int i = 0; i < params.length; i++) {
+            String[] p = params[i].split("=");
+            if (p.length == 2) {
+                map.put(p[0], p[1]);
+            }
+        }
+
+
         HttpRequest httpRequest=HttpUtil.createPost(url)
                 .header(headers)
-                .form(paramMap)
+                .form(map)
                 .cookie(MapUtil.join((Map<String,String>) paras.get("cookiesMap"),";","=",true));
         HttpResponse resp = ProxyUtil .execute(httpRequest);
         if(resp.getStatus() != 200){

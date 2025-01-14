@@ -8,6 +8,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import cn.hutool.http.HttpRequest;
@@ -899,7 +900,12 @@ public class PurchaseBillUtil {
             paras.put("cookies",CookieUtils.getCookiesFromHeader(res));
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
-            String countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtil.getStr(paras,"storeFront"));
+            String countryCode= "";
+            if(StrUtil.isBlankIfStr(MapUtil.getStr(paras,"storeFront"))){
+
+            }else{
+                countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtil.getStr(paras,"storeFront"));
+            }
             String countryName="-";
             if(StringUtils.isEmpty(countryCode)){
 

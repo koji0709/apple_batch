@@ -156,10 +156,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //生成随机地址
             Map<String,String> addressInfo=DataUtil.getAddressInfo(countryCode);
             checkoutMap.put("addressInfo",addressInfo);
-            LoggerManger.info("【检测灰余额】 addressInfo = " + JSONUtil.toJsonStr(addressInfo));
-            if(!MapUtil.getBool(checkoutMap ,"deliveryFlag")){
-                checkoutMap= ShoppingUtil.fulfillmentTodeliveryTab(checkoutMap);
-            }
+            checkoutMap= ShoppingUtil.fulfillmentTodeliveryTab(checkoutMap);
             ThreadUtil.sleep(500);
             //选择shipping - 邮寄
             Map<String,Object> shippingMap= ShoppingUtil.fillmentToShipping(checkoutMap);
