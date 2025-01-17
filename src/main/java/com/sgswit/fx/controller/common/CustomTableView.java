@@ -401,6 +401,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             if (hasField){
                 ReflectUtil.invoke(account,"setHasFinished",true);
             }
+            // 方法名称
+            String methodName = "clearLoginInfo";
+
+            // 检查并调用方法
+            if (ReflectUtil.getMethod(account.getClass(), methodName) != null) {
+                ReflectUtil.invoke(account, methodName);
+            }
+
             ThreadUtil.execute(() -> {
                 insertLocalHistory(List.of(account));
             });
