@@ -200,7 +200,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
                 return false;
             }
             try{
-                DateUtil.parse(birthdayTextFieldText);
+                DateTime birthday = DateUtil.parse(birthdayTextFieldText);
+                long ageInYears = DateUtil.betweenYear(birthday, new Date(),false);
+                if (ageInYears < 18){
+                    throw new ServiceException("年龄至少18岁");
+                }
             }catch (Exception e){
                 alert("生日格式不正确！");
                 return false;
