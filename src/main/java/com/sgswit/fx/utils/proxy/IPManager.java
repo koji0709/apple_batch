@@ -7,8 +7,10 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -80,7 +82,6 @@ public class IPManager {
             if (!ipPool.isEmpty()) {
                 return;
             }
-            System.out.println("重新加载 IP 池...");
             String proxyUrl = PropertiesUtil.getConfig("proxyUrl");
             HashMap<String, List<String>> headers = new HashMap<>(10);
             HttpResponse result = HttpRequest.get(proxyUrl)

@@ -1,7 +1,6 @@
 package com.sgswit.fx.utils.proxy;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
@@ -22,15 +21,11 @@ import com.sgswit.fx.utils.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author DeZh
@@ -187,7 +182,12 @@ public class ProxyUtil {
             int proxyPort = Integer.valueOf(address.split(":")[1]);
             String authUser = PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword = PropertiesUtil.getOtherConfig("proxyTunnelPass");
-            return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
+            //判断隧道代理配置的是是否是本机地址
+            if (isPrivateIP(proxyHost)) {
+                return proxyRequest(request, sendTimeOut, readTimeOut);
+            }else{
+                return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
+            }
         }
 
         // 使用内置代理, 兜底代码
@@ -402,5 +402,48 @@ public class ProxyUtil {
         return uri.intern();
     }
 
+    public static boolean isPrivateIP(String ip) {
+        try {
+            InetAddress address = InetAddress.getByName(ip);
+            byte[] bytes = address.getAddress();
 
+            // 判断 IPv4 内网地址
+            if (bytes.length == 4) {
+                int firstOctet = bytes[0] & 0xFF; // 转为无符号整数
+                int secondOctet = bytes[1] & 0xFF;
+
+                // 10.0.0.0 - 10.255.255.255
+                if (firstOctet == 10) {
+                    return true;
+                }
+
+                // 172.16.0.0 - 172.31.255.255
+                if (firstOctet == 172 && (secondOctet >= 16 && secondOctet <= 31)) {
+                    return true;
+                }
+
+                // 192.168.0.0 - 192.168.255.255
+                if (firstOctet == 192 && secondOctet == 168) {
+                    return true;
+                }
+
+                // 127.0.0.1（回环地址）
+                if (firstOctet == 127) {
+                    return true;
+                }
+            }
+
+            // 判断 IPv6 内网地址
+            if (bytes.length == 16) {
+                // IPv6 唯一本地地址（fc00::/7）
+                if ((bytes[0] & 0xFE) == 0xFC) {
+                    return true;
+                }
+            }
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
