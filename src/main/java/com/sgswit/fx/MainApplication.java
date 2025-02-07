@@ -2,6 +2,7 @@ package com.sgswit.fx;
 
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
+import com.sgswit.fx.c.ProcessChecker;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
@@ -50,7 +51,12 @@ public class MainApplication extends Application {
             CommonView.alert("对不起，本程序仅允许运行1个!",Alert.AlertType.ERROR);
             return;
         }
-
+        //检测是否开启了抓包工具
+        try {
+            ProcessChecker.timer();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // 初始化数据库
         try {
             SQLiteUtil.init();
