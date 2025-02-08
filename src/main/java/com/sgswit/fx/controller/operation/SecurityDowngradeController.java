@@ -54,6 +54,18 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
 
     @Override
     public void accountHandler(Account account) {
+        //判断数据是否完善
+        if(StrUtil.isBlankIfStr(account.getAccount())){
+            throw new ServiceException("ID不能为空");
+        }else if(StrUtil.isBlankIfStr(account.getAnswer1())){
+            throw new ServiceException("问题1不能为空");
+        }else if(StrUtil.isBlankIfStr(account.getAnswer1())){
+            throw new ServiceException("问题2不能为空");
+        }else if(StrUtil.isBlankIfStr(account.getAnswer1())){
+            throw new ServiceException("问题3不能为空");
+        }else if(StrUtil.isBlankIfStr(account.getBirthday())){
+            throw new ServiceException("生日不能为空");
+        }
         String newPassword = pwdTextField.getText();
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
         HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(
