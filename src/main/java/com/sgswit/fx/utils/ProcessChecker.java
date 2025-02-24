@@ -1,16 +1,7 @@
-package com.sgswit.fx.c;
+package com.sgswit.fx.utils;
 
 import cn.hutool.core.util.StrUtil;
-import com.sgswit.fx.controller.common.CommonView;
-import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.BufferedReader;
 import java.io.IOException;
