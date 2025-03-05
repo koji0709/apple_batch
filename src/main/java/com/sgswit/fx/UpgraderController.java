@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpUtil;
+import com.sgswit.fx.utils.AppleBatchUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.SystemUtils;
 import javafx.application.Platform;
@@ -53,7 +54,7 @@ public class UpgraderController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        File fFile = new File("news.ini");
+        File fFile = AppleBatchUtil.getNewsFile();
         if(!fFile.exists()){
             return;
         }

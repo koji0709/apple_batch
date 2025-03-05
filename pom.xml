@@ -6,13 +6,12 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>appleBatch</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-
         <junit.version>5.8.1</junit.version>
     </properties>
 
@@ -31,22 +30,27 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>21.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.0.2</version>
+            <version>11.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
@@ -134,6 +138,23 @@
         </dependency>
     </dependencies>
 
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.8.1</version>-->
+<!--                <configuration>-->
+<!--                    <source>21</source>-->
+<!--                    <target>21</target>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+
+
+
+<!--        </plugins>-->
+<!--    </build>-->
+
     <build>
         <plugins>
             <plugin>
@@ -141,89 +162,79 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>com.sgswit.fx/com.sgswit.fx.AppLauncher</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.4</version>
+
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.sgswit.fx.AppLauncher</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <name>AppleBatch</name>
+                    <appVersion>${project.version}</appVersion>
+                    <runtimeImage>${java.home}</runtimeImage>
+                    <mainClass>com.sgswit.fx.AppLauncher</mainClass>
+                    <destination>target/dist</destination>
+                    <javaOptions>
+                        <option>--enable-preview</option>
+                        <option>-Dfile.encoding=UTF-8</option>
+                    </javaOptions>
                 </configuration>
-                <!--下面是为了使用 mvn package命令，如果不加则使用mvn assembly-->
+
                 <executions>
                     <execution>
-                        <id>make-assemble</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-
-            <!-- javapackager mac打包关掉代理  -->
-            <!-- javapackager  -->
-            <!-- https://mvnrepository.com/artifact/io.github.fvarrui/javapackager -->
-            <plugin>
-                <groupId>io.github.fvarrui</groupId>
-                <artifactId>javapackager</artifactId>
-                <version>1.7.6</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
+                        <id>mac</id>
                         <configuration>
-                            <version>3.4.2</version>
-                            <name>Apple批量处理</name>
-                            <!-- mandatory -->
-                            <mainClass>com.sgswit.fx.AppLauncher</mainClass>
-                            <!--是否绑定默认jre-->
-                            <bundleJre>true</bundleJre>
-                            <!--是否绑自定义jre-->
-                            <customizedJre>false</customizedJre>
-                            <generateInstaller>false</generateInstaller>
-                            <!--是否需要管理员权限安装-->
-                            <administratorRequired>false</administratorRequired>
-                            <platform>windows</platform>
-                            <!--                            <platform>mac|windows</platform>-->
+                            <icon>${project.basedir}/src/resources/image/icons.icns</icon>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>win</id>
+                        <configuration>
+                            <icon>image/icon.ico</icon>
+                            <winMenu>true</winMenu>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>io.github.janix520</groupId>
+                <artifactId>maven-easypackage-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- 是否是最小打包，用于精简虚拟机，有的库依赖老旧的库，解析依赖会出错，true如果打包不成功，就改成false -->
+                    <minimum>true</minimum>
+                    <!--应用程序名称-->
+                    <name>${project.artifactId}</name>
+                    <!--主运行类-->
+                    <mainClass>com.sgswit.fx.AppLauncher</mainClass>
+                    <!--是否显示控制台-->
+                    <winConsole>false</winConsole>
+                    <!--应用程序图标-->
+                    <icon>${project.basedir}/src/main/resources/image/icon.icns</icon>
+                    <!--可选app-image、exe、msi、rpm、deb、pkg、dmg，msi需要另外一个程序配合，app-image是exe绿色版，exe是安装包，其他自行搜索-->
+                    <type>dmg</type>
+                    <appVersion>1.0.0</appVersion>
+                    <copyright>apple_batch</copyright>
+                    <vendor>apple_batch</vendor>
+                    <description>apple_batch</description>
+                </configuration>
+
+            </plugin>
+
         </plugins>
     </build>
+
 </project>

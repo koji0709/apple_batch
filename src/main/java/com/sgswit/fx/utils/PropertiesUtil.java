@@ -4,6 +4,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
@@ -15,7 +16,20 @@ import java.util.Properties;
  * @date 2023/11/1420:48
  */
 public class PropertiesUtil {
-    private static final String CUSTOMER_CONFIG = "config.ini";
+    private static final String CUSTOMER_CONFIG = AppleBatchUtil.PATH + "config.ini";
+
+    static {
+        System.err.println("dsadsadsadassdadsass");
+        File file = new File(CUSTOMER_CONFIG);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public static boolean getConfigBool(String key,Boolean defaultValue) {
         boolean f=false;
         try {
@@ -108,6 +122,7 @@ public class PropertiesUtil {
     public static boolean getOtherBool(String key,boolean f) {
         boolean res = false;
         try {
+            System.err.println("1dsadsadsadassdadsass");
             PropertiesConfiguration propsConfig = new PropertiesConfiguration(CUSTOMER_CONFIG);
             if(null==propsConfig.getString(key) || !Boolean.valueOf(propsConfig.getString(key))){
                 res=f;

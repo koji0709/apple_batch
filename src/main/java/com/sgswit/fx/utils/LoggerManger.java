@@ -20,7 +20,18 @@ public class LoggerManger {
 
     static{
         try {
-            FileHandler fileHandler = new FileHandler("application.log", true);
+            // 获取用户主目录
+            String userHome = System.getProperty("user.home");
+            // 构建 .apple_batch 目录路径
+            String logDir = userHome + "/.apple_batch";
+            java.io.File dir = new java.io.File(logDir);
+            // 如果目录不存在则创建
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            // 构建日志文件路径
+            String logFilePath = logDir + "/application.log";
+            FileHandler fileHandler = new FileHandler(logFilePath, true);
             Handler consoleHandler = new ConsoleHandler();
             DetailedFormatter formatter = new DetailedFormatter();
             fileHandler.setFormatter(formatter);

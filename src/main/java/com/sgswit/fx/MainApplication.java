@@ -40,11 +40,7 @@ public class MainApplication extends Application {
         HostServicesUtil.setHostServices(getHostServices());
         DataUtil.getData();
         //进程锁
-        FileLock lock = FileChannel.open(
-                Paths.get(System.getProperty("user.dir"), "single_instance.lock"),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE)
-                .tryLock();
+        FileLock lock = AppleBatchUtil.getLock();
 
         // 如果获取锁失败，说明程序已经在运行
         if (lock == null) {

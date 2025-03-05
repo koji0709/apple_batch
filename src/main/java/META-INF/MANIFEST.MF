@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: com.sgswit.fx.MainApplication
-Class-Path: slf4j-api-1.7.36.jar jsoup-1.15.3.jar javafx-base-11.0.2-mac
- .jar javafx-graphics-11.0.2-mac.jar commons-lang3-3.12.0.jar javafx-con
- trols-11.0.2.jar javafx-fxml-11.0.2-mac.jar javafx-controls-11.0.2-mac.
- jar hutool-all-5.8.20.jar JsoupXpath-2.5.3.jar javafx-graphics-11.0.2.j
- ar javafx-fxml-11.0.2.jar javafx-base-11.0.2.jar antlr4-runtime-4.7.2.j
- ar controlsfx-11.1.0.jar formsfx-core-11.3.2.jar
-

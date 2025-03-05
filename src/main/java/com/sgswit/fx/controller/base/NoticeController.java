@@ -1,6 +1,7 @@
 package com.sgswit.fx.controller.base;
 
 import cn.hutool.core.io.FileUtil;
+import com.sgswit.fx.utils.AppleBatchUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
@@ -23,7 +24,7 @@ public class NoticeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        File fFile = new File("news.ini");
+        File fFile = AppleBatchUtil.getNewsFile();
         if(!fFile.exists()){
             return;
         }

@@ -15,10 +15,6 @@ import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -152,28 +148,11 @@ public class DataUtil {
             String platform=PropertiesUtil.getConfig("softwareInfo.platform");
             HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo/"+platform);
             boolean verify = HttpUtils.verifyRsp(rsp);
-            if (!verify){
-            }else {
-                String fileName="news.ini";
-                File fFile = new File(fileName);
-                if(fFile.exists()){
-                    fFile.delete();
-                }
+            if (verify){
                 JSON json=JSONUtil.parse(rsp.body());
                 String title=json.getByPath("data.title",String.class);
                 String content=json.getByPath("data.content",String.class);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
-                try{
-                    writer.write(title+":");
-                    writer.write("\n");
-                    writer.write("\n");
-                    writer.write(content);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }finally {
-                    writer.flush();
-                    writer.close();
-                }
+                AppleBatchUtil.writeNews(title,content);
             }
         }catch (Exception e){
 
