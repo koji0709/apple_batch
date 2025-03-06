@@ -334,7 +334,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
             updateUI("初始化成功，下次启动将自动执行初始化", successColor, true);
             //开启任务
-            //timerStart();
+            timerStart();
         } catch (ServiceException e) {
             updateUI(e.getMessage(), redColor);
         } catch (Exception e) {
@@ -374,7 +374,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
         if (step4Res.getStatus() != 200) {
             if (step4Res.getStatus() == 541) {
-                //loginAndInit();
                 login();
                 checkBalance(giftCard);
                 return;
@@ -385,18 +384,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     giftCard.setFailCount(giftCard.getFailCount() + 1);
                 }
                 checkBalance(giftCard);
-//            giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
-//            this.accountTableView.refresh();
-
-//            Map<String,String> result=login();
-//            if("-1".equals(result.get("code"))) {
-//                throw new ServiceException("余额查询失败，登录失败，原因未知！");
-//            }else if("1".equals(result.get("code"))){
-//                //正在登录
-//
-//            }else{
-//
-//            }
             }
         }
 
@@ -411,17 +398,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     giftCard.setFailCount(giftCard.getFailCount() + 1);
                 }
                 checkBalance(giftCard);
-//                    giftCard.setNote("重新初始化登录中"+giftCard.getFailCount()+"...");
-//                    this.accountTableView.refresh();
-//                    Map<String,String> result=login();
-//                    if("-1".equals(result.get("code"))) {
-//                        throw new ServiceException("余额查询失败，登录失败，原因未知！");
-//                    }else if("1".equals(result.get("code"))){
-//                        //正在登录
-//
-//                    }else{
-//                        checkBalance(giftCard);
-//                    }
             } else if (!Constant.SUCCESS.equals(status)) {
                 throw new ServiceException("余额查询失败，请稍后重试！");
             } else {
@@ -591,5 +567,17 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             login();
         }, 0, 10, TimeUnit.SECONDS);
     }
+    @Override
+    protected void stopExecutorService(){
+        if(null==threadPoolExecutor || threadPoolExecutor.isShutdown()){
 
+        }else{
+            //方法会尝试立即停止所有正在执行的任务，并返回等待执行的任务列表
+            threadPoolExecutor.shutdownNow();
+        }
+        //关闭任务
+        scheduledFuture.cancel(true);
+        //关闭线程池
+        scheduledExecutorService.shutdown();
+    }
 }

@@ -389,8 +389,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("响应超时",e);
-        }
-        catch (Exception e) {// 程序异常
+        } catch (Exception e) {// 程序异常
             setAndRefreshNote(account, "数据处理异常");
             pointIncr(account);
             setDataStatus(account,false);
