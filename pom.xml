@@ -6,7 +6,7 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>1.0.1</version>
+    <version>3.2.2</version>
     <name>appleBatch</name>
 
     <properties>
@@ -217,7 +217,7 @@
                     <!-- 是否是最小打包，用于精简虚拟机，有的库依赖老旧的库，解析依赖会出错，true如果打包不成功，就改成false -->
                     <minimum>true</minimum>
                     <!--应用程序名称-->
-                    <name>${project.artifactId}</name>
+                    <name>Apple批量处理</name>
                     <!--主运行类-->
                     <mainClass>com.sgswit.fx.AppLauncher</mainClass>
                     <!--是否显示控制台-->
@@ -226,7 +226,7 @@
                     <icon>${project.basedir}/src/main/resources/image/icon.icns</icon>
                     <!--可选app-image、exe、msi、rpm、deb、pkg、dmg，msi需要另外一个程序配合，app-image是exe绿色版，exe是安装包，其他自行搜索-->
                     <type>dmg</type>
-                    <appVersion>1.0.0</appVersion>
+                    <appVersion>${project.version}</appVersion>
                     <copyright>apple_batch</copyright>
                     <vendor>apple_batch</vendor>
                     <description>apple_batch</description>
