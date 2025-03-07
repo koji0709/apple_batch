@@ -199,6 +199,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         accountTableView.setItems(accountList);
         super.accountList = accountList;
         setAccountNumLabel();
+        scrollToLastRow();
     }
 
 
