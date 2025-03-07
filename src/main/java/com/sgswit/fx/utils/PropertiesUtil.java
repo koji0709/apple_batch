@@ -19,7 +19,6 @@ public class PropertiesUtil {
     private static final String CUSTOMER_CONFIG = AppleBatchUtil.PATH + "config.ini";
 
     static {
-        System.err.println("dsadsadsadassdadsass");
         File file = new File(CUSTOMER_CONFIG);
         if (!file.exists()) {
             try {
@@ -122,7 +121,6 @@ public class PropertiesUtil {
     public static boolean getOtherBool(String key,boolean f) {
         boolean res = false;
         try {
-            System.err.println("1dsadsadsadassdadsass");
             PropertiesConfiguration propsConfig = new PropertiesConfiguration(CUSTOMER_CONFIG);
             if(null==propsConfig.getString(key) || !Boolean.valueOf(propsConfig.getString(key))){
                 res=f;
