@@ -420,6 +420,14 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
         }
     }
 
+    public void scrollToLastRow() {
+        Platform.runLater(() -> {
+            if (!accountTableView.getItems().isEmpty()) {
+                int lastIndex = accountTableView.getItems().size() - 1;
+                accountTableView.scrollTo(lastIndex);
+            }
+        });
+    }
 
     /**
      * 导入账号按钮点击
@@ -470,6 +478,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
                 setAccountNumLabel();
+                scrollToLastRow(); // 添加滚动到最后一行
             }
             if(null!=parentStage){
                 StageToSystemTrayUtil.showWindow(parentStage);
