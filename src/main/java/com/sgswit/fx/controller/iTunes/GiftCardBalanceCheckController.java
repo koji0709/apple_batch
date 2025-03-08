@@ -194,6 +194,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
             accountList.add(giftCard);
+            scrollToLastRow();
         }
         initAccountTableView();
         accountTableView.setItems(accountList);
