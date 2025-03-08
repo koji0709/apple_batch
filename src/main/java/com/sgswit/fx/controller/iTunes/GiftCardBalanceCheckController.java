@@ -364,19 +364,16 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
         giftCard.setLogTime(sdf.format(nowDate));
         giftCard.setHasFinished(false);
-        setAndRefreshNote(giftCard, "正在查询...");
+        if(giftCard.getFailCount()==0){
+            setAndRefreshNote(giftCard, "正在查询...");
+        }else{
+            setAndRefreshNote(giftCard, "查询失败，正在进行"+giftCard.getFailCount()+1+"次查询...");
+        }
+
         ThreadUtil.sleep(100);
-//        if(giftCard.isHasFinished()){
-//            try {
-//                waitMap.remove(giftCard.getGiftCardCode());
-//            }catch (Exception e){
-//
-//            }
-//            return;
-//        }
         if(loginCookiesMap.isEmpty()){
+            setAndRefreshNote(giftCard, "登录信息失效，正在重新登录...");
             login();
-//            waitMap.put(giftCard.getGiftCardCode(),giftCard);
             checkBalance(giftCard);
         }else {
             Object[] entries = loginCookiesMap.entrySet().toArray();
@@ -553,13 +550,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
         scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(() -> {
             login();
-//            if (!waitMap.isEmpty()){
-//                Object[] entries = waitMap.entrySet().toArray();
-//                Map.Entry<String, GiftCard> entry = (Map.Entry<String,GiftCard>) entries[random.nextInt(entries.length)];
-//                checkBalance(entry.getValue());
-//            }
-
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 7, TimeUnit.SECONDS);
     }
     @Override
     protected void stopExecutorService(){
