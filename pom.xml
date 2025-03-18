@@ -30,22 +30,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21.0.6</version>
+            <version>17.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21.0.6</version>
+            <version>17.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>21.0.6</version>
+            <version>17.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>21.0.6</version>
+            <version>17.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -117,11 +117,11 @@
             <version>1.10</version>
         </dependency>
 
-        <!--打码（先本地install一下,注意版本) https://github.com/GCS-ZHN/ddddocr-for-java-->
+        <!--本地install一下 https://gitee.com/mumangguo/ddddocr-for-java -->
         <dependency>
-            <groupId>top.gcszhn</groupId>
-            <artifactId>d4ocr</artifactId>
-            <version>1.0.1</version>
+            <groupId>com.mmg</groupId>
+            <artifactId>ddddocr4j</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -136,34 +136,25 @@
             <version>13.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+
     </dependencies>
-
-<!--    <build>-->
-<!--        <plugins>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-compiler-plugin</artifactId>-->
-<!--                <version>3.8.1</version>-->
-<!--                <configuration>-->
-<!--                    <source>21</source>-->
-<!--                    <target>21</target>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-
-
-
-<!--        </plugins>-->
-<!--    </build>-->
 
     <build>
         <plugins>
+            <!-- 原有编译器插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
 
@@ -171,7 +162,6 @@
                 <groupId>org.panteleyev</groupId>
                 <artifactId>jpackage-maven-plugin</artifactId>
                 <version>1.6.4</version>
-
                 <configuration>
                     <name>AppleBatch</name>
                     <appVersion>${project.version}</appVersion>
@@ -181,6 +171,7 @@
                     <javaOptions>
                         <option>--enable-preview</option>
                         <option>-Dfile.encoding=UTF-8</option>
+                        <option>-Djava.library.path=lib</option>
                     </javaOptions>
                 </configuration>
 
