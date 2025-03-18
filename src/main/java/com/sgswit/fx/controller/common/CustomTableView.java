@@ -389,8 +389,8 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
             LoggerManger.info("响应超时",e);
-        }
-        catch (Exception e) {// 程序异常
+        } catch (Exception e) {
+            // 程序异常
             setAndRefreshNote(account, "数据处理异常");
             pointIncr(account);
             setDataStatus(account,false);
@@ -419,7 +419,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             }
         }
     }
-
     public void scrollToLastRow() {
         Platform.runLater(() -> {
             if (!accountTableView.getItems().isEmpty()) {
@@ -478,7 +477,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
                 accountList.addAll(accountList1);
                 accountTableView.setItems(accountList);
                 setAccountNumLabel();
-                scrollToLastRow(); // 添加滚动到最后一行
+                scrollToLastRow();
             }
             if(null!=parentStage){
                 StageToSystemTrayUtil.showWindow(parentStage);
