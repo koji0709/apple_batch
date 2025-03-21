@@ -37,6 +37,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.seimicrawler.xpath.JXDocument;
+import org.seimicrawler.xpath.JXNode;
 
 import java.io.IOException;
 import java.net.URL;
@@ -81,13 +86,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final Map<String, Map<String,Object>> loginCookiesMap = new ConcurrentHashMap<>();
-    private final Map<String, GiftCard> waitMap = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
     private static String redColor = "red";
     private static String successColor = "#238142";
     private static ScheduledExecutorService scheduledExecutorService;
     private static ScheduledFuture scheduledFuture;
+    private static ThreadPoolExecutor  executor;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -194,7 +199,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
             accountList.add(giftCard);
-            scrollToLastRow();
         }
         initAccountTableView();
         accountTableView.setItems(accountList);
@@ -269,22 +273,22 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 }
             });
             //https://secure.store.apple.com/shop/giftcard/balance
-            HttpResponse pre1 = GiftCardUtil.shopPre1(countryCode);
-            if (pre1.getStatus() != 303) {
+            HttpResponse initBalanceRes = GiftCardUtil.initBalance(countryCode);
+            if (initBalanceRes.getStatus() != 303) {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
 
             //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse pre2 = GiftCardUtil.shopPre2(pre1);
-            if (pre2.getStatus() != 302) {
+            HttpResponse reloadBalanceRes = GiftCardUtil.reloadBalance(initBalanceRes);
+            if (reloadBalanceRes.getStatus() != 302) {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
 
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-            HttpResponse pre3 = GiftCardUtil.shopPre3(pre1, pre2);
-            authMap = GiftCardUtil.jXDocument(pre2, pre3, authMap);
+            HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
+            authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
             if (200 != step0Res.getStatus()) {
                 updateUI("初始化失败，请重试", redColor);
@@ -295,7 +299,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, pre1, pre3);
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
                 if ("hsa2".equals(authType)) {
@@ -320,7 +324,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 }
             }
             //step3 shop signin
-            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, pre1, authMap);
+            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
             for (String item : resCookies) {
@@ -334,6 +338,14 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
             updateUI("初始化成功，下次启动将自动执行初始化", successColor);
 
+
+            //https://secure4.store.apple.com/shop/giftcard/balance
+            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes.header("Location"));
+            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
+            Elements initDataElement = prodDoc.select("script[id=init_data]");
+            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
+            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
+            authMap.put("x-as-actk", x_as_actk);
             loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
         } catch (ServiceException e) {
             updateUI(e.getMessage(), redColor);
@@ -368,12 +380,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if(giftCard.getFailCount()==0){
             setAndRefreshNote(giftCard, "正在查询...");
         }else{
-            setAndRefreshNote(giftCard, "查询失败，正在进行"+giftCard.getFailCount()+1+"次查询...");
+            int failCount=giftCard.getFailCount()+1;
+            setAndRefreshNote(giftCard, "查询失败，正在进行"+failCount+"次查询...");
         }
 
         ThreadUtil.sleep(100);
         if(loginCookiesMap.isEmpty()){
-            setAndRefreshNote(giftCard, "登录信息失效，正在重新登录...");
+            setAndRefreshNote(giftCard, "正在重新登录...");
             login();
             checkBalance(giftCard);
         }else {
@@ -441,12 +454,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
         }
 
+
     }
 
     public void login() {
         try {
             //判断是否正在登录
-            Map<String, Object> loginMap = new HashMap<>(10);
+            Map<String, Object> authMap = new HashMap<>(10);
             String account = null;
             String pwd = null;
             if (!StringUtils.isEmpty(account_pwd.getText())) {
@@ -458,26 +472,26 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
             String countryCode = countryBox.getSelectionModel().getSelectedItem().get("code");
             //https://secure.store.apple.com/shop/giftcard/balance
-            HttpResponse pre1 = GiftCardUtil.shopPre1(countryCode);
-            if (303 != pre1.getStatus()) {
+            HttpResponse initBalanceRes = GiftCardUtil.initBalance(countryCode);
+            if (303 != initBalanceRes.getStatus()) {
                 return ;
             }
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(300);
             //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse pre2 = GiftCardUtil.shopPre2(pre1);
-            if (302 != pre2.getStatus()) {
+            HttpResponse reloadBalanceRes = GiftCardUtil.reloadBalance(initBalanceRes);
+            if (302 != reloadBalanceRes.getStatus()) {
                 return ;
             }
-            ThreadUtil.sleep(200);
+            ThreadUtil.sleep(150);
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-            HttpResponse pre3 = GiftCardUtil.shopPre3(pre1, pre2);
-            loginMap = GiftCardUtil.jXDocument(pre2, pre3, loginMap);
-            ThreadUtil.sleep(200);
-            HttpResponse step0Res = GiftCardUtil.federate(account, loginMap);
-            ThreadUtil.sleep(200);
-            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, loginMap);
-            ThreadUtil.sleep(200);
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, loginMap, step1Res, pre1, pre3);
+            HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
+            authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
+            ThreadUtil.sleep(150);
+            HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
+            ThreadUtil.sleep(150);
+            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
+            ThreadUtil.sleep(150);
+            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
                 if ("hsa2".equals(authType)) {
@@ -489,19 +503,28 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 }
             }
             //step3 shop signin
-            ThreadUtil.sleep(200);
-            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, pre1, loginMap);
+            ThreadUtil.sleep(100);
+            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
             for (String item : resCookies) {
                 cookieBuilder.append(";").append(item);
             }
-            cookieBuilder.append(";").append(loginMap.get("as_sfa_cookie"));
+            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
             Map<String, String> cookieMap = new HashMap<>();
             cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
-            loginMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
+            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
             PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
-            loginCookiesMap.put(IdUtil.fastSimpleUUID(),loginMap);
+
+
+            //https://secure4.store.apple.com/shop/giftcard/balance
+            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes.header("Location"));
+            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
+            Elements initDataElement = prodDoc.select("script[id=init_data]");
+            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
+            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
+            authMap.put("x-as-actk", x_as_actk);
+            loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
         } catch (Exception e) {
 
         }
@@ -541,6 +564,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         scheduledFuture.cancel(true);
         //关闭线程池
         scheduledExecutorService.shutdown();
+        executor.shutdown();
     }
 
     private void timerStart() {
@@ -549,7 +573,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
         scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(() -> {
-            login();
+            getThreadPoolExecutor().execute(()->login());
         }, 0, 7, TimeUnit.SECONDS);
     }
     @Override
@@ -564,5 +588,27 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         scheduledFuture.cancel(true);
         //关闭线程池
         scheduledExecutorService.shutdown();
+    }
+    protected ThreadPoolExecutor getThreadPoolExecutor(){
+        if(null==executor ){
+            // 核心线程数（最少保持1个线程）
+            int corePoolSize = 20;
+            // 最大线程数（最多允许10个线程）
+            int maxPoolSize = 50;
+            // 空闲线程存活时间（单位：秒）
+            long keepAliveTime = 30;
+            // 任务队列（有界队列，容量100）
+            int taskCount=500;
+            executor = new ThreadPoolExecutor(
+                    corePoolSize,
+                    maxPoolSize,
+                    keepAliveTime,
+                    TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>(taskCount),
+                    // 队列满时由提交线程执行任务
+                    new ThreadPoolExecutor.CallerRunsPolicy()
+            );
+        }
+        return executor;
     }
 }

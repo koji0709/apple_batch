@@ -34,10 +34,11 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class GiftCardUtil {
- private static String BROWSER_USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36";
- private static String BROWSER_CLIENT_INFO="{\"U\":\"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.17 Safari/537.36\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"cla44j1e3NlY5BNlY5BSmHACVZXnNA9Mhq94HFV2pjpidPNs0oje9zH_y37lYBaLy.EKY.6eke4FIcOIcKTLKyPKyJ7lY5BNleBBNlYCa1nkBMfs.3pu\"}";
- private static String deviceID="TF1%3B015%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3BMozilla%3BNetscape%3B5.0%2520%2528Windows%2520NT%252010.0%253B%2520Win64%253B%2520x64%2529%2520AppleWebKit%2F537.36%2520%2528KHTML%252C%2520like%2520Gecko%2529%2520Chrome%2F86.0.4240.183%2520Safari%2F537.36%3B20030107%3Bundefined%3Btrue%3B%3Btrue%3BWin32%3Bundefined%3BMozilla%2F5.0%2520%2528Windows%2520NT%252010.0%253B%2520Win64%253B%2520x64%2529%2520AppleWebKit%2F537.36%2520%2528KHTML%252C%2520like%2520Gecko%2529%2520Chrome%2F86.0.4240.183%2520Safari%2F537.36%3Bzh-CN%3Bundefined%3Bsecure6.store.apple.com%3Bundefined%3Bundefined%3Bundefined%3Bundefined%3Bfalse%3Bfalse%3B1719914249982%3B8%3B2005%2F6%2F7%2520%25u4E0B%25u53489%253A33%253A44%3B1920%3B1080%3B%3B%3B%3B%3B%3B%3B%3B-480%3B-480%3B2024%252f07%252f02%2b%25e4%25b8%258b%25e5%258d%258817%253a57%253a29%3B24%3B1920%3B1040%3B0%3B0%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B%3B25%3B";
- public static HttpResponse shopPre1(String countryCode){
+ private static String BROWSER_USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) Gecko/2023060614 Firefox/100.0";
+ private static String BROWSER_CLIENT_INFO="{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) Gecko/2023060614 Firefox/100.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Vla44j1e3NlY5BNlY5BSmHACVZXnNA94G_He_BZ1QxQeLaD.SAuXjodUW1BNyc5B.Tf5.EKWJ9Y6FdDJMm_Ue9z93NlY5BNp55BNlan0Os5Apw.CMV\"}";
+ private static String deviceID="%7B%22op%22%3A%22DEVICEID%22%7D";
+
+ public static HttpResponse initBalance(String countryCode){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -53,7 +54,7 @@ public class GiftCardUtil {
         return res;
     }
 
-    public static HttpResponse shopPre2(HttpResponse pre1){
+    public static HttpResponse reloadBalance(HttpResponse pre1){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -65,8 +66,20 @@ public class GiftCardUtil {
                         .cookie(getCookies(pre1)));
         return res;
     }
+    public static HttpResponse reload2Balance(HttpResponse response,String location){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
+        headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
+        headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(location)
+                        .header(headers)
+                        .cookie(getCookies(response)));
+        return res;
+    }
 
-    public static HttpResponse shopPre3(HttpResponse pre1,HttpResponse pre2){
+    public static HttpResponse initSignIn(HttpResponse pre1,HttpResponse pre2){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
@@ -80,16 +93,13 @@ public class GiftCardUtil {
     }
     public static Map<String,Object> jXDocument(HttpResponse pre2, HttpResponse pre3,Map<String,Object> paras){
         JXDocument underTest = JXDocument.create(pre3.body());
-
         List<JXNode>  nodes = underTest.selN("//script");
-        String as_sfa = nodes.get(0).value().toString();
-        String as_sfa_cookie   = as_sfa.substring(as_sfa.indexOf("as_sfa"),as_sfa.indexOf("\";"));
-        paras.put("as_sfa_cookie",as_sfa_cookie);
-
-
         String metaXml = nodes.get(nodes.size()-1).value().toString();
         String metaJson = metaXml.substring(metaXml.indexOf("{\"meta\":"),metaXml.indexOf("</script>"));
         JSON meta = JSONUtil.parse(metaJson);
+        String as_sfa = nodes.get(0).value().toString();
+        String as_sfa_cookie   = as_sfa.substring(as_sfa.indexOf("as_sfa"),as_sfa.indexOf("\";"));
+        paras.put("as_sfa_cookie",as_sfa_cookie);
         String x_aos_model_page =meta.getByPath("meta.h.x-aos-model-page",String.class);
         paras.put("x_aos_model_page",x_aos_model_page);
         String x_aos_stk = meta.getByPath("meta.h.x-aos-stk",String.class);
@@ -412,7 +422,7 @@ public class GiftCardUtil {
         headers.put("sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
+        headers.put("X-As-Actk",ListUtil.toList(MapUtil.getStr(paras,"x-as-actk")));
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
         data.put("giftCardBalanceCheck.deviceID",deviceID);
