@@ -6,7 +6,7 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>3.2.2</version>
+    <version>3.2.4</version>
     <name>appleBatch</name>
 
     <properties>
@@ -45,6 +45,11 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
+            <version>17.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
             <version>17.0.6</version>
         </dependency>
         <dependency>

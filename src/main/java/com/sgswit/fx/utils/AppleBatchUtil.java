@@ -12,11 +12,16 @@ import java.nio.file.StandardOpenOption;
 public class AppleBatchUtil {
 
     public static final String PATH =  System.getProperty("user.home") + "/.apple_batch/";
+    public static final String LOCAL_FILE_STORAGE_PATH =  PATH + "fileSystem";
 
     static {
         File dir = new File(PATH);
         if (!dir.exists()) {
             dir.mkdir();
+        }
+        File dir2 = new File(LOCAL_FILE_STORAGE_PATH);
+        if (!dir2.exists()) {
+            dir2.mkdir();
         }
     }
 
