@@ -170,42 +170,46 @@ public class AppleIdView extends CustomTableView<Account> {
                 // 密保认证
                 setAndRefreshNote(account, "正在验证密保问题...");
                 HttpResponse questionRsp = AppleIDUtil.questions(account, authRsp);
-                if (questionRsp.getStatus() != 412) {
+                if (questionRsp.getStatus() != 412 && questionRsp.getStatus() != 204) {
                     throw new ServiceException("密保问题验证失败;");
                 }
+
                 setAndRefreshNote(account, "密保问题验证通过");
-
                 ThreadUtil.sleep(500);
-                setAndRefreshNote(account, "正在获取协议...");
-                HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account, questionRsp);
-                if (200 != accountRepairRsp.getStatus()) {
-                    String message = AppleIDUtil.getValidationErrors(accountRepairRsp, "获取阅读协议失败");
-                    throw new ServiceException(message);
-                }
-
-                String XAppleIDSessionId = "";
-                String scnt = accountRepairRsp.header("scnt");
-
-                for (String item : accountRepairRsp.headerList("Set-Cookie")) {
-                    if (item.startsWith("aidsp")) {
-                        XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
+                if (questionRsp.getStatus() == 204){
+                    securityCodeOrReparCompleteRsp = questionRsp;
+                }else if (questionRsp.getStatus() == 412){
+                    setAndRefreshNote(account, "正在获取协议...");
+                    HttpResponse accountRepairRsp = AppleIDUtil.accountRepair(account, questionRsp);
+                    if (200 != accountRepairRsp.getStatus()) {
+                        String message = AppleIDUtil.getValidationErrors(accountRepairRsp, "获取阅读协议失败");
+                        throw new ServiceException(message);
                     }
+
+                    String XAppleIDSessionId = "";
+                    String scnt = accountRepairRsp.header("scnt");
+
+                    for (String item : accountRepairRsp.headerList("Set-Cookie")) {
+                        if (item.startsWith("aidsp")) {
+                            XAppleIDSessionId = item.substring(item.indexOf("aidsp=") + 6, item.indexOf("; Domain=appleid.apple.com"));
+                        }
+                    }
+                    setAndRefreshNote(account, "正在同意协议...");
+                    HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(account, questionRsp, accountRepairRsp);
+                    checkAndThrowUnavailableException(repareOptionsRsp);
+
+                    HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account, repareOptionsRsp, XAppleIDSessionId, scnt);
+                    checkAndThrowUnavailableException(securityUpgradeRsp);
+
+                    HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(account, securityUpgradeRsp, XAppleIDSessionId, scnt);
+                    checkAndThrowUnavailableException(securityUpgradeSetuplaterRsp);
+
+                    HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(account, securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
+                    checkAndThrowUnavailableException(repareOptionsSecondRsp);
+
+                    securityCodeOrReparCompleteRsp = AppleIDUtil.repareComplete(account, repareOptionsSecondRsp, questionRsp);
+                    checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
                 }
-                setAndRefreshNote(account, "正在同意协议...");
-                HttpResponse repareOptionsRsp = AppleIDUtil.repareOptions(account, questionRsp, accountRepairRsp);
-                checkAndThrowUnavailableException(repareOptionsRsp);
-
-                HttpResponse securityUpgradeRsp = AppleIDUtil.securityUpgrade(account, repareOptionsRsp, XAppleIDSessionId, scnt);
-                checkAndThrowUnavailableException(securityUpgradeRsp);
-
-                HttpResponse securityUpgradeSetuplaterRsp = AppleIDUtil.securityUpgradeSetuplater(account, securityUpgradeRsp, XAppleIDSessionId, scnt);
-                checkAndThrowUnavailableException(securityUpgradeSetuplaterRsp);
-
-                HttpResponse repareOptionsSecondRsp = AppleIDUtil.repareOptionsSecond(account, securityUpgradeSetuplaterRsp, XAppleIDSessionId, scnt);
-                checkAndThrowUnavailableException(repareOptionsSecondRsp);
-
-                securityCodeOrReparCompleteRsp = AppleIDUtil.repareComplete(account, repareOptionsSecondRsp, questionRsp);
-                checkAndThrowUnavailableException(securityCodeOrReparCompleteRsp);
             }
         }
 
