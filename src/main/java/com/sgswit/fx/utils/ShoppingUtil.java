@@ -26,7 +26,7 @@ import java.util.Map;
  * @author DELL
  */
 public class ShoppingUtil {
-    static String goodsCode="MAXJ4AM/A";
+    static String goodsCode="MA7E4ZM/A";
     // 获取产品
     public static Map<String,Object> getProd( Map<String,Object> paras) throws Exception {
 
@@ -42,8 +42,7 @@ public class ShoppingUtil {
         headers.put("Host", ListUtil.toList("www.apple.com"));
         headers.put("Referer", List.of(" https://www.apple.com/shop/watch/bands"));
         Map<String,String> cookiesMap= new HashMap<>();
-        String productUrl = "https://www.apple.com/shop/product/MAXJ4AM/A/40mm-ultramarine-sport-loop?fnode=4938404445dcca13f3a47569bbd69b2eb93b22f511f48d06687c6361d812729c1bb7ca5064129826daa245830f635ba2b2983882363393aeeaaf6a0bf8edfe53d6583b72cbc7be0d56ec6c1b59561aaa3026a6e139abe1ce69e39add385568e6";
-
+        String productUrl = AppleBatchUtil.randomProductUrl();
         HttpResponse prodRes = ProxyUtil.execute(HttpUtil.createGet(productUrl)
                 .header(headers));
 
@@ -563,17 +562,17 @@ public class ShoppingUtil {
         String city=addressInfo.get("addressOfficialCity");
 
 //        if(!MapUtil.getBool(paras ,"deliveryFlag")){
-            if("USA".equals(countryCode)){
-                paramMap.put("checkout.shipping.addressContactPhone.address.fullDaytimePhone","4103562000");
-                paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
-                paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode",postalCode);
-                paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
-                paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.city",state);
-                paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.state",state);
-            }
+        if("USA".equals(countryCode)){
+            paramMap.put("checkout.shipping.addressContactPhone.address.fullDaytimePhone","4103562000");
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.state",state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.postalCode",postalCode);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.city",city);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.city",state);
+            paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.state",state);
+        }
 //        }
         if("USA".equals(countryCode) || "JPN".equals(countryCode) ||"DEU".equals(countryCode)
-            ||"CAN".equals(countryCode)){
+                ||"CAN".equals(countryCode)){
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street2",street2);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.street",street);
             paramMap.put("checkout.shipping.addressSelector.newAddress.address.zipLookup.postalCode",postalCode);
