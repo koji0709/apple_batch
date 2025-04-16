@@ -441,7 +441,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                         String balance = bodyJson.getByPath("body.giftCardBalanceCheck.d.balance", String.class);
                         String giftCardNumber = bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber", String.class);
                         if (null == balance) {
-                            setAndRefreshNote(giftCard, "此代码已被兑换");
+                            setAndRefreshNote(giftCard, "已被兑换或无效的代码");
                         } else {
                             giftCard.setBalance(balance);
                             giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
