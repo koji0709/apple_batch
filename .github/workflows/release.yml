@@ -13,8 +13,7 @@ jobs:
       matrix:
         include:
           - OS: macos-13
-          - OS: macos-14
-          - OS: macos-15
+          - OS: macos-latest
 
     runs-on: ${{ matrix.OS }}
     permissions:
