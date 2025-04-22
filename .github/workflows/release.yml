@@ -37,12 +37,23 @@ jobs:
     - name: Build with Maven and Package
       run: mvn -B package --file pom.xml # -B for non-interactive batch mode
 
-    - name: Create Release and Upload DMG
-      uses: softprops/action-gh-release@v2
+    - name: Extract project version from pom.xml
+      id: get_version
+      run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+    # - name: Create Release and Upload DMG
+    #   uses: softprops/action-gh-release@v2
+    #   with:
+    #     # The release name will be the tag name
+    #     # The body can be customized or left empty to use commit messages
+    #     files: target/*.dmg # Upload the generated DMG file from the target directory
+    #     tag_name: v${{ steps.get_version.outputs.PROJECT_VERSION }}
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
+
+    - name: Archive artifact
+      uses: actions/upload-artifact@v4
       with:
-        # The release name will be the tag name
-        # The body can be customized or left empty to use commit messages
-        files: target/*.dmg # Upload the generated DMG file from the target directory
-        tag_name: v0.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
+        name: apple_batch-${{ matrix.os }}
+        path: |
+          target/*.dmg
