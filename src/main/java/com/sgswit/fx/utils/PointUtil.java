@@ -46,7 +46,8 @@ public class PointUtil {
         Map<String,String> res=  new HashMap<>();
         try{
             //获取当前登录账号的用户名
-            String username=PropertiesUtil.getOtherConfig("login.userName");
+            //String username=PropertiesUtil.getOtherConfig("login.userName");
+            String username = LoginUtil.getUserName();
             username=SignUtil.decryptBase64(username);
             Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);

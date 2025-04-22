@@ -180,6 +180,9 @@ public class LoginController extends CommonView implements Initializable {
                 return;
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
+
+            LoginUtil.setUserName(SignUtil.encryptBase64(userName));
+            LoginUtil.setPwd(SignUtil.encryptBase64(pwd));
         }catch (Exception e){
             LoggerManger.info("登录失败",e);
             alert("服务异常，请联系管理员", Alert.AlertType.ERROR,true);
