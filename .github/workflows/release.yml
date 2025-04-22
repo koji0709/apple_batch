@@ -43,6 +43,6 @@ jobs:
         # The release name will be the tag name
         # The body can be customized or left empty to use commit messages
         files: target/*.dmg # Upload the generated DMG file from the target directory
-        tag_name: v${{ github.sha }}
+        tag_name: v0.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
