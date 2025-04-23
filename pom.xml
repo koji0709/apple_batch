@@ -117,12 +117,19 @@
             <version>1.10</version>
         </dependency>
 
-        <!--本地install一下 https://gitee.com/mumangguo/ddddocr-for-java -->
+        <!-- 本地install一下 https://gitee.com/mumangguo/ddddocr-for-java -->
+        <!-- mvn install:install-file -Dfile=lib/ddddocr4j-1.0.jar -DgroupId=com.mmg -DartifactId=ddddocr4j -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -->
         <dependency>
             <groupId>com.mmg</groupId>
             <artifactId>ddddocr4j</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <dependency>
+           <groupId>top.gcszhn</groupId>
+           <artifactId>d4ocr</artifactId>
+           <version>1.0</version>
+       </dependency>
 
         <dependency>
             <groupId>org.xerial</groupId>
