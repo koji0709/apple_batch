@@ -126,10 +126,10 @@
         </dependency>
 
         <dependency>
-           <groupId>top.gcszhn</groupId>
-           <artifactId>d4ocr</artifactId>
-           <version>1.0</version>
-       </dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version> <!-- 使用最新稳定版本 -->
+        </dependency>
 
         <dependency>
             <groupId>org.xerial</groupId>
