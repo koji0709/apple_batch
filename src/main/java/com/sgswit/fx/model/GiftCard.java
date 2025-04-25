@@ -20,6 +20,9 @@ public class GiftCard extends AuthData{
     private final SimpleStringProperty note;
     private final SimpleStringProperty logTime;
 
+    private final SimpleStringProperty queryCount;
+
+
     public GiftCard() {
         this.account = new SimpleStringProperty();
         this.pwd = new SimpleStringProperty();
@@ -29,6 +32,7 @@ public class GiftCard extends AuthData{
         this.giftCardNumber = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
         this.logTime = new SimpleStringProperty();
+        this.queryCount = new SimpleStringProperty();
     }
 
 
@@ -96,4 +100,48 @@ public class GiftCard extends AuthData{
     public void setPwd(String pwd) {
         this.pwd.set(pwd);
     }
+
+    public String getQueryCount() {
+        return queryCount.get();
+    }
+    public void setQueryCount(String queryCount) {
+        this.queryCount.set(queryCount);
+    }
+
+    public SimpleStringProperty accountProperty() {
+        return account;
+    }
+
+    public SimpleStringProperty pwdProperty() {
+        return pwd;
+    }
+
+    public SimpleIntegerProperty seqProperty() {
+        return seq;
+    }
+
+    public SimpleStringProperty giftCardCodeProperty() {
+        return giftCardCode;
+    }
+
+    public SimpleStringProperty balanceProperty() {
+        return balance;
+    }
+
+    public SimpleStringProperty giftCardNumberProperty() {
+        return giftCardNumber;
+    }
+
+    public SimpleStringProperty noteProperty() {
+        return note;
+    }
+
+    public SimpleStringProperty logTimeProperty() {
+        return logTime;
+    }
+
+    public SimpleStringProperty queryCountProperty() {
+        return queryCount;
+    }
+
 }
