@@ -8,7 +8,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.cron.CronUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
@@ -16,12 +15,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.common.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
-import com.sgswit.fx.utils.SoundUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -39,8 +38,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -57,7 +54,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
-
+import javafx.concurrent.Service;
 /**
  * @author DeZh
  * @title: GiftCardBalanceCheckController
@@ -98,16 +95,24 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     @FXML
     public TextField intervalField;
-
+    /**
+     * 启停任务按钮
+     */
     @FXML
-    public Button startTimerButton;
-
+    public Button startStopButton;
+    /**
+     * 直接执行按钮
+     */
     @FXML
     public Button executeNowButton;
-
+    /**
+     * 导入定时任务礼品卡按钮
+     */
     @FXML
     public Button importScheduleCardsButton;
-
+    /**
+     * 定时任务国家下拉选择
+     */
     @FXML
     public ComboBox<Map<String, String>> scheduleCountryComboBox;
 
@@ -117,8 +122,19 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     public Label label2;
     @FXML
     public Label label3;
+    /**
+     * 定时任务进程消息
+     */
+    @FXML
+    public Label processMessage;
+    /**
+     * 定时任务table
+     */
     @FXML
     public TableView<GiftCard> scheduleTableView;
+
+    @FXML
+    public TabPane tabPane;
 
     private ObservableList<GiftCard> scheduleAccountList = FXCollections.observableArrayList();
 
@@ -127,14 +143,22 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final Map<String, Map<String, Object>> loginCookiesMap = new ConcurrentHashMap<>();
+
+    private final Map<String, Map<String, Object>> scheduleLoginCookiesMap = new ConcurrentHashMap<>();
+
     private final Random random = new Random();
 
     private static String redColor = "red";
     private static String successColor = "#238142";
     private static ScheduledExecutorService scheduledExecutorService;
     private static ScheduledFuture scheduledFuture;
-    private static ThreadPoolExecutor  executor;
+    private static ThreadPoolExecutor executor;
+    private static ThreadPoolExecutor scheduledExecutor=new  ThreadPoolExecutor(4, 4, 30L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
+    private CountdownService service = new CountdownService();
+    private boolean running = false;
+
+    private static int lastSelectedCountryIndex = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -170,8 +194,11 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         super.initialize(url, resourceBundle);
     }
 
-    // 定时查询礼品卡相关组件初始化
+    /**
+     * 定时查询礼品卡相关组件初始化
+     */
     private void scheduleTableViewInitialize(){
+        balanceAlertCheckBox.setSelected(true);
         // 数据绑定
         ObservableList<TableColumn<GiftCard, ?>> columns = scheduleTableView.getColumns();
         for (TableColumn<GiftCard, ?> column : columns) {
@@ -236,7 +263,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             balanceAlertCheckBox.setDisable(disable);
             intervalField.setDisable(disable);
             scheduleCountryComboBox.setDisable(disable);
-            startTimerButton.setDisable(disable);
+            startStopButton.setDisable(disable);
             executeNowButton.setDisable(disable);
             importScheduleCardsButton.setDisable(disable);
 
@@ -247,6 +274,9 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         });
     }
 
+    /**
+     * 加载国家信息
+     */
     private void getCountry() {
         String country = ResourceUtil.readUtf8Str("data/giftCard_query_support_country.json");
         for (Object o : JSONUtil.parseArray(country)) {
@@ -275,7 +305,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 return null;
             }
         });
-
+        //礼品卡查询 国家信息变更监听
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
@@ -287,6 +317,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 });
             }
         });
+        //定时礼品卡查询 国家信息变更监听
         scheduleCountryComboBox.converterProperty().set(new StringConverter<>() {
             @Override
             public String toString(Map<String, String> map) {
@@ -299,19 +330,27 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
         });
 
-        scheduleCountryComboBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observableValue, Object o, Object t1) {
-                ThreadUtil.execAsync(() -> {
-                    try {
-                        loginAndInit();
-                    } catch (Exception e) {
-                    }
-                });
+        lastSelectedCountryIndex = scheduleCountryComboBox.getSelectionModel().getSelectedIndex();
+
+        scheduleCountryComboBox.getSelectionModel().selectedIndexProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.intValue() == lastSelectedCountryIndex) {
+                return;
+            }
+            boolean confirmed = CommonView.showConfirmationDialog("提示", "确定更改国家吗？");
+            if (confirmed) {
+                lastSelectedCountryIndex = newValue.intValue();
+                ThreadUtil.execAsync(() -> loginAndInit());
+            } else {
+                Platform.runLater(() ->scheduleCountryComboBox.getSelectionModel().select(lastSelectedCountryIndex));
             }
         });
     }
 
+    /**
+     * 导入礼品卡操作
+     * @param actionEvent
+     * @throws IOException
+     */
     @FXML
     protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
         if (StringUtils.isEmpty(account_pwd.getText()) || loginCookiesMap.isEmpty()) {
@@ -354,16 +393,20 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         super.accountList = accountList;
         setAccountNumLabel();
         scrollToLastRow();
+        switchToTableView(0);
     }
 
-
+    /**
+     *登录并初始化操作
+     * @param actionEvent
+     */
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
         ThreadUtil.execAsync(() -> {
             try {
                 loginAndInit();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         });
     }
@@ -379,12 +422,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     }
 
     /**
-     * 　* 登录并初始化
-     *
-     * @param  　* @return cn.hutool.http.HttpResponse
-     *         　* @throws
-     *         　* @author DeZh
-     *         　* @date 2023/11/1 11:15
+     * 登录并初始化
      */
     protected void loginAndInit() {
         String account = null;
@@ -514,16 +552,29 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         });
     }
 
+    /**
+     * 查询余额操作
+     * @param giftCard
+     * @param countryCode
+     */
     protected void checkBalance(GiftCard giftCard,String countryCode) {
         //开启任务
-        timerStart();
-        Date nowDate = new Date();
+        if(giftCard.isHasBalance() || giftCard.isRunning()){
+            System.out.println(giftCard.isRunning()+"----"+giftCard.getGiftCardCode());
+            return;
+        }
+        if(!giftCard.isScheduledFlag()){
+            timerStart();
+        }else{
+            giftCard.runningProperty().set(true);
+        }
         if (!StrUtils.giftCardCodeVerify(giftCard.getGiftCardCode())) {
             giftCard.setDataStatus("0");
             tableRefreshAndInsertLocal(giftCard, "输入代码不符合查询格式");
             return;
         }
-        giftCard.setLogTime(sdf.format(nowDate));
+        giftCard.setQueryCount(giftCard.getQueryCount()+1);
+        giftCard.setLogTime(DateUtil.now());
         giftCard.setHasFinished(false);
         if(giftCard.getFailCount()==0){
             setAndRefreshNote(giftCard, "正在查询...");
@@ -533,80 +584,101 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
 
         ThreadUtil.sleep(100);
-        if(loginCookiesMap.isEmpty()){
-            setAndRefreshNote(giftCard, "正在重新登录...");
-            login(countryCode);
-            checkBalance(giftCard,countryCode);
-        }else {
-            Object[] entries = loginCookiesMap.entrySet().toArray();
-            Map.Entry<String, Map<String,Object>> entry = (Map.Entry<String, Map<String, Object>>) entries[random.nextInt(entries.length)];
-            HttpResponse step4Res = GiftCardUtil.checkBalance(entry.getValue(), giftCard.getGiftCardCode());
-            if (step4Res.getStatus() != 200) {
-                if (step4Res.getStatus() == 541) {
-                    loginCookiesMap.remove(entry.getKey());
-                    checkBalance(giftCard,countryCode);
-                    return;
-                } else {
-                    if (giftCard.getFailCount() > 10) {
-                        throw new ServiceException("余额查询失败，请稍后重试！");
-                    } else {
-                        giftCard.setFailCount(giftCard.getFailCount() + 1);
-                    }
-                    checkBalance(giftCard,countryCode);
-                }
-            }
 
-
-            JSON bodyJson = JSONUtil.parse(step4Res.body());
-            try {
-                String status = bodyJson.getByPath("head.status", String.class);
-                if (Constant.REDIRECT_CODE.equals(status)) {
-                    if (giftCard.getFailCount() > 10) {
-                        throw new ServiceException("余额查询失败，请稍后重试！");
-                    } else {
-                        giftCard.setFailCount(giftCard.getFailCount() + 1);
-                    }
-                    checkBalance(giftCard,countryCode);
-                } else if (!Constant.SUCCESS.equals(status)) {
-                    throw new ServiceException("余额查询失败，请稍后重试！");
-                } else {
-                    giftCard.setDataStatus("1");
-                    Object giftCardBalanceError = bodyJson.getByPath("body.giftCardBalanceCheck.t.giftCardBalanceError.microEvents");
-                    if (null != giftCardBalanceError) {
-                        JSONArray jsonArray = JSONUtil.parseArray(giftCardBalanceError);
-                        String message = "";
-                        for (Object object : jsonArray) {
-                            JSONObject jsonObject = (JSONObject) object;
-                            if ("transaction.gc_balance.alert.invalid_giftcard".equals(jsonObject.getStr("value"))) {
-                                message = message + "输入的礼品卡无效；";
-                            } else if ("transaction.gc_balance.alert.invalid_country_giftcard".equals(jsonObject.getStr("value"))) {
-                                message = message + "此代码不属于【" + DataUtil.getNameByCountryCode(countryCode) + "】地区；";
-                            }
-                        }
-                        setAndRefreshNote(giftCard, message);
-                    } else {
-                        String balance = bodyJson.getByPath("body.giftCardBalanceCheck.d.balance", String.class);
-                        String giftCardNumber = bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber", String.class);
-                        if (null == balance) {
-                            setAndRefreshNote(giftCard, "已被兑换或无效的代码");
-                        } else {
-                            giftCard.setBalance(balance);
-                            giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
-                            setAndRefreshNote(giftCard, "查询成功.");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                throw new ServiceException("余额查询失败，请稍后重试！");
+        if (!giftCard.isScheduledFlag()) {
+            checkBalanceInternal(giftCard, countryCode, loginCookiesMap);
+        } else {
+            checkBalanceInternal(giftCard, countryCode, scheduleLoginCookiesMap);
+        }
+    }
+    private void checkBalanceInternal(GiftCard giftCard, String countryCode, Map<String, Map<String, Object>> cookieMap) {
+        if (cookieMap.isEmpty()) {
+            setAndRefreshNote(giftCard, "正在登录...");
+            login(countryCode, giftCard.isScheduledFlag());
+            giftCard.runningProperty().set(false);
+            checkBalance(giftCard, countryCode);
+            return;
+        }
+        Object[] entries = cookieMap.entrySet().toArray();
+        Map.Entry<String, Map<String, Object>> entry = (Map.Entry<String, Map<String, Object>>) entries[random.nextInt(entries.length)];
+        HttpResponse step4Res = GiftCardUtil.checkBalance(entry.getValue(), giftCard.getGiftCardCode());
+        //设置已查询
+        giftCard.runningProperty().set(false);
+        if (step4Res.getStatus() != 200) {
+            if (step4Res.getStatus() == 541) {
+                cookieMap.remove(entry.getKey());
+                checkBalance(giftCard, countryCode);
+                return;
+            } else {
+                handleFailCount(giftCard);
+                checkBalance(giftCard, countryCode);
+                return;
             }
         }
+        try {
+            JSON bodyJson = JSONUtil.parse(step4Res.body());
+            String status = bodyJson.getByPath("head.status", String.class);
 
-
+            if (Constant.REDIRECT_CODE.equals(status)) {
+                handleFailCount(giftCard);
+                checkBalance(giftCard, countryCode);
+            } else if (!Constant.SUCCESS.equals(status)) {
+                throw new ServiceException("余额查询失败，请稍后重试！");
+            } else {
+                giftCard.setDataStatus("1");
+                handleBalanceResult(giftCard, bodyJson, countryCode);
+            }
+        } catch (Exception e) {
+            throw new ServiceException("余额查询失败，请稍后重试！");
+        }
     }
 
-    public void login(String countryCode) {
+    private void handleFailCount(GiftCard giftCard) {
+        if (giftCard.getFailCount() > 10) {
+            throw new ServiceException("余额查询失败，请稍后重试！");
+        } else {
+            giftCard.setFailCount(giftCard.getFailCount() + 1);
+        }
+    }
+
+    private void handleBalanceResult(GiftCard giftCard, JSON bodyJson, String countryCode) {
+        Object giftCardBalanceError = bodyJson.getByPath("body.giftCardBalanceCheck.t.giftCardBalanceError.microEvents");
+        if (giftCardBalanceError != null) {
+            JSONArray jsonArray = JSONUtil.parseArray(giftCardBalanceError);
+            StringBuilder message = new StringBuilder();
+            for (Object object : jsonArray) {
+                JSONObject jsonObject = (JSONObject) object;
+                switch (jsonObject.getStr("value")) {
+                    case "transaction.gc_balance.alert.invalid_giftcard":
+                        message.append("输入的礼品卡无效；");
+                        break;
+                    case "transaction.gc_balance.alert.invalid_country_giftcard":
+                        message.append("此代码不属于【").append(DataUtil.getNameByCountryCode(countryCode)).append("】地区；");
+                        break;
+                }
+            }
+            setAndRefreshNote(giftCard, message.toString());
+        } else {
+            String balance = bodyJson.getByPath("body.giftCardBalanceCheck.d.balance", String.class);
+            String giftCardNumber = bodyJson.getByPath("body.giftCardBalanceCheck.d.giftCardNumber", String.class);
+            if (balance == null) {
+                setAndRefreshNote(giftCard, "已被兑换或无效的代码");
+            } else {
+                giftCard.hasBalanceProperty().set(true);
+                giftCard.setBalance(balance);
+                giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                setAndRefreshNote(giftCard, "查询成功.");
+            }
+        }
+    }
+
+    /**
+     * 登录操作
+     * @param countryCode
+     */
+    public void login(String countryCode,Boolean scheduledFlag) {
         try {
-            //判断是否正在登录
+            //判断当前登录信息是否够使用
             Map<String, Object> authMap = new HashMap<>(10);
             String account = null;
             String pwd = null;
@@ -670,7 +742,12 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             JSONObject meta = JSONUtil.parseObj(initDataElement.html());
             String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
             authMap.put("x-as-actk", x_as_actk);
-            loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
+            if(scheduledFlag){
+                scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
+            }else{
+                loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
+            }
+
         } catch (Exception e) {
 
         }
@@ -705,11 +782,14 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     }
 
     @FXML
-    public void onContentMenuClick2(ContextMenuEvent contextMenuEvent) {
+    public void onScheduleTableClick(ContextMenuEvent contextMenuEvent) {
         List<String> items = new ArrayList<>(super.menuItem);
         super.onContentMenuClick(contextMenuEvent, scheduleTableView, items);
     }
 
+    /**
+     * 关闭当前页面前需要执行的方法
+     */
     @Override
     public void closeStageActionBefore() {
         loginCookiesMap.clear();
@@ -718,6 +798,9 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         //关闭线程池
         scheduledExecutorService.shutdown();
         executor.shutdown();
+       //关闭定时任务
+        scheduledExecutor.shutdown();
+        service.cancel();
     }
 
     private void timerStart() {
@@ -726,7 +809,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
         scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(() -> {
-            getThreadPoolExecutor().execute(()->login(countryBox.getSelectionModel().getSelectedItem().get("code")));
+            getThreadPoolExecutor().execute(()->login(countryBox.getSelectionModel().getSelectedItem().get("code"),false));
         }, 0, 7, TimeUnit.SECONDS);
     }
     @Override
@@ -768,28 +851,29 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     /****************** 定时查询礼品卡余额 **************/
 
     @FXML
-    private void handleStartTimer() {
-        String intervalFieldText = intervalField.getText();
-        if (StringUtils.isEmpty(intervalFieldText) || !NumberUtil.isInteger(intervalFieldText)) {
-            alert("请输入正确执行间隔分钟数", Alert.AlertType.ERROR);
-            return;
+    private void startStopExecute(){
+        if (running) {
+            processMessage.setText("未开始");
+            processMessage.setTextFill(Paint.valueOf("#238142"));
+            startStopButton.setText("开始计时");
+            startStopButton.setTextFill(Paint.valueOf("#0F8DE2"));
+            intervalField.setDisable(false);
+            //关闭定时任务
+            service.cancel();
+            scheduledExecutor.shutdown();
+        }else {
+            String intervalFieldText = intervalField.getText();
+            if (StringUtils.isEmpty(intervalFieldText) || !NumberUtil.isInteger(intervalFieldText)) {
+                alert("请输入正确执行间隔分钟数", Alert.AlertType.ERROR);
+                return;
+            }
+            intervalField.setDisable(true);
+            startStopButton.setText("停止");
+            service.setCountdownSeconds(Integer.valueOf(intervalFieldText)*60);
+            service.restart();
         }
-
-        boolean started = CronUtil.getScheduler().isStarted();
-        if (started) {
-            alert("定时任务已启动，无需重复启动", Alert.AlertType.ERROR);
-            return;
-        }
-
-        // 立即执行一次
-        handleExecute();
-
-        Integer interval = Integer.valueOf(intervalFieldText);
-        scheduleByMinutes(interval, () -> handleExecute());
-        // 启动定时任务
-        CronUtil.start();
+        running=!running;
     }
-
     @FXML
     private void handleExecute() {
         if (CollUtil.isEmpty(scheduleAccountList)) {
@@ -800,27 +884,28 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             if (!enableScheduleCheckBox.isSelected()) {
                 break;
             }
-            if ("1".equals(giftCard.getDataStatus())) {
+            if (giftCard.isHasBalance()) {
                 continue;
             }
-            ThreadUtil.execute(() -> {
+            scheduledExecutor.submit(()->{
                 checkBalance(giftCard,countryBox.getSelectionModel().getSelectedItem().get("code"));
-                String queryCount = giftCard.getQueryCount();
-                giftCard.setQueryCount(StrUtil.isEmpty(queryCount)?"1":(Integer.valueOf(queryCount)+1)+"");
-                giftCard.setLogTime(DateUtil.now());
-                if ("1".equals(giftCard.getDataStatus()) && balanceAlertCheckBox.isSelected()){
+                if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
-                    SoundUtil.playSound("/audio/alert.wav");
+                    SoundUtil.playSound();
                 }
             });
         }
     }
 
 
-
+    /**
+     * 定时查询礼品卡导入
+     * @param event
+     * @throws IOException
+     */
     @FXML
     private void handleImportScheduleCards(ActionEvent event) throws IOException {
-        if (StringUtils.isEmpty(account_pwd.getText()) || loginCookiesMap.isEmpty()) {
+        if (StringUtils.isEmpty(account_pwd.getText())) {
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
             return;
         }
@@ -844,7 +929,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
         String[] lineArray = c.getData().split("\n");
         for (String item : lineArray) {
-            if (StringUtils.isEmpty(item)) {
+            if (StrUtil.isEmpty(item)) {
                 continue;
             }
             GiftCard giftCard = new GiftCard();
@@ -852,6 +937,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             giftCard.setPwd(accountPwdArray[1]);
             giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
+            giftCard.scheduledFlagProperty().set(true);
             scheduleAccountList.add(giftCard);
             scrollToLastRow();
         }
@@ -860,17 +946,53 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             int lastIndex = scheduleTableView.getItems().size() - 1;
             scheduleTableView.scrollTo(lastIndex);
         }
+        switchToTableView(1);
     }
+    // 代码切换Tab
+    private void switchToTableView(int tableIndex) {
+        if (tableIndex >= 0 && tableIndex < tabPane.getTabs().size()) {
+            tabPane.getSelectionModel().select(tableIndex);
+        }
+    }
+    class CountdownService extends Service<Void> {
+        private int countdownSeconds = 60; // 倒计时总秒数
+        @Override
+        protected Task<Void> createTask() {
+            return new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    while (!isCancelled()) { // 无限循环，直到服务被取消
+                        int timeLeft = countdownSeconds;
 
-    /**
-     * 添加按N分钟执行的定时任务
-     * @param minutes 执行间隔分钟数
-     * @param task 要执行的任务
-     * @return 任务ID
-     */
-    public String scheduleByMinutes(int minutes, cn.hutool.cron.task.Task task) {
-        // 生成cron表达式：从0分钟开始，每隔N分钟执行一次
-        String cron = String.format("0 */%d * * * ?", minutes);
-        return CronUtil.schedule(cron, task);
+                        // 倒计时循环
+                        while (timeLeft >= 0 && !isCancelled()) {
+                            final int currentTime = timeLeft;
+                            String TimeRemaining=String.format("倒计时：%s分%s秒",currentTime/60,currentTime%60);
+                            // 更新UI显示
+                            Platform.runLater(() -> {
+                                processMessage.setText(currentTime > 0 ?TimeRemaining : "执行中...");
+                            });
+                            if (timeLeft > 0) {
+                                Thread.sleep(1000); // 每秒更新一次
+                            }
+                            timeLeft--;
+                        }
+                        // 倒计时结束，执行任务
+                        if (!isCancelled()) {
+                            Platform.runLater(() -> handleExecute());
+                            // 执行完成后立即开始新一轮倒计时
+                            if (!isCancelled()) {
+                                Thread.sleep(1000); // 等待1秒再开始下一轮
+                            }
+                        }
+                    }
+                    return null;
+                }
+            };
+        }
+        // 可以设置不同的倒计时时间
+        public void setCountdownSeconds(int seconds) {
+            this.countdownSeconds = seconds;
+        }
     }
 }

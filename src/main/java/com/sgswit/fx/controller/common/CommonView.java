@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -87,6 +88,21 @@ public class CommonView implements Initializable {
         return result.isPresent() ? result.get() : "";
     }
 
+
+    public static boolean showConfirmationDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        // 自定义按钮文本（可选）
+        ButtonType yesButton = new ButtonType("确定");
+        ButtonType noButton = new ButtonType("取消");
+        alert.getButtonTypes().setAll(yesButton, noButton);
+        // 显示对话框并等待用户响应
+        return alert.showAndWait().filter(response -> response == yesButton).isPresent();
+    }
+
+
     public Boolean hasFailMessage(HttpResponse rsp) {
         String body = rsp.body();
         if (StrUtil.isEmpty(body) || !JSONUtil.isTypeJSON(body)){
@@ -105,6 +121,7 @@ public class CommonView implements Initializable {
         }
         return stringBuffer.toString();
     }
+
 
 
     @Override

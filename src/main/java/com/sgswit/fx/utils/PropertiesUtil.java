@@ -16,9 +16,14 @@ import java.util.Properties;
  * @date 2023/11/1420:48
  */
 public class PropertiesUtil {
-    private static final String CUSTOMER_CONFIG = AppleBatchUtil.PATH + "config.ini";
+    private static String CUSTOMER_CONFIG = null;
 
     static {
+        if(PropertiesUtil.getConfig("softwareInfo.platform","1").equals("2")){
+            CUSTOMER_CONFIG= AppleBatchUtil.PATH + "config.ini";
+        }else{
+            CUSTOMER_CONFIG= "config.ini";
+        }
         File file = new File(CUSTOMER_CONFIG);
         if (!file.exists()) {
             try {
@@ -30,7 +35,7 @@ public class PropertiesUtil {
     }
 
     public static boolean getConfigBool(String key,Boolean defaultValue) {
-        boolean f=false;
+        boolean f;
         try {
             String res = getConfig(key);
             if(null==res || "".equals(res)){

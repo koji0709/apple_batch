@@ -1,5 +1,6 @@
 package com.sgswit.fx.model;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -19,8 +20,22 @@ public class GiftCard extends AuthData{
     private final SimpleStringProperty giftCardNumber;
     private final SimpleStringProperty note;
     private final SimpleStringProperty logTime;
-
-    private final SimpleStringProperty queryCount;
+    /**
+     * 查询次数
+     */
+    private final SimpleIntegerProperty queryCount;
+    /**
+     * 是否有余额
+     */
+    private final SimpleBooleanProperty hasBalance;
+    /**
+     * 是否是定时任务查询
+     */
+    private final SimpleBooleanProperty scheduledFlag;
+    /**
+     * 是否正在查询标识
+     */
+    private final SimpleBooleanProperty running;
 
 
     public GiftCard() {
@@ -32,7 +47,10 @@ public class GiftCard extends AuthData{
         this.giftCardNumber = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
         this.logTime = new SimpleStringProperty();
-        this.queryCount = new SimpleStringProperty();
+        this.queryCount = new SimpleIntegerProperty(0);
+        this.hasBalance = new SimpleBooleanProperty(false);
+        this.scheduledFlag = new SimpleBooleanProperty(false);
+        this.running = new SimpleBooleanProperty(false);
     }
 
 
@@ -101,12 +119,6 @@ public class GiftCard extends AuthData{
         this.pwd.set(pwd);
     }
 
-    public String getQueryCount() {
-        return queryCount.get();
-    }
-    public void setQueryCount(String queryCount) {
-        this.queryCount.set(queryCount);
-    }
 
     public SimpleStringProperty accountProperty() {
         return account;
@@ -140,8 +152,38 @@ public class GiftCard extends AuthData{
         return logTime;
     }
 
-    public SimpleStringProperty queryCountProperty() {
-        return queryCount;
+    public boolean isHasBalance() {
+        return hasBalance.get();
     }
 
+    public SimpleBooleanProperty hasBalanceProperty() {
+        return hasBalance;
+    }
+
+    public boolean isScheduledFlag() {
+        return scheduledFlag.get();
+    }
+
+    public SimpleBooleanProperty scheduledFlagProperty() {
+        return scheduledFlag;
+    }
+
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    public SimpleBooleanProperty runningProperty() {
+        return running;
+    }
+
+    public int getQueryCount() {
+        return queryCount.get();
+    }
+
+    public SimpleIntegerProperty queryCountProperty() {
+        return queryCount;
+    }
+    public void setQueryCount(int queryCount) {
+        this.queryCount.set(queryCount);
+    }
 }
