@@ -560,7 +560,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     protected void checkBalance(GiftCard giftCard,String countryCode) {
         //开启任务
         if(giftCard.isHasBalance() || giftCard.isRunning()){
-            System.out.println(giftCard.isRunning()+"----"+giftCard.getGiftCardCode());
+
             return;
         }
         if(!giftCard.isScheduledFlag()){
@@ -671,6 +671,15 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
         }
     }
+
+    private void handleFinishAllData(TableView<GiftCard> tableView) {
+        for(GiftCard giftCard:tableView.getItems()){
+            giftCard.setHasFinished(true);
+            giftCard.runningProperty().set(false);
+        }
+    }
+
+
 
     /**
      * 登录操作
@@ -861,6 +870,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             //关闭定时任务
             service.cancel();
             scheduledExecutor.shutdown();
+            //所有数据置为已完成
+            handleFinishAllData(scheduleTableView);
         }else {
             String intervalFieldText = intervalField.getText();
             if (StringUtils.isEmpty(intervalFieldText) || !NumberUtil.isInteger(intervalFieldText)) {
