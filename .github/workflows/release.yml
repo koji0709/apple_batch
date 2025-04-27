@@ -40,19 +40,68 @@ jobs:
       id: get_version
       run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
-    # - name: Create Release and Upload DMG
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     # The release name will be the tag name
-    #     # The body can be customized or left empty to use commit messages
-    #     files: target/*.dmg # Upload the generated DMG file from the target directory
-    #     tag_name: v${{ steps.get_version.outputs.PROJECT_VERSION }}
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
+    - name: Rename DMG based on OS
+      id: rename_dmg
+      run: |
+        # Find the DMG file in the target directory (assuming only one exists)
+        ORIGINAL_DMG_PATH=$(find target -maxdepth 1 -name '*.dmg' -print -quit)
 
-    - name: Archive artifact
-      uses: actions/upload-artifact@v4
+        if [[ -z "${ORIGINAL_DMG_PATH}" ]]; then
+          echo "Error: No DMG file found in target/ directory!"
+          exit 1
+        fi
+        echo "Found original DMG: ${ORIGINAL_DMG_PATH}"
+
+        # Extract filename and directory
+        ORIGINAL_DMG_NAME=$(basename "${ORIGINAL_DMG_PATH}")
+        DIR_PATH=$(dirname "${ORIGINAL_DMG_PATH}")
+
+        # Determine suffix based on OS
+        SUFFIX=""
+        if [[ "${{ matrix.OS }}" == "macos-13" ]]; then
+          SUFFIX="(Inter)"
+        elif [[ "${{ matrix.OS }}" == "macos-latest" ]]; then
+          SUFFIX="(M)"
+        fi
+
+        # Construct new filename by inserting suffix before .dmg extension
+        BASE_NAME="${ORIGINAL_DMG_NAME%.dmg}" # Remove .dmg extension
+        NEW_DMG_NAME="${BASE_NAME}${SUFFIX}.dmg"
+        NEW_DMG_PATH="${DIR_PATH}/${NEW_DMG_NAME}"
+
+        # Rename the file
+        echo "Renaming '${ORIGINAL_DMG_PATH}' to '${NEW_DMG_PATH}'"
+        mv "${ORIGINAL_DMG_PATH}" "${NEW_DMG_PATH}"
+
+        # Check if rename was successful
+        if [[ $? -ne 0 ]]; then
+           echo "Error: Failed to rename DMG file."
+           exit 1
+        fi
+
+        echo "Successfully renamed to ${NEW_DMG_PATH}"
+        # Output the new path for the release step
+        echo "NEW_DMG_PATH=${NEW_DMG_PATH}" >> $GITHUB_OUTPUT
+
+    - name: Create Release and Upload DMG
+      uses: softprops/action-gh-release@v2
+      # Recommendation: Only run this step when a version tag is pushed.
+      # Ensure your 'on:' trigger is set accordingly (e.g., on: push: tags: ['v*.*.*'])
+      if: startsWith(github.ref, 'refs/tags/v')
       with:
-        name: apple_batch-${{ matrix.os }}
-        path: |
-          target/*.dmg
+        # files should point to the path output by the rename step
+        files: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
+        # Use the actual tag name from the push event for the release tag
+        # tag_name: ${{ github.ref_name }} # Use this if triggering on tags like v1.2.3
+        # Or keep using the version from pom.xml if triggering differently (less common for releases)
+        tag_name: v${{ steps.get_version.outputs.PROJECT_VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
+
+    # This step is removed because softprops/action-gh-release handles uploading to the release.
+    # - name: Archive artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: apple_batch-${{ matrix.os }}
+    #     path: |
+    #       target/*.dmg
