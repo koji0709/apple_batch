@@ -76,5 +76,13 @@ jobs:
         name: dmg-${{ matrix.OS }} # Unique artifact name per OS
         path: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
         retention-days: 90 # Adjust retention as needed (default is 90)
+    - name: 📦 上传构建产物到 AList
+        uses: yanhao98/composite-actions/upload-to-alist@main
+        with:
+          alist_url: ${{ vars.ALIST_URL }}
+          alist_username: ${{ secrets.ALIST_USERNAME }}
+          alist_password: ${{ secrets.ALIST_PASSWORD }}
+          alist_target: ${{ vars.alist_target_base }}/${{ steps.filename.outputs.FILENAME }}.zip
+          file: ${{ steps.filename.outputs.FILENAME }}.zip
 
 # Removed the entire 'release' job
