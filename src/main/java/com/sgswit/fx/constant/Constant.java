@@ -1,5 +1,7 @@
 package com.sgswit.fx.constant;
 
+import com.sgswit.fx.utils.AppleBatchUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +42,7 @@ public class Constant {
 
     public static final String ACCOUNT_INVALID_HSA_TOKEN = "ACCOUNT_INVALID_HSA_TOKEN";
 
-    public static final String LOCAL_FILE_STORAGE_PATH = System.getProperty("user.dir") + "/fileSystem";
+    public static final String LOCAL_FILE_STORAGE_PATH = AppleBatchUtil.LOCAL_FILE_STORAGE_PATH;
 
     public static final String EXCEL_EXPORT_PATH = System.getProperty("user.dir") + "/导出";
 
