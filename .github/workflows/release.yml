@@ -59,9 +59,9 @@ jobs:
         # Determine suffix based on OS
         SUFFIX=""
         if [[ "${{ matrix.OS }}" == "macos-13" ]]; then
-          SUFFIX="(Intel)" # Corrected from (Intel) based on previous feedback context, assuming Intel
+          SUFFIX=".Intel" # Use dot separator as requested
         elif [[ "${{ matrix.OS }}" == "macos-latest" ]]; then
-          SUFFIX="(M)"
+          SUFFIX=".M"   # Use dot separator as requested
         fi
 
         # Construct new filename by inserting suffix before .dmg extension
@@ -111,11 +111,3 @@ jobs:
         make_latest: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
-
-    # This step is removed because softprops/action-gh-release handles uploading to the release.
-    # - name: Archive artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: apple_batch-${{ matrix.os }}
-    #     path: |
-    #       target/*.dmg
