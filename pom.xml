@@ -6,7 +6,7 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>3.2.5</version>
+    <version>3.2.6</version>
     <name>appleBatch</name>
 
     <properties>
