@@ -82,7 +82,7 @@ jobs:
           alist_url: ${{ vars.ALIST_URL }}
           alist_username: ${{ secrets.ALIST_USERNAME }}
           alist_password: ${{ secrets.ALIST_PASSWORD }}
-          alist_target: ${{ vars.alist_target_base }}/${{ steps.filename.outputs.FILENAME }}.zip
-          file: ${{ steps.filename.outputs.FILENAME }}.zip
+          alist_target: ${{ vars.alist_target_base }}/${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
+          file: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
 
 # Removed the entire 'release' job
