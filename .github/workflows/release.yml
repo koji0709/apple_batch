@@ -59,7 +59,7 @@ jobs:
         # Determine suffix based on OS
         SUFFIX=""
         if [[ "${{ matrix.OS }}" == "macos-13" ]]; then
-          SUFFIX="(Inter)"
+          SUFFIX="(Intel)" # Corrected from (Intel) based on previous feedback context, assuming Intel
         elif [[ "${{ matrix.OS }}" == "macos-latest" ]]; then
           SUFFIX="(M)"
         fi
@@ -83,18 +83,32 @@ jobs:
         # Output the new path for the release step
         echo "NEW_DMG_PATH=${NEW_DMG_PATH}" >> $GITHUB_OUTPUT
 
+    - name: Extract Version from DMG Name
+      id: extract_version
+      run: |
+        DMG_FILENAME=$(basename "${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}")
+        # Extract version (e.g., 3.2.6) from "Apple批量处理-3.2.6(Suffix).dmg" or "Apple批量处理-3.2.6.dmg"
+        VERSION=$(echo "$DMG_FILENAME" | sed -E 's/Apple批量处理-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+        if [[ -z "$VERSION" ]]; then
+          echo "Error: Could not extract version from DMG filename: $DMG_FILENAME"
+          exit 1
+        fi
+        echo "Extracted version: $VERSION"
+        echo "DMG_VERSION=$VERSION" >> $GITHUB_OUTPUT
+
     - name: Create Release and Upload DMG
       uses: softprops/action-gh-release@v2
-      # Recommendation: Only run this step when a version tag is pushed.
-      # Ensure your 'on:' trigger is set accordingly (e.g., on: push: tags: ['v*.*.*'])
-      if: startsWith(github.ref, 'refs/tags/v')
+      # This step now runs on every push, not just tags
       with:
         # files should point to the path output by the rename step
         files: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
-        # Use the actual tag name from the push event for the release tag
-        # tag_name: ${{ github.ref_name }} # Use this if triggering on tags like v1.2.3
-        # Or keep using the version from pom.xml if triggering differently (less common for releases)
-        tag_name: v${{ steps.get_version.outputs.PROJECT_VERSION }}
+        # Use the version extracted from the DMG filename for the tag
+        tag_name: v${{ steps.extract_version.outputs.DMG_VERSION }}
+        # Mark as pre-release since it's built on every push
+        prerelease: true
+        # If a release with this tag already exists, update it and mark it as the latest.
+        # Useful if version doesn't change between pushes.
+        make_latest: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
 
