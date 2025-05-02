@@ -117,4 +117,72 @@ public class StrUtils extends StringUtils {
         // 这种情况下不会到达这里，防止编译错误返回一个默认值
         return -1;
     }
+    /**
+     * 通用数据隐藏方法
+     * @param data 原始数据（邮箱或手机号）
+     * @return 部分隐藏后的数据
+     */
+    public static String maskData(String data) {
+        if (data == null || data.isEmpty()) {
+            return data;
+        }
+
+        // 判断是否为邮箱
+        if (data.contains("@")) {
+            return maskEmail(data);
+        }
+        // 判断是否为手机号（简单判断11位数字）
+        else if (data.matches("\\d{11}")) {
+            return maskPhone(data);
+        }
+
+        return data; // 其他格式不处理
+    }
+
+    /**
+     * 隐藏邮箱
+     */
+    private static String maskEmail(String email) {
+        int atIndex = email.indexOf('@');
+        if (atIndex <= 0) return email;
+
+        String username = email.substring(0, atIndex);
+        String domain = email.substring(atIndex);
+
+        if (username.length() <= 2) {
+            return username + domain;
+        } else {
+            // 保留前2个字符和最后1个字符，中间用5个*代替
+            return username.substring(0, 2) + "*****" +
+                    (username.length() > 3 ? username.substring(username.length() - 1) : "") +
+                    domain;
+        }
+    }
+    /**
+     * 隐藏手机号
+     */
+    /**
+     * 智能隐藏手机号（动态保留前后位数）
+     * @param phone 原始手机号
+     * @return 部分隐藏后的手机号
+     */
+    public static String maskPhone(String phone) {
+        if (phone == null || phone.isEmpty()) {
+            return phone;
+        }
+        int length = phone.length();
+        // 根据长度动态确定保留位数
+        int keepPrefix = Math.min(3, length / 2);  // 前保留位数
+        int keepSuffix = Math.min(4, length - keepPrefix); // 后保留位数
+        // 确保至少保留1位（防止keepSuffix为0）
+        if (keepSuffix == 0) {
+            keepPrefix = length - 1;
+            keepSuffix = 1;
+        }
+        // 构建隐藏字符串
+        String prefix = phone.substring(0, keepPrefix);
+        String suffix = phone.substring(length - keepSuffix);
+
+        return prefix + "****" + suffix;
+    }
 }
