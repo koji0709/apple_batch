@@ -6,15 +6,15 @@ import javafx.application.Platform;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-public class ProcessChecker  {
+public class ProcessChecker {
 
-    private static class ResultVo{
-        private boolean flag = false;
+    private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
+    private static ScheduledFuture<?> scheduledFuture;
+
+    private static class ResultVo {
+        private boolean flag;
         private String msg;
 
         public boolean isFlag() {
@@ -34,94 +34,77 @@ public class ProcessChecker  {
         }
     }
 
-
-    //定时任务
-    private static ScheduledExecutorService scheduledExecutorService;
-    private static ScheduledFuture scheduledFuture;
-    private static ResultVo isWindowsProcessRunning() {
-        ResultVo resultVo=new ResultVo();
-        try {
-            // 使用 tasklist 命令查看运行的进程
-            Process process = Runtime.getRuntime().exec("tasklist");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (StrUtil.containsIgnoreCase(line,"Charles.exe")) {
-                    resultVo.setFlag(true);
-                    resultVo.setMsg("请关闭Charles后使用");
-                    return resultVo;
-                }else if (StrUtil.containsIgnoreCase(line,"Fiddler.exe")) {
-                    resultVo.setFlag(true);
-                    resultVo.setMsg("请关闭Fiddler后使用");
-                    return resultVo;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return resultVo;
+    private ProcessChecker() {
+        // 工具类禁止实例化
     }
-    private static ResultVo isMacProcessRunning() {
-        ResultVo resultVo=new ResultVo();
-        try {
-            // 使用 ps aux 命令获取所有进程
-            Process process = Runtime.getRuntime().exec("ps aux");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            // 逐行读取进程信息
-            while ((line = reader.readLine()) != null) {
-                if (StrUtil.containsIgnoreCase(line,"Charles")) {
-                    resultVo.setFlag(true);
-                    resultVo.setMsg("请关闭Charles后使用");
-                    return resultVo;
-                }else if (StrUtil.containsIgnoreCase(line,"Fiddler")) {
-                    resultVo.setFlag(true);
-                    resultVo.setMsg("请关闭Fiddler后使用");
-                    return resultVo;
-                }
+
+    private static ResultVo checkWindowsProcess() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                Runtime.getRuntime().exec("tasklist").getInputStream()))) {
+            return checkProcess(reader);
+        }
+    }
+
+    private static ResultVo checkMacProcess() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                Runtime.getRuntime().exec("ps aux").getInputStream()))) {
+            return checkProcess(reader);
+        }
+    }
+
+    private static ResultVo checkProcess(BufferedReader reader) throws IOException {
+        ResultVo resultVo = new ResultVo();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (StrUtil.containsIgnoreCase(line, "Charles")) {
+                resultVo.setFlag(true);
+                resultVo.setMsg("请关闭 Charles 后使用");
+                return resultVo;
+            } else if (StrUtil.containsIgnoreCase(line, "Fiddler")) {
+                resultVo.setFlag(true);
+                resultVo.setMsg("请关闭 Fiddler 后使用");
+                return resultVo;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return resultVo;
     }
 
+    public static void startTimer() {
+        String platform = PropertiesUtil.getConfig("softwareInfo.platform");
+        boolean debugMode = PropertiesUtil.getConfigBool("debug", false);
 
-    public static void timer(){
-        //1-windows,2-mac
-        String platform= PropertiesUtil.getConfig("softwareInfo.platform");
-        boolean debug= PropertiesUtil.getConfigBool("debug",false);
-        scheduledExecutorService= getScheduledExecutorService();
-        scheduledFuture= scheduledExecutorService.scheduleAtFixedRate(() -> {
+        if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
+            scheduledFuture.cancel(true);
+        }
+
+        scheduledFuture = SCHEDULER.scheduleAtFixedRate(() -> {
             try {
-
-                ResultVo vo=new ResultVo();
-                if(platform.equals("1")){
-                    vo=isWindowsProcessRunning();
-                }else if(platform.equals("2")){
-                    vo=isMacProcessRunning();
+                ResultVo result;
+                if ("1".equals(platform)) {
+                    result = checkWindowsProcess();
+                } else if ("2".equals(platform)) {
+                    result = checkMacProcess();
+                } else {
+                    return; // 未知平台
                 }
-                if(vo.flag && !debug){
+
+                if (result.isFlag() && !debugMode) {
+                    System.out.println(result.getMsg());
                     Platform.exit();
                     System.exit(0);
                 }
-            }catch (Exception e){
-
+            } catch (IOException e) {
+                e.printStackTrace(); // 也可以用日志系统统一记录
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }, 0, 3, TimeUnit.SECONDS);
     }
-    /*
-    　* 获取线程池
-     * @param
-    　* @return java.util.concurrent.ScheduledExecutorService
-    　* @throws
-    　* @author DeZh
-    　* @date 2024/7/8 15:33
-     */
-    private static ScheduledExecutorService getScheduledExecutorService(){
-        if(null==scheduledExecutorService || scheduledExecutorService.isShutdown()){
-            scheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+    public static void shutdownTimer() {
+        if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
+            scheduledFuture.cancel(true);
         }
-        return scheduledExecutorService;
+        SCHEDULER.shutdownNow();
     }
 }

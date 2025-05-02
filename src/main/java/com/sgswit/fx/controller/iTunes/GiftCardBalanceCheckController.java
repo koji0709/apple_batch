@@ -231,15 +231,20 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         scheduleAccountList.addListener((ListChangeListener<GiftCard>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
-                    List<? extends GiftCard> addedSubList = change.getAddedSubList();
-                    if (!CollUtil.isEmpty(addedSubList)){
-                        for (GiftCard giftCard : addedSubList) {
-                                giftCard.noteProperty().addListener((observable, oldValue, newValue) -> scheduleTableView.refresh());
-                        }
-                    }
+                    change.getAddedSubList().forEach(giftCard -> {
+                        giftCard.noteProperty().addListener((obs, oldVal, newVal) -> {
+                            int index = scheduleAccountList.indexOf(giftCard);
+                            if (index >= 0) {
+                                // 重新set一遍，局部刷新
+                                scheduleTableView.getItems().set(index, giftCard);
+                            }
+                        });
+                    });
                 }
             }
         });
+
+
         // 设置多选模式
         scheduleTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         // 鼠标右键清空选中行
@@ -573,7 +578,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             tableRefreshAndInsertLocal(giftCard, "输入代码不符合查询格式");
             return;
         }
-        giftCard.setQueryCount(giftCard.getQueryCount()+1);
         giftCard.setLogTime(DateUtil.now());
         giftCard.setHasFinished(false);
         if(giftCard.getFailCount()==0){
@@ -602,6 +606,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         Object[] entries = cookieMap.entrySet().toArray();
         Map.Entry<String, Map<String, Object>> entry = (Map.Entry<String, Map<String, Object>>) entries[random.nextInt(entries.length)];
         HttpResponse step4Res = GiftCardUtil.checkBalance(entry.getValue(), giftCard.getGiftCardCode());
+        //设置查询次数
+        giftCard.setQueryCount(giftCard.getQueryCount()+1);
         //设置已查询
         giftCard.runningProperty().set(false);
         if (step4Res.getStatus() != 200) {

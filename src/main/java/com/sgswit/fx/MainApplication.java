@@ -49,7 +49,7 @@ public class MainApplication extends Application {
         }
         //检测是否开启了抓包工具
         try {
-            ProcessChecker.timer();
+            ProcessChecker.startTimer();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -71,7 +71,7 @@ public class MainApplication extends Application {
         try {
             boolean debug=PropertiesUtil.getConfigBool("debug",true);
             if(!debug && checkAndUpdateVersion()){
-                return;
+
             }else{
                 StageUtil.show(StageEnum.LOGIN);
                 //ToastUtil.init(getHostServices());  // 初始化 HostServices

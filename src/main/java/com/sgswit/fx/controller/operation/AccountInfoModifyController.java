@@ -7,6 +7,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.github.javafaker.Faker;
@@ -123,39 +124,6 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"),actionEvent);
     }
 
-    public List<Account> parseAccount(String accountStr) {
-        if (StrUtil.isEmpty(accountStr)){
-            return Collections.emptyList();
-        }
-        String[] accList = accountStr.split("\n");
-        if (accList.length == 0){
-            return Collections.emptyList();
-        }
-        List<String> fieldList = Arrays.asList("account","pwd","answer1","answer2","answer3");
-
-        List<Account> accountList = new ArrayList<>();
-        for (int i = 0; i < accList.length; i++) {
-            String acc = accList[i];
-            if(StringUtils.isEmpty(acc)){
-                continue;
-            }
-            acc = acc.trim();
-            List<String> fieldValueList = splitfieldValue(acc);
-            Account account = new Account();
-            for (int i1 = 0; i1 < fieldList.size(); i1++) {
-                if (i1 < fieldValueList.size()){
-                    String field = fieldList.get(i1);
-                    ReflectUtil.invoke(
-                            account
-                            , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
-                            , fieldValueList.get(i1));
-                }
-            }
-            accountList.add(account);
-        }
-        return accountList;
-    }
-
     public static List<String> splitfieldValue(String acc) {
         // 判断字符串是否包含空格或制表符
         if (acc.contains(" ") || acc.contains("\t")) {
@@ -246,8 +214,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     }
 
     /**
-     * qewqeq@2980.com----Ac223388-宠物-工作-父母
-     * shabagga222@tutanota.com----Ac223388-宠物-工作-父母
+     * 修改操作
      */
     @Override
     public void accountHandler(Account account) {
@@ -505,5 +472,52 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         }
         account.setNote(note);
         super.accountTableView.refresh();
+    }
+
+    @Override
+    public List<Account> parseAccount(String accountStr) {
+        return parseAccountsToJson(accountStr);
+    }
+    public static List<Account> parseAccountsToJson(String accountStr) {
+        List<String> inputLines = Arrays.asList(accountStr.split("\n"));
+        List<Account> accounts= new ArrayList<>();
+        for (String line : inputLines) {
+            // 统一处理各种分隔符
+            String[] parts;
+            if (line.contains("\t")) {
+                parts = line.split("\t");
+            } else if (line.contains("-")) {
+                parts = line.split("-");
+            } else {
+                parts = line.split("\\s+");
+            }
+            // 清理空元素
+            parts = Arrays.stream(parts)
+                    .filter(s -> !s.isEmpty())
+                    .toArray(String[]::new);
+
+            if (parts.length >= 2) {
+                Account account = new Account();
+                account.setAccount(parts[0]);
+                account.setPwd(parts[1]);
+                // 处理密保问题
+                account.setAnswer1(parts.length > 2 ? parts[2] : "");
+                account.setAnswer2(parts.length > 3 ? parts[3] : "");
+                account.setAnswer3(parts.length > 4 ? parts[4] : "");
+                // 如果有日期字段（第6个元素）
+                if (parts.length > 5) {
+                    String b="";
+                    try{
+                        DateUtil.parse(parts[5]);
+                        b=parts[5];
+                    }catch (Exception e){
+
+                    }
+                    account.setBirthday(b);
+                }
+                accounts.add(account);
+            }
+        }
+        return accounts;
     }
 }
