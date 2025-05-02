@@ -1,4 +1,4 @@
-name: Create Release and Upload Artifact
+name: 🏗️ 构建并上传构建产物
 
 # 推送触发
 on:
@@ -7,7 +7,7 @@ on:
     #   - 'v*.*.*' # Trigger on tags like v1.0.0, v3.2.5 etc.
 
 jobs:
-  build-and-release:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -16,43 +16,66 @@ jobs:
           - OS: macos-latest
 
     runs-on: ${{ matrix.OS }}
-    permissions:
-      contents: write # Needed to create releases and upload assets
 
     steps:
-    - name: Checkout code
+    - name: 🛒 检出代码
       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
+    - name: ☕️ 设置 JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
-        distribution: 'zulu' # Popular OpenJDK distribution
+        distribution: 'zulu'
         cache: 'maven'
 
-    - name: Install local JAR dependency
+    - name: 🧱 安装本地 JAR 依赖
       run: mvn install:install-file -Dfile=lib/ddddocr4j-1.0.jar -DgroupId=com.mmg -DartifactId=ddddocr4j -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
 
-    - name: Build with Maven and Package
-      run: mvn -B package --file pom.xml # -B for non-interactive batch mode
+    - name: 🚀 使用 Maven 构建和打包
+      run: mvn -B package --file pom.xml
 
-    - name: Extract project version from pom.xml
-      id: get_version
-      run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+    - name: 🏷️ 根据操作系统重命名 DMG
+      id: rename_dmg
+      run: |
+        ORIGINAL_DMG_PATH=$(find target -maxdepth 1 -name '*.dmg' -print -quit)
+        if [[ -z "${ORIGINAL_DMG_PATH}" ]]; then
+          echo "错误：在 target/ 目录中未找到 DMG 文件！"
+          exit 1
+        fi
+        echo "找到原始 DMG: ${ORIGINAL_DMG_PATH}"
+        ORIGINAL_DMG_NAME=$(basename "${ORIGINAL_DMG_PATH}")
+        DIR_PATH=$(dirname "${ORIGINAL_DMG_PATH}")
+        SUFFIX=""
+        if [[ "${{ matrix.OS }}" == "macos-13" ]]; then
+          SUFFIX=".Intel"
+        elif [[ "${{ matrix.OS }}" == "macos-latest" ]]; then
+          SUFFIX=".M"
+        fi
+        BASE_NAME="${ORIGINAL_DMG_NAME%.dmg}"
+        NEW_DMG_NAME="${BASE_NAME}${SUFFIX}.dmg"
+        NEW_DMG_PATH="${DIR_PATH}/${NEW_DMG_NAME}"
+        echo "将 '${ORIGINAL_DMG_PATH}' 重命名为 '${NEW_DMG_PATH}'"
+        mv "${ORIGINAL_DMG_PATH}" "${NEW_DMG_PATH}"
+        if [[ $? -ne 0 ]]; then
+           echo "错误：重命名 DMG 文件失败。"
+           exit 1
+        fi
+        echo "成功重命名为 ${NEW_DMG_PATH}"
+        # 为构建产物上传步骤输出路径
+        echo "NEW_DMG_PATH=${NEW_DMG_PATH}" >> $GITHUB_OUTPUT
 
-    # - name: Create Release and Upload DMG
-    #   uses: softprops/action-gh-release@v2
-    #   with:
-    #     # The release name will be the tag name
-    #     # The body can be customized or left empty to use commit messages
-    #     files: target/*.dmg # Upload the generated DMG file from the target directory
-    #     tag_name: v${{ steps.get_version.outputs.PROJECT_VERSION }}
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub Actions
-
-    - name: Archive artifact
+    - name: ⬆️ 上传重命名的 DMG 构建产物
       uses: actions/upload-artifact@v4
       with:
-        name: apple_batch-${{ matrix.os }}
-        path: |
-          target/*.dmg
+        name: dmg-${{ matrix.OS }} # 每个操作系统的唯一构建产物名称
+        path: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
+        retention-days: 90 # 根据需要调整保留期（默认为 90）
+        
+    - name: 📦 上传构建产物到 AList
+      uses: yanhao98/composite-actions/upload-to-alist@main
+      with:
+        alist_url: ${{ vars.ALIST_URL }}
+        alist_username: ${{ secrets.ALIST_USERNAME }}
+        alist_password: ${{ secrets.ALIST_PASSWORD }}
+        alist_target: ${{ vars.alist_target_base }}/${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
+        file: ${{ steps.rename_dmg.outputs.NEW_DMG_PATH }}
