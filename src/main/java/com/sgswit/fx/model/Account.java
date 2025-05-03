@@ -12,6 +12,7 @@ public class Account extends LoginInfo {
     private final SimpleStringProperty state;
     private final SimpleStringProperty birthday;
     private final SimpleStringProperty area;
+    private final SimpleStringProperty areaId;
     private final SimpleStringProperty areaCode;
     private final SimpleStringProperty phone;
     private final SimpleStringProperty name;
@@ -91,6 +92,7 @@ public class Account extends LoginInfo {
         this.rescueEmail = new SimpleStringProperty();
         this.createdDate = new SimpleStringProperty();
         this.updateDate = new SimpleStringProperty();
+        this.areaId = new SimpleStringProperty();
 
     }
 
@@ -133,6 +135,19 @@ public class Account extends LoginInfo {
     public void setArea(String a) {
         area.set(a);
     }
+
+    public String getAreaId() {
+        return areaId.get();
+    }
+
+    public void setAreaId(String a) {
+        areaId.set(a);
+    }
+
+
+
+
+
 
     public String getStatus() {
         return status.get();
@@ -472,6 +487,7 @@ public class Account extends LoginInfo {
     public void setUpdateDate(String updateDate) {
         this.updateDate.set(updateDate);
     }
+
 
     @Override
     public String toString() {

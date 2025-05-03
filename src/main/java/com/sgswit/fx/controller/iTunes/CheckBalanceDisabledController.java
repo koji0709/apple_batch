@@ -49,6 +49,7 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
             account.setAreaCode(sp[0]);
             account.setArea(sp[1]);
         }
+        account.setAreaId(account.getItspod());
         setAndRefreshNote(account,"查询成功");
     }
 

@@ -136,7 +136,7 @@
                         <TableColumn fx:id="account" prefWidth="150" text="账号" />
                         <TableColumn fx:id="pwd" prefWidth="150" text="密码" />
                         <TableColumn fx:id="area" prefWidth="100" text="账号地区" />
-                        <TableColumn fx:id="itspod" prefWidth="60" text="区域ID" />
+                        <TableColumn fx:id="areaId" prefWidth="60" text="区域ID" />
                         <TableColumn fx:id="balance" prefWidth="100" text="账号余额" />
                         <TableColumn fx:id="disableStatus" prefWidth="100" text="是否禁用" />
                         <TableColumn fx:id="note" prefWidth="180" minWidth="200.0" text="执行信息" />

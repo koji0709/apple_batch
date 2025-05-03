@@ -125,6 +125,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }else if(!Constant.SUCCESS.equals(result.get("code"))){
+            
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }
         return authRsp;
