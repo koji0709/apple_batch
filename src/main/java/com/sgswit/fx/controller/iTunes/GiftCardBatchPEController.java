@@ -13,7 +13,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommCodePopupView;
 import com.sgswit.fx.controller.common.ItunesView;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;

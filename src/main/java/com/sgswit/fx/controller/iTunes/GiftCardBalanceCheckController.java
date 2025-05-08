@@ -17,7 +17,7 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;

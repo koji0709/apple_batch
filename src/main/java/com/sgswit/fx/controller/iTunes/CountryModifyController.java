@@ -7,7 +7,7 @@ import com.github.javafaker.Faker;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;

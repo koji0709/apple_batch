@@ -14,7 +14,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
-import com.sgswit.fx.controller.common.UnavailableException;
+import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;

@@ -6,6 +6,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
@@ -125,7 +127,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }else if(!Constant.SUCCESS.equals(result.get("code"))){
-            
+
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }
         return authRsp;

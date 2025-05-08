@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.common;
+package com.sgswit.fx.controller.exception;
 
 /**
  * 503异常

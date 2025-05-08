@@ -5,7 +5,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;

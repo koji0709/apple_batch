@@ -3,7 +3,7 @@ package com.sgswit.fx.controller.operation;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.ServiceException;
+import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.UpdateAppleIDView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;

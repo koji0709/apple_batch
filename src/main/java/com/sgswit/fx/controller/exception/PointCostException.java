@@ -1,4 +1,4 @@
-package com.sgswit.fx.controller.common;
+package com.sgswit.fx.controller.exception;
 
 public class PointCostException extends RuntimeException{
 
