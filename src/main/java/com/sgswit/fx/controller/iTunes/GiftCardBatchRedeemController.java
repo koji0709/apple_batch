@@ -1054,12 +1054,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 return;
             }
 
-            String format = "此代码已被dsid[%s]兑换";
+            String format = "由%s于%s兑换成功。";
             dataList.forEach(o ->{
                 JSONObject json = (JSONObject) o;
                 GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
                 giftCardRedeem.setExecTime(json.getStr("redeemTime"));
-                giftCardRedeem.setNote(String.format(format,json.getStr("recipientDsid")));
+                String message=String.format(format,StrUtils.maskData(json.getStr("recipientAccount")),json.getStr("redeemTime"));
+                giftCardRedeem.setNote(message);
                 items.add(giftCardRedeem);
             });
         });

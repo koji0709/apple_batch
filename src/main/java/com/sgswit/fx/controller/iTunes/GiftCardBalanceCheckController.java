@@ -564,7 +564,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     protected void checkBalance(GiftCard giftCard,String countryCode) {
         //开启任务
-        if(giftCard.isHasBalance() || giftCard.isRunning()){
+        if((giftCard.isHasBalance() || giftCard.isRunning()) && giftCard.isScheduledFlag()){
 
             return;
         }
