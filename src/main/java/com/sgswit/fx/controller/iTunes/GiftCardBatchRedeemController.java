@@ -748,7 +748,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 扣除点数
                 singleGiftCardRedeem.setAccount(account);
                 pointCost(singleGiftCardRedeem,PointUtil.out, FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
-
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("");
                     statusLabel.setText( "状态：" + "正在检测...");
@@ -810,6 +809,13 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 // 异常返回点数
                 singleGiftCardRedeem.setNote("连接异常，请检查网络");
                 pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+            }catch (PointCostException e){
+                Platform.runLater(() -> {
+                    countryLabel.setText("国家：" + "");
+                    balanceLabel.setText( "余额：" + "");
+                    statusLabel.setText( "状态：" + "");
+                    checkAccountDescLabel.setText(e.getMessage());
+                });
             }catch (Exception e){
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
