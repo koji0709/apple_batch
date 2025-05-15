@@ -14,6 +14,7 @@ import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -100,9 +101,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                 }
             }else if(verifyAppleIdRes.getStatus() == 302){
                 String location=verifyAppleIdRes.header("Location");
-                if(StringUtils.containsIgnoreCase(location,"password/authenticationmethod")){
+                if(StrUtils.containsIgnoreCase(location,"password/authenticationmethod") || StrUtils.containsIgnoreCase(location,"/account/inactive")){
                     setAndRefreshNote(account,"此AppleID已被锁定");
-                }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
+                }else if(StrUtils.containsIgnoreCase(location,"recovery/options")){
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {
@@ -115,7 +116,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     }else{
                         setAndRefreshNote(account,"正常账号");
                     }
-                }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
+                }else if(StrUtils.containsIgnoreCase(location,"password/verify/phone")){
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {

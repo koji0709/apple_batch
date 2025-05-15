@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.query;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
@@ -98,11 +99,11 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                 }
             }else if(verifyAppleIdRes.getStatus() == 302){
                 String location=verifyAppleIdRes.header("Location");
-                if(StringUtils.containsIgnoreCase(location,"password/authenticationmethod")){
+                if(StrUtil.containsIgnoreCase(location,"password/authenticationmethod") || StrUtil.containsIgnoreCase(location,"/account/inactive")){
                     setAndRefreshNote(account,"此AppleID已被锁定");
-                }else if(StringUtils.containsIgnoreCase(location,"recovery/options")){
+                }else if(StrUtil.containsIgnoreCase(location,"recovery/options")){
                     setAndRefreshNote(account,"此AppleID正常");
-                }else if(StringUtils.containsIgnoreCase(location,"password/verify/phone")){
+                }else if(StrUtil.containsIgnoreCase(location,"password/verify/phone")){
                     setAndRefreshNote(account,"此AppleID已开启双重认证");
                 }
             }else if(verifyAppleIdRes.getStatus() == 200){
