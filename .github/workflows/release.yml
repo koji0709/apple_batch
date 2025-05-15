@@ -2,6 +2,7 @@ name: 🏗️ 构建并上传构建产物
 
 # 推送触发
 on:
+  workflow_dispatch: 
   push:
     # tags:
     #   - 'v*.*.*' # Trigger on tags like v1.0.0, v3.2.5 etc.
