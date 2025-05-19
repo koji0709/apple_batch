@@ -44,8 +44,14 @@ public class MainApplication extends Application {
 
         // 如果获取锁失败，说明程序已经在运行
         if (lock == null) {
-            CommonView.alert("对不起，本程序仅允许运行1个!",Alert.AlertType.ERROR);
-            return;
+//            CommonView.alert("对不起，本程序仅允许运行1个!",Alert.AlertType.ERROR);
+           if( CommonView.confirmationDialog("提示","对不起，本程序仅允许运行1个")){
+                //退出程序
+               StageUtil.clearAll();
+               Platform.exit();
+               System.exit(0);
+           }
+           return;
         }
         //检测是否开启了抓包工具
         try {
