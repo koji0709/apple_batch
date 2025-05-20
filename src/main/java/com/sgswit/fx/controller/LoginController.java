@@ -17,9 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 
 import java.awt.*;
@@ -39,7 +37,7 @@ public class LoginController extends CommonView implements Initializable {
     private TextField loginUserNameTextField;
 
     @FXML
-    private TextField loginPwdTextField;
+    private PasswordField loginPwdTextField;
 
     @FXML
     private CheckBox rememberMeCheckBox;
@@ -54,13 +52,13 @@ public class LoginController extends CommonView implements Initializable {
     private TextField registerUserNameTextField;
 
     @FXML
-    private TextField registerPwdTextField;
+    private PasswordField registerPwdTextField;
 
     @FXML
     private TextField registerEmailTextField;
 
-    @FXML
-    private TextField registerQQTextField;
+//    @FXML
+//    private TextField registerQQTextField;
 
     @FXML
     private TextField registerCardNoTextField;
@@ -72,7 +70,7 @@ public class LoginController extends CommonView implements Initializable {
     private TextField verifyCodeTextField;
 
     @FXML
-    private TextField newPwdTextField;
+    private PasswordField newPwdTextField;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -225,7 +223,7 @@ public class LoginController extends CommonView implements Initializable {
         String userName = registerUserNameTextField.getText();
         String pwd = registerPwdTextField.getText();
         String email = registerEmailTextField.getText();
-        String qq = registerQQTextField.getText();
+//        String qq = registerQQTextField.getText();
         String cardNo = registerCardNoTextField.getText();
         if (StrUtil.isEmpty(userName)){
             alert("注册账号不能为空！",Alert.AlertType.INFORMATION,true);
@@ -256,19 +254,19 @@ public class LoginController extends CommonView implements Initializable {
                 return;
             }
         }
-        if (StrUtil.isEmpty(qq)){
-            alert("绑定QQ不能为空！",Alert.AlertType.INFORMATION,true);
-            return;
-        }else {
-            String QQ_PATTERN = "^[1-9][0-9]{4,10}$";
-            if(!ReUtil.isMatch(QQ_PATTERN, qq)){
-                alert("QQ格式不正确！",Alert.AlertType.INFORMATION,true);
-                return;
-            }
-        }
+//        if (StrUtil.isEmpty(qq)){
+//            alert("绑定QQ不能为空！",Alert.AlertType.INFORMATION,true);
+//            return;
+//        }else {
+//            String QQ_PATTERN = "^[1-9][0-9]{4,10}$";
+//            if(!ReUtil.isMatch(QQ_PATTERN, qq)){
+//                alert("QQ格式不正确！",Alert.AlertType.INFORMATION,true);
+//                return;
+//            }
+//        }
 
         String body = "{\"userName\":\"%s\",\"pwd\":\"%s\",\"email\":\"%s\",\"qq\":\"%s\",\"cardNo\":\"%s\"}";
-        body = String.format(body,userName,pwd,email,qq,cardNo);
+        body = String.format(body,userName,pwd,email,"",cardNo);
         HttpResponse rsp = HttpUtils.post("/userInfo/register", body);
         alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
     }
