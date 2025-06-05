@@ -1717,7 +1717,7 @@ public class AppleIDUtil {
      * 验证码并且验证通过(如果验证码不通过则重试三次)
      */
     public static HttpResponse captchaAndVerifyPost(Account account) {
-        return captchaAndVerifyPost(account,10);
+        return captchaAndVerifyPost(account,15);
     }
     public static HttpResponse captchaAndVerifyPost(Account account,Integer retry){
         account.setNote("正在获取验证码...");
@@ -1764,11 +1764,10 @@ public class AppleIDUtil {
                 ThreadUtil.sleep(500);
                 return captchaAndVerifyPost(account,--retry);
             }
-            return verifyAppleIdRsp;
         }else{
             account.updateLoginInfo(verifyAppleIdRsp);
-            return verifyAppleIdRsp;
         }
+        return verifyAppleIdRsp;
     }
 
     /**

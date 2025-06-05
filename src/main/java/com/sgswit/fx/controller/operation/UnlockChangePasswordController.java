@@ -75,7 +75,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         // 识别验证码
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerifyPost(account);
         if (verifyAppleIdRsp.getStatus() != 302) {
-            throw new ServiceException("验证码自动识别失败");
+            throw new ServiceException("验证码自动识别失败，请稍后重试");
         }
         setAndRefreshNote(account,"账户验证成功...");
         // 修改密码 (如果账号被锁定,则解锁改密)

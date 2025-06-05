@@ -1,5 +1,7 @@
 package com.sgswit.fx.controller.operation;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -63,8 +66,15 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             throw new ServiceException("问题2不能为空");
         }else if(StrUtil.isBlankIfStr(account.getAnswer1())){
             throw new ServiceException("问题3不能为空");
-        }else if(StrUtil.isBlankIfStr(account.getBirthday())){
+        }
+        if(StrUtil.isBlankIfStr(account.getBirthday())){
             throw new ServiceException("生日不能为空");
+        }else{
+            try{
+               DateUtil.parse(account.getBirthday());
+            }catch (Exception e){
+                throw new ServiceException("生日格式不正确！");
+            }
         }
         String newPassword = pwdTextField.getText();
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
@@ -91,7 +101,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         account.setSstt(sstt);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerifyPost(account);
         if (verifyAppleIdRsp.getStatus() != 302) {
-            throw new ServiceException("验证码自动识别失败");
+            throw new ServiceException("验证码自动识别失败，请稍后重试");
         }
         setAndRefreshNote(account,"验证码自动校验完毕");
         // 关闭双重认证

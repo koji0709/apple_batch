@@ -29,6 +29,7 @@ public class Account extends LoginInfo {
     private final SimpleStringProperty familyDetails;
 
     private  String country;
+    private  int maxCaptchaAnswerInvalidCount=15;
 
     // 页面临时参数
     private SimpleStringProperty email;
@@ -144,10 +145,13 @@ public class Account extends LoginInfo {
         areaId.set(a);
     }
 
+    public int getMaxCaptchaAnswerInvalidCount() {
+        return maxCaptchaAnswerInvalidCount;
+    }
 
-
-
-
+    public void setMaxCaptchaAnswerInvalidCount(int maxCaptchaAnswerInvalidCount) {
+        this.maxCaptchaAnswerInvalidCount = maxCaptchaAnswerInvalidCount;
+    }
 
     public String getStatus() {
         return status.get();

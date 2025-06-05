@@ -45,11 +45,17 @@ public class LoggerManger {
         }
     }
     public static void info(String message,Throwable thrown){
-        thrown.printStackTrace();
         logger.log(Level.INFO,message,thrown);
     }
     public static void info(String message){
         logger.log(Level.INFO,message);
+    }
+    public static void error(String message,Throwable thrown){
+        thrown.printStackTrace();
+        logger.log(Level.SEVERE,message,thrown);
+    }
+    public static void error(String message){
+        logger.log(Level.SEVERE,message);
     }
 
     static class DetailedFormatter extends Formatter {

@@ -1,31 +1,26 @@
 package com.sgswit.fx.utils;
 
 import com.dd.plist.Base64;
-import com.mmg.ddddocr4j.utils.DDDDOcrUtil;
+import top.gcszhn.d4ocr.OCREngine;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 /**
  * 打码工具
  */
 public class OcrUtil {
-
-    public static String recognize(String base64Str) {
-        String code = "";
+    public static String recognize(String base64Str){
+        OCREngine engine = OCREngine.instance();
+        String predict = null;
         try {
-            code = DDDDOcrUtil.getCode(base64Str);
-            LoggerManger.info("【验证码】code：" + code);
-            return code;
-        } catch (Exception e) {
-            LoggerManger.info("【验证码】异常：" + e.getMessage());
-            e.printStackTrace();
+            predict = engine.recognize(toBufferedImage(base64Str));
+        } catch (IOException e) {
+            return "";
         }
-
-        return code;
+        return predict;
     }
 
     public static BufferedImage toBufferedImage(String base64Str) throws IOException {
@@ -33,5 +28,5 @@ public class OcrUtil {
         BufferedImage image = ImageIO.read(new ByteArrayInputStream(decodedBytes));
         return image;
     }
-    
+
 }

@@ -183,7 +183,8 @@ public class ProxyUtil {
             String authUser = PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword = PropertiesUtil.getOtherConfig("proxyTunnelPass");
             //判断隧道代理配置的是是否是本机地址
-            if (isPrivateIP(proxyHost)) {
+            boolean debugMode = PropertiesUtil.getConfigBool("debug", false);
+            if (isPrivateIP(proxyHost) && !debugMode) {
                 return proxyRequest(request, sendTimeOut, readTimeOut);
             }else{
                 return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
