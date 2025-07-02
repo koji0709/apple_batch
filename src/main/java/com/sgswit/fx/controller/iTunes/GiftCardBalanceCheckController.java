@@ -17,9 +17,14 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.exception.PointCostException;
+import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.UnavailableException;
+import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
+import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -907,6 +912,14 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
                     SoundUtil.playSound();
+                    System.out.println("开始兑换----------" + giftCard.getAccount());
+                    GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+                    giftCardRedeem.setAccount(giftCard.getAccount());
+                    giftCardRedeem.setPwd(giftCard.getPwd());
+                    // iTunes登陆
+                    itunesLogin(giftCardRedeem);
+                    // 礼品卡兑换
+                    redeem(giftCardRedeem);
                 }
             });
         }
@@ -1009,5 +1022,211 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         public void setCountdownSeconds(int seconds) {
             this.countdownSeconds = seconds;
         }
+    }
+
+    public void itunesLogin(GiftCardRedeem accountModel){
+        String message ="";
+        try{
+            String appleId = accountModel.getAccount();
+            String pwd = accountModel.getPwd();
+            String id=super.createId(appleId,pwd);
+            LoginInfo loginInfo = loginSuccessMap.get(id);
+            if (loginInfo != null) {
+                accountModel.setIsLogin(loginInfo.isLogin());
+                accountModel.setItspod(loginInfo.getItspod());
+                accountModel.setStoreFront(loginInfo.getStoreFront());
+                accountModel.setDsPersonId(loginInfo.getDsPersonId());
+                accountModel.setPasswordToken(loginInfo.getPasswordToken());
+                accountModel.setGuid(loginInfo.getGuid());
+                accountModel.setAuthData(loginInfo.getAuthData());
+                accountModel.setCookieMap(loginInfo.getCookieMap());
+                accountModel.setNote("成功获取登录信息。");
+            }else{
+                accountModel.setIsLogin(false);
+            }
+
+            if (accountModel.isLogin()){
+                return;
+            }
+
+            String guid = DataUtil.getGuidByAppleId(appleId);
+            accountModel.setGuid(guid);
+
+            String url = "";
+            HttpResponse loginRsp;
+            if (StrUtil.isEmpty(accountModel.getAuthCode())){
+                url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
+                loginRsp = itunesLogin(accountModel,url,0);
+            }else{
+                Object authRsp = accountModel.getAuthData().get("authRsp");
+                if (authRsp == null){
+                    throw new ServiceException("请先登录鉴权");
+                }
+                url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
+                loginRsp = itunesLogin(accountModel,url,1);
+            }
+            JSONObject json=null;
+            try{
+                json = PListUtil.parse(loginRsp.body());
+            }catch (Exception e){
+                throw new UnavailableException();
+            }
+            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
+
+            boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
+            if (verify){
+                accountModel.setNote("登录成功。");
+
+                accountModel.setAuthCode("");
+                accountModel.getAuthData().put("authRsp",loginRsp);
+                accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
+                accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
+                accountModel.setDsPersonId(json.getStr("dsPersonId",""));
+                accountModel.setPasswordToken(json.getStr("passwordToken",""));
+                CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
+                accountModel.setIsLogin(true);
+                String storeId=super.createId(appleId,pwd);
+                loginSuccessMap.put(storeId,accountModel);
+                return;
+            }
+            message = MapUtil.getStr(result,"msg");
+        }catch (ServiceException e){
+            LoggerManger.info("itunesLogin登陆失败",e);
+            message=e.getMessage();
+        }
+        throw new ServiceException("登录失败："+message);
+    }
+    private HttpResponse itunesLogin(GiftCardRedeem accountModel,String url,Integer attempt){
+        String guid = accountModel.getGuid();
+        String account = accountModel.getAccount();
+        String pwd = accountModel.getPwd();
+
+        HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid,"", url);
+        url = authRsp.header("location");
+        String status = String.valueOf(authRsp.getStatus());
+        if (status.equals(Constant.REDIRECT_CODE)){
+            return itunesLogin(accountModel,url,1);
+        }else if (!status.equals(Constant.SUCCESS)){
+            return authRsp;
+        }
+
+        JSONObject authBody        = PListUtil.parse(authRsp.body());
+        String     failureType     = authBody.getStr("failureType","");
+        // 重试
+        if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
+            return itunesLogin(accountModel,url,1);
+        }
+        // 双重认证
+        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp.body());
+        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
+            accountModel.getAuthData().put("authRsp",authRsp);
+            accountModel.setItspod(authRsp.header(Constant.ITSPOD));
+            throw new ServiceException(MapUtil.getStr(result,"msg"));
+        }else if(!Constant.SUCCESS.equals(result.get("code"))){
+
+            throw new ServiceException(MapUtil.getStr(result,"msg"));
+        }
+        return authRsp;
+    }
+
+    public void redeem(GiftCardRedeem giftCardRedeem){
+        HttpResponse redeemRsp;
+        String body;
+        try{
+            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+            body = redeemRsp.body();
+            checkAndThrowUnavailableException(redeemRsp);
+        }catch (ResponseTimeoutException e){// 响应超时不计入次数统计
+            throw new ServiceException(e.getMessage());
+        }
+
+        // status = 429重试
+        Integer i = 3;
+        while (i-- >= 0 && redeemRsp.getStatus() == 429){
+            ThreadUtil.sleep(200L);
+            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
+            body = redeemRsp.body();
+        }
+
+        // 如果是status = 429则不计入统计
+        if(redeemRsp.getStatus() == 429) {
+            throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);
+        }
+        if (StrUtil.isEmpty(body)){
+            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据为空, 请检查兑换状态");
+        }
+        // 兑换
+        JSONObject redeemBody = new JSONObject();
+        try {
+            redeemBody = JSONUtil.parseObj(body);
+        }catch (Exception e) {
+            LoggerManger.info("响应状态 = "+redeemRsp.getStatus()+", 响应数据 = " + redeemBody);
+            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据异常, 请检查兑换状态");
+        }
+
+        if (redeemBody.keySet().contains("plist")){
+            redeemBody = PListUtil.parse(body);
+        }
+        Integer status = redeemBody.getInt("status",-1);
+        if (status != 0){
+            String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
+            String messageKey = redeemBody.getStr("errorMessageKey","");
+            String message = "兑换失败! %s";
+            // 礼品卡无效
+            if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
+                // 礼品卡已兑换
+                giftCardRedeem.setGiftCardStatus("旧卡");
+                message = String.format(message,"此代码已被兑换");
+                Map<String,Object> params = new HashMap<>();
+                params.put("code",giftCardRedeem.getGiftCardCode());
+                HttpResponse giftcardRedeemLogRsp = HttpUtils.get("/giftcardRedeemLog",params);
+                boolean verify = HttpUtils.verifyRsp(giftcardRedeemLogRsp);
+                if (!verify){
+
+                }else{
+                    JSONArray dataList = HttpUtils.dataList(giftcardRedeemLogRsp);
+                    if (!CollUtil.isEmpty(dataList)){
+                        String format = "由%s于%s兑换成功。";
+                        JSONObject json = (JSONObject) dataList.get(0);
+                        message=String.format(format,StrUtils.maskData(json.getStr("recipientAccount")),json.getStr("redeemTime"));
+                    }
+                }
+            } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){
+                // 僵尸卡
+                giftCardRedeem.setGiftCardStatus("僵尸卡");
+                message = String.format(message,"此凭证已停用，所以无法兑换");
+            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){
+                //重新执行一次登录操作
+                if (giftCardRedeem.getFailCount() == 0){
+                    // 需要重新登录
+                    giftCardRedeem.setIsLogin(false);
+                    giftCardRedeem.setFailCount(1);
+                    // accountHandler(giftCardRedeem);
+                    return;
+                }
+            }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
+                //卡正常, 但是和账号商城不匹配
+                message = String.format(message,userPresentableErrorMessage);
+                giftCardRedeem.setGiftCardStatus("有效卡");
+            }else if("MZFreeProductCode.NoBalance".equals(messageKey) || "MZFreeProductCode.NoSuch".equals(messageKey)){
+                message = String.format(message,userPresentableErrorMessage);
+                giftCardRedeem.setGiftCardStatus("无效卡");
+            }else if ("MZCommerce.XCardProblem".equals(messageKey)){
+                // 访问你的店面可用金额时服务器发生问题。请稍后再试
+                if (giftCardRedeem.getFailCount() == 0){
+                    giftCardRedeem.setFailCount(1);
+                    // accountHandler(giftCardRedeem);
+                    return;
+                }
+            }else{
+                message = String.format(message,userPresentableErrorMessage);
+                giftCardRedeem.setGiftCardStatus("兑换失败");
+            }
+            LoggerManger.info("【礼品卡兑换】messageKey:" + messageKey + ", message=" + message);
+            throw new PointCostException(message);
+        }
+
+        // 礼品卡兑换成功
+        giftCardRedeem.setGiftCardStatus("已兑换");
     }
 }

@@ -33,6 +33,8 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
     @Override
     public void accountHandler(Account account) {
         setAndRefreshNote(account,"登录查询中...");
+        System.err.println(1 / 0);
+
         String id=super.createId(account.getAccount(),account.getPwd());
         loginSuccessMap.remove(id);
         itunesLogin(account);
