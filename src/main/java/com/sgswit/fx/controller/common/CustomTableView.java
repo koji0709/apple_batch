@@ -395,6 +395,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setDataStatus(account,false);
             LoggerManger.info("响应超时",e);
         } catch (Exception e) {
+            e.printStackTrace();
             setAndRefreshNote(account, "数据处理异常。");
             pointIncr(account,e);
             setDataStatus(account,false);

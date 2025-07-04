@@ -747,7 +747,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 String guid = DataUtil.getGuidByAppleId(account);
                 // 扣除点数
                 singleGiftCardRedeem.setAccount(account);
-                pointCost(singleGiftCardRedeem,PointUtil.out, FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+                pointCost(singleGiftCardRedeem,PointUtil.out, FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode(),null);
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setText("");
                     statusLabel.setText( "状态：" + "正在检测...");
@@ -798,7 +798,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 });
                 // 异常返回点数
                 singleGiftCardRedeem.setNote(e.getMessage());
-                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode(),null);
             } catch (IORuntimeException | HttpException e) {
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
@@ -808,7 +808,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 });
                 // 异常返回点数
                 singleGiftCardRedeem.setNote("连接异常，请检查网络");
-                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode(),null);
             }catch (PointCostException e){
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
@@ -825,7 +825,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                 });
                 // 异常返回点数
                 singleGiftCardRedeem.setNote("数据处理异常");
-                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode());
+                pointCost(singleGiftCardRedeem,PointUtil.in,FunctionListEnum.GIFTCARD_BATCH_REDEEM_QUERY.getCode(),e);
             } finally {
                 Platform.runLater(() -> {
                     checkAccountBtn.setDisable(false);
