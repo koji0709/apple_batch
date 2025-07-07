@@ -31,7 +31,7 @@ public class ICloudUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Referer", ListUtil.toList("https://setup.icloud.com/setup/iosbuddy/loginDelegates"));
-        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
+        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; charset=UTF-8"));
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));

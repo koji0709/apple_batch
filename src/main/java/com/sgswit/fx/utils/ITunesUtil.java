@@ -446,7 +446,7 @@ public class ITunesUtil {
         Map<String,Object> result=new HashMap<>();
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("X-Apple-Store-Front",ListUtil.toList(MapUtil.getStr(paras,"storeFront")));
-//        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
+//        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,32"));
         headers.put("X-Apple-Client-Application",ListUtil.toList("Software"));
         if(hasInspectionFlag){
             headers.put("X-Dsid",ListUtil.toList(paras.get("dsPersonId").toString()));
@@ -553,7 +553,7 @@ public class ITunesUtil {
     public static HttpResponse authenticate(String account,String pwd,String authCode,String guid,String xAppleActionSignature,String authUrl){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
-        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,17"));
+        headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,32"));
         if (!StrUtil.isEmpty(xAppleActionSignature)){
             headers.put("X-Apple-ActionSignature",ListUtil.toList(xAppleActionSignature));
         }

@@ -525,11 +525,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             Map<String, String> cookieMap = new HashMap<>();
             cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
             authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
-
-            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
-            updateUI("初始化成功，下次启动将自动执行初始化", successColor);
-
-
             //https://secure4.store.apple.com/shop/giftcard/balance
             HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes.header("Location"));
             Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
@@ -538,6 +533,9 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
             authMap.put("x-as-actk", x_as_actk);
             loginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
+            scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
+            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
+            updateUI("初始化成功，下次启动将自动执行初始化", successColor);
         } catch (ServiceException e) {
             updateUI(e.getMessage(), redColor);
         } catch (Exception e) {

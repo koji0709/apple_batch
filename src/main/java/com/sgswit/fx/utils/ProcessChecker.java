@@ -1,6 +1,8 @@
 package com.sgswit.fx.utils;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import com.sgswit.fx.controller.common.CommonView;
 import javafx.application.Platform;
 
 import java.io.BufferedReader;
@@ -12,6 +14,7 @@ public class ProcessChecker {
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
     private static ScheduledFuture<?> scheduledFuture;
+    private static boolean showFlag=true;
 
     private static class ResultVo {
         private boolean flag;
@@ -94,7 +97,8 @@ public class ProcessChecker {
                     System.exit(0);
                 }
             } catch (IOException e) {
-                e.printStackTrace(); // 也可以用日志系统统一记录
+                // 也可以用日志系统统一记录
+                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

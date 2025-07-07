@@ -7,12 +7,10 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
-import com.sgswit.fx.ThreadLocalProxyInfo;
 import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
@@ -25,7 +23,10 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author DeZh
@@ -45,6 +46,7 @@ public class ProxyUtil {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
     private static Map<String, Integer> map503Error = new HashMap<>(16);
     private static Map<String, Integer> mapIoError = new HashMap<>(16);
+
 
     public static HttpResponse execute(HttpRequest request) {
         return execute(request,true);
@@ -118,7 +120,7 @@ public class ProxyUtil {
             handleRetry(requestId, sleepTime, tryIoNum, mapIoError);
         } else {
             if (!StringUtils.containsIgnoreCase(e.getMessage(), "Read timed out")){
-                e.printStackTrace();
+                LoggerManger.info("handleIoException",e);
                 throw new ServiceException("网络连接异常，请稍后重试");
             }
             if (readTimeoutTry){
@@ -162,8 +164,11 @@ public class ProxyUtil {
             return proxyRequest(request, sendTimeOut, readTimeOut);
         }
 
-        // API或导入代理
-        if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
+        //不使用代理
+        if (ProxyEnum.Mode.NONE.getKey().equals(proxyMode)) {
+            return proxyRequest(request, sendTimeOut, readTimeOut);
+        }else if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
+            // API或导入代理
             //判断是否为空
             String proxyApiUrl = PropertiesUtil.getOtherConfig("proxyApiUrl");
             String proxyApiUser = PropertiesUtil.getOtherConfig("proxyApiUser");
@@ -173,115 +178,72 @@ public class ProxyUtil {
                 return apiProxyRequest(request, proxyApiUrl, proxyApiUser, proxyApiPass, proxyApiNeedPass, sendTimeOut, readTimeOut);
             }
             return proxyRequest(request, sendTimeOut, readTimeOut);
-        }
-
-        // 使用隧道代理
-        if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
+        }else if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
+            // 使用隧道代理
             String address = PropertiesUtil.getOtherConfig("proxyTunnelAddress");
             String proxyHost = address.split(":")[0];
             int proxyPort = Integer.valueOf(address.split(":")[1]);
             String authUser = PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword = PropertiesUtil.getOtherConfig("proxyTunnelPass");
             //判断隧道代理配置的是是否是本机地址
-            boolean debugMode = PropertiesUtil.getConfigBool("debug", false);
-            if (isPrivateIP(proxyHost) && !debugMode) {
+            if (isPrivateIP(proxyHost)) {
                 return proxyRequest(request, sendTimeOut, readTimeOut);
             }else{
                 return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
             }
-        }
+        }else if((ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode))){
+            List<Map<String, Object>> proxyConfigList = DataUtil.getProxyConfig();
+            if (CollUtil.isEmpty(proxyConfigList)) {
+                return proxyRequest(request, sendTimeOut, readTimeOut);
+            }
+            //根据权重配比，随机获取一种
+            int[] weights = new int[proxyConfigList.size()];
+            int i = 0;
+            for (Map<String, Object> map : proxyConfigList) {
+                weights[i] = MapUtil.getInt(map, "weight");
+                i++;
+            }
+            int index = StrUtils.getWeightedRandomIndex(weights);
+            Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
 
-        // 使用内置代理, 兜底代码
-        List<Map<String, Object>> proxyConfigList = DataUtil.getProxyConfig();
-        if (CollUtil.isEmpty(proxyConfigList)) {
-            return proxyRequest(request, sendTimeOut, readTimeOut);
-        }
+            String proxyType = MapUtil.getStr(proxyConfigMap, "proxyType","0");
 
-        //根据权重配比，随机获取一种
-        int[] weights = new int[proxyConfigList.size()];
-        int i = 0;
-        for (Map<String, Object> map : proxyConfigList) {
-            weights[i] = MapUtil.getInt(map, "weight");
-            i++;
-        }
-        int index = StrUtils.getWeightedRandomIndex(weights);
-        Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
-
-        String proxyType = isRedeem(request) ? "1" : MapUtil.getStr(proxyConfigMap, "proxyType");
-
-        if (StrUtil.isNotEmpty(proxyType)){
-            // 私密代理
-            if ( "1".equals(proxyType)) {
-                //Entity entity = ApiProxyUtil.getRandomIp();
-                //Entity entity = JuliangIPUtil.getInstance().getIP();
-                Entity entity = IPManager.getInstance().getIP();
-                if (!CollUtil.isEmpty(entity)) {
-                    String proxyHost = entity.getStr("ip");
-                    int proxyPort = entity.getInt("port");
-                    String username = entity.getStr("username");
-                    String pwd = entity.getStr("pwd");
-                    String protocol_type = entity.getStr("protocol_type");
-                    username = AesUtil.decrypt(username);
-                    pwd = AesUtil.decrypt(pwd);
-                    return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
-                } else { // 如果获取不到代理ip, 则先使用隧道代理
-                   proxyType = "2";
-                   proxyConfigMap = proxyConfigList.stream()
-                            .filter(map -> "2".equals(map.get("proxyType")))
-                            .findFirst()
-                            .get();
-                   LoggerManger.info("获取代理IP失败, 切换至隧道代理。 proxyConfigList= " + proxyConfigList + ", proxyConfigMap = " + proxyConfigMap);
+            if (StrUtil.isNotEmpty(proxyType)){
+                // 私密代理
+                if ( "1".equals(proxyType)) {
+                    Entity entity = IPManager.getInstance().getIP();
+                    if (!CollUtil.isEmpty(entity)) {
+                        String proxyHost = entity.getStr("ip");
+                        int proxyPort = entity.getInt("port");
+                        String username = entity.getStr("username");
+                        String pwd = entity.getStr("pwd");
+                        String protocol_type = entity.getStr("protocol_type");
+                        username = AesUtil.decrypt(username);
+                        pwd = AesUtil.decrypt(pwd);
+                        return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
+                    } else { // 如果获取不到代理ip, 则先使用隧道代理
+                        proxyConfigMap = proxyConfigList.stream()
+                                .filter(map -> "2".equals(map.get("proxyType")))
+                                .findFirst()
+                                .get();
+                        LoggerManger.info("获取代理IP失败, 切换至隧道代理。 proxyConfigList= " + proxyConfigList + ", proxyConfigMap = " + proxyConfigMap);
+                    }
+                }else if ("2".equals(proxyType)) {
+                    String protocolType = MapUtil.getStr(proxyConfigMap, "protocolType");
+                    String authUser = MapUtil.getStr(proxyConfigMap, "account");
+                    String authPassword = MapUtil.getStr(proxyConfigMap, "pwd");
+                    authUser = AesUtil.decrypt(authUser);
+                    authPassword = AesUtil.decrypt(authPassword);
+                    proxyConfigMap.put("account", authUser);
+                    proxyConfigMap.put("pwd", authPassword);
+                    return proxyRequest(request, proxyConfigMap, sendTimeOut, readTimeOut, getProxyType(protocolType));
                 }
-            }
-
-            // 隧道代理
-            if ("2".equals(proxyType)) {
-                String protocolType = MapUtil.getStr(proxyConfigMap, "protocolType");
-                String authUser = MapUtil.getStr(proxyConfigMap, "account");
-                String authPassword = MapUtil.getStr(proxyConfigMap, "pwd");
-                authUser = AesUtil.decrypt(authUser);
-                authPassword = AesUtil.decrypt(authPassword);
-                proxyConfigMap.put("account", authUser);
-                proxyConfigMap.put("pwd", authPassword);
-                return proxyRequest(request, proxyConfigMap, sendTimeOut, readTimeOut, getProxyType(protocolType));
+                return proxyRequest(request,sendTimeOut,readTimeOut);
             }
         }
-
         return proxyRequest(request,sendTimeOut,readTimeOut);
     }
 
-    private static HttpRequest createRequestTest(HttpRequest request) {
-        int sendTimeOut = 10 * 1000;
-        int readTimeOut = 10 * 1000;
-
-        Entity entity = getProxyInfo();
-        String protocol_type = entity.getStr("protocol_type");
-
-        String proxyHost = entity.getStr("ip");
-        int proxyPort = entity.getInt("port");
-        String username = entity.getStr("username");
-        String pwd = entity.getStr("pwd");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
-    }
-
-    public static Entity getProxyInfo() {
-        Entity entity = ThreadLocalProxyInfo.get();
-        if (CollUtil.isEmpty(entity)) {
-            entity = new Entity();
-            entity.set("protocol_type", "1");
-            entity.set("ip", "k786.kdltps.com");
-            entity.set("port", "15818");
-            entity.set("username", "t11194129891958");
-            entity.set("pwd", "7gz517yn" + ":" + RandomUtil.randomNumbers(5));
-            ThreadLocalProxyInfo.set(entity);
-        }
-        return entity;
-    }
 
     private static HttpRequest apiProxyRequest(HttpRequest request, String proxyApiUrl, String proxyApiUser, String proxyApiPass, Boolean proxyApiNeedPass, int sendTimeOut, int readTimeout) {
         if (Validator.isUrl(proxyApiUrl)) {
@@ -363,44 +325,10 @@ public class ProxyUtil {
         return proxyType;
     }
 
-    public static void lock(HttpRequest request) {
-        String url = getUrl(request);
-        synchronized (getLock(url)) {
-            Instant now = Instant.now();
-            Instant lastRequestTime = uriTimestamps.get(url);
-            if (lastRequestTime != null) {
-                long elapsedTime = now.toEpochMilli() - lastRequestTime.toEpochMilli();
-                if (elapsedTime < MIN_INTERVAL_MS) {
-                    long waitTime = MIN_INTERVAL_MS - elapsedTime;
-                    CountDownLatch latch = new CountDownLatch(1);
-                    scheduler.schedule(() -> {
-                        latch.countDown();
-                    }, waitTime, TimeUnit.MILLISECONDS);
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            uriTimestamps.put(url, Instant.now());
-        }
-    }
-
-    public static void unlock(HttpRequest request) {
-        scheduler.schedule(() -> {
-            uriTimestamps.remove(getUrl(request));
-        }, MIN_INTERVAL_MS, TimeUnit.MILLISECONDS);
-    }
-
     public static String getUrl(HttpRequest request) {
         String url = request.getUrl();
         url = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
         return url;
-    }
-
-    private static Object getLock(String uri) {
-        return uri.intern();
     }
 
     public static boolean isPrivateIP(String ip) {
@@ -443,7 +371,7 @@ public class ProxyUtil {
             }
 
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            LoggerManger.info("isPrivateIP",e);
         }
         return false;
     }

@@ -1,4 +1,5 @@
 package com.sgswit.fx.utils;
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -48,7 +49,11 @@ public class PointUtil {
             //获取当前登录账号的用户名
             //String username=PropertiesUtil.getOtherConfig("login.userName");
             String username = LoginUtil.getUserName();
-            username=SignUtil.decryptBase64(username);
+
+//            username=SignUtil.decryptBase64(username);
+            username= Base64.decodeStr(username);
+
+
             Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);
             map.put("type",type);
