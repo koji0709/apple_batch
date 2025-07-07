@@ -12,6 +12,7 @@ import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -104,21 +105,20 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         String guid = accountModel.getGuid();
         String account = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "account")).getValue();
         String pwd     = ((SimpleStringProperty) ReflectUtil.getFieldValue(accountModel, "pwd")).getValue();
+        try {
+            // 对密码进行 XML 转义，确保特殊字符不会影响 XML 解析
+            pwd = StringEscapeUtils.escapeXml(pwd);
+        }catch (Exception e){
+
+        }
 
         HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid,"", url);
         url = authRsp.header("location");
         String status = String.valueOf(authRsp.getStatus());
-        if (status.equals(Constant.REDIRECT_CODE)){
+        if (status.equals(Constant.REDIRECT_CODE) && attempt ==0){
             return itunesLogin(accountModel,url,1);
         }else if (!status.equals(Constant.SUCCESS)){
             return authRsp;
-        }
-
-        JSONObject authBody        = PListUtil.parse(authRsp.body());
-        String     failureType     = authBody.getStr("failureType","");
-        // 重试
-        if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
-            return itunesLogin(accountModel,url,1);
         }
         // 双重认证
         Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp.body());

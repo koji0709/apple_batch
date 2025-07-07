@@ -264,7 +264,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         HttpResponse accountRsp = AppleIDUtil.account(account);
         checkAndThrowUnavailableException(accountRsp);
         if (StrUtil.isEmpty(accountRsp.body()) || !JSONUtil.isTypeJSON(accountRsp.body())){
-            throw new ServiceException("读取用户信息失败");
+            accountHandler(account);
         }
         JSON accountJson = JSONUtil.parse(accountRsp.body());
         account.setArea(accountJson.getByPath("account.person.primaryAddress.countryName",String.class));
