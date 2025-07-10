@@ -776,8 +776,9 @@ public class ITunesUtil {
     　* @author DeZh
     　* @date 2024/7/18 11:36
     */
-    public static Map<String, Object> checkLoginRes(String res){
+    public static Map<String, Object> checkLoginRes(HttpResponse httpResponse){
         Map<String,Object> result=new HashMap<>();
+        String res=httpResponse.charset("UTF-8").body();;
         JSONObject rspJSON = PListUtil.parse(res);
         boolean m_allowed =rspJSON.getByPath("m-allowed",boolean.class);
         //登录失败

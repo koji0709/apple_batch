@@ -913,12 +913,12 @@ public class PurchaseBillUtil {
                 countryName =DataUtil.getNameByCountryCode(countryCode);
             }
             paras.put("countryName",countryName);
-            if(res.getStatus()==302 && attempt ==0){
+            if(res.getStatus()==302 && !StringUtils.isEmpty(res.header("location"))){
                 return iTunesLogin(authCode,guid,1,paras);
             }
             String rb = res.charset("UTF-8").body();
             JSONObject rspJSON = PListUtil.parse(rb);
-            Map<String,Object> result=ITunesUtil.checkLoginRes(rb);
+            Map<String,Object> result=ITunesUtil.checkLoginRes(res);
             String code= (String) result.get("code");
             if(!Constant.SUCCESS.equals(code)){
                 if(Constant.CustomerMessageNotYetUsediTunesStoreCode.equals(code)){

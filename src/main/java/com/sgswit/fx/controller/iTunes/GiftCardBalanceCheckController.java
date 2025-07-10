@@ -1071,7 +1071,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }catch (Exception e){
                 throw new UnavailableException();
             }
-            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
+            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp);
 
             boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
             if (verify){
@@ -1117,13 +1117,12 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             return itunesLogin(accountModel,url,1);
         }
         // 双重认证
-        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp.body());
+        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp);
         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }else if(!Constant.SUCCESS.equals(result.get("code"))){
-
             throw new ServiceException(MapUtil.getStr(result,"msg"));
         }
         return authRsp;

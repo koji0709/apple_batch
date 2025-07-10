@@ -76,7 +76,9 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             }catch (Exception e){
                 throw new UnavailableException();
             }
-            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp.body());
+
+
+            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp);
 
             boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
             if (verify){
@@ -115,13 +117,13 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid,"", url);
         url = authRsp.header("location");
         String status = String.valueOf(authRsp.getStatus());
-        if (status.equals(Constant.REDIRECT_CODE) && attempt ==0){
+        if (status.equals(Constant.REDIRECT_CODE) && StrUtil.isNotEmpty(url)){
             return itunesLogin(accountModel,url,1);
         }else if (!status.equals(Constant.SUCCESS)){
             return authRsp;
         }
         // 双重认证
-        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp.body());
+        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp);
         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));

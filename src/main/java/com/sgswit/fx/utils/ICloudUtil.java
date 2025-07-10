@@ -12,6 +12,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class ICloudUtil {
         headers.put("Authorization", ListUtil.toList("Basic " + auth));
         headers.put("X-MMe-Client-Info", ListUtil.toList(Constant.XMMeClientInfo));
 
+        password= StringEscapeUtils.escapeXml(password);
         String body =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<plist version=\"1.0\">" +
