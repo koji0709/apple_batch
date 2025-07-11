@@ -9,6 +9,7 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.AppleIDUtil;
 import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.PointUtil;
@@ -147,24 +148,28 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         // 输出格式化结果
         for (String result : results) {
             Account account = new Account();
+            result=result.replace("{-}", AccountImportUtil.REPLACE_MEANT);
             String[] arr=result.split("-");
             if(arr.length>=1){
-                account.setAccount(arr[0]);
+                account.setAccount(replaceXX(arr[0]));
             }
             if(arr.length>=2){
-                account.setAnswer1(arr[1]);
+                account.setAnswer1(replaceXX(arr[1]));
             }
             if(arr.length>=3){
-                account.setAnswer2(arr[2]);
+                account.setAnswer2(replaceXX(arr[2]));
             }
             if(arr.length>=4){
-                account.setAnswer3(arr[3]);
+                account.setAnswer3(replaceXX(arr[3]));
             }
             if(arr.length>=5){
-                account.setBirthday(arr[4]);
+                account.setBirthday(replaceXX(arr[4]));
             }
             accountArrayList.add(account);
         }
         return accountArrayList;
+    }
+    private static String replaceXX(String str){
+        return str.replace(AccountImportUtil.REPLACE_MEANT,"-");
     }
 }
