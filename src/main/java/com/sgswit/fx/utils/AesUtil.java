@@ -77,7 +77,7 @@ public class AesUtil {
     public static void main(String[] args) {
         try {
             // 明文数据
-            String data = "";
+            String data = "maa31ogz";
 
             // 加密数据
             String encryptedData = AesUtil.encrypt(data);

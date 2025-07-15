@@ -12,6 +12,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class ICloudUtil {
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Host", ListUtil.toList("setup.icloud.com"));
         headers.put("Referer", ListUtil.toList("https://setup.icloud.com/setup/iosbuddy/loginDelegates"));
-        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; charset=UTF-8"));
+        headers.put("Content-Type", ListUtil.toList("application/x-apple-plist; Charset=UTF-8"));
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
@@ -41,6 +42,7 @@ public class ICloudUtil {
         headers.put("Authorization", ListUtil.toList("Basic " + auth));
         headers.put("X-MMe-Client-Info", ListUtil.toList(Constant.XMMeClientInfo));
 
+        password= StringEscapeUtils.escapeXml(password);
         String body =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<plist version=\"1.0\">" +

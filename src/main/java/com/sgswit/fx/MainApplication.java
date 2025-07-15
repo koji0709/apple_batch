@@ -75,6 +75,9 @@ public class MainApplication extends Application {
             if(!debug && checkAndUpdateVersion()){
 
             }else{
+
+
+
                 StageUtil.show(StageEnum.LOGIN);
                 //ToastUtil.init(getHostServices());  // 初始化 HostServices
                 //ToastUtil.show("小蓝鲸 - 新版本 1.2.3 可用！", "http://47.121.200.12:15000/api/version/getInfo");

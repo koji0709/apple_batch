@@ -1,5 +1,7 @@
 package com.sgswit.fx.controller;
 
+import cn.hutool.core.codec.Base62;
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.thread.ThreadUtil;
@@ -45,8 +47,6 @@ public class LoginController extends CommonView implements Initializable {
     @FXML
     private CheckBox autoLoginCheckBox;
 
-    @FXML
-    private ChoiceBox<String> qqChiceBox;
 
     @FXML
     private TextField registerUserNameTextField;
@@ -57,8 +57,6 @@ public class LoginController extends CommonView implements Initializable {
     @FXML
     private TextField registerEmailTextField;
 
-//    @FXML
-//    private TextField registerQQTextField;
 
     @FXML
     private TextField registerCardNoTextField;
@@ -88,8 +86,10 @@ public class LoginController extends CommonView implements Initializable {
         if (rememberMe){
             String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
             String base64Pwd=PropertiesUtil.getOtherConfig("login.pwd");
-            loginUserNameTextField.setText(SignUtil.decryptBase64(base64UserName));
-            loginPwdTextField.setText(SignUtil.decryptBase64(base64Pwd));
+//            loginUserNameTextField.setText(SignUtil.decryptBase64(base64UserName));
+//            loginPwdTextField.setText(SignUtil.decryptBase64(base64Pwd));
+            loginUserNameTextField.setText(Base64.decodeStr(base64UserName));
+            loginPwdTextField.setText(Base64.decodeStr(base64Pwd));
             rememberMeCheckBox.setSelected(true);
         }
         Task<Void> loadChartTask = new Task<Void>() {
@@ -128,19 +128,6 @@ public class LoginController extends CommonView implements Initializable {
                 }
             });
         }
-
-        // 在线qq
-        if (!autoLogin && SystemUtils.isWindows()){
-            ObservableList<String> qqList = FXCollections.observableArrayList();
-            for(String qq:TencentQQUtil.getLoginQQList()){
-                qqList.add(qq);
-            }
-            if (qqList.size()>0){
-                qqChiceBox.setItems(qqList);
-                qqChiceBox.setValue(qqList.get(0));
-            }
-        }
-
     }
 
     public void login(){
@@ -157,8 +144,10 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin= autoLoginCheckBox.isSelected();
         PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
         PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
-        PropertiesUtil.setOtherConfig("login.userName",SignUtil.encryptBase64(userName));
-        PropertiesUtil.setOtherConfig("login.pwd",SignUtil.encryptBase64(pwd));
+//        PropertiesUtil.setOtherConfig("login.userName",SignUtil.encryptBase64(userName));
+//        PropertiesUtil.setOtherConfig("login.pwd",SignUtil.encryptBase64(pwd));
+        PropertiesUtil.setOtherConfig("login.userName",Base64.encode(userName));
+        PropertiesUtil.setOtherConfig("login.pwd",Base64.encode(pwd));
         //利用hutool工具类中的封装方法获取本机mac地址
         String macAddress ="";
         try {
@@ -178,9 +167,10 @@ public class LoginController extends CommonView implements Initializable {
                 return;
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
-
-            LoginUtil.setUserName(SignUtil.encryptBase64(userName));
-            LoginUtil.setPwd(SignUtil.encryptBase64(pwd));
+//            LoginUtil.setUserName(SignUtil.encryptBase64(userName));
+//            LoginUtil.setPwd(SignUtil.encryptBase64(pwd));
+            LoginUtil.setUserName(Base64.encode(userName));
+            LoginUtil.setPwd(Base64.encode(pwd));
         }catch (Exception e){
             LoggerManger.info("登录失败",e);
             alert("服务异常，请联系管理员", Alert.AlertType.ERROR,true);
@@ -191,39 +181,11 @@ public class LoginController extends CommonView implements Initializable {
         StageUtil.close(StageEnum.LOGIN);
     }
 
-    public void qqLogin(){
-        String qq = qqChiceBox.getValue();
-        if (StrUtil.isEmpty(qq)){
-            alert("选中QQ不能为空！",Alert.AlertType.INFORMATION,true);
-            return;
-        }
-
-        String body = "{\"qq\":\"%s\"}";
-        body = String.format(body,qq);
-        String userInfo ="";
-        try {
-            HttpResponse rsp = HttpUtils.post("/userInfo/qqLogin", body);
-            boolean verify = HttpUtils.verifyRsp(rsp);
-            if (!verify){
-                alert(HttpUtils.message(rsp),Alert.AlertType.INFORMATION,true);
-                return;
-            }
-            userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
-        }catch (Exception e){
-            LoggerManger.info("登录失败",e);
-            alert("登录失败，服务异常", Alert.AlertType.ERROR,true);
-            return;
-        }
-        DataUtil.setUserInfo(userInfo);
-        StageUtil.show(StageEnum.MAIN);
-        StageUtil.close(StageEnum.LOGIN);
-    }
 
     public void register(){
         String userName = registerUserNameTextField.getText();
         String pwd = registerPwdTextField.getText();
         String email = registerEmailTextField.getText();
-//        String qq = registerQQTextField.getText();
         String cardNo = registerCardNoTextField.getText();
         if (StrUtil.isEmpty(userName)){
             alert("注册账号不能为空！",Alert.AlertType.INFORMATION,true);

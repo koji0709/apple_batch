@@ -1,7 +1,5 @@
 package com.sgswit.fx.controller.operation;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -11,9 +9,10 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
+import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
@@ -22,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -66,15 +64,8 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
             throw new ServiceException("问题2不能为空");
         }else if(StrUtil.isBlankIfStr(account.getAnswer1())){
             throw new ServiceException("问题3不能为空");
-        }
-        if(StrUtil.isBlankIfStr(account.getBirthday())){
+        }else if(StrUtil.isBlankIfStr(account.getBirthday())){
             throw new ServiceException("生日不能为空");
-        }else{
-            try{
-               DateUtil.parse(account.getBirthday());
-            }catch (Exception e){
-                throw new ServiceException("生日格式不正确！");
-            }
         }
         String newPassword = pwdTextField.getText();
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
@@ -101,7 +92,7 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         account.setSstt(sstt);
         HttpResponse verifyAppleIdRsp = AppleIDUtil.captchaAndVerifyPost(account);
         if (verifyAppleIdRsp.getStatus() != 302) {
-            throw new ServiceException("验证码自动识别失败，请稍后重试");
+            throw new ServiceException("验证码自动识别失败");
         }
         setAndRefreshNote(account,"验证码自动校验完毕");
         // 关闭双重认证
@@ -157,24 +148,28 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         // 输出格式化结果
         for (String result : results) {
             Account account = new Account();
+            result=result.replace("{-}", AccountImportUtil.REPLACE_MEANT);
             String[] arr=result.split("-");
             if(arr.length>=1){
-                account.setAccount(arr[0]);
+                account.setAccount(replaceXX(arr[0]));
             }
             if(arr.length>=2){
-                account.setAnswer1(arr[1]);
+                account.setAnswer1(replaceXX(arr[1]));
             }
             if(arr.length>=3){
-                account.setAnswer2(arr[2]);
+                account.setAnswer2(replaceXX(arr[2]));
             }
             if(arr.length>=4){
-                account.setAnswer3(arr[3]);
+                account.setAnswer3(replaceXX(arr[3]));
             }
             if(arr.length>=5){
-                account.setBirthday(arr[4]);
+                account.setBirthday(replaceXX(arr[4]));
             }
             accountArrayList.add(account);
         }
         return accountArrayList;
+    }
+    private static String replaceXX(String str){
+        return str.replace(AccountImportUtil.REPLACE_MEANT,"-");
     }
 }
