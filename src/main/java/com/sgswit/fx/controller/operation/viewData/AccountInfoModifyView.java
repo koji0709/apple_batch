@@ -2,7 +2,10 @@ package com.sgswit.fx.controller.operation.viewData;
 
 import com.sgswit.fx.controller.common.AppleIdView;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 
 /**
  * 官网修改资料view元素

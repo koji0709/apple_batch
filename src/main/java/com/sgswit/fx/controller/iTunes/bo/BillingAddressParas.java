@@ -56,33 +56,33 @@ public class BillingAddressParas {
             this.type = type;
         }
     }
-    public static List<BillingAddressParas.Paras> paras=new ArrayList<>(){{
-        add(new BillingAddressParas.Paras("firstName","姓氏","ownerName_firstName","text"));
-        add(new BillingAddressParas.Paras("lastName","名字","ownerName_lastName","text"));
-        add(new BillingAddressParas.Paras("phoneAreaCode","区号","phoneNumber_areaCode","text"));
-        add(new BillingAddressParas.Paras("phoneNumber","电话号","phoneNumber_number","text"));
-        add(new BillingAddressParas.Paras("countryCode","网路拨号","phoneNumber_countryCode","text"));
-        add(new BillingAddressParas.Paras("line1","街名和门牌号","billingAddress_line1","text"));
-        add(new BillingAddressParas.Paras("line2","楼号、单元号、房间号","billingAddress_line2","text"));
-        add(new BillingAddressParas.Paras("line3","街","billingAddress_line3","text"));
-        add(new BillingAddressParas.Paras("suburb","郊区","billingAddress_suburb","text"));
-        add(new BillingAddressParas.Paras("county","县市","billingAddress_county","text"));
-        add(new BillingAddressParas.Paras("city","城市","billingAddress_city","text"));
-        add(new BillingAddressParas.Paras("country","国家/地区","billingAddress_countryCode","text"));
-        add(new BillingAddressParas.Paras("postalCode","邮政编码","billingAddress_postalCode","text"));
-        add(new BillingAddressParas.Paras("stateProvince","省","billingAddress_stateProvinceName","dropdown"));
+    public static List<Paras> paras=new ArrayList<>(){{
+        add(new Paras("firstName","姓氏","ownerName_firstName","text"));
+        add(new Paras("lastName","名字","ownerName_lastName","text"));
+        add(new Paras("phoneAreaCode","区号","phoneNumber_areaCode","text"));
+        add(new Paras("phoneNumber","电话号","phoneNumber_number","text"));
+        add(new Paras("countryCode","网路拨号","phoneNumber_countryCode","text"));
+        add(new Paras("line1","街名和门牌号","billingAddress_line1","text"));
+        add(new Paras("line2","楼号、单元号、房间号","billingAddress_line2","text"));
+        add(new Paras("line3","街","billingAddress_line3","text"));
+        add(new Paras("suburb","郊区","billingAddress_suburb","text"));
+        add(new Paras("county","县市","billingAddress_county","text"));
+        add(new Paras("city","城市","billingAddress_city","text"));
+        add(new Paras("country","国家/地区","billingAddress_countryCode","text"));
+        add(new Paras("postalCode","邮政编码","billingAddress_postalCode","text"));
+        add(new Paras("stateProvince","省","billingAddress_stateProvinceName","dropdown"));
     }};
 
-    public static BillingAddressParas.Paras getParasInfoByKey(String key){
-        List<BillingAddressParas.Paras> list= paras.stream().filter(n->n.getKey().equals(key)).collect(Collectors.toList());
+    public static Paras getParasInfoByKey(String key){
+        List<Paras> list= paras.stream().filter(n->n.getKey().equals(key)).collect(Collectors.toList());
         return (list.size()==0)?null:list.get(0);
     }
-    public static BillingAddressParas.Paras getParasInfoByPath(String key){
-        List<BillingAddressParas.Paras> list= paras.stream().filter(n->n.getPath().equals(key)).collect(Collectors.toList());
+    public static Paras getParasInfoByPath(String key){
+        List<Paras> list= paras.stream().filter(n->n.getPath().equals(key)).collect(Collectors.toList());
         return (list.size()==0)?null:list.get(0);
     }
     public static boolean hasObjByPath(String key){
-        List<BillingAddressParas.Paras> list= paras.stream().filter(n->n.getPath().equals(key)).collect(Collectors.toList());
+        List<Paras> list= paras.stream().filter(n->n.getPath().equals(key)).collect(Collectors.toList());
         return (list.size()==0)?false:true;
     }
 }

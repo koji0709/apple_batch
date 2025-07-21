@@ -19,7 +19,6 @@ import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -91,14 +90,9 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                     String code = JSONUtil.parseObj(jsonArray.get(0)).getStr("code");
                     if("captchaAnswer.Invalid".equals(code)){
-                        if(account.getMaxCaptchaAnswerInvalidCount()<0){
-                            setAndRefreshNote(account,"验证码自动识别失败，请稍后重试");
-                        }else{
-                            //返还点数
-                            PointUtil.pointCost(FunctionListEnum.RAPID_FILTRATION.getCode(),PointUtil.in,account.getAccount());
-                            account.setMaxCaptchaAnswerInvalidCount(account.getMaxCaptchaAnswerInvalidCount()-1);
-                            accountHandler(account);
-                        }
+                        //返还点数
+                        PointUtil.pointCost(FunctionListEnum.WHETHER_APPLEID.getCode(),PointUtil.in,account.getAccount());
+                        accountHandler(account);
                     }else{
                         String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
                         setAndRefreshNote(account,message);

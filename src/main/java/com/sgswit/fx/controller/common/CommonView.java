@@ -111,7 +111,17 @@ public class CommonView implements Initializable {
         Object hasError = JSONUtil.parseObj(body).getByPath("hasError");
         return null != hasError && (Boolean) hasError;
     }
-
+    public static boolean confirmationDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        // 自定义按钮文本（可选）
+        ButtonType yesButton = new ButtonType("确定");
+        alert.getButtonTypes().setAll(yesButton);
+        // 显示对话框并等待用户响应
+        return alert.showAndWait().filter(response -> response == yesButton).isPresent();
+    }
     public String failMessage(HttpResponse rsp) {
         StringBuffer stringBuffer=new StringBuffer();
         Object service_errors = JSONUtil.parseObj(rsp.body()).getByPath("service_errors");

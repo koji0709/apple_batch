@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  */
 public class AccountImportUtil<T>{
     /**分割字符串**/
-    public static final String SPLIT_STRING = "\\{`}";
+    public static final String SPLIT_STRING = "；";
     /**替换字符串**/
-    public static final String REPLACE_MEANT = "\\{*}";
+    public static final String REPLACE_MEANT = "？";
     /**邮箱格式**/
     public static final String regex = "\u4e00-\u9fa5a-zA-Z0-9._%+-";
 
@@ -138,7 +138,7 @@ public class AccountImportUtil<T>{
         pwd= StrUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
         if(!StringUtils.isEmpty(account)){
-            list.add(account);
+            list.add(account.replace(REPLACE_MEANT,"-"));
         }
         if(!StringUtils.isEmpty(pwd)){
             String[] a=pwd.split(SPLIT_STRING);
@@ -165,5 +165,113 @@ public class AccountImportUtil<T>{
             firstEmail =matcher.group();
         }
         return firstEmail;
+    }
+
+    public static class AccountParser {
+
+        private static final Pattern PATTERN = Pattern.compile(
+                "^\\s*(?<username>[\\w？@.\\-]+)" +
+                        "(?:[\\s]+(?<password>[^\\s]*))?" +
+                        "[\\s]+(?<q1>.+?)" +
+                        "[\\s]+(?<q2>.+?)" +
+                        "[\\s]+(?<q3>.+?)" +
+                        "[\\s]+(?<birthDate>\\d{4}(?:[-/]?\\d{1,2}){2})\\s*$"
+        );
+        private static Map<String, String> parse(String line) {
+            Matcher matcher = PATTERN.matcher(line);
+            if (!matcher.matches()) {
+                return Collections.emptyMap();
+            }
+            Map<String, String> result = new LinkedHashMap<>();
+            result.put("username", matcher.group("username").replaceAll(AccountImportUtil.REPLACE_MEANT,"-"));
+            result.put("password", Optional.ofNullable(matcher.group("password")).orElse("").replaceAll(AccountImportUtil.REPLACE_MEANT,"-"));
+            result.put("securityQuestion1", matcher.group("q1"));
+            result.put("securityQuestion2", matcher.group("q2"));
+            result.put("securityQuestion3", matcher.group("q3"));
+            result.put("birthDate", normalizeDate(matcher.group("birthDate")));
+
+            return result;
+        }
+        private static Map<String, String> parseBySemicolon(String input) {
+            Map<String, String> result = new LinkedHashMap<>();
+            // 提取出生日期
+            Pattern datePattern = Pattern.compile(
+                    "\\b(?:\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}|\\d{8})\\b"
+            );
+
+            Matcher matcher = datePattern.matcher(input);
+            String birthDate = null;
+            if (matcher.find()) {
+                birthDate = normalizeDate(matcher.group());
+                input = input.substring(0, matcher.start()).trim(); // 去掉出生日期部分
+            }
+            if (birthDate != null) {
+                result.put("birthDate", birthDate);
+            }
+            // 拆分剩下部分
+            String[] arr = input.split(AccountImportUtil.SPLIT_STRING);
+            int len = arr.length;
+            if (len == 0) {
+                return result;
+            }
+
+            result.put("username",replaceXX(arr[0]));
+
+            if (len == 1) {
+                // 只有用户名
+                return result;
+            }else if (len == 2) {
+                // 用户名 + 密码
+                result.put("password", replaceXX(arr[1]));
+                return result;
+            }else if (len >= 3) {
+                result.put("password", "");
+                // 判断 arr[1] 是否为密码：如果总长度 >= 5，则 arr[1] 是密码，否则就是密保
+                if (len >= 5) {
+                    result.put("password", replaceXX(arr[1]));
+                    result.put("securityQuestion1", arr[2]);
+                    result.put("securityQuestion2", arr[3]);
+                    result.put("securityQuestion3", arr[4]);
+                } else if (len == 4) {
+                    result.put("securityQuestion1", arr[1]);
+                    result.put("securityQuestion2", arr[2]);
+                    result.put("securityQuestion3", arr[3]);
+                } else if (len == 3) {
+                    result.put("securityQuestion1", arr[1]);
+                    result.put("securityQuestion2", arr[2]);
+                }
+            }
+            return result;
+        }
+        private static String normalizeDate(String rawDate) {
+            // 将日期格式统一为 yyyy-MM-dd
+            rawDate = rawDate.replaceAll("[/]", "-");
+            String[] parts = rawDate.split("-");
+            if (parts.length == 3) {
+                String y = parts[0];
+                String m = String.format("%02d", Integer.parseInt(parts[1]));
+                String d = String.format("%02d", Integer.parseInt(parts[2]));
+                return y + "-" + m + "-" + d;
+            } else if (rawDate.matches("\\d{8}")) {
+                return rawDate.substring(0, 4) + "-" + rawDate.substring(4, 6) + "-" + rawDate.substring(6, 8);
+            }
+            return rawDate;
+        }
+        public static Map<String, String> parseAccountToMap(String input) {
+            input=input.replaceAll("\\{-\\}", AccountImportUtil.REPLACE_MEANT);
+            Pattern pattern = Pattern.compile("(\\d{4})-(\\d{1,2})-(\\d{1,2})");
+            Matcher matcher = pattern.matcher(input);
+            String output = matcher.replaceAll("$1/$2/$3");
+            output=output.replaceAll("[\\t|\\r|-]+",  AccountImportUtil.SPLIT_STRING);
+            Map<String, String> parsed = parse(output);
+            if(parsed.isEmpty()){
+                return parseBySemicolon(output);
+            }else{
+                return parsed;
+            }
+        }
+        private static String replaceXX(String str){
+            return str.replace(AccountImportUtil.REPLACE_MEANT,"-");
+        }
     }
 }

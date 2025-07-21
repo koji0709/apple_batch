@@ -49,6 +49,9 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.SQLException;
@@ -357,7 +360,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             pointIncr(account);
             setDataStatus(account,false);
         }catch (PointDeduException e){// 部分业务抛出异常,但是还是要扣除点数
-            pointCost(account,PointUtil.out,e.getFunCode());
+            pointCost(account,PointUtil.out,e.getFunCode(),null);
             setAndRefreshNote(account,e.getMessage());
             setNote(account,e.getMessage(),"");
             pointIncr(account);
@@ -391,9 +394,9 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setDataStatus(account,false);
             LoggerManger.info("响应超时",e);
         } catch (Exception e) {
-            // 程序异常
-            setAndRefreshNote(account, "数据处理异常");
-            pointIncr(account);
+            e.printStackTrace();
+            setAndRefreshNote(account, "数据处理异常。");
+            pointIncr(account,e);
             setDataStatus(account,false);
             LoggerManger.info("数据处理异常",e);
         } finally {
@@ -945,22 +948,48 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
      * @param account
      */
     public void pointDedu(T account){
-        pointCost(account,PointUtil.out,funCode);
+        pointCost(account,PointUtil.out,funCode,null);
     }
 
     /**
      * 点数返回
      */
     public void pointIncr(T account){
-        pointCost(account,PointUtil.in,funCode);
+        pointCost(account,PointUtil.in,funCode,null);
+    }
+
+    /**
+     * 点数返回
+     */
+    public void pointIncr(T account,Exception e){
+        pointCost(account,PointUtil.in,funCode,e);
     }
 
     /**
      * 点数操作
      */
-    public void pointCost(T account,String type,String funcCode){
+    public void pointCost(T account,String type,String funcCode,Exception e){
+        // 获取错误信息
+        String stackTrace = "";
+        if (e != null){
+            // 捕获完整的错误栈信息
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            stackTrace = stringWriter.toString();
+
+            // 关闭资源
+            printWriter.close();
+            try {
+                stringWriter.close();
+            } catch (IOException ignored) {}
+        }
+
         Object note=getAccountField(account,"note");
-        Map<String,String> pointCost = PointUtil.pointCost(funcCode,type,getAccountNo(account),null==note?"":note.toString());
+        String reason = null==note?"":note.toString();
+        reason = StrUtil.isEmpty(stackTrace) ? reason : reason + " ---> " + stackTrace;
+
+        Map<String,String> pointCost = PointUtil.pointCost(funcCode,type,getAccountNo(account),reason);
         if(!Constant.SUCCESS.equals(pointCost.get("code"))){
             throw new PointCostException(type,pointCost.get("msg"));
         }
@@ -979,6 +1008,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     public void setAndRefreshNote(T account, String note) {
         setAndRefreshNote(account, note,"");
     }
+
     protected void tableRefreshAndInsertLocal(T account, String message){
         setAndRefreshNote(account,message);
         insertLocalHistory(List.of(account));

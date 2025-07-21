@@ -8,12 +8,12 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreItemVo;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.ITunesUtil;
 import com.sgswit.fx.utils.StageUtil;
-import com.sgswit.fx.constant.StoreFontsUtils;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,7 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class AppstoreSearchController extends CommonView implements Initializable{
