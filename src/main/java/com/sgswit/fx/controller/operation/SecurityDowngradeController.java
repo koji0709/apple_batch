@@ -11,8 +11,8 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
 import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
@@ -22,9 +22,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -110,61 +109,20 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
     }
     @Override
     public List<Account> parseAccount(String accountStr){
-
-        List<String> results = new ArrayList<>();
-        List<Account> accountArrayList = new ArrayList<>();
-
-        // 正则匹配邮箱开头的行
-        String regex = "(\\S+@\\S+\\.[a-zA-Z]{2,})(.*)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(accountStr);
-
-        while (matcher.find()) {
-            String email = matcher.group(1); // 提取邮箱
-            String details = matcher.group(2); // 其余部分
-
-            // 处理分隔符：将 ----、空格、tab 统一替换为 -
-            details = details.replaceAll("[\\s-]+", "-").replaceAll("^-|-$", "");
-
-            // 处理日期格式：匹配 YYYY-MM-DD 或 Y M D
-            String dateRegex = "(\\d{4})[-\\s]+(\\d{1,2})[-\\s]+(\\d{1,2})";
-            Pattern datePattern = Pattern.compile(dateRegex);
-            Matcher dateMatcher = datePattern.matcher(details);
-
-            if (dateMatcher.find()) {
-                // 格式化日期为 YYYYMMDD
-                String formattedDate = dateMatcher.group(1)
-                        + String.format("%02d", Integer.parseInt(dateMatcher.group(2)))
-                        + String.format("%02d", Integer.parseInt(dateMatcher.group(3)));
-                // 移除原始日期部分
-                details = details.replace(dateMatcher.group(0), "").replaceAll("--+", "-").replaceAll("^-|-$", "");
-                // 拼接格式化字符串
-                results.add(email + "-" + details + "-" + formattedDate);
-            } else {
-                results.add(email + "-" + details);
-            }
+        List<Account>accountArrayList =new ArrayList<>();
+        String[] accList = accountStr.split("\n");
+        if (accList.length == 0){
+            return new ArrayList<>();
         }
-
-        // 输出格式化结果
-        for (String result : results) {
-            Account account = new Account();
-            result=result.replace("{-}", AccountImportUtil.REPLACE_MEANT);
-            String[] arr=result.split("-");
-            if(arr.length>=1){
-                account.setAccount(replaceXX(arr[0]));
-            }
-            if(arr.length>=2){
-                account.setAnswer1(replaceXX(arr[1]));
-            }
-            if(arr.length>=3){
-                account.setAnswer2(replaceXX(arr[2]));
-            }
-            if(arr.length>=4){
-                account.setAnswer3(replaceXX(arr[3]));
-            }
-            if(arr.length>=5){
-                account.setBirthday(replaceXX(arr[4]));
-            }
+        for (String acc : accList){
+            Account account= new Account();
+            Map<String, String> map=AccountImportUtil.AccountParser.parseAccountToMap(acc);
+            account.setAccount(map.get("username"));
+            account.setPwd(map.get("password"));
+            account.setBirthday(map.get("birthDate"));
+            account.setAnswer1(map.get("securityQuestion1"));
+            account.setAnswer2(map.get("securityQuestion2"));
+            account.setAnswer3(map.get("securityQuestion3"));
             accountArrayList.add(account);
         }
         return accountArrayList;

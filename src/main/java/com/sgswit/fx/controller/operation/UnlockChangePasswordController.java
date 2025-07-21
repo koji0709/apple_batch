@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
@@ -53,6 +54,15 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
 
     @Override
     public void accountHandler(Account account) {
+        if(StrUtil.isEmpty(account.getBirthday())){
+            setAndRefreshNote(account,"请完善生日信息");
+            return;
+        }else if(StrUtil.isEmpty(account.getAnswer1())||StrUtil.isEmpty(account.getAnswer2())||StrUtil.isEmpty(account.getAnswer3())){
+            setAndRefreshNote(account,"请完善密保信息");
+            return;
+        }
+
+
         String newPassword = pwdTextField.getText();
         String url = "https://iforgot.apple.com/password/verify/appleid?language=zh_CN";
         HttpResponse verifyAppleIdInitRsp= ProxyUtil.execute(
@@ -101,5 +111,25 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     public void closeStageActionBefore() {
         String pwdText= pwdTextField.getText();
         PropertiesUtil.setOtherConfig("txtRecoveryPwd",pwdText);
+    }
+    @Override
+    public List<Account> parseAccount(String accountStr){
+        List<Account>accountArrayList =new ArrayList<>();
+        String[] accList = accountStr.split("\n");
+        if (accList.length == 0){
+            return new ArrayList<>();
+        }
+        for (String acc : accList){
+            Account account= new Account();
+            Map<String, String> map=AccountImportUtil.AccountParser.parseAccountToMap(acc);
+            account.setAccount(map.get("username"));
+            account.setPwd(map.get("password"));
+            account.setBirthday(map.get("birthDate"));
+            account.setAnswer1(map.get("securityQuestion1"));
+            account.setAnswer2(map.get("securityQuestion2"));
+            account.setAnswer3(map.get("securityQuestion3"));
+            accountArrayList.add(account);
+        }
+        return accountArrayList;
     }
 }

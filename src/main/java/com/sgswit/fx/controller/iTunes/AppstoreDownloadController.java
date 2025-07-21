@@ -282,7 +282,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         hBox1.getChildren().addAll(selectBtn,unselectBtn,widthLabel,label1,choiceBox);
 
         // 表格区域
-        javafx.scene.control.TableView<AppstoreItemVo> tableView = new javafx.scene.control.TableView();
+        TableView<AppstoreItemVo> tableView = new TableView();
         tableView.setPrefHeight(500);
         tableView.setEditable(true);
         TableColumn col1 = new TableColumn<>("");

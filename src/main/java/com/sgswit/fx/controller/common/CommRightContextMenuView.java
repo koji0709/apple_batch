@@ -4,7 +4,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sgswit.fx.MainApplication;
-import com.sgswit.fx.SecuritycodePopupController;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.ConsumptionBill;
 import com.sgswit.fx.model.KeyValuePair;
@@ -490,7 +489,7 @@ public class CommRightContextMenuView<T> extends CommonView {
         }
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
 
-        SecuritycodePopupController s = fxmlLoader.getController();
+        SecuritycodePopupView s = fxmlLoader.getController();
         s.setAccount(account);
 
         Stage popupStage = new Stage();

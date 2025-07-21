@@ -3,7 +3,6 @@ package com.sgswit.fx.controller.operation;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -123,49 +122,27 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         openImportAccountView(List.of("account----pwd","account----pwd-answer1-answer2-answer3"),actionEvent);
     }
 
+    @Override
     public List<Account> parseAccount(String accountStr) {
-        if (StrUtil.isEmpty(accountStr)){
-            return Collections.emptyList();
-        }
+        List<Account>accountArrayList =new ArrayList<>();
         String[] accList = accountStr.split("\n");
         if (accList.length == 0){
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
-        List<String> fieldList = Arrays.asList("account","pwd","answer1","answer2","answer3");
-
-        List<Account> accountList = new ArrayList<>();
-        for (int i = 0; i < accList.length; i++) {
-            String acc = accList[i];
-            if(StringUtils.isEmpty(acc)){
-                continue;
-            }
-            acc = acc.trim();
-            List<String> fieldValueList = splitfieldValue(acc);
-            Account account = new Account();
-            for (int i1 = 0; i1 < fieldList.size(); i1++) {
-                if (i1 < fieldValueList.size()){
-                    String field = fieldList.get(i1);
-                    ReflectUtil.invoke(
-                            account
-                            , "set" + field.substring(0, 1).toUpperCase() + field.substring(1)
-                            , fieldValueList.get(i1));
-                }
-            }
-            accountList.add(account);
+        for (String acc : accList){
+            Account account= new Account();
+            Map<String, String> map=AccountImportUtil.AccountParser.parseAccountToMap(acc);
+            account.setAccount(map.get("username"));
+            account.setPwd(map.get("password"));
+            account.setBirthday(map.get("birthDate"));
+            account.setAnswer1(map.get("securityQuestion1"));
+            account.setAnswer2(map.get("securityQuestion2"));
+            account.setAnswer3(map.get("securityQuestion3"));
+            accountArrayList.add(account);
         }
-        return accountList;
+        return accountArrayList;
     }
 
-    public static List<String> splitfieldValue(String acc) {
-        // 判断字符串是否包含空格或制表符
-        if (acc.contains(" ") || acc.contains("\t")) {
-            // 使用空格或制表符作为分隔符分割字符串
-            return Arrays.asList(acc.split("[ \t]+"));
-        } else {
-            // 使用 ---- 或 - 作为分隔符分割字符串
-            return Arrays.asList(acc.split("[-]+"));
-        }
-    }
 
     @Override
     public boolean executeButtonActionBefore() {
@@ -257,6 +234,11 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         boolean removeDeviceCheckBoxSelected = removeDeviceCheckBox.isSelected();
         boolean removeRescueEmailCheckBoxSelected = removeRescueEmailCheckBox.isSelected();
         boolean updateShowLangCheckBoxSelected = updateShowLangCheckBox.isSelected();
+        if(StrUtil.isEmpty(account.getPwd())){
+            account.setNote("密码信息为空");
+            return;
+        }
+
 
         // 登录账号
         login(account);
