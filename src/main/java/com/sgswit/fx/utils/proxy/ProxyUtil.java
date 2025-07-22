@@ -209,8 +209,6 @@ public class ProxyUtil {
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理
             if ( "1".equals(proxyType)) {
-                //Entity entity = ApiProxyUtil.getRandomIp();
-                //Entity entity = JuliangIPUtil.getInstance().getIP();
                 Entity entity = IPManager.getInstance().getIP();
                 if (!CollUtil.isEmpty(entity)) {
                     String proxyHost = entity.getStr("ip");
@@ -325,46 +323,6 @@ public class ProxyUtil {
             proxyType = Proxy.Type.HTTP;
         }
         return proxyType;
-    }
-
-    public static void lock(HttpRequest request) {
-        String url = getUrl(request);
-        synchronized (getLock(url)) {
-            Instant now = Instant.now();
-            Instant lastRequestTime = uriTimestamps.get(url);
-            if (lastRequestTime != null) {
-                long elapsedTime = now.toEpochMilli() - lastRequestTime.toEpochMilli();
-                if (elapsedTime < MIN_INTERVAL_MS) {
-                    long waitTime = MIN_INTERVAL_MS - elapsedTime;
-                    CountDownLatch latch = new CountDownLatch(1);
-                    scheduler.schedule(() -> {
-                        latch.countDown();
-                    }, waitTime, TimeUnit.MILLISECONDS);
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            uriTimestamps.put(url, Instant.now());
-        }
-    }
-
-    public static void unlock(HttpRequest request) {
-        scheduler.schedule(() -> {
-            uriTimestamps.remove(getUrl(request));
-        }, MIN_INTERVAL_MS, TimeUnit.MILLISECONDS);
-    }
-
-    public static String getUrl(HttpRequest request) {
-        String url = request.getUrl();
-        url = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
-        return url;
-    }
-
-    private static Object getLock(String uri) {
-        return uri.intern();
     }
 
     public static boolean isPrivateIP(String ip) {

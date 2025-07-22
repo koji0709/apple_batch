@@ -11,10 +11,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
+import cn.hutool.http.*;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -41,30 +38,7 @@ import java.util.Map;
 public class PurchaseBillUtil {
 
     public static void main(String[] args ) throws Exception {
-
-        
-        String url="https://play.itunes.apple.com/WebObjects/MZPlay.woa/wa/signSapSetup";
-        String body="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-                "<plist version=\"1.0\">\n" +
-                "<dict>\n" +
-                "\t<key>sign-sap-setup-buffer</key>\n" +
-                "\t<data>\n" +
-                "AnZ4Hj9lnZTXlUd6PodSFuwOX9XiqIVb4X97k3lXJWJvAAAB0AMAAAACAAABAKvN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76vN76sAAAAeeJfJJ89t2u89s2vxAMJBUaK5ImgZUOHkTpJ3k3JLAAAAnwFS6jUy6SO/LE9fBSmftJUoR2387QAAAIYJAcmjalt4Rbs5o/KlRllNpuxm4+SyWBolXso7uGv5Mc9HwpM6tXHlRl7LiSOYRPxQxl4EcwMzL1zOaRvDbPQB6GNfyzfbMkPa/S3BBIU3RIjKXIEowSIFIyMT0/hZmk0BrtYD714aMjNXnbEnhXZpJTCzyBzSZiRHU3PllJUcSfGKtVbJHgAA%" +
-                "\t</data>\n" +
-                "</dict>\n" +
-                "</plist>";
-
-        HttpResponse execute = HttpUtil.createPost(url).body(body).execute();
-        System.err.println(execute);
-
-
-//        HttpResponse step4Res = ProxyUtil.createRequest(Method.POST,url)
-//                .body(body)
-//                .execute();
-
-        //Map<String,Object> res= iTunesAuth("3406858043@qq.com","B0527s0207");
-//        ITunesUtil.getPaymentInfos(res);
+        Map<String,Object> res= iTunesAuth("djli0506@163.com","B0527s0207");
     }
     ///网页版版
     public static Map<String,Object> webLoginAndAuth(String account,String pwd){
@@ -809,19 +783,6 @@ public class PurchaseBillUtil {
     }
 
 
-    private static String getBit(byte by){
-        StringBuffer sb = new StringBuffer();
-        sb.append((by>>7)&0x1)
-                .append((by>>6)&0x1)
-                .append((by>>5)&0x1)
-                .append((by>>4)&0x1)
-                .append((by>>3)&0x1)
-                .append((by>>2)&0x1)
-                .append((by>>1)&0x1)
-                .append((by>>0)&0x1);
-        return sb.toString();
-    }
-
     private static String createFrameId(){
 
         Digester md5 = new Digester(DigestAlgorithm.MD5);
@@ -860,18 +821,23 @@ public class PurchaseBillUtil {
     }
     private static Map<String,Object> iTunesLogin(String authCode,String guid, Integer attempt,Map<String,Object> paras){
         HashMap<String, List<String>> headers = new HashMap<>();
-        headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
-        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
+        headers.put("Content-Type", ListUtil.toList(ContentType.FORM_URLENCODED.getValue()));
         headers.put("X-Apple-Store-Front", ListUtil.toList("143465-19,32"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9"));
+        headers.put("User-Agent", ListUtil.toList(Constant.CONFIGURATOR_USER_AGENT));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.9,en;q=0"));
+
+
+
         // 对密码进行 XML 转义，确保特殊字符不会影响 XML 解析
-        String escapedPassword = StringEscapeUtils.escapeXml(paras.get("pwd").toString());
+//        String escapedPassword = StringEscapeUtils.escapeXml(paras.get("pwd").toString());
+        String escapedPassword = paras.get("pwd").toString();
+        String appleId = StringEscapeUtils.escapeXml(paras.get("account").toString());
         String authBody = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
                 "<plist version=\"1.0\">"+
                     "<dict>"+
                         "<key>appleId</key>"+
-                        "<string>"+paras.get("account")+"</string>"+
+                        "<string>"+appleId+"</string>"+
                         "<key>attempt</key>"+
                         "<string>4</string>"+
                         "<key>createSession</key>"+
@@ -888,11 +854,11 @@ public class PurchaseBillUtil {
                 "</plist>";
         try {
             String authUrl=MapUtil.getStr(paras,"authUrl");
-            HttpRequest httpRequest=HttpUtil.createPost(authUrl)
-                    .header(headers)
+            HttpResponse res= ProxyUtil.execute(HttpUtil.createPost(authUrl)
                     .cookie(MapUtil.getStr(paras,"cookies"))
-                    .body(authBody);
-            HttpResponse res = ProxyUtil.execute(httpRequest);
+                    .header(headers)
+                    .body(authBody, ContentType.FORM_URLENCODED.getValue()));
+
             paras.put("itspod",res.header(Constant.ITSPOD));
             if(!StringUtils.isEmpty(res.header("location"))){
                 paras.put("authUrl",res.header("location"));
@@ -901,19 +867,16 @@ public class PurchaseBillUtil {
             paras.put("storeFront",res.header(Constant.HTTPHeaderStoreFront));
             paras.put("guid",guid);
             String countryCode= "";
-            if(StrUtil.isBlankIfStr(MapUtil.getStr(paras,"storeFront"))){
-
-            }else{
+            if(!StrUtil.isBlankIfStr(MapUtil.getStr(paras,"storeFront"))){
                 countryCode= StoreFontsUtils.getCountryCodeFromStoreFront(MapUtil.getStr(paras,"storeFront"));
             }
             String countryName="-";
-            if(StringUtils.isEmpty(countryCode)){
-
-            }else{
+            if(!StringUtils.isEmpty(countryCode)){
                 countryName =DataUtil.getNameByCountryCode(countryCode);
             }
             paras.put("countryName",countryName);
-            if(res.getStatus()==302 && !StringUtils.isEmpty(res.header("location"))){
+            String status = String.valueOf(res.getStatus());
+            if(status.equals(Constant.REDIRECT_CODE) && StrUtil.isNotEmpty(res.header("location"))){
                 return iTunesLogin(authCode,guid,1,paras);
             }
             String rb = res.charset("UTF-8").body();

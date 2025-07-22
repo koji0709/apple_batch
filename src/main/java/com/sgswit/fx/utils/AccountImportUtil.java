@@ -113,18 +113,17 @@ public class AccountImportUtil<T>{
     public static String[] parseAccountAndPwd(String accountStr){
         String account="";
         String pwd="";
-        accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
+        accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING).replace("{-}",REPLACE_MEANT);
         String[]  array=accountStr.split(SPLIT_STRING);
         if(array.length>=2){
-            account=array[0];
-            pwd=array[1].replace("{-}", REPLACE_MEANT);
+            account=AccountParser.replaceXX(array[0]);
+            pwd=array[1];
         }else{
             boolean isEmailStarted=checkIfEmailStarted(accountStr);
             if(isEmailStarted){
                 account=getEmailByStr(accountStr);
-                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length()).replace("{-}", REPLACE_MEANT);
+                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length());
             }else{
-                accountStr=accountStr.replace("{-}", REPLACE_MEANT);
                 accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
                 accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
                 String []accountArr=accountStr.split(SPLIT_STRING,2);

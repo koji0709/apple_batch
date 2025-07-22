@@ -16,6 +16,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.task.LocalhistoryTask;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.db.DataSourceFactory;
 import com.sgswit.fx.utils.db.SQLiteUtil;
