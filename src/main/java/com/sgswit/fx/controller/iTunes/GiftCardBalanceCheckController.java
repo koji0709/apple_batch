@@ -485,16 +485,38 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
             HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
             authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
+
+
+            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(reloadBalanceRes,initBalanceRes);
+            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
+            // 添加 flagskv 对象
+            JSONObject flagskv = new JSONObject();
+            flagskv.set("patSkip", true);
+            shldBtJsonObject.set("flagskv", flagskv);
+            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
+            // 添加 number 和 took
+            shldBtJsonObject.set("number", solvePoWMap.get("number"));
+            shldBtJsonObject.set("took", solvePoWMap.get("took"));
+
+            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
+            Map<String,String> cookiesMap=new HashMap<>();
+            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
+
+
+
+            //https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
             if (200 != step0Res.getStatus()) {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
+            //"https://idmsa.apple.com/appleauth/auth/signin/init
             HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
             if (200 != step1Res.getStatus()) {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
+            //https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
@@ -519,7 +541,9 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     return;
                 }
             }
-            //step3 shop signin
+            //step3
+            //https://secure8.store.apple.com//shop/signIn/idms/authx?ssi=4AAABmH5N90oBIPvf7kFnJIjxmrYRdXrtzJnYQ_wRJICNB4hly1RrEM18AAAAOGh0dHBzOi8vc2VjdXJlOC5zdG9yZS5hcHBsZS5jb20vc2hvcC9naWZ0Y2FyZC9iYWxhbmNlfHx8AAIBFgcDpqECCN-LpfFSpJnKrmkeX6cM6T5uRbvnqvhqgYA
+            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
             HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
@@ -531,7 +555,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
             authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
             //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes.header("Location"));
+            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
             Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
             Elements initDataElement = prodDoc.select("script[id=init_data]");
             JSONObject meta = JSONUtil.parseObj(initDataElement.html());
@@ -754,7 +778,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
 
             //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes.header("Location"));
+            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
             Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
             Elements initDataElement = prodDoc.select("script[id=init_data]");
             JSONObject meta = JSONUtil.parseObj(initDataElement.html());

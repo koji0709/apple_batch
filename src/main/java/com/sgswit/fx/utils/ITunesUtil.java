@@ -629,7 +629,7 @@ public class ITunesUtil {
                 "        <key>appExtVrsId</key>\n" +
                 "        <string>0</string>\n" +
                 "        <key>buyWithoutAuthorization</key>\n" +
-                "        <string>true</string>\n" +
+                "        <string>false</string>\n" +
                 "        <key>guid</key>\n" +
                 "        <string>%s</string>\n" +
                 "        <key>hasAskedToFulfillPreorder</key>\n" +
