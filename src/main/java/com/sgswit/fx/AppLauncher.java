@@ -7,4 +7,3 @@ public class AppLauncher {
         Application.launch(MainApplication.class,args);
     }
 }
-
