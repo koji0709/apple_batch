@@ -742,15 +742,26 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             if (302 != reloadBalanceRes.getStatus()) {
                 return ;
             }
-            ThreadUtil.sleep(150);
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
             HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
             authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
-            ThreadUtil.sleep(150);
+            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(reloadBalanceRes,initBalanceRes);
+            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
+            // 添加 flagskv 对象
+            JSONObject flagskv = new JSONObject();
+            flagskv.set("patSkip", true);
+            shldBtJsonObject.set("flagskv", flagskv);
+            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
+            // 添加 number 和 took
+            shldBtJsonObject.set("number", solvePoWMap.get("number"));
+            shldBtJsonObject.set("took", solvePoWMap.get("took"));
+
+            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
+            Map<String,String> cookiesMap=new HashMap<>();
+            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
+
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
-            ThreadUtil.sleep(150);
             HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
-            ThreadUtil.sleep(150);
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
@@ -763,7 +774,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 }
             }
             //step3 shop signin
-            ThreadUtil.sleep(100);
+            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
             HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
