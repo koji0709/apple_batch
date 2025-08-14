@@ -862,8 +862,10 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
         // 创建一个定时任务，延迟0秒执行，之后每10秒执行一次
         scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(() -> {
-            getThreadPoolExecutor().execute(()->login(countryBox.getSelectionModel().getSelectedItem().get("code"),false));
-        }, 0, 7, TimeUnit.SECONDS);
+            if(loginCookiesMap.size()<5){
+                getThreadPoolExecutor().execute(()->login(countryBox.getSelectionModel().getSelectedItem().get("code"),false));
+            }
+        }, 0, 10, TimeUnit.SECONDS);
     }
     @Override
     protected void stopExecutorService(){
@@ -881,13 +883,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     protected ThreadPoolExecutor getThreadPoolExecutor(){
         if(null==executor ){
             // 核心线程数（最少保持1个线程）
-            int corePoolSize = 20;
+            int corePoolSize = 1;
             // 最大线程数（最多允许10个线程）
-            int maxPoolSize = 50;
+            int maxPoolSize = 5;
             // 空闲线程存活时间（单位：秒）
             long keepAliveTime = 30;
             // 任务队列（有界队列，容量100）
-            int taskCount=500;
+            int taskCount=5;
             executor = new ThreadPoolExecutor(
                     corePoolSize,
                     maxPoolSize,
@@ -895,8 +897,10 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(taskCount),
                     // 队列满时由提交线程执行任务
-                    new ThreadPoolExecutor.CallerRunsPolicy()
+                    new ThreadPoolExecutor.AbortPolicy()
             );
+        }else{
+
         }
         return executor;
     }
