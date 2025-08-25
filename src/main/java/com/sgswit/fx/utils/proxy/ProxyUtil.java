@@ -12,7 +12,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
-import com.sgswit.fx.ThreadLocalProxyInfo;
 import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
