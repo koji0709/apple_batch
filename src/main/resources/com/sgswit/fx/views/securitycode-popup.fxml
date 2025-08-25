@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.SecuritycodePopupController">
+<AnchorPane prefHeight="350.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.common.SecuritycodePopupView">
    <children>
       <GridPane alignment="CENTER" layoutX="1.0" prefHeight="300.0" prefWidth="600.0">
         <columnConstraints>

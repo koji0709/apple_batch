@@ -2,3 +2,10 @@
 /.idea/
 .vscode
 .DS_Store
+.settings
+.zed
+.github
+.classpath
+.factorypath
+.project
+bin/

@@ -6,7 +6,7 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>3.2.8</version>
+    <version>3.3.3</version>
     <name>appleBatch</name>
 
     <properties>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.8.20</version>
+            <version>5.8.26</version>
         </dependency>
         <dependency>
             <groupId>cn.wanghaomiao</groupId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
+            <version>11.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
@@ -110,6 +110,7 @@
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.75</version>
         </dependency>
+
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
@@ -121,6 +122,12 @@
             <groupId>top.gcszhn</groupId>
             <artifactId>d4ocr</artifactId>
             <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version> <!-- 使用最新稳定版本 -->
         </dependency>
 
         <dependency>

@@ -7,10 +7,12 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
 import cn.hutool.http.*;
+import com.sgswit.fx.ThreadLocalProxyInfo;
 import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
@@ -23,10 +25,7 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 
 /**
  * @author DeZh
@@ -46,7 +45,6 @@ public class ProxyUtil {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
     private static Map<String, Integer> map503Error = new HashMap<>(16);
     private static Map<String, Integer> mapIoError = new HashMap<>(16);
-
 
     public static HttpResponse execute(HttpRequest request) {
         return execute(request,true);
@@ -325,12 +323,6 @@ public class ProxyUtil {
         return proxyType;
     }
 
-    public static String getUrl(HttpRequest request) {
-        String url = request.getUrl();
-        url = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
-        return url;
-    }
-
     public static boolean isPrivateIP(String ip) {
         try {
             InetAddress address = InetAddress.getByName(ip);
@@ -375,4 +367,6 @@ public class ProxyUtil {
         }
         return false;
     }
+
+
 }

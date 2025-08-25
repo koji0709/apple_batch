@@ -3,74 +3,73 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.LoginController">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<AnchorPane fx:controller="com.sgswit.fx.controller.LoginController"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <TabPane fx:id="tabPane" prefWidth="320">
             <tabs>
-                <Tab closable="false" text="用户登录">
-                    <VBox alignment="CENTER" prefWidth="310.0" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
+                <Tab text="用户登录" closable="false">
+                    <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
                         <children>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <Label text="登录账号" />
-                                    <TextField fx:id="loginUserNameTextField" />
+                                    <Label text="登录账号"/>
+                                    <TextField fx:id="loginUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <Label text="登录密码" />
-                                    <PasswordField fx:id="loginPwdTextField" />
+                                    <Label text="登录密码"/>
+                                    <PasswordField fx:id="loginPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
                                 <children>
-                                    <CheckBox fx:id="rememberMeCheckBox" text="记住用户" />
-                                    <CheckBox fx:id="autoLoginCheckBox" text="自动登录" />
-                                    <Button onAction="#login" prefWidth="53" text="登录" />
+                                    <CheckBox fx:id="rememberMeCheckBox" text="记住用户"/>
+                                    <CheckBox fx:id="autoLoginCheckBox" text="自动登录"/>
+                                    <Button text="登录" prefWidth="53" onAction="#login"/>
                                 </children>
                             </HBox>
-                            <VBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12; -fx-background-color: #edf3fc;">
+                            <VBox alignment="CENTER"
+                                  style="-fx-padding: 5; -fx-spacing: 12; -fx-background-color: #edf3fc">
                                 <children>
-<!--                                     <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12"> -->
-<!--                                         <children> -->
-<!--                                             <Label text="在线QQ"/> -->
-<!--                                             <ChoiceBox fx:id="qqChiceBox" prefWidth="100"/> -->
-<!--                                             <Button text="QQ一键登录" onAction="#qqLogin"/> -->
-<!--                                         </children> -->
-<!--                                     </HBox> -->
-                                    <Label text="小蓝鲸拥有版权保护, 非法篡本软件将承担法律责任。" />
+                                    <HBox alignment="CENTER" style="-fx-padding: 5; -fx-spacing: 12">
+                                        <children>
+                                            <Label text="在线QQ"/>
+                                            <ChoiceBox fx:id="qqChiceBox" prefWidth="100"/>
+                                            <Button text="QQ一键登录" onAction="#qqLogin"/>
+                                        </children>
+                                    </HBox>
+                                    <Label text="Xx拥有版权保护, 非法篡Xx程序将承担法律责任。"/>
                                 </children>
                             </VBox>
                         </children>
                     </VBox>
                 </Tab>
-                <Tab closable="false" text="用户注册">
+                <Tab text="用户注册" closable="false" >
                     <VBox alignment="CENTER" style="-fx-padding: 7; -fx-spacing: 7; -fx-pref-height: 220">
                         <children>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="注册账号" />
-                                    <TextField fx:id="registerUserNameTextField" />
+                                    <Label text="注册账号"/>
+                                    <TextField fx:id="registerUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="注册密码" />
-                                    <PasswordField fx:id="registerPwdTextField" />
+                                    <Label text="注册密码"/>
+                                    <TextField fx:id="registerPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="安全邮箱" />
-                                    <TextField fx:id="registerEmailTextField" />
+                                    <Label text="安全邮箱"/>
+                                    <TextField fx:id="registerEmailTextField"/>
                                 </children>
                             </HBox>
-<!--                             <HBox alignment="CENTER" style="-fx-spacing: 12"> -->
-<!--                                 <children> -->
-<!--                                     <Label text="绑定 Q Q"/> -->
-<!--                                     <TextField fx:id="registerQQTextField"/> -->
-<!--                                 </children> -->
-<!--                             </HBox> -->
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
                                     <Label text="注册卡密" />
@@ -79,37 +78,37 @@
                             </HBox>
                             <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0">
                                 <children>
-                                    <Button onAction="#register" text="注册用户" />
+                                    <Button text="注册用户" onAction="#register"/>
                                 </children>
                             </HBox>
                         </children>
                     </VBox>
                 </Tab>
-                <Tab closable="false" text="修改密码">
+                <Tab text="修改密码" closable="false">
                     <VBox alignment="CENTER" style="-fx-spacing: 7;">
                         <children>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="需修改账号" />
-                                    <TextField fx:id="editUserNameTextField" />
+                                    <Label text="需修改账号"/>
+                                    <TextField fx:id="editUserNameTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="邮箱验证码" />
-                                    <TextField fx:id="verifyCodeTextField" prefWidth="68" />
-                                    <Button onAction="#sendVerifyCode" prefWidth="83" text="发送验证码" />
+                                    <Label text="邮箱验证码"/>
+                                    <TextField fx:id="verifyCodeTextField" prefWidth="68"/>
+                                    <Button onAction="#sendVerifyCode" prefWidth="83" text="发送验证码"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER" style="-fx-spacing: 12">
                                 <children>
-                                    <Label text="设置新密码" />
-                                    <PasswordField fx:id="newPwdTextField" />
+                                    <Label text="设置新密码"/>
+                                    <TextField fx:id="newPwdTextField"/>
                                 </children>
                             </HBox>
                             <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 39 0 0;">
                                 <children>
-                                    <Button onAction="#updatePwd" prefWidth="165" text="修改密码" />
+                                    <Button onAction="#updatePwd" prefWidth="165" text="修改密码"/>
                                 </children>
                             </HBox>
                         </children>

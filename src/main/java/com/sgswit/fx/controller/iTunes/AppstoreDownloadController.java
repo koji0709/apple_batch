@@ -147,7 +147,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                     continue;
                 }
                 String trackId = previewUrl.substring(previewUrl.indexOf("/id")+3);
-                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackId);
+                boolean success = purchaseAndDownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackId);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");
@@ -162,7 +162,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                     failNum+=1;
                     continue;
                 }
-                boolean success = purchaseAnddownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackName);
+                boolean success = purchaseAndDownloadApp(appstoreDownloadVo, appstoreDownloadVo.getGuid(), trackId, trackName);
                 successNum +=  success ? 1:0;
                 failNum    += !success ? 1:0;
                 appstoreDownloadVo.setSuccessNum(successNum+"");
@@ -178,7 +178,7 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         accountHandlerExpand(account);
     }
 
-    public boolean purchaseAnddownloadApp(AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){
+    public boolean purchaseAndDownloadApp(AppstoreDownloadVo appstoreDownloadVo,String guid,String trackId,String trackName){
         trackName = StrUtil.isEmpty(trackName) ? trackId : trackName;
         if (trackName.length() > 6){
             trackName = trackName.substring(0,6) + "..";
@@ -192,12 +192,24 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
             if(!"purchaseSuccess".equals(purchaseJdt) || !"0".equals(purchaseStatus)){
                 String failureType = purchaseJSON.getStr("failureType");
                 String customerMessage = purchaseJSON.getStr("customerMessage");
-                appstoreDownloadVo.setNote(String.format("[%s] 购买失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
+                setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 购买失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
                 return false;
             }
+        }else if (!StrUtil.isEmpty(purchaseBody)){
+            try {
+                JSONObject json = PListUtil.parse(purchaseBody);
+                String failureType = json.getStr("failureType");
+                String customerMessage = json.getStr("customerMessage");
+                if(StrUtil.isNotEmpty(failureType) ||
+                        StrUtil.isNotEmpty(customerMessage)){
+                    setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 购买失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
+                    return false;
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        appstoreDownloadVo.setNote(String.format("[%s] 购买成功",trackName));
+        setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 购买成功",trackName));
 
         HttpResponse appstoreDownloadUrlRsp = ITunesUtil.appstoreDownloadUrl( appstoreDownloadVo, trackId.toString(), "");
         JSONObject appstoreDownloadUrlBody = PListUtil.parse(appstoreDownloadUrlRsp.body());
@@ -206,13 +218,13 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
         if(!"purchaseSuccess".equals(appstoreDownloadUrlJdt) || !"0".equals(appstoreDownloadUrlStatus)){
             String failureType = appstoreDownloadUrlBody.getStr("failureType");
             String customerMessage = appstoreDownloadUrlBody.getStr("customerMessage");
-            appstoreDownloadVo.setNote(String.format("[%s] 获取下载链接失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
+            setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 获取下载链接失败! failureType:%s, customerMessage:%s",trackName,failureType,customerMessage));
             return false;
         }
 
         JSONArray songList = appstoreDownloadUrlBody.getJSONArray("songList");
         if (songList.isEmpty()){
-            appstoreDownloadVo.setNote(String.format("[%s] 下载失败！songList is empty",trackName));
+            setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 下载失败！songList is empty",trackName));
             return false;
         }
 
@@ -226,13 +238,11 @@ public class AppstoreDownloadController extends ItunesView<AppstoreDownloadVo> {
                 ,metadata.getStr("artistId")
                 ,metadata.getStr("bundleShortVersionString"));
 
-        appstoreDownloadVo.setNote(String.format("[%s] 获取下载链接成功!",trackName));
-
+        setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 获取下载链接成功!",trackName));
         // 下载
         appstoreDownloadVo.setNote(String.format("[%s] 开始下载...",trackName));
         HttpUtil.downloadFile(url, new File(filePath + fileName));
-        appstoreDownloadVo.setNote(String.format("[%s] 下载完成, 正在整合...",trackName));
-
+        setAndRefreshNote(appstoreDownloadVo,String.format("[%s] 下载完成, 正在整合...",trackName));
         // zip
         try {
             Path zipPath = Paths.get(filePath + fileName);

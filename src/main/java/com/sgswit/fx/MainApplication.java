@@ -11,13 +11,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -46,8 +44,13 @@ public class MainApplication extends Application {
 
         // 如果获取锁失败，说明程序已经在运行
         if (lock == null) {
-            CommonView.alert("对不起，本程序仅允许运行1个!",Alert.AlertType.ERROR);
-            return;
+           if( CommonView.confirmationDialog("提示","对不起，本程序仅允许运行1个")){
+                //退出程序
+               StageUtil.clearAll();
+               Platform.exit();
+               System.exit(0);
+           }
+           return;
         }
         //检测是否开启了抓包工具
         try {

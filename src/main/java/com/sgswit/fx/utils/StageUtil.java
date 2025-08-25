@@ -3,6 +3,7 @@ package com.sgswit.fx.utils;
 import cn.hutool.core.util.ReflectUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -14,8 +15,10 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StageUtil {
+    static AtomicBoolean allowClose = new AtomicBoolean(false);
     private static Map<StageEnum, Stage> stageMap = new HashMap<>();
 
     public static void showAndWait(StageEnum stageEnum){
@@ -64,6 +67,7 @@ public class StageUtil {
         stage.getIcons().add(new Image(logImg) );
 
         if(stage==StageUtil.get(StageEnum.MAIN)){
+            allowClose.set(false);
             //判断是否支持系统托盘
             if (SystemTray.isSupported()) {
                 // 创建系统托盘图标
@@ -102,10 +106,10 @@ public class StageUtil {
                     StageToSystemTrayUtil.hideWindow(finalStage);
                     event.consume();
                 }else {
-                    System.exit(0);
+                    Platform.exit();
                 }
             }else if((source==StageUtil.get(StageEnum.LOGIN)) && null==StageUtil.get(StageEnum.MAIN)){
-                System.exit(0);
+                Platform.exit();
             }else{
                 try {
                     //校验数据是否存在执行中的数据

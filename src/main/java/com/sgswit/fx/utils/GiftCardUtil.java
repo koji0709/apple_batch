@@ -28,23 +28,32 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 public class GiftCardUtil {
- private static String BROWSER_USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) Gecko/2023060614 Firefox/100.0";
- private static String BROWSER_CLIENT_INFO="{\"U\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) Gecko/2023060614 Firefox/100.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"Vla44j1e3NlY5BNlY5BSmHACVZXnNA94G_He_BZ1QxQeLaD.SAuXjodUW1BNyc5B.Tf5.EKWJ9Y6FdDJMm_Ue9z93NlY5BNp55BNlan0Os5Apw.CMV\"}";
+ private static String BROWSER_USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0";
+ private static String BROWSER_CLIENT_INFO="{\"U\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0\",\"L\":\"zh-CN\",\"Z\":\"GMT+08:00\",\"V\":\"1.1\",\"F\":\"7la44j1e3NlY5BNlY5BSmHACVZXnNA9N7FFaA9ffAUfSHolk2dUJKy_Aw7GY5Ly.EKY.6eke4GYidkE94z2pUd_5BNlY5CGWY5BOgkLT0XxU..0DT\"}";
  private static String deviceID="%7B%22op%22%3A%22DEVICEID%22%7D";
 
  public static HttpResponse initBalance(String countryCode){
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
-        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
+        headers.put("Host", ListUtil.toList("secure.store.apple.com"));
+        headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("document"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("navigate"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        headers.put("Te",ListUtil.toList("trailers"));
         String url="https://secure.store.apple.com/shop/giftcard/balance";
         if(!"us".equalsIgnoreCase(countryCode)){
             url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
@@ -61,17 +70,24 @@ public class GiftCardUtil {
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("document"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("navigate"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(pre1.header("Location"))
                         .header(headers)
                         .cookie(getCookies(pre1)));
         return res;
     }
-    public static HttpResponse reload2Balance(HttpResponse response,String location){
+    public static HttpResponse reload2Balance(HttpResponse response,HttpResponse initBalanceRes,HttpResponse reloadBalanceRes){
         HashMap<String, List<String>> headers = new HashMap<>();
+        String referer= reloadBalanceRes.header("Location");
+        String location= initBalanceRes.header("Location");
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8"));
-        headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
+        headers.put("Referer", ListUtil.toList(referer));
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(location)
                         .header(headers)
@@ -86,6 +102,11 @@ public class GiftCardUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("Referer", ListUtil.toList("https://www.apple.com/"));
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        headers.put("Upgrade-Insecure-Requests", ListUtil.toList("1"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("document"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("navigate"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-site"));
+        headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(pre2.header("Location"))
                         .header(headers)
                         .cookie(getCookies(pre1)));
@@ -170,6 +191,60 @@ public class GiftCardUtil {
         return res;
     }
 
+    public static HttpResponse shldBtCkGeneratorByGet(HttpResponse reloadBalanceRes,HttpResponse initBalanceRes){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        String location=reloadBalanceRes.header("Location");
+        String locationBase=location.substring(0,location.indexOf("shop")-1);
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Host",ListUtil.toList(locationBase.substring(locationBase.indexOf("//")+2)));
+        headers.put("Referer", ListUtil.toList(location));
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
+        String url = locationBase+"/shop/shld/work/v0/q";
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(initBalanceRes,cookiesMap);
+        CookieUtils.setCookiesToMap(reloadBalanceRes,cookiesMap);
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
+                        .cookie(cookies)
+                .header(headers));
+        return res;
+
+    }
+    public static HttpResponse shldBtCkGeneratorByPost(HttpResponse reloadBalanceRes,HttpResponse initBalanceRes,String json){
+        HashMap<String, List<String>> headers = new HashMap<>();
+        String location=reloadBalanceRes.header("Location");
+        String locationBase=location.substring(0,location.indexOf("shop")-1);
+        headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Host",ListUtil.toList(locationBase.substring(locationBase.indexOf("//")+2)));
+        headers.put("Referer", ListUtil.toList(location));
+        headers.put("Accept", ListUtil.toList("*/*"));
+        headers.put("Content-Type", ListUtil.toList("text/plain;charset=UTF-8"));
+        headers.put("Origin", ListUtil.toList("locationBase"));
+        headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
+        String url = locationBase+"/shop/shld/work/v0/q";
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(initBalanceRes,cookiesMap);
+        CookieUtils.setCookiesToMap(reloadBalanceRes,cookiesMap);
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createPost(url)
+                        .cookie(cookies).body(json)
+                .header(headers));
+        return res;
+
+    }
+
+
+
+
     public static HttpResponse federate(String account,Map<String,Object> paras){
         String frameId= MapUtil.getStr(paras,"frameId");
         String clientId= MapUtil.getStr(paras,"clientId");
@@ -191,9 +266,9 @@ public class GiftCardUtil {
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
         headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
@@ -234,9 +309,9 @@ public class GiftCardUtil {
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
         headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
@@ -288,9 +363,9 @@ public class GiftCardUtil {
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
 
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
         headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
@@ -353,7 +428,7 @@ public class GiftCardUtil {
 
         headers.put("Accept", ListUtil.toList("*/*"));
         headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
-        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br, zstd"));
         headers.put("Content-Type", ListUtil.toList("application/x-www-form-urlencoded"));
 
         headers.put("Origin", ListUtil.toList(locationBase));
@@ -366,16 +441,13 @@ public class GiftCardUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
-
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
         headers.put("te",ListUtil.toList("trailers"));
 
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
-
 
         Map<String,String> cookiesMap=new HashMap<>();
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
@@ -383,13 +455,11 @@ public class GiftCardUtil {
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
         String cookies= MapUtil.join(cookiesMap,";","=",true);
         cookies=cookies+";"+as_sfa_cookie;
+        cookies=cookies+";"+"shld_bt_ck="+paras.get("shld_bt_ck");
 
         Map<String,Object> paramMap = new HashMap<>();
 
-        paramMap.put("deviceID",deviceID);
         paramMap.put("grantCode","");
-
-
         HttpResponse res3 = ProxyUtil.execute(HttpUtil.createPost(location.substring(0,location.indexOf("shop")) +
                         "shop/signIn/idms/authx" +
                         location.substring(location.indexOf("?")))
@@ -419,9 +489,9 @@ public class GiftCardUtil {
 
         headers.put("x-requested-with",ListUtil.toList("Fetch"));
 
-        headers.put("sec-fetch-dest",ListUtil.toList("empty"));
-        headers.put("sec-fetch-mode",ListUtil.toList("cors"));
-        headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
         headers.put("X-As-Actk",ListUtil.toList(MapUtil.getStr(paras,"x-as-actk")));
         Map<String,Object> data = new HashMap<>();
         data.put("giftCardBalanceCheck.giftCardPin",giftCardPin);
@@ -502,15 +572,6 @@ public class GiftCardUtil {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static char[] byteToChar(byte[] bytes) {
-        Charset charset = Charset.forName("UTF-8");
-        ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
-        byteBuffer.put(bytes);
-        byteBuffer.flip();
-        CharBuffer charBuffer = charset.decode(byteBuffer);
-        return charBuffer.array();
     }
 
     private static byte[] calculateM2(BigInteger bigA, byte[] m1, byte[] k){
@@ -703,4 +764,48 @@ public class GiftCardUtil {
         }
         return cookieBuilder.toString();
     }
+
+
+
+    public static Map<String,Object> solvePoW(String salt,String challenge) throws NoSuchAlgorithmException {
+        Map<String,Object> res = new HashMap<>();
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 100_000_000; i++) {
+            String input = salt + i;  // 拼接 salt 和数字
+            String hash = sha256(input);
+            if (hash.equalsIgnoreCase(challenge)) {
+//                System.out.println("✅ Found match!");
+//                System.out.println("number = " + i);
+//                System.out.println("SHA-256 = " + hash);
+//                System.out.println(System.currentTimeMillis()-start);
+                res.put("number",i);
+                res.put("took",System.currentTimeMillis()-start);
+                break;
+            }
+            if (i % 1_000_000 == 0) {
+                System.out.println("Tried: " + i);
+            }
+        }
+        return res;
+    }
+    private static String sha256(String base) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = digest.digest(base.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            hexString.append(String.format("%02x", b & 0xff));
+        }
+        return hexString.toString();
+    }
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        // 正确填入你的参数
+        String salt = "db7cd6b40f6e75115f77980016cff100042efaaf9ca6da0851f6dc0b39c458ba";
+        String challenge = "f45f737cd6e378462aba0197f73bc724b858788f8ff8dc911a37cb688e529183";
+        solvePoW(salt,challenge);
+    }
 }
+
+
+
+
