@@ -137,7 +137,9 @@ public class ProxyUtil {
                 StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
                 StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid") ||
                 StringUtils.containsIgnoreCase(message, "515") ||
-                StringUtils.containsIgnoreCase(message, "517 Proxy Setup Failed")
+                StringUtils.containsIgnoreCase(message, "517 Proxy Setup Failed") ||
+                StringUtils.containsIgnoreCase(message, "SSLHandshakeException") ||
+                StringUtils.containsIgnoreCase(message, "SSLException")
                 ;
     }
 
