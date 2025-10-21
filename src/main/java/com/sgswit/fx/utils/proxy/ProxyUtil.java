@@ -69,7 +69,7 @@ public class ProxyUtil {
         try {
             stopWatch.start("HTTP Request");
             httpResponse = createRequest(request).execute();
-            if (httpResponse.getStatus() == 503) {
+            if (httpResponse.getStatus() == 503 || httpResponse.getStatus() == 515 || httpResponse.getStatus() == 517) {
                 // 重试
                 handleRetry(requestId, sleepTime, try503Num, map503Error);
                 return execute(request);
@@ -135,8 +135,9 @@ public class ProxyUtil {
                 StringUtils.containsIgnoreCase(message, "authentication failed") ||
                 StringUtils.containsIgnoreCase(message, "Remote host terminated the handshake") ||
                 StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
-                StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid")
-
+                StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid") ||
+                StringUtils.containsIgnoreCase(message, "515") ||
+                StringUtils.containsIgnoreCase(message, "517 Proxy Setup Failed")
                 ;
     }
 
