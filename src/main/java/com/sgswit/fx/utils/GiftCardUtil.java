@@ -148,6 +148,7 @@ public class GiftCardUtil {
         // get x-apple-hc
         HttpResponse pre4 = signFrame(paras);
         paras.put("code",pre4.getStatus());
+        paras.put("X-Apple-Auth-Attributes",pre4.header("X-Apple-Auth-Attributes"));
         if(503==pre4.getStatus()){
             return paras;
         }
@@ -270,7 +271,7 @@ public class GiftCardUtil {
         headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
@@ -313,7 +314,7 @@ public class GiftCardUtil {
         headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
@@ -367,16 +368,19 @@ public class GiftCardUtil {
         headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
 
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList("firstPartyAuth"));
+
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
 
-        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(res1.header("X-Apple-ID-Session-Id")));
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(paras.get("X-Apple-Auth-Attributes").toString()));
+        headers.put("X-Apple-ID-Session-Id",ListUtil.toList(paras.get("X-Apple-ID-Session-Id").toString()));
         headers.put("scnt",ListUtil.toList(res1.header("scnt")));
 
         String hc = calCounter(xAppleHcBits,xAppleHcChallenge);

@@ -68,8 +68,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected List runningList=new ArrayList<>();
-    /**登录成功的账号缓存(缓存20分钟)**/
-    private static final long time=20*60*1000;
+    /**登录成功的账号缓存(缓存10分钟)**/
+    private static final long time=10*60*1000;
 
     protected static Map<StageEnum,List<Future<?>>> threadMap = new HashMap<>();
 
@@ -108,8 +108,6 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
     protected StageEnum stage;
     /**线程池**/
     protected ThreadPoolExecutor threadPoolExecutor;
-    /**线程池大小**/
-    protected static int threadCount=Integer.valueOf(PropertiesUtil.getOtherConfig("ThreadCount","4"));
 
     private Class clz = Account.class;
     private List<String> formats;
@@ -309,7 +307,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
    　* @date 2024/7/4 23:44
    */
     private void executorServiceSubmit(T account){
-        threadPoolExecutor=getExecutorService(threadCount);
+        threadPoolExecutor=getExecutorService(Integer.valueOf(PropertiesUtil.getOtherConfig("customMaxThreadCount")));
         Future<?> future= threadPoolExecutor.submit(()->{
             try {
                 if(!runningList.contains(account)){

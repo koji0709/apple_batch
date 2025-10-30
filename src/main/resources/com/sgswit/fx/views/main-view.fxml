@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.MainController">
    <children>
       <AnchorPane minHeight="-Infinity" prefHeight="520.0" prefWidth="400.0" style="-fx-background-color: #33485E;">
          <children>
@@ -42,6 +42,8 @@
                         <Font size="13.0" />
                      </font>
                   </Hyperlink>
+                  <Label layoutX="25.0" layoutY="28.0" text="工作线程" textFill="WHITE" />
+                  <TextField fx:id="customMaxThreadCount" layoutX="76.0" layoutY="24.0" prefHeight="23.0" prefWidth="70.0" />
                </children>
             </Pane>
             <Pane layoutY="130.0" prefHeight="390.0" prefWidth="150.0">

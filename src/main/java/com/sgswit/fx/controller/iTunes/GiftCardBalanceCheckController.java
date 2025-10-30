@@ -56,6 +56,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -516,6 +517,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
+            authMap.put("X-Apple-Auth-Attributes",step0Res.header("X-Apple-ID-Session-Id"));
+            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
             //https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
@@ -697,10 +700,18 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             if (balance == null) {
                 setAndRefreshNote(giftCard, "已被兑换或无效的代码");
             } else {
-                giftCard.hasBalanceProperty().set(true);
-                giftCard.setBalance(balance);
-                giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
-                setAndRefreshNote(giftCard, "查询成功.");
+                if(extractMoneyValue(balance).compareTo(BigDecimal.ZERO)>0){
+                    giftCard.hasBalanceProperty().set(true);
+                    giftCard.setBalance(balance);
+                    giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                    setAndRefreshNote(giftCard, "查询成功.");
+                }else{
+                    giftCard.setBalance(balance);
+                    if(!StrUtil.isEmpty(giftCardNumber)){
+                        giftCard.setGiftCardNumber(giftCardNumber.split(";")[1]);
+                    }
+                    setAndRefreshNote(giftCard, "查询成功,金额为："+balance);
+                }
             }
         }
     }
@@ -762,6 +773,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
             HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
+            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
@@ -951,14 +963,14 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
                     SoundUtil.playSound();
-                    System.out.println("开始兑换----------" + giftCard.getAccount());
-                    GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
-                    giftCardRedeem.setAccount(giftCard.getAccount());
-                    giftCardRedeem.setPwd(giftCard.getPwd());
-                    // iTunes登陆
-                    itunesLogin(giftCardRedeem);
-                    // 礼品卡兑换
-                    redeem(giftCardRedeem);
+//                    System.out.println("开始兑换----------" + giftCard.getAccount());
+//                    GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
+//                    giftCardRedeem.setAccount(giftCard.getAccount());
+//                    giftCardRedeem.setPwd(giftCard.getPwd());
+//                    // iTunes登陆
+//                    itunesLogin(giftCardRedeem);
+//                    // 礼品卡兑换
+//                    redeem(giftCardRedeem);
                 }
             });
         }
@@ -1266,5 +1278,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
         // 礼品卡兑换成功
         giftCardRedeem.setGiftCardStatus("已兑换");
+    }
+    public static BigDecimal extractMoneyValue(String input) {
+        try {
+            String numStr = input.replaceAll("[^0-9.-]", "");
+            return new BigDecimal(numStr);
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
+        }
     }
 }

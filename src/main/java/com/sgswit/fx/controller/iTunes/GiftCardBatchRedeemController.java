@@ -407,7 +407,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
             accountGroupMap.put(account,giftCardRedeemList);
         }
         for (String key : accountGroupMap.keySet()) {
-            threadPoolExecutor=super.getExecutorService(threadCount);
+            threadPoolExecutor=super.getExecutorService(Integer.valueOf(PropertiesUtil.getOtherConfig("customMaxThreadCount")));
             Future<?> future= threadPoolExecutor.submit(()->{
                 List<GiftCardRedeem> accountList = accountGroupMap.get(key);
                 // 使用迭代器进行遍历和修改
@@ -567,8 +567,12 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
         LoginInfo loginInfo = loginSuccessMap.get(id);
         if (loginInfo != null){
+            // X8HZ8Z7KT7DW8PML
             ThreadUtil.sleep(200);
         }
+
+
+
         giftCardRedeem.setExecTime(DateUtil.now());
         Map<String, Long> countList = countMap.get(account);
         if(null==countList){
@@ -580,6 +584,9 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         // 登录并缓存
         itunesLogin(giftCardRedeem);
+
+
+
 
         HttpResponse authRsp = (HttpResponse) giftCardRedeem.getAuthData().get("authRsp");
         JSONObject rspJSON = PListUtil.parse(authRsp.body());

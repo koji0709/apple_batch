@@ -182,12 +182,13 @@ public class ProxyUtil {
             int proxyPort = Integer.valueOf(address.split(":")[1]);
             String authUser = PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword = PropertiesUtil.getOtherConfig("proxyTunnelPass");
-            //判断隧道代理配置的是是否是本机地址
-            if (isPrivateIP(proxyHost)) {
-                return proxyRequest(request, sendTimeOut, readTimeOut);
-            }else{
+//            boolean debug= PropertiesUtil.getConfig("debug");
+            //判断隧道代理配置的是是否是本机地址s
+//            if (isPrivateIP(proxyHost) && !debug) {
+//                return proxyRequest(request, sendTimeOut, readTimeOut);
+//            }else{
                 return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
-            }
+//            }
         }else if((ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode))){
             List<Map<String, Object>> proxyConfigList = DataUtil.getProxyConfig();
             if (CollUtil.isEmpty(proxyConfigList)) {

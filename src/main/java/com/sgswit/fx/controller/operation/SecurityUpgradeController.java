@@ -102,6 +102,14 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             }
             account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
             setAndRefreshNote(account,"成功发送验证码，请输入验证码。");
+
+            //读取api连接 进行接码
+
+
+            account.getAuthData().put("verifyCode","1234");
+            accountHandler(account);
+
+
         } else {
             Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
             if (securityUpgradeVerifyPhoneObject == null){

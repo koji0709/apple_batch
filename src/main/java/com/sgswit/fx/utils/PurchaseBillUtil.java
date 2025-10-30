@@ -232,7 +232,7 @@ public class PurchaseBillUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
@@ -272,7 +272,7 @@ public class PurchaseBillUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
@@ -316,7 +316,7 @@ public class PurchaseBillUtil {
         headers.put("sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("sec-fetch-site",ListUtil.toList("same-origin"));
 
-        headers.put("X-Apple-0Auth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
         headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));

@@ -10,6 +10,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.LoginInfo;
@@ -403,6 +404,7 @@ public class ITunesUtil {
                 .header(headers)
                 .cookie(loginInfo.getCookie());
         HttpResponse httpResponse = ProxyUtil.execute(httpRequest);
+        System.out.println(httpResponse.body());
         return httpResponse;
     }
 
@@ -723,7 +725,7 @@ public class ITunesUtil {
         String cardCode      = giftCardRedeem.getGiftCardCode();
 
         if (StrUtil.isEmpty(redeemUrl)){
-            redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv";
+            redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv?hasBeenAuthedForBuy=false";
         }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
@@ -761,10 +763,12 @@ public class ITunesUtil {
                 "\t\t<string>application/json</string>\n" +
                 "\t</dict>\n" +
                 "</plist>";
-            HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl + "?_time=" + System.currentTimeMillis())
+            HttpResponse redeemRsp = ProxyUtil.execute(HttpUtil.createPost(redeemUrl)
                             .header(headers)
                             .cookie(giftCardRedeem.getCookie())
-                            .body(redeemBody),false);
+                            .body(redeemBody),
+                    false);
+            System.out.println( redeemRsp.body() );
             return redeemRsp;
     }
     /**
@@ -815,5 +819,4 @@ public class ITunesUtil {
         }
         return result;
     }
-
 }

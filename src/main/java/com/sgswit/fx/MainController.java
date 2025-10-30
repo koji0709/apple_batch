@@ -2,6 +2,7 @@ package com.sgswit.fx;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
@@ -24,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
@@ -58,6 +60,9 @@ public class MainController implements Initializable {
     private CheckBox isAutoLogin;
     @FXML
     private VBox leftMenu;
+    @FXML
+    public TextField customMaxThreadCount;
+
     private Integer currentMenuIndex;
     private Integer tempIndex;
     private final List<Map<String, Object>> proxyModeList = DataUtil.getProxyModeList();
@@ -105,7 +110,25 @@ public class MainController implements Initializable {
         //获取剩余点数
         Map<String,Object> userInfo=DataUtil.getUserInfo();
         remainingPoints.setText(StrUtil.isEmptyIfStr(userInfo.get("remainingPoints"))?"0":MapUtil.getStr(userInfo,"remainingPoints"));
+        //工作线程设置
+        customMaxThreadCount.setText("5");
+        PropertiesUtil.setOtherConfig("customMaxThreadCount",String.valueOf(5));
 
+        customMaxThreadCount.textProperty().addListener((observable, oldValue, newValue) -> {
+            int customMaxThreadNum = 5;
+            if (StrUtil.isNotEmpty(newValue)) {
+                if (NumberUtil.isInteger(newValue)) {
+                    customMaxThreadNum = Integer.parseInt(newValue);
+                    if (customMaxThreadNum <= 0) {
+
+                    } else if (customMaxThreadNum > 40) {
+                        customMaxThreadNum=40;
+                    }
+                }
+                customMaxThreadCount.setText(String.valueOf(customMaxThreadNum));
+                PropertiesUtil.setOtherConfig("customMaxThreadCount",String.valueOf(customMaxThreadNum));
+            }
+        });
     }
 
     private Node getLeftMenu() {
