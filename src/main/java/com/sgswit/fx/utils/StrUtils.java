@@ -7,6 +7,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -184,5 +188,55 @@ public class StrUtils extends StringUtils {
         String suffix = phone.substring(length - keepSuffix);
 
         return prefix + "****" + suffix;
+    }
+
+    /**
+     * 从url中提取host
+     * @param locationUrl
+     * @return
+     */
+    public static String getHostFromUrl(String locationUrl) {
+        URL url;
+        try {
+            url = new URL(locationUrl);
+        }catch (MalformedURLException e){
+            return null;
+        }
+        return  url.getHost();
+    }
+    public static class AdvancedCookieExtractor {
+        /**
+         * 获取所有包含 document.cookie 的脚本内容
+         */
+        public static List<String> getScriptsWithCookie(String html) {
+            List<String> results = new ArrayList<>();
+            Document doc = Jsoup.parse(html);
+            // 方法1: 选择所有 script 标签然后过滤
+            Elements allScripts = doc.select("script");
+            for (Element script : allScripts) {
+                String content = script.html();
+                if (content.contains("document.cookie")) {
+                    results.add(content);
+                }
+            }
+            return results;
+        }
+        /**
+         * 专门提取 crossorigin="anonymous" 且包含 cookie 的脚本
+         */
+        public static List<String> getAnonymousCookieScripts(String html) {
+            List<String> results = new ArrayList<>();
+            Document doc = Jsoup.parse(html);
+            // 选择具有 crossorigin="anonymous" 属性的 script 标签
+            Elements scripts = doc.select("script[crossorigin=anonymous]");
+
+            for (Element script : scripts) {
+                String content = script.html();
+                if (content.contains("document.cookie")) {
+                    results.add(content);
+                }
+            }
+            return results;
+        }
     }
 }
