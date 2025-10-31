@@ -61,6 +61,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+
 /**
  * @author DeZh
  * @title: GiftCardBalanceCheckController
@@ -494,7 +495,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             JSONObject flagskv = new JSONObject();
             flagskv.set("patSkip", true);
             shldBtJsonObject.set("flagskv", flagskv);
-            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
+            Map<String,Object> solvePoWMap=PoWSolver.solvePoW(shldBtJsonObject.getInt("low"),shldBtJsonObject.getInt("high")
+                    ,shldBtJsonObject.getInt("parts"),shldBtJsonObject.getBigInteger("result"),shldBtJsonObject.getLong("timeout"));
             // 添加 number 和 took
             shldBtJsonObject.set("number", solvePoWMap.get("number"));
             shldBtJsonObject.set("took", solvePoWMap.get("took"));
@@ -503,7 +505,10 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             Map<String,String> cookiesMap=new HashMap<>();
             Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
 
+            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
+            HttpResponse signFrameResponse= (HttpResponse) authMap.get("signFrameResponse");
 
+            HttpResponse challengeResponse= GiftCardUtil.challenge(authMap, signFrameResponse , pre3);
 
             //https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
@@ -517,8 +522,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
-            authMap.put("X-Apple-Auth-Attributes",step0Res.header("X-Apple-ID-Session-Id"));
-            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
             //https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
@@ -546,7 +549,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
             //step3
             //https://secure8.store.apple.com//shop/signIn/idms/authx?ssi=4AAABmH5N90oBIPvf7kFnJIjxmrYRdXrtzJnYQ_wRJICNB4hly1RrEM18AAAAOGh0dHBzOi8vc2VjdXJlOC5zdG9yZS5hcHBsZS5jb20vc2hvcC9naWZ0Y2FyZC9iYWxhbmNlfHx8AAIBFgcDpqECCN-LpfFSpJnKrmkeX6cM6T5uRbvnqvhqgYA
-            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
+
             HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
             StringBuilder cookieBuilder = new StringBuilder();
             List<String> resCookies = step3Res.headerList("Set-Cookie");
@@ -773,7 +776,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
             HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
             HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
-            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
             HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
             if (409 == step2Res.getStatus()) {
                 String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
@@ -963,7 +965,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
                     SoundUtil.playSound();
-//                    System.out.println("开始兑换----------" + giftCard.getAccount());
 //                    GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
 //                    giftCardRedeem.setAccount(giftCard.getAccount());
 //                    giftCardRedeem.setPwd(giftCard.getPwd());
@@ -1279,6 +1280,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         // 礼品卡兑换成功
         giftCardRedeem.setGiftCardStatus("已兑换");
     }
+
     public static BigDecimal extractMoneyValue(String input) {
         try {
             String numStr = input.replaceAll("[^0-9.-]", "");

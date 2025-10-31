@@ -7,7 +7,6 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.db.Entity;
@@ -24,7 +23,10 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author DeZh
@@ -70,7 +72,7 @@ public class ProxyUtil {
         try {
             stopWatch.start("HTTP Request");
             httpResponse = createRequest(request).execute();
-            if (httpResponse.getStatus() == 503) {
+            if (httpResponse.getStatus() == 503 || httpResponse.getStatus() == 515 || httpResponse.getStatus() == 517) {
                 // 重试
                 handleRetry(requestId, sleepTime, try503Num, map503Error);
                 return execute(request);
@@ -117,7 +119,7 @@ public class ProxyUtil {
             handleRetry(requestId, sleepTime, tryIoNum, mapIoError);
         } else {
             if (!StringUtils.containsIgnoreCase(e.getMessage(), "Read timed out")){
-                LoggerManger.info("handleIoException",e);
+                e.printStackTrace();
                 throw new ServiceException("网络连接异常，请稍后重试");
             }
             if (readTimeoutTry){
@@ -136,8 +138,11 @@ public class ProxyUtil {
                 StringUtils.containsIgnoreCase(message, "authentication failed") ||
                 StringUtils.containsIgnoreCase(message, "Remote host terminated the handshake") ||
                 StringUtils.containsIgnoreCase(message, "SOCKS: Network unreachable") ||
-                StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid")
-
+                StringUtils.containsIgnoreCase(message, "460 Proxy Authentication Invalid") ||
+                StringUtils.containsIgnoreCase(message, "515") ||
+                StringUtils.containsIgnoreCase(message, "517 Proxy Setup Failed") ||
+                StringUtils.containsIgnoreCase(message, "SSLHandshakeException") ||
+                StringUtils.containsIgnoreCase(message, "SSLException")
                 ;
     }
 
@@ -161,11 +166,8 @@ public class ProxyUtil {
             return proxyRequest(request, sendTimeOut, readTimeOut);
         }
 
-        //不使用代理
-        if (ProxyEnum.Mode.NONE.getKey().equals(proxyMode)) {
-            return proxyRequest(request, sendTimeOut, readTimeOut);
-        }else if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
-            // API或导入代理
+        // API或导入代理
+        if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
             //判断是否为空
             String proxyApiUrl = PropertiesUtil.getOtherConfig("proxyApiUrl");
             String proxyApiUser = PropertiesUtil.getOtherConfig("proxyApiUser");
@@ -175,73 +177,79 @@ public class ProxyUtil {
                 return apiProxyRequest(request, proxyApiUrl, proxyApiUser, proxyApiPass, proxyApiNeedPass, sendTimeOut, readTimeOut);
             }
             return proxyRequest(request, sendTimeOut, readTimeOut);
-        }else if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
-            // 使用隧道代理
+        }
+
+        // 使用隧道代理
+        if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
             String address = PropertiesUtil.getOtherConfig("proxyTunnelAddress");
             String proxyHost = address.split(":")[0];
             int proxyPort = Integer.valueOf(address.split(":")[1]);
             String authUser = PropertiesUtil.getOtherConfig("proxyTunnelUser");
             String authPassword = PropertiesUtil.getOtherConfig("proxyTunnelPass");
-//            boolean debug= PropertiesUtil.getConfig("debug");
-            //判断隧道代理配置的是是否是本机地址s
-//            if (isPrivateIP(proxyHost) && !debug) {
+            //判断隧道代理配置的是是否是本机地址
+//            if (isPrivateIP(proxyHost)) {
 //                return proxyRequest(request, sendTimeOut, readTimeOut);
 //            }else{
                 return proxyRequest(request, proxyHost, proxyPort, authUser, authPassword, sendTimeOut, readTimeOut, getProxyType(""));
 //            }
-        }else if((ProxyEnum.Mode.DEFAULT.getKey().equals(proxyMode))){
-            List<Map<String, Object>> proxyConfigList = DataUtil.getProxyConfig();
-            if (CollUtil.isEmpty(proxyConfigList)) {
-                return proxyRequest(request, sendTimeOut, readTimeOut);
-            }
-            //根据权重配比，随机获取一种
-            int[] weights = new int[proxyConfigList.size()];
-            int i = 0;
-            for (Map<String, Object> map : proxyConfigList) {
-                weights[i] = MapUtil.getInt(map, "weight");
-                i++;
-            }
-            int index = StrUtils.getWeightedRandomIndex(weights);
-            Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
+        }
 
-            String proxyType = MapUtil.getStr(proxyConfigMap, "proxyType","0");
+        // 使用内置代理, 兜底代码
+        List<Map<String, Object>> proxyConfigList = DataUtil.getProxyConfig();
+        if (CollUtil.isEmpty(proxyConfigList)) {
+            return proxyRequest(request, sendTimeOut, readTimeOut);
+        }
 
-            if (StrUtil.isNotEmpty(proxyType)){
-                // 私密代理
-                if ( "1".equals(proxyType)) {
-                    Entity entity = IPManager.getInstance().getIP();
-                    if (!CollUtil.isEmpty(entity)) {
-                        String proxyHost = entity.getStr("ip");
-                        int proxyPort = entity.getInt("port");
-                        String username = entity.getStr("username");
-                        String pwd = entity.getStr("pwd");
-                        String protocol_type = entity.getStr("protocol_type");
-                        username = AesUtil.decrypt(username);
-                        pwd = AesUtil.decrypt(pwd);
-                        return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
-                    } else { // 如果获取不到代理ip, 则先使用隧道代理
-                        proxyConfigMap = proxyConfigList.stream()
-                                .filter(map -> "2".equals(map.get("proxyType")))
-                                .findFirst()
-                                .get();
-                        LoggerManger.info("获取代理IP失败, 切换至隧道代理。 proxyConfigList= " + proxyConfigList + ", proxyConfigMap = " + proxyConfigMap);
-                    }
-                }else if ("2".equals(proxyType)) {
-                    String protocolType = MapUtil.getStr(proxyConfigMap, "protocolType");
-                    String authUser = MapUtil.getStr(proxyConfigMap, "account");
-                    String authPassword = MapUtil.getStr(proxyConfigMap, "pwd");
-                    authUser = AesUtil.decrypt(authUser);
-                    authPassword = AesUtil.decrypt(authPassword);
-                    proxyConfigMap.put("account", authUser);
-                    proxyConfigMap.put("pwd", authPassword);
-                    return proxyRequest(request, proxyConfigMap, sendTimeOut, readTimeOut, getProxyType(protocolType));
+        //根据权重配比，随机获取一种
+        int[] weights = new int[proxyConfigList.size()];
+        int i = 0;
+        for (Map<String, Object> map : proxyConfigList) {
+            weights[i] = MapUtil.getInt(map, "weight");
+            i++;
+        }
+        int index = StrUtils.getWeightedRandomIndex(weights);
+        Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
+
+        String proxyType = isRedeem(request) ? "1" : MapUtil.getStr(proxyConfigMap, "proxyType");
+
+        if (StrUtil.isNotEmpty(proxyType)){
+            // 私密代理
+            if ( "1".equals(proxyType)) {
+                Entity entity = IPManager.getInstance().getIP();
+                if (!CollUtil.isEmpty(entity)) {
+                    String proxyHost = entity.getStr("ip");
+                    int proxyPort = entity.getInt("port");
+                    String username = entity.getStr("username");
+                    String pwd = entity.getStr("pwd");
+                    String protocol_type = entity.getStr("protocol_type");
+                    username = AesUtil.decrypt(username);
+                    pwd = AesUtil.decrypt(pwd);
+                    return proxyRequest(request, proxyHost, proxyPort, username, pwd, sendTimeOut, readTimeOut, getProxyType(protocol_type));
+                } else { // 如果获取不到代理ip, 则先使用隧道代理
+                   proxyType = "2";
+                   proxyConfigMap = proxyConfigList.stream()
+                            .filter(map -> "2".equals(map.get("proxyType")))
+                            .findFirst()
+                            .get();
+                   LoggerManger.info("获取代理IP失败, 切换至隧道代理。 proxyConfigList= " + proxyConfigList + ", proxyConfigMap = " + proxyConfigMap);
                 }
-                return proxyRequest(request,sendTimeOut,readTimeOut);
+            }
+
+            // 隧道代理
+            if ("2".equals(proxyType)) {
+                String protocolType = MapUtil.getStr(proxyConfigMap, "protocolType");
+                String authUser = MapUtil.getStr(proxyConfigMap, "account");
+                String authPassword = MapUtil.getStr(proxyConfigMap, "pwd");
+                authUser = AesUtil.decrypt(authUser);
+                authPassword = AesUtil.decrypt(authPassword);
+                proxyConfigMap.put("account", authUser);
+                proxyConfigMap.put("pwd", authPassword);
+                return proxyRequest(request, proxyConfigMap, sendTimeOut, readTimeOut, getProxyType(protocolType));
             }
         }
+
         return proxyRequest(request,sendTimeOut,readTimeOut);
     }
-
 
     private static HttpRequest apiProxyRequest(HttpRequest request, String proxyApiUrl, String proxyApiUser, String proxyApiPass, Boolean proxyApiNeedPass, int sendTimeOut, int readTimeout) {
         if (Validator.isUrl(proxyApiUrl)) {
@@ -363,7 +371,7 @@ public class ProxyUtil {
             }
 
         } catch (UnknownHostException e) {
-            LoggerManger.info("isPrivateIP",e);
+            e.printStackTrace();
         }
         return false;
     }

@@ -24,9 +24,6 @@ import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -146,16 +143,18 @@ public class GiftCardUtil {
         String locationSSi  =  location.substring(location.indexOf("?"));
         paras.put("locationSSi",locationSSi);
         // get x-apple-hc
-        HttpResponse pre4 = signFrame(paras);
-        paras.put("code",pre4.getStatus());
-        paras.put("X-Apple-Auth-Attributes",pre4.header("X-Apple-Auth-Attributes"));
-        if(503==pre4.getStatus()){
+        HttpResponse signFrameResponse = signFrame(paras);
+        paras.put("code",signFrameResponse.getStatus());
+        paras.put("signFrameResponse",signFrameResponse);
+        paras.put("X-Apple-Auth-Attributes",signFrameResponse.header("X-Apple-Auth-Attributes"));
+        paras.put("X-Apple-ID-Session-Id",signFrameResponse.header("X-Apple-ID-Session-Id"));
+        if(503==signFrameResponse.getStatus()){
             return paras;
         }
         paras.put("callbackSignInUrl",callbackSignInUrl);
-        int xAppleHcBits = Integer.parseInt(pre4.header("X-Apple-HC-Bits"));
+        int xAppleHcBits = Integer.parseInt(signFrameResponse.header("X-Apple-HC-Bits"));
         paras.put("xAppleHcBits",xAppleHcBits);
-        String xAppleHcChallenge = pre4.header("X-Apple-HC-Challenge");
+        String xAppleHcChallenge = signFrameResponse.header("X-Apple-HC-Challenge");
         paras.put("xAppleHcChallenge",xAppleHcChallenge);
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
@@ -205,7 +204,7 @@ public class GiftCardUtil {
         headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
-        String url = locationBase+"/shop/shld/work/v0/q";
+        String url = locationBase+"/shop/shld/work/v1/q?wd=0";
         Map<String,String> cookiesMap=new HashMap<>();
         CookieUtils.setCookiesToMap(initBalanceRes,cookiesMap);
         CookieUtils.setCookiesToMap(reloadBalanceRes,cookiesMap);
@@ -231,7 +230,7 @@ public class GiftCardUtil {
         headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
         headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
         headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
-        String url = locationBase+"/shop/shld/work/v0/q";
+        String url = locationBase+"/shop/shld/work/v1/q?wd=0";
         Map<String,String> cookiesMap=new HashMap<>();
         CookieUtils.setCookiesToMap(initBalanceRes,cookiesMap);
         CookieUtils.setCookiesToMap(reloadBalanceRes,cookiesMap);
@@ -352,7 +351,6 @@ public class GiftCardUtil {
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("Host", ListUtil.toList("idmsa.apple.com"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
@@ -374,8 +372,6 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
         headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
-
-        headers.put("X-Apple-Auth-Attributes",ListUtil.toList("firstPartyAuth"));
 
         headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
 
@@ -410,9 +406,66 @@ public class GiftCardUtil {
         CookieUtils.setCookiesToMap(res1,cookiesMap);
         CookieUtils.setCookiesToMap(pre3,cookiesMap);
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        HttpResponse signFrameResponse= (HttpResponse) paras.get("signFrameResponse");
+        CookieUtils.setCookiesToMap(signFrameResponse,cookiesMap);
         String cookies= MapUtil.join(cookiesMap,";","=",true);
         cookies=cookies+";"+as_sfa_cookie;
+        cookies=cookies+";"+"shld_bt_ck="+paras.get("shld_bt_ck");
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
+                        .header(headers)
+                        .body(JSONUtil.toJsonStr(bodyParas))
+                        .cookie(cookies));
+        return res;
+    }
+    public static HttpResponse challenge(Map<String,Object> paras,HttpResponse pre1,HttpResponse pre3){
+        String frameId= MapUtil.getStr(paras,"frameId");
+        String clientId= MapUtil.getStr(paras,"clientId");
+        String locationBase= MapUtil.getStr(paras,"locationBase");
+        String as_sfa_cookie= MapUtil.getStr(paras,"as_sfa_cookie");
+
+        HashMap<String, List<String>> headers = new HashMap<>();
+
+        headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*; q=0.01"));
+        headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
+        headers.put("Accept-Language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
+        headers.put("Content-Type", ListUtil.toList("application/json"));
+        headers.put("Host", ListUtil.toList("idmsa.apple.com"));
+        headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
+        headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
+
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
+        headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
+
+        headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(BROWSER_CLIENT_INFO));
+        headers.put("X-Requested-With",ListUtil.toList("XMLHttpRequest"));
+
+        headers.put("Sec-fetch-dest",ListUtil.toList("empty"));
+        headers.put("Sec-fetch-mode",ListUtil.toList("cors"));
+        headers.put("Sec-fetch-site",ListUtil.toList("same-origin"));
+
+        headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
+        headers.put("X-Apple-OAuth-State",ListUtil.toList(frameId));
+        headers.put("X-Apple-OAuth-Redirect-URI",ListUtil.toList(locationBase));
+        headers.put("X-Apple-OAuth-Response-Type",ListUtil.toList("code"));
+        headers.put("X-Apple-OAuth-Response-Mode",ListUtil.toList("web_message"));
+        headers.put("X-Apple-OAuth-Client-Type",ListUtil.toList("firstPartyAuth"));
+
+        headers.put("User-Agent",ListUtil.toList(BROWSER_USER_AGENT));
+
+        headers.put("X-Apple-Auth-Attributes",ListUtil.toList(paras.get("X-Apple-Auth-Attributes").toString()));
+
+        Map<String,Object> bodyParas=new HashMap<>(){{
+            put("passkeyAutofill",false);
+        }};
+        Map<String,String> cookiesMap=new HashMap<>();
+        CookieUtils.setCookiesToMap(pre3,cookiesMap);
+        CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        cookies=cookies+";"+as_sfa_cookie;
+        cookies=cookies+";"+"shld_bt_ck="+paras.get("shld_bt_ck");
+
+        HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/verify/device/key/challenge")
                         .header(headers)
                         .body(JSONUtil.toJsonStr(bodyParas))
                         .cookie(cookies));

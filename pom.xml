@@ -218,7 +218,7 @@
                             <goal>package</goal>
                         </goals>
                         <configuration>
-                            <version>3.2.8</version>
+                            <version>3.3.3</version>
                             <organizationName>Apple批量处理</organizationName>
                             <name>Apple批处理程序</name>
                             <!-- mandatory -->
