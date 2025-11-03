@@ -115,6 +115,7 @@ public class AccountImportUtil<T>{
         String pwd="";
         accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING).replace("{-}",REPLACE_MEANT);
         String[]  array=accountStr.split(SPLIT_STRING);
+        int index=0;
         if(array.length>=2){
             account=AccountParser.replaceXX(array[0]);
             pwd=array[1];
@@ -124,7 +125,8 @@ public class AccountImportUtil<T>{
                 account=getEmailByStr(accountStr);
                 pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length());
             }else{
-                accountStr= StringUtils.replacePattern(accountStr, "-| ", " ").trim();
+                accountStr=processedUrl(accountStr,index);
+                index++;
                 accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING);
                 String []accountArr=accountStr.split(SPLIT_STRING,2);
                 account=accountArr[0];
@@ -133,7 +135,7 @@ public class AccountImportUtil<T>{
                 }
             }
         }
-        pwd= StringUtils.replacePattern(pwd, "-| ", " ").trim();
+        pwd=processedUrl(pwd,index);
         pwd= StrUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
         if(!StringUtils.isEmpty(account)){
@@ -164,6 +166,37 @@ public class AccountImportUtil<T>{
             firstEmail =matcher.group();
         }
         return firstEmail;
+    }
+
+    private static String processedUrl(String input,int index){
+        // 先提取和保护URL部分
+        Pattern urlPattern = Pattern.compile("(https?://[^\\s]+)");
+        Matcher matcher = urlPattern.matcher(input);
+
+        StringBuilder result = new StringBuilder();
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            // 处理URL之前的部分
+            String beforeUrl = input.substring(lastEnd, matcher.start());
+            beforeUrl = beforeUrl.replaceAll("-+| +", " ").trim();
+            result.append(beforeUrl);
+            if(index==0){
+                result.append(" ");
+            }
+            // 添加保护的URL
+            result.append(matcher.group(1)).append(" ");
+            lastEnd = matcher.end();
+        }
+
+        // 处理URL之后的部分（如果有）
+        if (lastEnd < input.length()) {
+            String afterUrl = input.substring(lastEnd);
+            afterUrl = afterUrl.replaceAll("-+| +", " ").trim();
+            result.append(afterUrl);
+        }
+
+        return  result.toString().trim();
     }
 
     public static class AccountParser {
