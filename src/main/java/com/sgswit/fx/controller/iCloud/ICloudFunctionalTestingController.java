@@ -9,7 +9,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ICloudView;
 import com.sgswit.fx.model.ICloudFunctionalTesting;
 import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.icloud.ICloudUtil;
 import com.sgswit.fx.utils.PListUtil;
 import javafx.event.ActionEvent;
 import org.apache.commons.lang3.StringUtils;

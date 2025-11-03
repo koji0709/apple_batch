@@ -12,6 +12,9 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.web.ShoppingLoginUtil;
+import com.sgswit.fx.utils.web.ShoppingUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +55,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
             paras.put("serviceKey", "a797929d224abb1cc663bb187bbcd02f7172ca3a84df470380522a7c6092118b");
-            HttpResponse response= WebLoginUtil.signin(paras);
+            HttpResponse response= ShoppingLoginUtil.signin(paras);
             if(response.getStatus() == 409){
 
             }else if(response.getStatus()!=200){
@@ -77,7 +80,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //paras.clear();
             paras.put("account",account.getAccount());
             paras.put("pwd",account.getPwd());
-            paras.put("serviceKey", WebLoginUtil.createClientId());
+            paras.put("serviceKey", ShoppingLoginUtil.createClientId());
             // 获取产品
             setAndRefreshNote(account,"正在加载商品信息...");
             ThreadUtil.sleep(500);
@@ -129,7 +132,7 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
             //登录
             setAndRefreshNote(account,"页面加载成功，登录中...");
             ThreadUtil.sleep(500);
-            HttpResponse signInResp = WebLoginUtil.signin(signInMap);
+            HttpResponse signInResp = ShoppingLoginUtil.signin(signInMap);
             if(response.getStatus() == 409){
                 if("hsa2".equals(JSONUtil.parseObj(response.body()).getStr("authType"))){
                     throw new ServiceException("此账户已开通双重认证，请输入双重验证码");

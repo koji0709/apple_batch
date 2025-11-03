@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.web;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.CollUtil;
@@ -20,6 +20,10 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
+import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.PListUtil;
+import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
@@ -221,7 +225,7 @@ public class PurchaseBillUtil {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
@@ -304,7 +308,7 @@ public class PurchaseBillUtil {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
@@ -565,7 +569,7 @@ public class PurchaseBillUtil {
             return result;
         }
         String countryCodeISO3A=JSONUtil.parse(loginResponse.body()).getByPath("ampAccount.countryCodeISO3A",String.class);
-        result.put("countryName",DataUtil.getNameByCountryCode(countryCodeISO3A));
+        result.put("countryName", DataUtil.getNameByCountryCode(countryCodeISO3A));
         String token=JSONUtil.parse(loginResponse.body()).getByPath("token").toString();
         String dsid=JSONUtil.parse(loginResponse.body()).getByPath("dsid").toString();
         //查询方法
@@ -914,7 +918,7 @@ public class PurchaseBillUtil {
             }
             String rb = res.charset("UTF-8").body();
             JSONObject rspJSON = PListUtil.parse(rb);
-            Map<String,Object> result=ITunesUtil.checkLoginRes(res);
+            Map<String,Object> result= ITunesUtil.checkLoginRes(res);
             String code= (String) result.get("code");
             if(!Constant.SUCCESS.equals(code)){
                 if(Constant.CustomerMessageNotYetUsediTunesStoreCode.equals(code)){

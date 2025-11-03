@@ -11,7 +11,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.ICloudView;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.ICloudUtil;
+import com.sgswit.fx.utils.icloud.ICloudUtil;
 import javafx.event.ActionEvent;
 
 import java.net.URL;

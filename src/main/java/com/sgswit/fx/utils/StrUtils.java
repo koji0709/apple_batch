@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @description: TODO
  * @date 2024/1/2211:35
  */
-public class StrUtils extends StringUtils {
+public class StrUtils extends StrUtil {
     /**
     　*将多个连续空格替换为指定字符串 移除换行\r、回车\n、制表\t符的字符串
       * @param

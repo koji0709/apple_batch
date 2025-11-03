@@ -10,6 +10,8 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.itunes.ITunesUtil;
+import com.sgswit.fx.utils.log.LoggerManger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang.StringEscapeUtils;

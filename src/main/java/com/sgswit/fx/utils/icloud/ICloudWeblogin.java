@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.icloud;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
@@ -14,6 +14,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
@@ -100,7 +101,7 @@ public class ICloudWeblogin {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
@@ -147,7 +148,7 @@ public class ICloudWeblogin {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
@@ -197,7 +198,7 @@ public class ICloudWeblogin {
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 

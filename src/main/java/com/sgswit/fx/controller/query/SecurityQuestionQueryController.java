@@ -13,7 +13,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
-import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;

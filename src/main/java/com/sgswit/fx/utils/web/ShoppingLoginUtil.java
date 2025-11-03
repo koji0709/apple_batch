@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.web;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
@@ -16,6 +16,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
+import com.sgswit.fx.utils.CookieUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.PBEParametersGenerator;
@@ -30,7 +31,7 @@ import java.util.*;
 /**
  * @author DELL
  */
-public class WebLoginUtil {
+public class ShoppingLoginUtil {
     public static String createClientId(){
         Digester md5 = new Digester(DigestAlgorithm.MD5);
         StringBuilder sb = new StringBuilder();

@@ -1,8 +1,9 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.log;
 
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.proxy.ProxyInfo;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package com.sgswit.fx;
+package com.sgswit.fx.controller;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.StreamProgress;

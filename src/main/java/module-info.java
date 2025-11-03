@@ -21,5 +21,8 @@ open module com.sgswit.fx {
     requires d4ocr;
     requires commons.lang;
     requires fastjson;
+    requires jdk.httpserver;
     exports com.sgswit.fx;
+    exports com.sgswit.fx.utils.stage;
+    exports com.sgswit.fx.controller;
 }

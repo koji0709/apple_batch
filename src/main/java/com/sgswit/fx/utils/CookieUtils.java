@@ -58,7 +58,9 @@ public class CookieUtils {
                 continue;
             }
             String value = cookieStr.substring(cookieStr.indexOf("=")+1);
-            cookiesMap.put(items[0],value);
+            if(!StrUtils.isEmpty(value)){
+                cookiesMap.put(items[0],value);
+            }
         }
     }
 }

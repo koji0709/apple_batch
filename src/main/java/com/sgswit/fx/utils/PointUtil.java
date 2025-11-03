@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Parent;
@@ -47,12 +48,8 @@ public class PointUtil {
         Map<String,String> res=  new HashMap<>();
         try{
             //获取当前登录账号的用户名
-            //String username=PropertiesUtil.getOtherConfig("login.userName");
             String username = LoginUtil.getUserName();
-
-//            username=SignUtil.decryptBase64(username);
             username= Base64.decodeStr(username);
-
 
             Map<String,Object> map=new HashMap<>();
             map.put("functionCode",functionCode);

@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.web;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

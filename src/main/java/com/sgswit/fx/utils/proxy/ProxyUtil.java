@@ -16,6 +16,10 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.log.RequestLogUtil;
+import com.sgswit.fx.utils.sign.AesUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;

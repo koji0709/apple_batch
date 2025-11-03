@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.icloud;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
@@ -11,6 +11,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -540,7 +542,7 @@ public class ICloudUtil {
         headers.put("Sec-Fetch-User",ListUtil.toList("?1"));
 
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(signInRes.header("X-Apple-Auth-Attributes")));
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
         headers.put("X-Apple-I-FD-Client-Info",ListUtil.toList(Constant.BROWSER_CLIENT_INFO));
@@ -594,7 +596,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(authRsp.header("X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
 
         headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));
@@ -666,7 +668,7 @@ public class ICloudUtil {
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(securityCodeRsp.header("X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
 
         headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(clientId));

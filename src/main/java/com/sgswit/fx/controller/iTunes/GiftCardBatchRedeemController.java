@@ -28,6 +28,9 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.itunes.ITunesUtil;
+import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -713,7 +716,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         ThreadUtil.execute(()->{
             Map<String,Object> params = new HashMap<>(){{
                 put("code",giftCardRedeem.getGiftCardCode());
-                put("user",SignUtil.decryptBase64(PropertiesUtil.getOtherConfig("login.userName")));
+                put("user", LoginUtil.getUserName());
                 put("recipientAccount", account);
                 put("recipientDsid",giftCardRedeem.getDsPersonId());
                 put("initBalance", new BigDecimal(totalMoneyRaw).subtract(new BigDecimal(giftCardMoneyRaw)));

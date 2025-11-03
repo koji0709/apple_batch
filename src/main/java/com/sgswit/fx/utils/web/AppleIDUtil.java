@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.web;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
@@ -20,6 +20,8 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
+import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.log.LoggerManger;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -343,7 +345,7 @@ public class AppleIDUtil {
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(authRsp.header("X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
 
         headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(account.getClientId()));
@@ -391,7 +393,7 @@ public class AppleIDUtil {
     }
 
     public static HttpResponse questions1(Account account,HttpResponse authRsp) {
-        String boot_args=StrUtils.getScriptByClass(authRsp.body(),"boot_args");
+        String boot_args= StrUtils.getScriptByClass(authRsp.body(),"boot_args");
         String questions = JSONUtil.parse(boot_args).getByPath("direct.twoSV.securityQuestions.questions",String.class);
         List<Question> qs = JSONUtil.toList(questions, Question.class);
         for (int i = 0; i < qs.size(); i++) {
@@ -2246,7 +2248,7 @@ public class AppleIDUtil {
         for (JSONObject question : questions) {
             question.remove("locale");
             //重新排序
-            int number=DataUtil.getQuestionIndex(question.getInt("id"));
+            int number= DataUtil.getQuestionIndex(question.getInt("id"));
             question.putOnce("answer",answerMap.get(number));
         }
         Map<String,List<JSONObject>> bodyMap = new HashMap<>();

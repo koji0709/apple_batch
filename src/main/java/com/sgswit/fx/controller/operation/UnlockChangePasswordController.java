@@ -11,6 +11,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
