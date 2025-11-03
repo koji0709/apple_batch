@@ -6,7 +6,7 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.PointUtil;
-import com.sgswit.fx.utils.PurchaseBillUtil;
+import com.sgswit.fx.utils.web.PurchaseBillUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 

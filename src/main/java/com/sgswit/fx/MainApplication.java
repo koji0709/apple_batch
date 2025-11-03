@@ -2,24 +2,23 @@ package com.sgswit.fx;
 
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
+import com.sgswit.fx.controller.UpgraderController;
 import com.sgswit.fx.utils.ProcessChecker;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.db.SQLiteUtil;
+import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.nio.channels.FileLock;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.security.Security;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +36,6 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         LoggerManger.info("启动软件...");
-        HostServicesUtil.setHostServices(getHostServices());
         DataUtil.getData();
         //进程锁
         FileLock lock = AppleBatchUtil.getLock();

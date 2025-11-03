@@ -1,5 +1,6 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.stage;
 
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -26,7 +27,7 @@ public class StageToSystemTrayUtil {
             // 创建弹出菜单
             PopupMenu popupMenu = new PopupMenu();
             // 创建系统托盘图标
-            String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
+            String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
             Image image = new Image(logImg);
             String toolTip=PropertiesUtil.getConfig("softwareInfo.name")+" - Apple批处理";
 

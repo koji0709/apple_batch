@@ -13,6 +13,7 @@ import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
+import com.sgswit.fx.utils.web.ShoppingLoginUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -256,7 +257,7 @@ public class DataUtil {
         if(guid.equals(type)){
             id=MachineInfoBuilder.generateMachineInfo().getMachineGuid();
         }else if(web_client_id.equals(type)){
-            id=WebLoginUtil.createClientId();
+            id= ShoppingLoginUtil.createClientId();
         }else if(client_id.equals(type)){
             id=IdUtil.fastUUID().toUpperCase();
         }

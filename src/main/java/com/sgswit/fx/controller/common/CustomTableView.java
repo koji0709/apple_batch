@@ -20,6 +20,8 @@ import com.sgswit.fx.task.LocalhistoryTask;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.db.DataSourceFactory;
 import com.sgswit.fx.utils.db.SQLiteUtil;
+import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.stage.StageToSystemTrayUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;

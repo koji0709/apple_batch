@@ -1,13 +1,13 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.sign;
 
+
+import com.sgswit.fx.utils.log.LoggerManger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author DeZh

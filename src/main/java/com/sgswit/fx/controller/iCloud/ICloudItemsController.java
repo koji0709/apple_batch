@@ -1,7 +1,7 @@
 package com.sgswit.fx.controller.iCloud;
 
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.utils.StageUtil;
+import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.event.ActionEvent;
 
 import java.io.IOException;

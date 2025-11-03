@@ -1,8 +1,9 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.stage;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.enums.StageEnum;
+import com.sgswit.fx.utils.PropertiesUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -63,7 +64,7 @@ public class StageUtil {
 
         stage.setUserData(userData);
         stage.initStyle(stageEnum.getInitStyle());
-        String logImg=PropertiesUtil.getConfig("softwareInfo.log.path");
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
         stage.getIcons().add(new Image(logImg) );
 
         if(stage==StageUtil.get(StageEnum.MAIN)){

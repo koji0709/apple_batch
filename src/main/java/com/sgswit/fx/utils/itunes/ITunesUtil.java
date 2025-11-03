@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.itunes;
 
 
 import cn.hutool.core.collection.ListUtil;
@@ -10,10 +10,10 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
-import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.iTunes.vo.AppstoreDownloadVo;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.model.LoginInfo;
+import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -725,7 +725,7 @@ public class ITunesUtil {
         String cardCode      = giftCardRedeem.getGiftCardCode();
 
         if (StrUtil.isEmpty(redeemUrl)){
-            redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv?hasBeenAuthedForBuy=false";
+            redeemUrl = "https://p"+ itspod +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/redeemCodeSrv?preflight=true";
         }
         HashMap<String, List<String>> headers = new HashMap<>();
         headers.put("User-Agent",ListUtil.toList(Constant.MACAPPSTORE20_USER_AGENT));
@@ -774,7 +774,7 @@ public class ITunesUtil {
     /**
     　* 校验iTunes登录结果
       * @param
-     * @param res
+     * @param httpResponse
     　* @return java.util.Map<java.lang.String,java.lang.Object>
     　* @throws
     　* @author DeZh

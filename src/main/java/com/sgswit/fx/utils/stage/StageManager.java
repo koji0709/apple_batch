@@ -1,4 +1,4 @@
-package com.sgswit.fx;
+package com.sgswit.fx.utils.stage;
 
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;

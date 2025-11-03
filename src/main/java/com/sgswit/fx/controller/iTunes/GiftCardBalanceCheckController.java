@@ -3,9 +3,7 @@ package com.sgswit.fx.controller.iTunes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
@@ -17,15 +15,11 @@ import com.sgswit.fx.MainApplication;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.common.CustomTableView;
-import com.sgswit.fx.controller.exception.PointCostException;
-import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
-import com.sgswit.fx.controller.exception.UnavailableException;
-import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
-import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.web.GiftCardUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -51,9 +45,6 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -61,6 +52,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+
 /**
  * @author DeZh
  * @title: GiftCardBalanceCheckController
@@ -476,98 +468,100 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 return;
             }
 
-            //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reloadBalanceRes = GiftCardUtil.reloadBalance(initBalanceRes);
-            if (reloadBalanceRes.getStatus() != 302) {
+            //https://secure7.store.apple.com/shop/giftcard/balance
+            HttpResponse initBalanceWitTunesRes = GiftCardUtil.initBalanceWithTunes(initBalanceRes);
+            if (initBalanceWitTunesRes.getStatus() != 302) {
                 updateUI("初始化失败，请重试", redColor);
                 return;
             }
 
             //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-            HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
-            authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
+//            HttpResponse pre3 = GiftCardUtil.shopSignInInit(initBalanceWitTunesRes);
+//            authMap = GiftCardUtil.jXDocument(initBalanceWitTunesRes, pre3, authMap);
 
 
-            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(reloadBalanceRes,initBalanceRes);
-            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
-            // 添加 flagskv 对象
-            JSONObject flagskv = new JSONObject();
-            flagskv.set("patSkip", true);
-            shldBtJsonObject.set("flagskv", flagskv);
-            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
-            // 添加 number 和 took
-            shldBtJsonObject.set("number", solvePoWMap.get("number"));
-            shldBtJsonObject.set("took", solvePoWMap.get("took"));
-
-            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
-            Map<String,String> cookiesMap=new HashMap<>();
-            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
-
-
-
-            //https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true
-            HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
-            if (200 != step0Res.getStatus()) {
-                updateUI("初始化失败，请重试", redColor);
-                return;
-            }
-            //"https://idmsa.apple.com/appleauth/auth/signin/init
-            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
-            if (200 != step1Res.getStatus()) {
-                updateUI("初始化失败，请重试", redColor);
-                return;
-            }
-            authMap.put("X-Apple-Auth-Attributes",step0Res.header("X-Apple-ID-Session-Id"));
-            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
-            //https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
-            if (409 == step2Res.getStatus()) {
-                String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
-                if ("hsa2".equals(authType)) {
-                    updateUI("您的Apple ID已受双重认证保护", redColor);
-                    return;
-                }
-            } else if (200 == step2Res.getStatus()) {
-
-            } else {
-                StringBuffer m = new StringBuffer();
-                String serviceErrors = JSONUtil.parse(step2Res.body()).getByPath("serviceErrors", String.class);
-                if (null != serviceErrors) {
-                    JSONArray jsonArray = JSONUtil.parseArray(serviceErrors);
-                    Iterator iterator = jsonArray.iterator();
-                    while (iterator.hasNext()) {
-                        JSONObject jsonObject = (JSONObject) iterator.next();
-                        m.append(jsonObject.getStr("message"));
-                        m.append(";");
-                    }
-                    updateUI(m.toString(), redColor);
-                    return;
-                }
-            }
-            //step3
-            //https://secure8.store.apple.com//shop/signIn/idms/authx?ssi=4AAABmH5N90oBIPvf7kFnJIjxmrYRdXrtzJnYQ_wRJICNB4hly1RrEM18AAAAOGh0dHBzOi8vc2VjdXJlOC5zdG9yZS5hcHBsZS5jb20vc2hvcC9naWZ0Y2FyZC9iYWxhbmNlfHx8AAIBFgcDpqECCN-LpfFSpJnKrmkeX6cM6T5uRbvnqvhqgYA
-            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
-            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
-            StringBuilder cookieBuilder = new StringBuilder();
-            List<String> resCookies = step3Res.headerList("Set-Cookie");
-            for (String item : resCookies) {
-                cookieBuilder.append(";").append(item);
-            }
-            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
-            Map<String, String> cookieMap = new HashMap<>();
-            cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
-            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
-            //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
-            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
-            Elements initDataElement = prodDoc.select("script[id=init_data]");
-            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
-            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
-            authMap.put("x-as-actk", x_as_actk);
-            loginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
-            scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
-            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
-            updateUI("初始化成功，下次启动将自动执行初始化", successColor);
+//            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(initBalanceWitTunesRes,initBalanceRes);
+//            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
+//            // 添加 flagskv 对象
+//            JSONObject flagskv = new JSONObject();
+//            flagskv.set("patSkip", true);
+//            shldBtJsonObject.set("flagskv", flagskv);
+//            Map<String,Object> solvePoWMap=PoWSolver.solvePoW(shldBtJsonObject.getInt("low"),shldBtJsonObject.getInt("high")
+//                    ,shldBtJsonObject.getInt("parts"),shldBtJsonObject.getBigInteger("result"),shldBtJsonObject.getLong("timeout"));
+//            // 添加 number 和 took
+//            shldBtJsonObject.set("number", solvePoWMap.get("number"));
+//            shldBtJsonObject.set("took", solvePoWMap.get("took"));
+//
+//            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
+//            Map<String,String> cookiesMap=new HashMap<>();
+//            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
+//
+//            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
+//            HttpResponse signFrameResponse= (HttpResponse) authMap.get("signFrameResponse");
+//
+//            HttpResponse challengeResponse= GiftCardUtil.challenge(authMap, signFrameResponse , pre3);
+//
+//            //https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true
+//            HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
+//            if (200 != step0Res.getStatus()) {
+//                updateUI("初始化失败，请重试", redColor);
+//                return;
+//            }
+//            //"https://idmsa.apple.com/appleauth/auth/signin/init
+//            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
+//            if (200 != step1Res.getStatus()) {
+//                updateUI("初始化失败，请重试", redColor);
+//                return;
+//            }
+//            //https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true
+//            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
+//            if (409 == step2Res.getStatus()) {
+//                String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
+//                if ("hsa2".equals(authType)) {
+//                    updateUI("您的Apple ID已受双重认证保护", redColor);
+//                    return;
+//                }
+//            } else if (200 == step2Res.getStatus()) {
+//
+//            } else {
+//                StringBuffer m = new StringBuffer();
+//                String serviceErrors = JSONUtil.parse(step2Res.body()).getByPath("serviceErrors", String.class);
+//                if (null != serviceErrors) {
+//                    JSONArray jsonArray = JSONUtil.parseArray(serviceErrors);
+//                    Iterator iterator = jsonArray.iterator();
+//                    while (iterator.hasNext()) {
+//                        JSONObject jsonObject = (JSONObject) iterator.next();
+//                        m.append(jsonObject.getStr("message"));
+//                        m.append(";");
+//                    }
+//                    updateUI(m.toString(), redColor);
+//                    return;
+//                }
+//            }
+//            //step3
+//            //https://secure8.store.apple.com//shop/signIn/idms/authx?ssi=4AAABmH5N90oBIPvf7kFnJIjxmrYRdXrtzJnYQ_wRJICNB4hly1RrEM18AAAAOGh0dHBzOi8vc2VjdXJlOC5zdG9yZS5hcHBsZS5jb20vc2hvcC9naWZ0Y2FyZC9iYWxhbmNlfHx8AAIBFgcDpqECCN-LpfFSpJnKrmkeX6cM6T5uRbvnqvhqgYA
+//
+//            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
+//            StringBuilder cookieBuilder = new StringBuilder();
+//            List<String> resCookies = step3Res.headerList("Set-Cookie");
+//            for (String item : resCookies) {
+//                cookieBuilder.append(";").append(item);
+//            }
+//            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
+//            Map<String, String> cookieMap = new HashMap<>();
+//            cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
+//            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
+//            //https://secure4.store.apple.com/shop/giftcard/balance
+//            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
+//            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
+//            Elements initDataElement = prodDoc.select("script[id=init_data]");
+//            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
+//            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
+//            authMap.put("x-as-actk", x_as_actk);
+//            loginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
+//            scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
+//            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
+//            updateUI("初始化成功，下次启动将自动执行初始化", successColor);
         } catch (ServiceException e) {
             updateUI(e.getMessage(), redColor);
         } catch (Exception e) {
@@ -732,86 +726,85 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     public void login(String countryCode,Boolean scheduledFlag) {
         try {
             //判断当前登录信息是否够使用
-            Map<String, Object> authMap = new HashMap<>(10);
-            String account = null;
-            String pwd = null;
-            if (!StringUtils.isEmpty(account_pwd.getText())) {
-                String[] its = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
-                if (its.length == 2) {
-                    account = its[0];
-                    pwd = its[1];
-                }
-            }
-            //https://secure.store.apple.com/shop/giftcard/balance
-            HttpResponse initBalanceRes = GiftCardUtil.initBalance(countryCode);
-            if (303 != initBalanceRes.getStatus()) {
-                return ;
-            }
-            ThreadUtil.sleep(300);
-            //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reloadBalanceRes = GiftCardUtil.reloadBalance(initBalanceRes);
-            if (302 != reloadBalanceRes.getStatus()) {
-                return ;
-            }
-            //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
-            HttpResponse pre3 = GiftCardUtil.initSignIn(initBalanceRes, reloadBalanceRes);
-            authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
-            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(reloadBalanceRes,initBalanceRes);
-            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
-            // 添加 flagskv 对象
-            JSONObject flagskv = new JSONObject();
-            flagskv.set("patSkip", true);
-            shldBtJsonObject.set("flagskv", flagskv);
-            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
-            // 添加 number 和 took
-            shldBtJsonObject.set("number", solvePoWMap.get("number"));
-            shldBtJsonObject.set("took", solvePoWMap.get("took"));
-
-            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
-            Map<String,String> cookiesMap=new HashMap<>();
-            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
-
-            HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
-            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
-            authMap.put("X-Apple-ID-Session-Id",step0Res.header("X-Apple-ID-Session-Id"));
-            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
-            if (409 == step2Res.getStatus()) {
-                String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
-                if ("hsa2".equals(authType)) {
-                    return;
-                }
-            } else if (200 != step2Res.getStatus()) {
-                if (null != JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")) {
-                    return;
-                }
-            }
-            //step3 shop signin
-            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
-            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
-            StringBuilder cookieBuilder = new StringBuilder();
-            List<String> resCookies = step3Res.headerList("Set-Cookie");
-            for (String item : resCookies) {
-                cookieBuilder.append(";").append(item);
-            }
-            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
-            Map<String, String> cookieMap = new HashMap<>();
-            cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
-            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
-            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
-
-
-            //https://secure4.store.apple.com/shop/giftcard/balance
-            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
-            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
-            Elements initDataElement = prodDoc.select("script[id=init_data]");
-            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
-            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
-            authMap.put("x-as-actk", x_as_actk);
-            if(scheduledFlag){
-                scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
-            }else{
-                loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
-            }
+//            Map<String, Object> authMap = new HashMap<>(10);
+//            String account = null;
+//            String pwd = null;
+//            if (!StringUtils.isEmpty(account_pwd.getText())) {
+//                String[] its = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+//                if (its.length == 2) {
+//                    account = its[0];
+//                    pwd = its[1];
+//                }
+//            }
+//            //https://secure.store.apple.com/shop/giftcard/balance
+//            HttpResponse initBalanceRes = GiftCardUtil.initBalance(countryCode);
+//            if (303 != initBalanceRes.getStatus()) {
+//                return ;
+//            }
+//            ThreadUtil.sleep(300);
+//            //https://secure4.store.apple.com/shop/giftcard/balance
+//            HttpResponse reloadBalanceRes = GiftCardUtil.initBalanceWithTunes(initBalanceRes);
+//            if (302 != reloadBalanceRes.getStatus()) {
+//                return ;
+//            }
+//            //https://secure4.store.apple.com/shop/signIn?ssi=1AAABiatkunsgRa-aWEWPTDH2TWsHul_CZ2TC62v9QxcThhc-EPUrFW8AAAA3aHR0cHM6Ly9zZWN1cmU0LnN0b3JlLmFwcGxlLmNvbS9zaG9wL2dpZnRjYXJkL2JhbGFuY2V8fAACAf0PkQUMMDk-ffBr4IVwBmhKDAsCeTbIe2k-7oOanvAP
+//            HttpResponse pre3 = GiftCardUtil.shopSignInInit(initBalanceRes, reloadBalanceRes);
+//            authMap = GiftCardUtil.jXDocument(reloadBalanceRes, pre3, authMap);
+//            HttpResponse shldBtCkGeneratorResponse= GiftCardUtil.shldBtCkGeneratorByGet(reloadBalanceRes,initBalanceRes);
+//            JSONObject shldBtJsonObject=JSONUtil.parseObj(shldBtCkGeneratorResponse.body());
+//            // 添加 flagskv 对象
+//            JSONObject flagskv = new JSONObject();
+//            flagskv.set("patSkip", true);
+//            shldBtJsonObject.set("flagskv", flagskv);
+//            Map<String,Object> solvePoWMap=GiftCardUtil.solvePoW(shldBtJsonObject.getStr("salt"),shldBtJsonObject.getStr("challenge"));
+//            // 添加 number 和 took
+//            shldBtJsonObject.set("number", solvePoWMap.get("number"));
+//            shldBtJsonObject.set("took", solvePoWMap.get("took"));
+//
+//            HttpResponse shldBtCkGeneratorResponse2=GiftCardUtil.shldBtCkGeneratorByPost(reloadBalanceRes,initBalanceRes,shldBtJsonObject.toStringPretty());
+//            Map<String,String> cookiesMap=new HashMap<>();
+//            Map<String,String> cookiesMap2= CookieUtils.setCookiesToMap(shldBtCkGeneratorResponse2,cookiesMap);
+//
+//            HttpResponse step0Res = GiftCardUtil.federate(account, authMap);
+//            HttpResponse step1Res = GiftCardUtil.signinInit(account, step0Res, authMap);
+//            HttpResponse step2Res = GiftCardUtil.signinCompete(account, pwd, authMap, step1Res, initBalanceRes, pre3);
+//            if (409 == step2Res.getStatus()) {
+//                String authType = JSONUtil.parse(step2Res.body()).getByPath("authType", String.class);
+//                if ("hsa2".equals(authType)) {
+//                    return;
+//                }
+//            } else if (200 != step2Res.getStatus()) {
+//                if (null != JSONUtil.parse(step2Res.body()).getByPath("serviceErrors")) {
+//                    return;
+//                }
+//            }
+//            //step3 shop signin
+//            authMap.put("shld_bt_ck",cookiesMap2.get("shld_bt_ck"));
+//            HttpResponse step3Res = GiftCardUtil.shopSignin(step2Res, initBalanceRes, authMap);
+//            StringBuilder cookieBuilder = new StringBuilder();
+//            List<String> resCookies = step3Res.headerList("Set-Cookie");
+//            for (String item : resCookies) {
+//                cookieBuilder.append(";").append(item);
+//            }
+//            cookieBuilder.append(";").append(authMap.get("as_sfa_cookie"));
+//            Map<String, String> cookieMap = new HashMap<>();
+//            cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
+//            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
+//            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
+//
+//
+//            //https://secure4.store.apple.com/shop/giftcard/balance
+//            HttpResponse reload2BalanceRes = GiftCardUtil.reload2Balance(step3Res,initBalanceRes,reloadBalanceRes);
+//            Document prodDoc = Jsoup.parse(reload2BalanceRes.body());
+//            Elements initDataElement = prodDoc.select("script[id=init_data]");
+//            JSONObject meta = JSONUtil.parseObj(initDataElement.html());
+//            String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
+//            authMap.put("x-as-actk", x_as_actk);
+//            if(scheduledFlag){
+//                scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
+//            }else{
+//                loginCookiesMap.put(IdUtil.fastSimpleUUID(),authMap);
+//            }
 
         } catch (Exception e) {
 
@@ -963,14 +956,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
                     SoundUtil.playSound();
-//                    System.out.println("开始兑换----------" + giftCard.getAccount());
-//                    GiftCardRedeem giftCardRedeem = new GiftCardRedeem();
-//                    giftCardRedeem.setAccount(giftCard.getAccount());
-//                    giftCardRedeem.setPwd(giftCard.getPwd());
-//                    // iTunes登陆
-//                    itunesLogin(giftCardRedeem);
-//                    // 礼品卡兑换
-//                    redeem(giftCardRedeem);
                 }
             });
         }
@@ -1075,210 +1060,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
     }
 
-    public void itunesLogin(GiftCardRedeem accountModel){
-        String message ="";
-        try{
-            String appleId = accountModel.getAccount();
-            String pwd = accountModel.getPwd();
-            String id=super.createId(appleId,pwd);
-            LoginInfo loginInfo = loginSuccessMap.get(id);
-            if (loginInfo != null) {
-                accountModel.setIsLogin(loginInfo.isLogin());
-                accountModel.setItspod(loginInfo.getItspod());
-                accountModel.setStoreFront(loginInfo.getStoreFront());
-                accountModel.setDsPersonId(loginInfo.getDsPersonId());
-                accountModel.setPasswordToken(loginInfo.getPasswordToken());
-                accountModel.setGuid(loginInfo.getGuid());
-                accountModel.setAuthData(loginInfo.getAuthData());
-                accountModel.setCookieMap(loginInfo.getCookieMap());
-                accountModel.setNote("成功获取登录信息。");
-            }else{
-                accountModel.setIsLogin(false);
-            }
-
-            if (accountModel.isLogin()){
-                return;
-            }
-
-            String guid = DataUtil.getGuidByAppleId(appleId);
-            accountModel.setGuid(guid);
-
-            String url = "";
-            HttpResponse loginRsp;
-            if (StrUtil.isEmpty(accountModel.getAuthCode())){
-                url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
-                loginRsp = itunesLogin(accountModel,url,0);
-            }else{
-                Object authRsp = accountModel.getAuthData().get("authRsp");
-                if (authRsp == null){
-                    throw new ServiceException("请先登录鉴权");
-                }
-                url = "https://p"+ accountModel.getItspod() +"-buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;
-                loginRsp = itunesLogin(accountModel,url,1);
-            }
-            JSONObject json=null;
-            try{
-                json = PListUtil.parse(loginRsp.body());
-            }catch (Exception e){
-                throw new UnavailableException();
-            }
-            Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp);
-
-            boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
-            if (verify){
-                accountModel.setNote("登录成功。");
-
-                accountModel.setAuthCode("");
-                accountModel.getAuthData().put("authRsp",loginRsp);
-                accountModel.setItspod(loginRsp.header(Constant.ITSPOD));
-                accountModel.setStoreFront(loginRsp.header(Constant.HTTPHeaderStoreFront));
-                accountModel.setDsPersonId(json.getStr("dsPersonId",""));
-                accountModel.setPasswordToken(json.getStr("passwordToken",""));
-                CookieUtils.setCookiesToMap(loginRsp,accountModel.getCookieMap());
-                accountModel.setIsLogin(true);
-                String storeId=super.createId(appleId,pwd);
-                loginSuccessMap.put(storeId,accountModel);
-                return;
-            }
-            message = MapUtil.getStr(result,"msg");
-        }catch (ServiceException e){
-            LoggerManger.info("itunesLogin登陆失败",e);
-            message=e.getMessage();
-        }
-        throw new ServiceException("登录失败："+message);
-    }
-    private HttpResponse itunesLogin(GiftCardRedeem accountModel,String url,Integer attempt){
-        String guid = accountModel.getGuid();
-        String account = accountModel.getAccount();
-        String pwd = accountModel.getPwd();
-
-        HttpResponse authRsp = ITunesUtil.authenticate(account, pwd, accountModel.getAuthCode(), guid,"", url);
-        url = authRsp.header("location");
-        String status = String.valueOf(authRsp.getStatus());
-        if (status.equals(Constant.REDIRECT_CODE)){
-            return itunesLogin(accountModel,url,1);
-        }else if (!status.equals(Constant.SUCCESS)){
-            return authRsp;
-        }
-
-        JSONObject authBody        = PListUtil.parse(authRsp.body());
-        String     failureType     = authBody.getStr("failureType","");
-        // 重试
-        if(attempt == 0 && Constant.FailureTypeInvalidCredentials.equals(failureType)){
-            return itunesLogin(accountModel,url,1);
-        }
-        // 双重认证
-        Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp);
-        if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
-            accountModel.getAuthData().put("authRsp",authRsp);
-            accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throw new ServiceException(MapUtil.getStr(result,"msg"));
-        }else if(!Constant.SUCCESS.equals(result.get("code"))){
-            throw new ServiceException(MapUtil.getStr(result,"msg"));
-        }
-        return authRsp;
-    }
-
-    public void redeem(GiftCardRedeem giftCardRedeem){
-        HttpResponse redeemRsp;
-        String body;
-        try{
-            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
-            body = redeemRsp.body();
-            checkAndThrowUnavailableException(redeemRsp);
-        }catch (ResponseTimeoutException e){// 响应超时不计入次数统计
-            throw new ServiceException(e.getMessage());
-        }
-
-        // status = 429重试
-        Integer i = 3;
-        while (i-- >= 0 && redeemRsp.getStatus() == 429){
-            ThreadUtil.sleep(200L);
-            redeemRsp= ITunesUtil.redeem(giftCardRedeem,"");
-            body = redeemRsp.body();
-        }
-
-        // 如果是status = 429则不计入统计
-        if(redeemRsp.getStatus() == 429) {
-            throw new ServiceException("响应状态:429,"+Constant.REDEEM_WAIT2_DESC);
-        }
-        if (StrUtil.isEmpty(body)){
-            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据为空, 请检查兑换状态");
-        }
-        // 兑换
-        JSONObject redeemBody = new JSONObject();
-        try {
-            redeemBody = JSONUtil.parseObj(body);
-        }catch (Exception e) {
-            LoggerManger.info("响应状态 = "+redeemRsp.getStatus()+", 响应数据 = " + redeemBody);
-            throw new ServiceException("响应状态:"+redeemRsp.getStatus()+", 响应数据异常, 请检查兑换状态");
-        }
-
-        if (redeemBody.keySet().contains("plist")){
-            redeemBody = PListUtil.parse(body);
-        }
-        Integer status = redeemBody.getInt("status",-1);
-        if (status != 0){
-            String userPresentableErrorMessage = redeemBody.getStr("userPresentableErrorMessage","");
-            String messageKey = redeemBody.getStr("errorMessageKey","");
-            String message = "兑换失败! %s";
-            // 礼品卡无效
-            if ("MZCommerce.GiftCertificateAlreadyRedeemed".equals(messageKey)){
-                // 礼品卡已兑换
-                giftCardRedeem.setGiftCardStatus("旧卡");
-                message = String.format(message,"此代码已被兑换");
-                Map<String,Object> params = new HashMap<>();
-                params.put("code",giftCardRedeem.getGiftCardCode());
-                HttpResponse giftcardRedeemLogRsp = HttpUtils.get("/giftcardRedeemLog",params);
-                boolean verify = HttpUtils.verifyRsp(giftcardRedeemLogRsp);
-                if (!verify){
-
-                }else{
-                    JSONArray dataList = HttpUtils.dataList(giftcardRedeemLogRsp);
-                    if (!CollUtil.isEmpty(dataList)){
-                        String format = "由%s于%s兑换成功。";
-                        JSONObject json = (JSONObject) dataList.get(0);
-                        message=String.format(format,StrUtils.maskData(json.getStr("recipientAccount")),json.getStr("redeemTime"));
-                    }
-                }
-            } else if ("MZCommerce.GiftCertificateDisabled".equals(messageKey)){
-                // 僵尸卡
-                giftCardRedeem.setGiftCardStatus("僵尸卡");
-                message = String.format(message,"此凭证已停用，所以无法兑换");
-            } else if ("MZFinance.RedeemCodeSrvLoginRequired".equals(messageKey)){
-                //重新执行一次登录操作
-                if (giftCardRedeem.getFailCount() == 0){
-                    // 需要重新登录
-                    giftCardRedeem.setIsLogin(false);
-                    giftCardRedeem.setFailCount(1);
-                    // accountHandler(giftCardRedeem);
-                    return;
-                }
-            }else if("MZCommerce.GiftCertRedeemStoreFrontMismatch".equals(messageKey)){
-                //卡正常, 但是和账号商城不匹配
-                message = String.format(message,userPresentableErrorMessage);
-                giftCardRedeem.setGiftCardStatus("有效卡");
-            }else if("MZFreeProductCode.NoBalance".equals(messageKey) || "MZFreeProductCode.NoSuch".equals(messageKey)){
-                message = String.format(message,userPresentableErrorMessage);
-                giftCardRedeem.setGiftCardStatus("无效卡");
-            }else if ("MZCommerce.XCardProblem".equals(messageKey)){
-                // 访问你的店面可用金额时服务器发生问题。请稍后再试
-                if (giftCardRedeem.getFailCount() == 0){
-                    giftCardRedeem.setFailCount(1);
-                    // accountHandler(giftCardRedeem);
-                    return;
-                }
-            }else{
-                message = String.format(message,userPresentableErrorMessage);
-                giftCardRedeem.setGiftCardStatus("兑换失败");
-            }
-            LoggerManger.info("【礼品卡兑换】messageKey:" + messageKey + ", message=" + message);
-            throw new PointCostException(message);
-        }
-
-        // 礼品卡兑换成功
-        giftCardRedeem.setGiftCardStatus("已兑换");
-    }
     public static BigDecimal extractMoneyValue(String input) {
         try {
             String numStr = input.replaceAll("[^0-9.-]", "");

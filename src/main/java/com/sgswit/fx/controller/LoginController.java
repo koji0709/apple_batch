@@ -1,11 +1,9 @@
 package com.sgswit.fx.controller;
 
-import cn.hutool.core.codec.Base62;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
@@ -13,9 +11,9 @@ import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -86,8 +84,6 @@ public class LoginController extends CommonView implements Initializable {
         if (rememberMe){
             String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
             String base64Pwd=PropertiesUtil.getOtherConfig("login.pwd");
-//            loginUserNameTextField.setText(SignUtil.decryptBase64(base64UserName));
-//            loginPwdTextField.setText(SignUtil.decryptBase64(base64Pwd));
             loginUserNameTextField.setText(Base64.decodeStr(base64UserName));
             loginPwdTextField.setText(Base64.decodeStr(base64Pwd));
             rememberMeCheckBox.setSelected(true);
@@ -144,8 +140,6 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin= autoLoginCheckBox.isSelected();
         PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
         PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
-//        PropertiesUtil.setOtherConfig("login.userName",SignUtil.encryptBase64(userName));
-//        PropertiesUtil.setOtherConfig("login.pwd",SignUtil.encryptBase64(pwd));
         PropertiesUtil.setOtherConfig("login.userName",Base64.encode(userName));
         PropertiesUtil.setOtherConfig("login.pwd",Base64.encode(pwd));
         //利用hutool工具类中的封装方法获取本机mac地址
@@ -167,8 +161,6 @@ public class LoginController extends CommonView implements Initializable {
                 return;
             }
             userInfo = JSONUtil.toJsonStr(HttpUtils.data(rsp));
-//            LoginUtil.setUserName(SignUtil.encryptBase64(userName));
-//            LoginUtil.setPwd(SignUtil.encryptBase64(pwd));
             LoginUtil.setUserName(Base64.encode(userName));
             LoginUtil.setPwd(Base64.encode(pwd));
         }catch (Exception e){

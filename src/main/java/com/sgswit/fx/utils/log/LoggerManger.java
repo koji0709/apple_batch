@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.log;
 
 import java.io.IOException;
 import java.io.PrintWriter;

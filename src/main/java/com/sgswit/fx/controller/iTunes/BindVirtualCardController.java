@@ -7,6 +7,8 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.CreditCard;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.itunes.ITunesUtil;
+import com.sgswit.fx.utils.web.PurchaseBillUtil;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -158,7 +160,7 @@ public class BindVirtualCardController extends CustomTableView<CreditCard>{
                 return;
             }
             setAndRefreshNote(account,"登录成功，正在验证银行卡信息...");
-            Map<String,Object> addCreditPaymentRes=ITunesUtil.addCreditPayment(res,step);
+            Map<String,Object> addCreditPaymentRes= ITunesUtil.addCreditPayment(res,step);
             if(Constant.SUCCESS.equals(addCreditPaymentRes.get("code")) && "01".equals(step)){
                 Map<String,Object> data=MapUtil.get(addCreditPaymentRes,"data",Map.class);
                 account.setAuthData(res);

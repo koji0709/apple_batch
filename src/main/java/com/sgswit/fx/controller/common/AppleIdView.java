@@ -13,7 +13,7 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.AccountInfoModifyController;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
