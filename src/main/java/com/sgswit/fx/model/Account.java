@@ -15,6 +15,7 @@ public class Account extends LoginInfo {
     private final SimpleStringProperty areaId;
     private final SimpleStringProperty areaCode;
     private final SimpleStringProperty phone;
+    private final SimpleStringProperty api;
     private final SimpleStringProperty name;
     private final SimpleStringProperty status;
     private final SimpleStringProperty note;
@@ -63,6 +64,7 @@ public class Account extends LoginInfo {
         this.area = new SimpleStringProperty();
         this.areaCode = new SimpleStringProperty();
         this.phone = new SimpleStringProperty();
+        this.api = new SimpleStringProperty();
         this.name = new SimpleStringProperty();
         this.status = new SimpleStringProperty();
         this.note = new SimpleStringProperty();
@@ -94,7 +96,6 @@ public class Account extends LoginInfo {
         this.createdDate = new SimpleStringProperty();
         this.updateDate = new SimpleStringProperty();
         this.areaId = new SimpleStringProperty();
-
     }
 
     public Integer getSeq() {
@@ -492,6 +493,17 @@ public class Account extends LoginInfo {
         this.updateDate.set(updateDate);
     }
 
+    public String getApi() {
+        return api.get();
+    }
+
+    public SimpleStringProperty apiProperty() {
+        return api;
+    }
+
+    public void setApi(String api) {
+        this.api.set(api);
+    }
 
     @Override
     public String toString() {
@@ -504,6 +516,7 @@ public class Account extends LoginInfo {
                 ", area=" + area +
                 ", areaCode=" + areaCode +
                 ", phone=" + phone +
+                ", api=" + phone +
                 ", name=" + name +
                 ", status=" + status +
                 ", note=" + note +

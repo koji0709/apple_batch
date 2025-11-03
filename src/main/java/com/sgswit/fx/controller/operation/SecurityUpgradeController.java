@@ -12,30 +12,62 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.AppleIDUtil;
-import com.sgswit.fx.utils.DataUtil;
-import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.*;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 双重认证controller
  */
 public class SecurityUpgradeController extends SecurityUpgradeView {
 
-    Map<String,JSONObject> globalMobilePhoneMap = new HashMap<>();
+    Map<String, JSONObject> globalMobilePhoneMap = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        apiCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                apiYcTextField.setDisable(false);
+                apiCsTextField.setDisable(false);
+                apiDmTextField.setDisable(false);
+            } else {
+                apiYcTextField.setDisable(true);
+                apiCsTextField.setDisable(true);
+                apiDmTextField.setDisable(true);
+            }
+        });
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.SECURITY_UPGRADE.getCode())));
         super.initialize(url, resourceBundle);
+
         initViewData();
     }
 
-    public void initViewData(){
+    public void onPrompt(MouseEvent mouseEvent) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.getDialogPane().setPrefHeight(400);
+        alert.getDialogPane().setPrefWidth(800);
+        alert.getDialogPane().setStyle(" -fx-font-size: 16px;");
+        alert.setTitle("提示");
+        alert.setContentText("Api读取验证码配置说明：\n" +
+                "Api读取验证码支持字段或者正则提取验证码，多个关键字按|分割\n" +
+                "例如: api请求返回： {\"code\":1,\"msg\":\"ok\",\"data\":{\"code\":\"Your Apple Account Code is: 583173. Don't share it with anyone.\",\"code_time\":\"2025-11-03 14:44:01\",\"expired_date\":\"2025-11-20\"}}\n" +
+                "验证码是 583173,字段是 code。\n" +
+                "\n" +
+                "正则方式 提取六位整数：则 APi配置填: \\\\d{6}\n" +
+                "正则方式 限定上下文：匹配is: 后的 6 位数字：则 APi配置填: is: (\\\\d{6})\n" +
+                "正则方式 更严谨：结合前后文边界（避免部分匹配）则 APi配置填: is: (\\\\d{6})\\\\.\n");
+
+        alert.showAndWait();
+    }
+
+    public void initViewData() {
         // 默认中国
         dialCodeComboBox.setValue("+86(中国大陆)");
         String mobilePhoneJson = ResourceUtil.readUtf8Str("data/support_all_country.json");
@@ -47,7 +79,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             String code = json.getStr("dial_code");
             String zh = json.getStr("name_zh");
             dialCodeComboBox.getItems().add(String.format(format, code, zh));
-            globalMobilePhoneMap.put(code,json);
+            globalMobilePhoneMap.put(code, json);
         }
     }
 
@@ -55,7 +87,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
      * 导入账号按钮点击
      */
     public void importAccountButtonAction(ActionEvent actionEvent) {
-        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-phone"),actionEvent);
+        openImportAccountView(List.of("account----pwd-answer1-answer2-answer3-phone-api","account----pwd-answer1-answer2-answer3-phone"), actionEvent);
     }
 
     /**
@@ -67,7 +99,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
         Object verifyCode = account.getAuthData().get("verifyCode");
         if (StrUtil.isEmptyIfStr(verifyCode)){
             // 登录
-            HttpResponse upgradeResp =AppleIDUtil.securityUpgradeLogin(account);
+            HttpResponse upgradeResp = AppleIDUtil.securityUpgradeLogin(account);
             String format = dialCodeComboBox.getValue().toString();
             String countryDialCode   = format.substring(1,format.indexOf("("));
             JSONObject json = globalMobilePhoneMap.get(countryDialCode);
@@ -101,13 +133,51 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                 }
             }
             account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
-            setAndRefreshNote(account,"成功发送验证码，请输入验证码。");
-
-            //读取api连接 进行接码
 
 
-            account.getAuthData().put("verifyCode","1234");
-            accountHandler(account);
+        //查看是否需要api接码
+        boolean selected = apiCheckBox.isSelected();
+        if (selected) {
+            // 循环查询验证码
+            Integer cs = Integer.valueOf(apiCsTextField.getText());
+            //获取接码
+            String api = account.getApi();
+            if (StrUtil.isEmpty(api)) {
+                throw new ServiceException("请输入要接码的API地址。");
+            }
+            for (int i = 1; i <= cs; i++) {
+                    String code = "";
+                    try {
+                        // 暂停5秒（5000毫秒）
+                        Integer yc = Integer.valueOf(apiYcTextField.getText());
+                        Thread.sleep(yc * 1000);
+                        setAndRefreshNote(account,"第 " + (i) + " 次获取验证码");
+                        HttpResponse httpResponse = HttpUtils.get(api);
+                        String body1 = httpResponse.body();
+                        if (StrUtil.isNotEmpty(body1)) {
+                            Pattern compile = Pattern.compile(apiDmTextField.getText());
+                            Matcher matcher = compile.matcher(body1);
+                            // 查找并提取匹配的数字
+                            if (matcher.find()) {
+                                code = matcher.group();
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        // 处理线程中断异常
+                        e.printStackTrace();
+                        // 恢复中断状态（可选，根据业务需求）
+                        Thread.currentThread().interrupt();
+                        // 若中断，可提前退出循
+                    }
+                    if (StrUtil.isNotEmpty(code)) {
+                        account.getAuthData().put("verifyCode", code);
+                        setAndRefreshNote(account, "已成功接收验证码，正在绑定。");
+                        accountHandler(account);
+                    }
+                }
+            } else {
+                setAndRefreshNote(account, "成功发送验证码，请输入验证码。");
+            }
 
 
         } else {
@@ -141,18 +211,18 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
 
     @Override
     public void onContentMenuClick(ContextMenuEvent contextMenuEvent) {
-        List<String> menuItem =new ArrayList<>(){{
+        List<String> menuItem = new ArrayList<>() {{
             add(Constant.RightContextMenu.DELETE.getCode());
             add(Constant.RightContextMenu.REEXECUTE.getCode());
             add(Constant.RightContextMenu.COPY.getCode());
             add(Constant.RightContextMenu.CODE.getCode());
         }};
-        super.onContentMenuClick(contextMenuEvent,accountTableView,menuItem,new ArrayList<>());
+        super.onContentMenuClick(contextMenuEvent, accountTableView, menuItem, new ArrayList<>());
     }
 
     @Override
     protected void secondStepHandler(Account account, String code) {
-        account.getAuthData().put("verifyCode",code);
+        account.getAuthData().put("verifyCode", code);
         accountHandlerExpand(account);
     }
 }
