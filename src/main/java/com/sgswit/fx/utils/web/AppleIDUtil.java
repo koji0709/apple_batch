@@ -2068,7 +2068,7 @@ public class AppleIDUtil {
         account.updateLoginInfo(optionsResp);
         account.getAuthData().put("optionsResp",optionsResp);
         //step7 upgrade
-        url = "https://appleid.apple.com//account/security/upgrade";
+        url = "https://appleid.apple.com/account/security/upgrade";
         HttpResponse upgradeResp = ProxyUtil.execute(HttpUtil.createGet(url)
                 .header("scnt",account.getScnt())
                 .header("X-Requested-With","XMLHttpRequest")

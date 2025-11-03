@@ -2,6 +2,7 @@ package com.sgswit.fx.controller.operation;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
@@ -110,8 +111,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             countryCode= DataUtil.getInfoByCountryCode(countryCode).getCode2();
             String[] eligibilityWarnings=json.getByPath("eligibilityWarnings",String[].class);
             String body  = "{\"phoneNumberVerification\":{\"phoneNumber\":{\"number\":\""+phone+"\",\"countryCode\":\""+countryCode+"\"},\"mode\":\"sms\"}}";;
-            if(null!=eligibilityWarnings && eligibilityWarnings.length>0){
-                JSON bodyJson=JSONUtil.parse(body);
+            if(null!=eligibilityWarnings && eligibilityWarnings.length>0){JSON bodyJson=JSONUtil.parse(body);
                 bodyJson.putByPath("acceptedWarnings",eligibilityWarnings);
                 body=JSONUtil.toJsonStr(bodyJson);
             }
@@ -138,51 +138,54 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             account.getAuthData().put("securityUpgradeVerifyPhoneRsp",securityUpgradeVerifyPhoneRsp);
 
 
-        //查看是否需要api接码
-        boolean selected = apiCheckBox.isSelected();
-        if (selected) {
-            // 循环查询验证码
-            Integer cs = Integer.valueOf(apiCsTextField.getText());
-            //获取接码
-            String api = account.getApi();
-            if (StrUtil.isEmpty(api)) {
-                throw new ServiceException("请输入要接码的API地址。");
-            }
-            for (int i = 1; i <= cs; i++) {
-                    String code = "";
+            //查看是否需要api接码
+            boolean selected = apiCheckBox.isSelected();
+            if (selected) {
+                setAndRefreshNote(account, "成功发送验证码，正在解析验证码...");
+                // 循环查询验证码
+                Integer cs = Integer.valueOf(apiCsTextField.getText());
+                //获取接码
+                String api = account.getApi();
+                if (StrUtil.isEmpty(api)) {
+                    throw new ServiceException("解析失败，未绑定接码的API地址。");
+                }
+                String smsCode = "";
+                for (int i = 1; i <= cs; i++) {
                     try {
                         // 暂停5秒（5000毫秒）
                         Integer yc = Integer.valueOf(apiYcTextField.getText());
                         Thread.sleep(yc * 1000);
                         setAndRefreshNote(account,"第 " + (i) + " 次获取验证码");
-                        HttpResponse httpResponse = HttpUtils.get(api);
-                        String body1 = httpResponse.body();
-                        if (StrUtil.isNotEmpty(body1)) {
-                            Pattern compile = Pattern.compile(apiDmTextField.getText());
-                            Matcher matcher = compile.matcher(body1);
-                            // 查找并提取匹配的数字
-                            if (matcher.find()) {
-                                code = matcher.group();
+                        HttpResponse httpResponse = HttpRequest.get(api).execute();
+                        if(httpResponse.getStatus()==200){
+                            String responseBody = httpResponse.body();
+                            if (StrUtil.isNotEmpty(responseBody)) {
+                                Pattern compile = Pattern.compile(apiDmTextField.getText());
+                                Matcher matcher = compile.matcher(responseBody);
+                                // 查找并提取匹配的数字
+                                if (matcher.find()) {
+                                    smsCode = matcher.group();
+                                    break;
+                                }
                             }
                         }
+
                     } catch (InterruptedException e) {
-                        // 处理线程中断异常
-                        e.printStackTrace();
                         // 恢复中断状态（可选，根据业务需求）
                         Thread.currentThread().interrupt();
                         // 若中断，可提前退出循
                     }
-                    if (StrUtil.isNotEmpty(code)) {
-                        account.getAuthData().put("verifyCode", code);
-                        setAndRefreshNote(account, "已成功接收验证码，正在绑定。");
-                        accountHandler(account);
-                    }
+                }
+                if(!StrUtil.isEmpty(smsCode)){
+                    account.getAuthData().put("verifyCode", smsCode);
+                    setAndRefreshNote(account, "已成功接收验证码，正在绑定。");
+                    accountHandler(account);
+                }else{
+                    setAndRefreshNote(account, "开通双重认证失败：验证码解析失败。");
                 }
             } else {
                 setAndRefreshNote(account, "成功发送验证码，请输入验证码。");
             }
-
-
         } else {
             Object securityUpgradeVerifyPhoneObject = account.getAuthData().get("securityUpgradeVerifyPhoneRsp");
             if (securityUpgradeVerifyPhoneObject == null){
@@ -209,7 +212,6 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
             }
             setAndRefreshNote(account,"开启双重认证成功");
         }
-
     }
 
     @Override
