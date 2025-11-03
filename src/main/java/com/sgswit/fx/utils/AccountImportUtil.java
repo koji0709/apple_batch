@@ -261,7 +261,7 @@ public class AccountImportUtil<T>{
             Pattern pattern = Pattern.compile("(\\d{4})-(\\d{1,2})-(\\d{1,2})");
             Matcher matcher = pattern.matcher(input);
             String output = matcher.replaceAll("$1/$2/$3");
-            output=output.replaceAll("[\\t|\\r|-]+",  AccountImportUtil.SPLIT_STRING);
+            output = output.replaceAll("[\\t\\r-]+", AccountImportUtil.SPLIT_STRING);
             Map<String, String> parsed = parse(output);
             if(parsed.isEmpty()){
                 return parseBySemicolon(output);
