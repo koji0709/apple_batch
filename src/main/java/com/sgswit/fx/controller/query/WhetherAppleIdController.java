@@ -10,11 +10,14 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 
@@ -56,30 +59,10 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
         //扣除点数
         try {
             account.setHasFinished(false);
-            setAndRefreshNote(account,"正在获取验证码...");
-            ThreadUtil.sleep(1000);
-            HashMap<String, List<String>> headers = new HashMap<>();
-            headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
-            headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-            headers.put("Accept-Language", ListUtil.toList("zh-CN,zh;q=0.9"));
-            String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-            HttpResponse captchaResponse = ProxyUtil.execute(HttpUtil.createGet(url)
-                            .header(headers));
-            String body = captchaResponse.body();
-            JSONObject object = JSONUtil.parseObj(body);
-            String capId = object.getStr("id");
-            String capToken = object.getStr("token");
-            setAndRefreshNote(account,"正在识别验证码...");
-            //解析图片
-            ThreadUtil.sleep(1*1000);
-            JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
-            String content = payloadJson.getStr("content");
-            String predict = OcrUtil.recognize(content);
-            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-            setAndRefreshNote(account,"正在验证账户...");
-            HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
-                    .body(bodys)
-                    .header(headers));
+            HttpResponse verifyAppleIdRes = AppleIDUtil.captchaAndVerifyPost(account);
+            if (verifyAppleIdRes.getStatus() != 302) {
+                throw new ServiceException("验证码自动识别失败");
+            }
             if(verifyAppleIdRes.getStatus() == 400){
                 JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
                 boolean hasError = jsonObject.getBool("hasError");
@@ -114,8 +97,10 @@ public class WhetherAppleIdController extends CustomTableView<Account> {
                     setAndRefreshNote(account,message);
                 }
             }
+        }catch (UnavailableException e){
+            throw e;
         }catch (Exception e){
-            e.printStackTrace();
+            throw e;
         }finally {
             account.setHasFinished(true);
         }

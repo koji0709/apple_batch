@@ -9,6 +9,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
+import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.web.AppleIDUtil;
@@ -60,28 +62,11 @@ public class RapidFiltrationController extends CustomTableView<Account> {
         //扣除点数
         try {
             account.setHasFinished(false);
-            setAndRefreshNote(account,"正在获取验证码...");
-            ThreadUtil.sleep(1000);
-            HashMap<String, List<String>> headers = new HashMap<>();
-            headers.put("Accept", ListUtil.toList("application/json, text/javascript, */*"));
-            headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br"));
-            String url = "https://iforgot.apple.com/captcha?captchaType=IMAGE";
-            HttpResponse captchaResponse =
-                    ProxyUtil.execute(HttpUtil.createGet(url)
-                            .header(headers));
-            setAndRefreshNote(account,"正在识别验证码...");
-            String body = captchaResponse.body();
-            JSONObject object = JSONUtil.parseObj(body);
-            String capId = object.getStr("id");
-            String capToken = object.getStr("token");
-            JSONObject payloadJson = JSONUtil.parseObj(JSONUtil.parseObj(body).getStr("payload"));
-            String content = payloadJson.getStr("content");
-            String predict = OcrUtil.recognize(content);
-            setAndRefreshNote(account,"正在验证账户...");
-            String bodys = "{\"id\":\"" + account.getAccount() + "\",\"captcha\":{\"id\":" + capId + ",\"answer\":\"" + predict + "\",\"token\":\"" + capToken + "\"}}\n";
-            HttpResponse verifyAppleIdRes = ProxyUtil.execute(HttpUtil.createPost("https://iforgot.apple.com/password/verify/appleid")
-                    .body(bodys)
-                    .header(headers));
+            HttpResponse verifyAppleIdRes = AppleIDUtil.captchaAndVerifyPost(account);
+            if (verifyAppleIdRes.getStatus() != 302) {
+                throw new ServiceException("验证码自动识别失败");
+            }
+
             if(verifyAppleIdRes.getStatus() == 400){
                 JSONObject jsonObject = JSONUtil.parseObj(verifyAppleIdRes.body());
                 boolean hasError = jsonObject.getBool("hasError");
@@ -139,8 +124,10 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     setAndRefreshNote(account,message);
                 }
             }
+        }catch (UnavailableException e){
+            throw e;
         }catch (Exception e){
-
+            throw e;
         }finally {
             account.setHasFinished(true);
         }
