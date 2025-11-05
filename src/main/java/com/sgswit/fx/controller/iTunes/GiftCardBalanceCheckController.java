@@ -17,8 +17,10 @@ import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
+import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.stage.StageToSystemTrayUtil;
 import com.sgswit.fx.utils.web.GiftCardUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -31,13 +33,17 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -52,6 +58,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * @author DeZh
@@ -1018,6 +1025,78 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             tabPane.getSelectionModel().select(tableIndex);
         }
     }
+
+    public void importAccountButtonAction(ActionEvent actionEvent) {
+        String desc = "说明：\n" +
+                "    1.格式为: " + AccountImportUtil.buildNote(List.of("account----pwd")) + ", 或空格分割\n" +
+                "    2.一次可以输入多条账户信息，每条账户单独一行; 如果数据中包含“-”符号, 只能使用空格分割。";
+        Button button = (Button) actionEvent.getSource();
+        // 获取按钮所在的场景
+        Scene scene = button.getScene();
+        // 获取场景所属的舞台
+        Stage stage = (Stage) scene.getWindow();
+        openImportAccountView1(List.of("account----pwd"),"导入账号", desc,stage);
+    }
+
+    public void openImportAccountView1(List<String> formats,String title, String desc,Stage parentStage) {
+
+        Stage stage = new Stage();
+        Label descLabel = new Label(desc);
+        descLabel.setWrapText(true);
+
+        TextArea area = new TextArea();
+        area.setPrefHeight(250);
+        area.setPrefWidth(560);
+
+        VBox vBox2 = new VBox();
+        vBox2.setPadding(new Insets(0, 0, 0, 205));
+        Button button = new Button("导入");
+        button.setTextFill(Paint.valueOf("#067019"));
+        button.setPrefWidth(150);
+        button.setPrefHeight(50);
+
+        button.setOnAction(event -> {
+            List<Account> list = new AccountImportUtil().parseAccount(Account.class, area.getText(), formats);
+            String accountPwd = "";
+            if(list.size() > 1){
+                account_pwd.setText("总共有账号："+list.size());
+                for (Account account : list) {
+                    accountPwd = accountPwd + account.getAccount()+"----"+account.getPwd()+"\n";
+                }
+                PropertiesUtil.setOtherConfig("account",accountPwd);
+            }else if (list.size() == 1){
+                Account account = list.get(0);
+                account_pwd.setText(area.getText());
+                PropertiesUtil.setOtherConfig("account",account.getAccount()+"----"+account.getPwd());
+            }
+//            List<GiftCard> giftCards = parseAccount(area.getText());
+//            if (!giftCards.isEmpty()) {
+//                account_pwd.setText(giftCards.toString());
+//            }
+            if(null!=parentStage){
+                StageToSystemTrayUtil.showWindow(parentStage);
+            }
+            stage.close();
+        });
+        vBox2.getChildren().addAll(button);
+
+        VBox mainVbox = new VBox();
+        mainVbox.setSpacing(20);
+        mainVbox.setPadding(new Insets(20));
+        mainVbox.getChildren().addAll(descLabel, area, vBox2);
+
+        Group root = new Group(mainVbox);
+        stage.setTitle(title);
+        stage.setScene(new Scene(root, 600, 450));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        String logImg= PropertiesUtil.getConfig("softwareInfo.log.path");
+        stage.getIcons().add(new Image(this.getClass().getResource(logImg).toString()));
+        stage.initStyle(StageStyle.DECORATED);
+        stage.showAndWait();
+    }
+
+
     class CountdownService extends Service<Void> {
         private int countdownSeconds = 60; // 倒计时总秒数
         @Override

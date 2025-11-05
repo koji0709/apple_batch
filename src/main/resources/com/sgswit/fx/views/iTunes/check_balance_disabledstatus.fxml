@@ -7,6 +7,7 @@
 
 
 <!--上下布局。上面功能区，下面表格，设置内边距14px-->
+<?import javafx.scene.Cursor?>
 <VBox spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.CheckBalanceDisabledController">
     <children>
         <!--功能区-->
@@ -124,6 +125,28 @@
             </children>
         </HBox>
 
+        <HBox alignment="CENTER_LEFT" style="-fx-arc-width: 1px; -fx-border-color: gray">
+            <children >
+                <CheckBox fx:id="apiCheckBox" text="使用api接码" prefHeight="150" prefWidth="150"/>
+                <HBox prefWidth="150" prefHeight="150">
+                    <Label text="查码延迟/秒" textFill="red" prefHeight="150"/>
+                    <TextField fx:id="apiYcTextField" disable="true" maxWidth="30" text="5" />
+                </HBox>
+                <HBox prefWidth="150" prefHeight="150">
+                    <Label text="查码次数" textFill="red" prefHeight="150" />
+                    <TextField fx:id="apiCsTextField" disable="true" maxWidth="30" text="15" />
+                </HBox>
+                <HBox prefWidth="250" prefHeight="150">
+                    <Label text="api读码配置" textFill="blue" prefWidth="80" onMouseClicked="#onPrompt" underline="true">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Label>
+                    <TextField fx:id="apiDmTextField" disable="true" maxWidth="200" />
+                </HBox>
+            </children>
+        </HBox>
+
         <!--账号列表-->
         <TitledPane animated="false" collapsible="false" text="账号列表">
             <content>
@@ -135,6 +158,7 @@
                         <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" text="序号"/>
                         <TableColumn fx:id="account" prefWidth="150" text="账号" />
                         <TableColumn fx:id="pwd" prefWidth="150" text="密码" />
+                        <TableColumn fx:id="api" prefWidth="80" text="API" />
                         <TableColumn fx:id="area" prefWidth="100" text="账号地区" />
                         <TableColumn fx:id="areaId" prefWidth="60" text="区域ID" />
                         <TableColumn fx:id="balance" prefWidth="100" text="账号余额" />

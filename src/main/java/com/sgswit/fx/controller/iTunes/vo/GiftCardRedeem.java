@@ -11,6 +11,7 @@ public class GiftCardRedeem extends LoginInfo {
     private final SimpleStringProperty pwd;
     private final SimpleStringProperty giftCardCode;
     private final SimpleStringProperty giftCardStatus;
+    private final SimpleStringProperty api;
 
     private final SimpleStringProperty giftCardType;
     private final SimpleStringProperty giftCardAmount;
@@ -29,6 +30,7 @@ public class GiftCardRedeem extends LoginInfo {
         this.giftCardStatus = new SimpleStringProperty();
         this.giftCardType = new SimpleStringProperty();
         this.giftCardAmount = new SimpleStringProperty();
+        this.api = new SimpleStringProperty();
         this.recipientDsId = new SimpleStringProperty();
         this.salesOrg = new SimpleStringProperty();
         this.redeemLog = new SimpleStringProperty();
@@ -189,6 +191,18 @@ public class GiftCardRedeem extends LoginInfo {
         this.startRecordTime.set(startRecordTime);
     }
 
+    public String getApi() {
+        return api.get();
+    }
+
+    public SimpleStringProperty apiProperty() {
+        return api;
+    }
+
+    public void setApi(String api) {
+        this.api.set(api);
+    }
+
     @Override
     public String toString() {
         return "GiftCardRedeem{" +
@@ -198,6 +212,7 @@ public class GiftCardRedeem extends LoginInfo {
                 ", giftCardStatus=" + giftCardStatus +
                 ", giftCardType=" + giftCardType +
                 ", giftCardAmount=" + giftCardAmount +
+                ", api=" + api +
                 ", recipientDsId=" + recipientDsId +
                 ", salesOrg=" + salesOrg +
                 ", redeemLog=" + redeemLog +

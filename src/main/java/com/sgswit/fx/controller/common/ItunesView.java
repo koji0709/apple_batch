@@ -3,6 +3,7 @@ package com.sgswit.fx.controller.common;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 
@@ -127,9 +130,10 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
         // 双重认证
         Map<String,Object> result=ITunesUtil.checkLoginRes(authRsp);
         if(Constant.TWO_FACTOR_AUTHENTICATION.equals(result.get("code"))){
+            accountModel.setSecurityCode("1");
             accountModel.getAuthData().put("authRsp",authRsp);
             accountModel.setItspod(authRsp.header(Constant.ITSPOD));
-            throw new ServiceException(MapUtil.getStr(result,"msg"));
+//            throw new ServiceException(MapUtil.getStr(result,"msg"));
         }else if(!Constant.SUCCESS.equals(result.get("code"))){
 
             throw new ServiceException(MapUtil.getStr(result,"msg"));
