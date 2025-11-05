@@ -40,6 +40,7 @@ public class LoginInfo extends AuthData{
 
     private String guid;
 
+
     // -----------------
     private boolean isLogin;
 
@@ -196,4 +197,6 @@ public class LoginInfo extends AuthData{
     public void setSstt(String sstt) {
         this.sstt = sstt;
     }
+
+
 }

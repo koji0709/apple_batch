@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class SecurityUpgradeController extends SecurityUpgradeView {
 
     Map<String, JSONObject> globalMobilePhoneMap = new HashMap<>();
-
+    private String regex = "(\\d{6})";
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         apiCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -160,7 +160,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                         if(httpResponse.getStatus()==200){
                             String responseBody = httpResponse.body();
                             if (StrUtil.isNotEmpty(responseBody)) {
-                                Pattern compile = Pattern.compile(apiDmTextField.getText());
+                                Pattern compile = Pattern.compile(StrUtil.isEmpty(apiDmTextField.getText())?regex:apiDmTextField.getText(),Pattern.CASE_INSENSITIVE);
                                 Matcher matcher = compile.matcher(responseBody);
                                 // 查找并提取匹配的数字
                                 if (matcher.find()) {

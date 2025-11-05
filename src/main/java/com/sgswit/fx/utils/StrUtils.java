@@ -239,4 +239,30 @@ public class StrUtils extends StrUtil {
             return results;
         }
     }
+    /**
+     * 检查空JSON对象（包含空格情况）
+     */
+    public static boolean isEmptyJsonObject(String json) {
+        if (json == null) return true;
+
+        String trimmed = json.trim();
+
+        // 匹配各种空对象格式
+        return trimmed.equals("{}") ||
+                trimmed.equals("{ }") ||
+                trimmed.matches("^\\s*\\{\\s*\\}\\s*$") ||
+                trimmed.matches("^\\s*\\{\\s+\\}\\s*$");
+    }
+
+    /**
+     * 检查空JSON数组
+     */
+    public static boolean isEmptyJsonArray(String json) {
+        if (json == null) return true;
+
+        String trimmed = json.trim();
+        return trimmed.equals("[]") ||
+                trimmed.equals("[ ]") ||
+                trimmed.matches("^\\s*\\[\\s*\\]\\s*$");
+    }
 }

@@ -1708,10 +1708,8 @@ public class AppleIDUtil {
         if(!StrUtil.isEmpty(account.getSstt())){
             headers.put("sstt",ListUtil.toList(account.getSstt()));
         }
-        String body="{\"type\":\"IMAGE\"}";
         return ProxyUtil.execute(HttpUtil.createGet(url)
                 .cookie(account.getCookie())
-//                .body(body)
                         .header(headers));
     }
 
@@ -1727,7 +1725,7 @@ public class AppleIDUtil {
         account.updateLoginInfo(captchaRsp);
 
         String body = captchaRsp.body();
-        if (StrUtil.isEmpty(body)){
+        if (StrUtil.isEmpty(body) || StrUtils.isEmptyJsonObject(body)){
             return captchaAndVerifyPost(account,--retry);
         }
 

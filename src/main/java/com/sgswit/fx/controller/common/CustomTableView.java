@@ -353,7 +353,7 @@ public class CustomTableView<T> extends CommRightContextMenuView<T> {
             setAndRefreshNote(account, "正在处理...");
             accountHandler(account);
             setDataStatus(account,true);
-        } catch (ServiceException e) {// 业务异常
+        } catch (ServiceException | TwoFactorAuthenticationException e) {// 业务异常
             LoggerManger.info("ServiceException",e);
             setAndRefreshNote(account,e.getMessage());
             setNote(account,e.getMessage(),"");

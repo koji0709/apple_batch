@@ -236,8 +236,8 @@ public class AppleFdGenerator {
         String tz = "GMT+08:00";
 
         // 示例 canvas/webgl 值（这些必须来自真实浏览器以保证一致）
-        String canvasHash = "canvas:abcd1234ef56";   // 请替换为真实 canvas hash
-        String webglHash = "webgl:xyz9876";         // 请替换为真实 webgl hash
+        String canvasHash = "e86e0780780fca8bace38d5092a8fa5354b0680e8f9e2f4052ced74c560a388e";   // 请替换为真实 canvas hash
+        String webglHash = "48oz06";         // 请替换为真实 webgl hash
 
         Map<String, String> extras = new HashMap<>();
         extras.put("navigator_platform", "Win32");
@@ -254,5 +254,8 @@ public class AppleFdGenerator {
         return clientInfoJson;
    }
 
+    public static void main(String[] args) {
+        System.out.println(getFdClientInfo());
+    }
 
 }

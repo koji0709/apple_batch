@@ -8,6 +8,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
@@ -86,6 +87,11 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             Map<String,Object> result= ITunesUtil.checkLoginRes(loginRsp);
 
             boolean verify = result.get("code").equals(Constant.SUCCESS)?true:false;
+            boolean hasTwoFactorAuthentication= result.get("code").equals(Constant.TWO_FACTOR_AUTHENTICATION)?true:false;
+            message = MapUtil.getStr(result,"msg");
+            if(hasTwoFactorAuthentication){
+                throw new TwoFactorAuthenticationException("登录失败："+message);
+            }
             if (verify){
                 setAndRefreshNote(accountModel,"登录成功。");
                 accountModel.setAuthCode("");
@@ -100,7 +106,6 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
                 loginSuccessMap.put(storeId,accountModel);
                 return;
             }
-            message = MapUtil.getStr(result,"msg");
         }catch (ServiceException e){
             LoggerManger.info("itunesLogin登陆失败",e);
             message=e.getMessage();

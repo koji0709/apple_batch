@@ -35,6 +35,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,10 +47,10 @@ public class GiftCardUtil {
 
     public static void main(String[] args) {
 
-//        String accountName="CurtisFinn779@gmail.com";
-//        String password="Juanjuan0414";
-        String accountName="pinbinJ2157@iCloud.com";
-        String password="Tiantian0401m.";
+        String accountName="CurtisFinn779@gmail.com";
+        String password="Juanjuan0414";
+//        String accountName="pinbinJ2157@iCloud.com";
+//        String password="Tiantian0402m.";
 //        String accountName="djli0506@163.com";
 //        String password="Gain280924";
 
@@ -61,6 +62,8 @@ public class GiftCardUtil {
         String location=initBalanceWithTunesResponse.header("Location");
         String locationBase=location.substring(0,location.indexOf("shop")-1);
         authParas.put("locationBase",locationBase);
+        authParas.put("as_rumid",rumIdGenerator());
+
         HttpResponse shopSignInInitResponse=shopSignInInit(initBalanceWithTunesResponse,authParas);
         HttpResponse authorizeSigninResponse=authorizeSignin(initBalanceWithTunesResponse,shopSignInInitResponse,authParas);
         HttpResponse shldBtCkGeneratorGetResponse=shldBtCkGenerator(initBalanceResponse,initBalanceWithTunesResponse,shopSignInInitResponse,null,"get",authParas);
@@ -178,14 +181,14 @@ public class GiftCardUtil {
 
         List<String> as_sfa_list=StrUtils.AdvancedCookieExtractor.getAnonymousCookieScripts(shopSignInInitResponse.body());
         // 匹配 as_sfa=后面的值直到分号
-        String as_sfa_cookies = "";
+        String as_sfa = "";
         Pattern pattern = Pattern.compile("as_sfa=([^;]+);");
         Matcher matcher = pattern.matcher(as_sfa_list.get(0));
 
         if (matcher.find()) {
-            as_sfa_cookies= matcher.group(1).trim();
+            as_sfa= matcher.group(1).trim();
         }
-        paras.put("as_sfa_cookies",as_sfa_cookies);
+        paras.put("as_sfa",as_sfa);
         return paras;
     }
 
@@ -218,13 +221,13 @@ public class GiftCardUtil {
                 +"&client_id="+clientId+"&redirect_uri="+locationBase+"&response_type=code&response_mode=web_message" +
                 "&state="+frameId+"&authVersion=latest";
         String cookiesStr=CookieUtils.getCookiesFromHeader(initBalanceWithTunesResponse)
-                +";as_sfa="+MapUtil.getStr(shopSignInInitResponseDocumentMap,"as_sfa_cookies")
+                +";as_sfa="+MapUtil.getStr(shopSignInInitResponseDocumentMap,"as_sfa")
                 +";as_pcts="+MapUtil.getStr(paras,"as_pcts_cookies");
         HttpResponse signFrameResponse = ProxyUtil.execute(HttpUtil.createGet(url)
                         .cookie(cookiesStr)
                         .header(headers));
 
-        paras.put("as_sfa_cookies",MapUtil.getStr(shopSignInInitResponseDocumentMap,"as_sfa_cookies"));
+        paras.put("as_sfa",MapUtil.getStr(shopSignInInitResponseDocumentMap,"as_sfa"));
         paras.put("frameId",frameId);
         paras.put("clientId",clientId);
         paras.put("X-Apple-Auth-Attributes",signFrameResponse.header("X-Apple-Auth-Attributes"));
@@ -236,12 +239,18 @@ public class GiftCardUtil {
         paras.put("xAppleHcChallenge",xAppleHcChallenge);
         //step1  signin
         String nHex = "AC6BDB41324A9A9BF166DE5E1389582FAF72B6651987EE07FC3192943DB56050A37329CBB4A099ED8193E0757767A13DD52312AB4B03310DCD7F48A9DA04FD50E8083969EDB767B0CF6095179A163AB3661A05FBD5FAAAE82918A9962F0B93B855F97993EC975EEAA80D740ADBF4FF747359D041D5C33EA71D281E446B14773BCA97B43A23FB801676BD207A436C6481F1D2B9078717461A5B9D32E688F87748544523B524B0D57D5EA77A2775D2ECFA032CFBDBF52FB3786160279004E57AE6AF874E7303CE53299CCC041C7BC308D82A5698F3A8D0C38271AE35F8E9DBFBB694B5C803D89F7AE435DE236D525F54759B65E372FCD68EF20FA7111F9E4AFF73";
-        BigInteger n = new BigInteger(nHex,16);
-        byte[] rb = RandomUtil.randomBytes(32);
+        // N - 大素数模数
+        BigInteger bigInt  = new BigInteger(nHex,16);
+        // 使用 SecureRandom
+        SecureRandom secureRandom = new SecureRandom();
+        // a - 随机私钥
+        byte[] rb = new byte[32];
+        secureRandom.nextBytes(rb);
+        // 确保正数
         BigInteger ra = new BigInteger(1,rb);
-        String a = calA(ra,n);
+        String a = calA(ra,bigInt);
         paras.put("a",a);
-        paras.put("n",n);
+        paras.put("n",bigInt);
         paras.put("ra",ra);
         return signFrameResponse;
     }
@@ -274,14 +283,13 @@ public class GiftCardUtil {
         String url = locationBase+"/shop/shld/work/v1/q?wd=0";
         Map<String,String> cookiesMap=new HashMap<>();
         CookieUtils.setCookiesToMap(shopSignInInitResponse,cookiesMap);
-        String as_pcts= CookieUtils.getSomeCookieFromHeader(initBalanceResponse,"as_pcts");
-        cookiesMap.put("as_pcts", as_pcts);
-
+        cookiesMap.put("as_pcts", CookieUtils.getSomeCookieFromHeader(initBalanceResponse,"as_pcts"));
+        cookiesMap.put("as_sfa", MapUtil.getStr(paras,"as_sfa"));
+        cookiesMap.put("pxro", "1");
         String cookies= MapUtil.join(cookiesMap,";","=",true);
-        cookies=cookies+";as_sfa="+MapUtil.getStr(paras,"as_sfa_cookies");
-        paras.put("cookiesStr",cookies);
         HttpResponse res ;
         if(requestType.equals("post")){
+            cookies=cookies+";as_rumid="+MapUtil.getStr(paras,"as_rumid");
             res=ProxyUtil.execute(HttpUtil.createPost(url)
                     .cookie(cookies)
                     .body(requestBody)
@@ -293,6 +301,7 @@ public class GiftCardUtil {
                     .cookie(cookies)
                     .header(headers));
         }
+        paras.put("cookiesStr",cookies);
         return res;
 
     }
@@ -315,7 +324,7 @@ public class GiftCardUtil {
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
-        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(AppleFdGenerator.getFdClientInfo()));
+        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Apple-Auth-Attributes", ListUtil.toList(MapUtil.getStr( paras,"X-Apple-Auth-Attributes","")));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
         headers.put("X-Apple-OAuth-Client-Id", ListUtil.toList(clientId));
@@ -335,21 +344,19 @@ public class GiftCardUtil {
         Map<String,Object> bodyParas=new HashMap<>(){{
             put("passkeyAutofill",false);
         }};
-        String cookies=MapUtil.getStr(paras,"cookiesStr")+";"+"shld_bt_ck="+paras.get("shld_bt_ck")+";aasp="+MapUtil.getStr(paras,"aasp");
+        Map<String,Object> cookiesMap=new HashMap<>();
+        cookiesMap.put("shld_bt_ck", MapUtil.getStr(paras,"shld_bt_ck"));
+        cookiesMap.put("aasp", MapUtil.getStr(paras,"aasp"));
+
+
+        String cookies=MapUtil.getStr(paras,"cookiesStr")+";"+MapUtil.join(cookiesMap,";","=",true);
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/verify/device/key/challenge")
                 .header(headers)
                 .body(JSONUtil.toJsonStr(bodyParas))
                 .cookie(cookies));
-        paras.put("challenge_scnt",res.header("scnt"));
+        paras.put("scnt",res.header("scnt"));
 
-
-
-        HttpResponse res2 = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/jslog")
-                .header(headers)
-                .body("{\"title\":\"Hashcash generation\",\"type\":\"INFO\",\"message\":\"APPLE ID : Performace - 0.031 s\",\"details\":\"{\\\"pageVisibilityState\\\":\\\"visible\\\"}\"}")
-                .cookie(cookies));
-
-        paras.put("cookiesStr",cookies+";aa="+CookieUtils.getSomeCookieFromHeader(res2,"aa"));
+        paras.put("cookiesStr",cookies);
         return res;
     }
 
@@ -370,9 +377,9 @@ public class GiftCardUtil {
         headers.put("Accept-Encoding", ListUtil.toList("gzip, deflate, br, zstd"));
         headers.put("Referer", ListUtil.toList("https://idmsa.apple.com/"));
         headers.put("Content-Type", ListUtil.toList("application/json"));
-        headers.put("scnt", ListUtil.toList(MapUtil.getStr(paras,"challenge_scnt")));
+        headers.put("scnt", ListUtil.toList(MapUtil.getStr(paras,"scnt")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
-        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(AppleFdGenerator.getFdClientInfo()));
+        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Apple-ID-Session-Id", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-ID-Session-Id")));
         headers.put("X-Apple-Auth-Attributes", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
@@ -414,7 +421,7 @@ public class GiftCardUtil {
         headers.put("Content-Type", ListUtil.toList("application/json"));
         headers.put("scnt", ListUtil.toList(authFederateResponse.header("scnt")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
-        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(AppleFdGenerator.getFdClientInfo()));
+        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Apple-ID-Session-Id", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-ID-Session-Id")));
         headers.put("X-Apple-Auth-Attributes", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
@@ -461,7 +468,7 @@ public class GiftCardUtil {
         headers.put("X-APPLE-HC", ListUtil.toList(generateXAppleHC(xAppleHcBits,xAppleHcChallenge)));
         headers.put("scnt", ListUtil.toList(authSigninInitResponse.header("scnt")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(clientId));
-        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(AppleFdGenerator.getFdClientInfo()));
+        headers.put("X-Apple-I-FD-Client-Info", ListUtil.toList(BROWSER_CLIENT_INFO));
         headers.put("X-Apple-ID-Session-Id", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-ID-Session-Id")));
         headers.put("X-Apple-Auth-Attributes", ListUtil.toList(MapUtil.getStr(paras,"X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(frameId));
@@ -493,8 +500,11 @@ public class GiftCardUtil {
             put("c",c);
             put("m2",map.get("m2"));
         }};
-        String cookiesStr=MapUtil.getStr(paras,"cookiesStr")+";dslang="+CookieUtils.getSomeCookieFromHeader(authSigninInitResponse,"dslang")
-                +";site="+CookieUtils.getSomeCookieFromHeader(authSigninInitResponse,"site");
+        Map<String,String> cookiesMap=new HashMap<>();
+        cookiesMap.put("dslang",CookieUtils.getSomeCookieFromHeader(authSigninInitResponse,"dslang"));
+        cookiesMap.put("site",CookieUtils.getSomeCookieFromHeader(authSigninInitResponse,"site"));
+        String cookies= MapUtil.join(cookiesMap,";","=",true);
+        String cookiesStr=MapUtil.getStr(paras,"cookiesStr")+";"+cookies;
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/complete?isRememberMeEnabled=true")
                         .header(headers)
                         .body(JSONUtil.toJsonStr(bodyParas))
@@ -541,9 +551,9 @@ public class GiftCardUtil {
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
         CookieUtils.setCookiesToMap(step2Res,cookiesMap);
         CookieUtils.setCookiesToMap(pre1,cookiesMap);
+        cookiesMap.put("shld_bt_ck",paras.get("shld_bt_ck").toString());
         String cookies= MapUtil.join(cookiesMap,";","=",true);
         cookies=cookies+";"+as_sfa_cookie;
-        cookies=cookies+";"+"shld_bt_ck="+paras.get("shld_bt_ck");
 
         Map<String,Object> paramMap = new HashMap<>();
 
@@ -768,14 +778,22 @@ public class GiftCardUtil {
     protected static String calA(BigInteger a,BigInteger n) {
 
         BigInteger g = new BigInteger("2");
-        BigInteger ai = g.modPow(a,n);
+        BigInteger A = g.modPow(a, n);
 
-        byte[] aib = ai.toByteArray();
-        if(aib.length > 256){
-            aib = ArrayUtil.remove(aib,0);
+        // 更安全的字节数组处理
+        byte[] aBytes = A.toByteArray();
+        int expectedLength = 256; // 2048位 = 256字节
+
+        if (aBytes.length > expectedLength && aBytes[0] == 0) {
+            // 移除前导的符号位0
+            aBytes = Arrays.copyOfRange(aBytes, 1, aBytes.length);
+        } else if (aBytes.length < expectedLength) {
+            // 补零到指定长度
+            byte[] padded = new byte[expectedLength];
+            System.arraycopy(aBytes, 0, padded, expectedLength - aBytes.length, aBytes.length);
+            aBytes = padded;
         }
-        String a2k = Base64.encode(aib);
-        return  a2k;
+        return Base64.encode(aBytes);
     }
 
     private static String generateXAppleHC(int xAppleHcBits,String xAppleHcChallenge) {
@@ -844,6 +862,9 @@ public class GiftCardUtil {
         return sb.toString();
     }
 
+    private static String rumIdGenerator(){
+        return UUID.randomUUID().toString();
+    }
 }
 
 
