@@ -11,6 +11,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
@@ -33,8 +34,8 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.UNLOCK_CHANGE_PASSWORD.getCode())));
         super.initialize(url, resourceBundle);
 
-        String pwdText= PropertiesUtil.getOtherConfig("txtRecoveryPwd","");
-        pwdTextField.setText(pwdText);
+        String pwdText= PropertiesUtil.getOtherConfig("txtNewPwd","");
+        pwdTextField.setText(CrossPlatformAesUtil.decryptWithCompression(pwdText));
     }
     /**
      * 导入账号按钮点击
@@ -111,7 +112,7 @@ public class UnlockChangePasswordController extends UnlockChangePasswordView {
     @Override
     public void closeStageActionBefore() {
         String pwdText= pwdTextField.getText();
-        PropertiesUtil.setOtherConfig("txtRecoveryPwd",pwdText);
+        PropertiesUtil.setOtherConfig("txtNewPwd",CrossPlatformAesUtil.encryptWithCompression(pwdText));
     }
     @Override
     public List<Account> parseAccount(String accountStr){

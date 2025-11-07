@@ -20,6 +20,7 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.stage.StageToSystemTrayUtil;
 import com.sgswit.fx.utils.web.GiftCardUtil;
 import javafx.application.Platform;
@@ -84,7 +85,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     @FXML
     public ComboBox<Map<String, String>> countryBox;
     @FXML
-    public TextField account_pwd;
+    public TextField txtGiftcardLoadAccountTextField;
     @FXML
     public Button executeButton;
     @FXML
@@ -165,23 +166,38 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     private static int lastSelectedCountryIndex = 0;
 
+    private static int txtGiftcardLoadAccountNumber = 0;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
         getCountry();
-        String cardAccount = PropertiesUtil.getOtherConfig("cardAccount");
-        account_pwd.setText(cardAccount);
+        String txtGiftcardLoadAccount = PropertiesUtil.getOtherConfig("txtGiftcardLoadAccount");
+        txtGiftcardLoadAccount=CrossPlatformAesUtil.decryptWithCompression(txtGiftcardLoadAccount);
+        if(StrUtil.isNotEmpty(txtGiftcardLoadAccount.trim())){
+            String[] accList = txtGiftcardLoadAccount.split("\n");
+            txtGiftcardLoadAccountNumber=accList.length;
+            if (accList.length ==1){
+                txtGiftcardLoadAccount=accList[0];
+                txtGiftcardLoadAccountTextField.setText(txtGiftcardLoadAccount);
+            }else {
+                txtGiftcardLoadAccountTextField.setText("导入的登录ID数量："+accList.length);
+                txtGiftcardLoadAccountTextField.setDisable(true);
+                loginBtn.setDisable(true);
+            }
+        }
         // 注册粘贴事件的监听器
-        account_pwd.setOnContextMenuRequested((ContextMenuEvent event) -> {
+        txtGiftcardLoadAccountTextField.setOnContextMenuRequested((ContextMenuEvent event) -> {
+
         });
-        account_pwd.setOnKeyReleased(event -> {
+        txtGiftcardLoadAccountTextField.setOnKeyReleased(event -> {
             if (event.isShortcutDown()) {
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 String content = clipboard.getString().replaceAll("\t", " ");
-                account_pwd.setText(content);
+                txtGiftcardLoadAccountTextField.setText(content);
             }
         });
-        if (StringUtils.isEmpty(account_pwd.getText())) {
+        if (StringUtils.isEmpty(txtGiftcardLoadAccountTextField.getText())) {
             alertMessage.setLabelFor(loginBtn);
             alertMessage.setText("等待初始化....");
         } else {
@@ -363,7 +379,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     @FXML
     protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
-        if (StringUtils.isEmpty(account_pwd.getText()) || loginCookiesMap.isEmpty()) {
+        if (StringUtils.isEmpty(txtGiftcardLoadAccountTextField.getText()) || loginCookiesMap.isEmpty()) {
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
             return;
         }
@@ -384,7 +400,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (null == c.getData() || "".equals(c.getData())) {
             return;
         }
-        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(txtGiftcardLoadAccountTextField.getText());
 
         String[] lineArray = c.getData().split("\n");
         for (String item : lineArray) {
@@ -407,7 +423,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     }
 
     /**
-     *登录并初始化操作
+     *登录
      * @param actionEvent
      */
     @FXML
@@ -423,7 +439,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     @Override
     public boolean executeButtonActionBefore() {
-        if (StringUtils.isEmpty(account_pwd.getText()) || loginCookiesMap.isEmpty()) {
+        if (txtGiftcardLoadAccountNumber==0) {
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
             return false;
         } else {
@@ -441,15 +457,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             Map<String,Object> authMap=new HashMap<>();
             boolean f = false;
             //校验账号格式是否正确
-            if (!StringUtils.isEmpty(account_pwd.getText())) {
-                String[] its = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
-                if (its.length == 2) {
-                    f = true;
-                    account = its[0];
-                    pwd = its[1];
-                }
-            }
-            if (!f) {
+            if(txtGiftcardLoadAccountNumber==0){
                 Platform.runLater(new Task<Integer>() {
                     protected Integer call() {
                         alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
@@ -457,6 +465,17 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     }
                 });
                 return;
+            }else{
+                String txtGiftcardLoadAccount = PropertiesUtil.getOtherConfig("txtGiftcardLoadAccount");
+                txtGiftcardLoadAccount=CrossPlatformAesUtil.decryptWithCompression(txtGiftcardLoadAccount);
+                String[] accList = txtGiftcardLoadAccount.split("\n");
+                int randomIndex = ThreadLocalRandom.current().nextInt(accList.length);
+                String[] its = AccountImportUtil.parseAccountAndPwd(accList[randomIndex]);
+                if (its.length >= 2) {
+                    f = true;
+                    account = its[0];
+                    pwd = its[1];
+                }
             }
             updateNodeStatus(true);
             String countryCode = countryBox.getSelectionModel().getSelectedItem().get("code");
@@ -567,7 +586,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 //            authMap.put("x-as-actk", x_as_actk);
 //            loginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
 //            scheduleLoginCookiesMap.put(IdUtil.fastSimpleUUID(), authMap);
-//            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
+//            PropertiesUtil.setOtherConfig("txtGiftcardLoadAccount", txtGiftcardLoadAccountTextField.getText());
 //            updateUI("初始化成功，下次启动将自动执行初始化", successColor);
         } catch (ServiceException e) {
             updateUI(e.getMessage(), redColor);
@@ -736,8 +755,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 //            Map<String, Object> authMap = new HashMap<>(10);
 //            String account = null;
 //            String pwd = null;
-//            if (!StringUtils.isEmpty(account_pwd.getText())) {
-//                String[] its = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+//            if (!StringUtils.isEmpty(txtGiftcardLoadAccountTextField.getText())) {
+//                String[] its = AccountImportUtil.parseAccountAndPwd(txtGiftcardLoadAccountTextField.getText());
 //                if (its.length == 2) {
 //                    account = its[0];
 //                    pwd = its[1];
@@ -797,7 +816,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 //            Map<String, String> cookieMap = new HashMap<>();
 //            cookieMap = CookieUtils.setCookiesToMap(step3Res, cookieMap);
 //            authMap.put("cookies", MapUtil.join(cookieMap, ";", "=", true));
-//            PropertiesUtil.setOtherConfig("cardAccount", account_pwd.getText());
+//            PropertiesUtil.setOtherConfig("txtGiftcardLoadAccount", txtGiftcardLoadAccountTextField.getText());
 //
 //
 //            //https://secure4.store.apple.com/shop/giftcard/balance
@@ -829,7 +848,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     protected void updateNodeStatus(boolean status) {
         countryBox.setDisable(status);
-        account_pwd.setDisable(status);
+        txtGiftcardLoadAccountTextField.setDisable(status);
         loginBtn.setDisable(status);
         executeButton.setDisable(status);
     }
@@ -976,7 +995,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     @FXML
     private void handleImportScheduleCards(ActionEvent event) throws IOException {
-        if (StringUtils.isEmpty(account_pwd.getText())) {
+        if (StringUtils.isEmpty(txtGiftcardLoadAccountTextField.getText())) {
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
             return;
         }
@@ -997,7 +1016,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             return;
         }
 
-        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(account_pwd.getText());
+        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(txtGiftcardLoadAccountTextField.getText());
         String[] lineArray = c.getData().split("\n");
         for (String item : lineArray) {
             if (StrUtil.isEmpty(item)) {
@@ -1035,11 +1054,10 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         Scene scene = button.getScene();
         // 获取场景所属的舞台
         Stage stage = (Stage) scene.getWindow();
-        openImportAccountView1(List.of("account----pwd"),"导入账号", desc,stage);
+        openImportAccountView(List.of("account----pwd"),"导入账号", desc,stage);
     }
-
-    public void openImportAccountView1(List<String> formats,String title, String desc,Stage parentStage) {
-
+    @Override
+    public void openImportAccountView(List<String> formats,String title, String desc,Stage parentStage) {
         Stage stage = new Stage();
         Label descLabel = new Label(desc);
         descLabel.setWrapText(true);
@@ -1055,24 +1073,27 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         button.setPrefWidth(150);
         button.setPrefHeight(50);
 
+        area.setText(CrossPlatformAesUtil.decryptWithCompression(PropertiesUtil.getOtherConfig("txtGiftcardLoadAccount")));
         button.setOnAction(event -> {
-            List<Account> list = new AccountImportUtil().parseAccount(Account.class, area.getText(), formats);
-            String accountPwd = "";
-            if(list.size() > 1){
-                account_pwd.setText("总共有账号："+list.size());
-                for (Account account : list) {
-                    accountPwd = accountPwd + account.getAccount()+"----"+account.getPwd()+"\n";
+            txtGiftcardLoadAccountTextField.setDisable(false);
+            loginBtn.setDisable(false);
+            String txtGiftcardLoadAccount=area.getText();
+            if(StrUtil.isNotEmpty(txtGiftcardLoadAccount.trim())){
+                String[] accList = txtGiftcardLoadAccount.split("\n");
+                txtGiftcardLoadAccountNumber=accList.length;
+                if (accList.length ==1){
+                    txtGiftcardLoadAccount=accList[0];
+                    loginBtn.setDisable(false);
+                    txtGiftcardLoadAccountTextField.setText(txtGiftcardLoadAccount);
+                }else {
+                    txtGiftcardLoadAccountTextField.setText("导入的登录ID数量："+accList.length);
+                    txtGiftcardLoadAccountTextField.setDisable(true);
+                    loginBtn.setDisable(true);
                 }
-                PropertiesUtil.setOtherConfig("account",accountPwd);
-            }else if (list.size() == 1){
-                Account account = list.get(0);
-                account_pwd.setText(area.getText());
-                PropertiesUtil.setOtherConfig("account",account.getAccount()+"----"+account.getPwd());
+                PropertiesUtil.setOtherConfig("txtGiftcardLoadAccount",CrossPlatformAesUtil.encryptWithCompression(txtGiftcardLoadAccount));
+            }else{
+                txtGiftcardLoadAccountNumber=0;
             }
-//            List<GiftCard> giftCards = parseAccount(area.getText());
-//            if (!giftCards.isEmpty()) {
-//                account_pwd.setText(giftCards.toString());
-//            }
             if(null!=parentStage){
                 StageToSystemTrayUtil.showWindow(parentStage);
             }

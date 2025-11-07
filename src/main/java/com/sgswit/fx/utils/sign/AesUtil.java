@@ -79,7 +79,7 @@ public class AesUtil {
     public static void main(String[] args) {
         try {
             // 明文数据
-            String data = "maa31ogz";
+            String data = "Hello mac+win AES!";
 
             // 加密数据
             String encryptedData = AesUtil.encrypt(data);

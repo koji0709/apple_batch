@@ -127,7 +127,4 @@ public class SecurityDowngradeController extends SecurityDowngradeView {
         }
         return accountArrayList;
     }
-    private static String replaceXX(String str){
-        return str.replace(AccountImportUtil.REPLACE_MEANT,"-");
-    }
 }

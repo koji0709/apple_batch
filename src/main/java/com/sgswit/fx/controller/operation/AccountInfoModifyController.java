@@ -14,9 +14,12 @@ import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
@@ -53,7 +56,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         //读取保存的数据
         //新密码
         String newPassword= PropertiesUtil.getOtherConfig("accountInfoModify.newPassword","");
-        pwdTextField.setText(newPassword);
+        pwdTextField.setText(CrossPlatformAesUtil.decryptWithCompression(newPassword));
         //新生日
         String birthday= PropertiesUtil.getOtherConfig("accountInfoModify.birthday","");
         birthdayTextField.setText(birthday);
@@ -68,7 +71,7 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
     public void closeStageActionBefore(){
         setQuestionsAndAnswerToLocation();
         //密码
-        PropertiesUtil.setOtherConfig("accountInfoModify.newPassword",pwdTextField.getText());
+        PropertiesUtil.setOtherConfig("accountInfoModify.newPassword",CrossPlatformAesUtil.encryptWithCompression(pwdTextField.getText()));
         //生日
         PropertiesUtil.setOtherConfig("accountInfoModify.birthday",birthdayTextField.getText());
         //姓名
@@ -76,37 +79,38 @@ public class AccountInfoModifyController extends AccountInfoModifyView {
         PropertiesUtil.setOtherConfig("accountInfoModify.firstName",firstNameTextField.getText());
     }
     private void setQuestionsAndAnswerToLocation(){
-        List<String> questions= new ArrayList<>();
-        String question1ChoiceBoxValue = StrUtils.isEmpty(question1ChoiceBox.getValue())?"":question1ChoiceBox.getValue().toString();
-        String question2ChoiceBoxValue = StrUtils.isEmpty(question2ChoiceBox.getValue())?"":question2ChoiceBox.getValue().toString();
-        String question3ChoiceBoxValue = StrUtils.isEmpty(question3ChoiceBox.getValue())?"":question3ChoiceBox.getValue().toString();
-        String answer1TextFieldText = answer1TextField.getText();
-        String answer2TextFieldText = answer2TextField.getText();
-        String answer3TextFieldText = answer3TextField.getText();
-        questions.add(question1ChoiceBoxValue+"|"+answer1TextFieldText);
-        questions.add(question2ChoiceBoxValue+"|"+answer2TextFieldText);
-        questions.add(question3ChoiceBoxValue+"|"+answer3TextFieldText);
-        String questionsAndAnswer = questions.stream().collect(Collectors.joining("----", "", ""));
-        PropertiesUtil.setOtherConfig("accountInfoModify.questionsAndAnswer",questionsAndAnswer);
+        // 将控件分组到数组中，便于循环处理
+        ChoiceBox<?>[] questionBoxes = {question1ChoiceBox, question2ChoiceBox, question3ChoiceBox};
+        TextField[] answerFields = {answer1TextField, answer2TextField, answer3TextField};
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < questionBoxes.length; i++) {
+            int index = i + 1;
+            // 使用三元运算符简化空值处理
+            String question = questionBoxes[i].getValue() != null ?
+                    questionBoxes[i].getValue().toString() : "";
+            String answer = answerFields[i].getText() != null ?
+                    answerFields[i].getText() : "";
+            // 使用StrUtils.isEmpty进行最终检查
+            map.put("q" + index, StrUtils.isEmpty(question) ? "" : question);
+            map.put("a" + index, StrUtils.isEmpty(answer) ? "" : answer);
+        }
+        PropertiesUtil.setOtherConfig("accountInfoModify.questionsAndAnswer", CrossPlatformAesUtil.encryptWithCompression(JSONUtil.toJsonStr(map)));
     }
     private void getQuestionsAndAnswerFromLocation(){
-        String questionsAndAnswer=PropertiesUtil.getOtherConfig("accountInfoModify.questionsAndAnswer","");
-        if (StrUtil.isEmpty(questionsAndAnswer)){
+        String qa=PropertiesUtil.getOtherConfig("accountInfoModify.questionsAndAnswer","");
+        qa=CrossPlatformAesUtil.decryptWithCompression(qa);
+        if (StrUtil.isEmpty(qa)){
             return;
         }
-        String[] arr=questionsAndAnswer.split("----");
+        JSON json = JSONUtil.parse(qa);
+        answer1TextField.setText(json.getByPath("a1",String.class));
+        question1ChoiceBox.getSelectionModel().select(json.getByPath("q1",String.class));
 
-        String[] q1=arr[0].split("\\|",-1);
-        answer1TextField.setText(q1[1]);
-        question1ChoiceBox.getSelectionModel().select(q1[0]);
+        answer2TextField.setText(json.getByPath("a2",String.class));
+        question2ChoiceBox.getSelectionModel().select(json.getByPath("q2",String.class));
 
-        String[] q2=arr[1].split("\\|",-1);
-        answer2TextField.setText(q2[1]);
-        question2ChoiceBox.getSelectionModel().select(q2[0]);
-
-        String[] q3=arr[2].split("\\|",-1);
-        answer3TextField.setText(q3[1]);
-        question3ChoiceBox.getSelectionModel().select(q3[0]);
+        answer3TextField.setText(json.getByPath("a3",String.class));
+        question3ChoiceBox.getSelectionModel().select(json.getByPath("q3",String.class));
     }
     /**
      * 设置每一行执行的间隔频率

@@ -112,18 +112,22 @@ public class AccountImportUtil<T>{
     }
     public static String[] parseAccountAndPwd(String accountStr){
         String account="";
-        String pwd="";
+        String otherStr="";
         accountStr= StrUtils.replaceMultipleSpaces(accountStr,SPLIT_STRING).replace("{-}",REPLACE_MEANT);
         String[]  array=accountStr.split(SPLIT_STRING);
         int index=0;
         if(array.length>=2){
             account=AccountParser.replaceXX(array[0]);
-            pwd=array[1];
+            String finalAccount = account;
+            String[] temp=Arrays.stream(array)
+                    .filter(element -> !element.equals(finalAccount))
+                    .toArray(String[]::new);
+            otherStr = String.join(SPLIT_STRING, temp);
         }else{
             boolean isEmailStarted=checkIfEmailStarted(accountStr);
             if(isEmailStarted){
                 account=getEmailByStr(accountStr);
-                pwd= accountStr.substring(accountStr.lastIndexOf(account)+account.length());
+                otherStr= accountStr.substring(accountStr.lastIndexOf(account)+account.length());
             }else{
                 accountStr=processedUrl(accountStr,index);
                 index++;
@@ -131,18 +135,18 @@ public class AccountImportUtil<T>{
                 String []accountArr=accountStr.split(SPLIT_STRING,2);
                 account=accountArr[0];
                 if(accountArr.length>1){
-                    pwd=accountArr[1];
+                    otherStr=accountArr[1];
                 }
             }
         }
-        pwd=processedUrl(pwd,index);
-        pwd= StrUtils.replaceMultipleSpaces(pwd,SPLIT_STRING).replace(REPLACE_MEANT,"-");
+        otherStr=processedUrl(otherStr,index);
+        otherStr= StrUtils.replaceMultipleSpaces(otherStr,SPLIT_STRING).replace(REPLACE_MEANT,"-");
         List<String> list=new ArrayList<>();
         if(!StringUtils.isEmpty(account)){
             list.add(account.replace(REPLACE_MEANT,"-"));
         }
-        if(!StringUtils.isEmpty(pwd)){
-            String[] a=pwd.split(SPLIT_STRING);
+        if(!StringUtils.isEmpty(otherStr)){
+            String[] a=otherStr.split(SPLIT_STRING);
             for(int i=0;i<a.length;i++){
                 list.add(a[i]);
             }
@@ -181,7 +185,7 @@ public class AccountImportUtil<T>{
             String beforeUrl = input.substring(lastEnd, matcher.start());
             beforeUrl = beforeUrl.replaceAll("-+| +", " ").trim();
             result.append(beforeUrl);
-            if(index==0){
+            if(!beforeUrl.endsWith(SPLIT_STRING)){
                 result.append(" ");
             }
             // 添加保护的URL

@@ -12,6 +12,7 @@ import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.log.LoggerManger;
+import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -84,8 +85,8 @@ public class LoginController extends CommonView implements Initializable {
         if (rememberMe){
             String base64UserName=PropertiesUtil.getOtherConfig("login.userName");
             String base64Pwd=PropertiesUtil.getOtherConfig("login.pwd");
-            loginUserNameTextField.setText(Base64.decodeStr(base64UserName));
-            loginPwdTextField.setText(Base64.decodeStr(base64Pwd));
+            loginUserNameTextField.setText(CrossPlatformAesUtil.decryptWithCompression(base64UserName));
+            loginPwdTextField.setText(CrossPlatformAesUtil.decryptWithCompression(base64Pwd));
             rememberMeCheckBox.setSelected(true);
         }
         Task<Void> loadChartTask = new Task<Void>() {
@@ -105,7 +106,8 @@ public class LoginController extends CommonView implements Initializable {
             autoLoginCheckBox.setSelected(true);
             String userName=PropertiesUtil.getOtherConfig("login.userName");
             String pwd=PropertiesUtil.getOtherConfig("login.pwd");
-            if (StrUtil.isEmpty(userName) || StrUtil.isEmpty(pwd)){
+            if (StrUtil.isEmpty(CrossPlatformAesUtil.decryptWithCompression(userName))
+                    || StrUtil.isEmpty(CrossPlatformAesUtil.decryptWithCompression(pwd))){
                 return;
             }
             ThreadUtil.execAsync(() -> {
@@ -140,8 +142,8 @@ public class LoginController extends CommonView implements Initializable {
         Boolean autoLogin= autoLoginCheckBox.isSelected();
         PropertiesUtil.setOtherConfig("login.auto",autoLogin.toString());
         PropertiesUtil.setOtherConfig("login.rememberMe",rememberMe.toString());
-        PropertiesUtil.setOtherConfig("login.userName",Base64.encode(userName));
-        PropertiesUtil.setOtherConfig("login.pwd",Base64.encode(pwd));
+        PropertiesUtil.setOtherConfig("login.userName",CrossPlatformAesUtil.encryptWithCompression(userName));
+        PropertiesUtil.setOtherConfig("login.pwd",CrossPlatformAesUtil.encryptWithCompression((pwd)));
         //利用hutool工具类中的封装方法获取本机mac地址
         String macAddress ="";
         try {

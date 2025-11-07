@@ -1759,6 +1759,8 @@ public class AppleIDUtil {
                     return captchaAndVerifyPost(account,--retry);
                 }else if("-20210".equals(code)){
                     throw new ServiceException("这个 Apple ID 没有被激活。");
+                }else {
+                    return captchaAndVerifyPost(account,--retry);
                 }
             }else {
                 ThreadUtil.sleep(500);
