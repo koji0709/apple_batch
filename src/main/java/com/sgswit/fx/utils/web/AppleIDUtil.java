@@ -20,7 +20,9 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.OcrUtil;
+import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.log.LoggerManger;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -345,7 +347,7 @@ public class AppleIDUtil {
         headers.put("X-Apple-Auth-Attributes",ListUtil.toList(authRsp.header("X-Apple-Auth-Attributes")));
         headers.put("X-Apple-Widget-Key", ListUtil.toList(account.getClientId()));
 
-        headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
+        headers.put("X-Apple-Domain-Id", ListUtil.toList("35"));
         headers.put("X-Apple-Frame-Id", ListUtil.toList(account.getFrameId()));
 
         headers.put("X-Apple-OAuth-Client-Id",ListUtil.toList(account.getClientId()));
@@ -383,9 +385,9 @@ public class AppleIDUtil {
         HttpResponse rsp = null;
         if (!"".equals(body)) {
             rsp = ProxyUtil .execute(HttpUtil.createPost(url)
-                            .header(headers)
-                            .body(body)
-                            .cookie(account.getCookie()));
+                    .header(headers)
+                    .body(body)
+                    .cookie(account.getCookie()));
 
             account.updateLoginInfo(rsp);
         }
@@ -434,7 +436,7 @@ public class AppleIDUtil {
                 .body(body)
                 .cookie(account.getCookie()));
         account.updateLoginInfo(questionRsp);
-       return questionRsp;
+        return questionRsp;
     }
 
     public static HttpResponse accountRepair(Account account,HttpResponse questionRsp) {
@@ -456,8 +458,8 @@ public class AppleIDUtil {
         // https://appleid.apple.com/widget/account/repair?widgetKey=xx&rv=1&language=zh_CN_CHN#!repair
         String location = questionRsp.header("Location");
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(location)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -489,8 +491,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -714,8 +716,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/security/upgrade";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -745,8 +747,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/security/upgrade/setuplater";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -775,8 +777,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/repair/options";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         return rsp;
@@ -806,8 +808,8 @@ public class AppleIDUtil {
 
         String url = "https://idmsa.apple.com/appleauth/auth/repair/complete";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createPost(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
 
@@ -833,8 +835,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/gs/ws/token";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         account.updateLoginInfo(rsp);
         account.setXAppleIDSessionId(rsp.header("X-Apple-ID-Session-Id"));
@@ -862,8 +864,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
         return rsp;
     }
 
@@ -878,21 +880,21 @@ public class AppleIDUtil {
         String body = String.format(format, birthdayArr[2], birthdayArr[1], birthdayArr[0]);
 
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                        .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
-                        .header("X-Requested-With","XMLHttpRequest")
-                        .header("X-Apple-Domain-Id","1")
-                        .header("X-Apple-Api-Key","cbf64fd6843ee630b463f358ea0b707b")
-                        .header("Accept-Encoding","gzip, deflate, br")
-                        .header("Accept-Language","zh-CN,zh;q=0.9")
-                        .header("Accept","application/json")
-                        .header("Content-Type","application/json")
-                        .header("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
-                        .header("Referer","https://appleid.apple.com/account/manage")
-                        .header("Host","appleid.apple.com")
-                        .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
-                        .header("scnt",account.getScnt())
-                        .body(body)
-                        .cookie(account.getCookie()),false);
+                .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
+                .header("X-Requested-With","XMLHttpRequest")
+                .header("X-Apple-Domain-Id","1")
+                .header("X-Apple-Api-Key","cbf64fd6843ee630b463f358ea0b707b")
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json")
+                .header("Content-Type","application/json")
+                .header("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.125 Safari/537.36")
+                .header("Referer","https://appleid.apple.com/account/manage")
+                .header("Host","appleid.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("scnt",account.getScnt())
+                .body(body)
+                .cookie(account.getCookie()),false);
         return rsp;
     }
 
@@ -925,8 +927,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/security/email/rescue";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE, url)
-                        .header(headers)
-                        .cookie(account.getCookie()),false);
+                .header(headers)
+                .cookie(account.getCookie()),false);
 
         int status = rsp.getStatus();
 
@@ -974,9 +976,9 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/security/email/rescue/verification";
 
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.POST, url)
-                        .header(headers)
-                        .body("{\"address\":\""+account.getEmail()+"\"}")
-                        .cookie(account.getCookie()),false);
+                .header(headers)
+                .body("{\"address\":\""+account.getEmail()+"\"}")
+                .cookie(account.getCookie()),false);
 
         int status = rsp.getStatus();
 
@@ -1132,9 +1134,9 @@ public class AppleIDUtil {
     public static HttpResponse verifyPassword(HttpResponse rsp,Account account){
         String verifyPasswordUrl = "https://appleid.apple.com" + rsp.header("Location");
         HttpResponse rsp1 = ProxyUtil.execute(HttpUtil.createRequest(Method.POST, verifyPasswordUrl)
-                        .body("{\"password\":\""+account.getPwd()+"\"}")
-                        .header(rsp.headers())
-                        .cookie(account.getCookie()));
+                .body("{\"password\":\""+account.getPwd()+"\"}")
+                .header(rsp.headers())
+                .cookie(account.getCookie()));
         return rsp1;
     }
 
@@ -1167,8 +1169,8 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/security/devices";
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .header(headers)
+                .cookie(account.getCookie()));
 
         return rsp;
     }
@@ -1177,9 +1179,9 @@ public class AppleIDUtil {
      * 移除所有设备
      */
     public static void removeDevices(Account account,List<String> deviceIdList){
-            for (String deviceId : deviceIdList) {
-                String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
-                HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE,url)
+        for (String deviceId : deviceIdList) {
+            String url = "https://appleid.apple.com/account/manage/security/devices/" + deviceId;
+            HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.DELETE,url)
                     .header("X-Apple-Widget-Key","cbf64fd6843ee630b463f358ea0b707b")
                     .header("X-Requested-With","XMLHttpRequest")
                     .header("X-Apple-Domain-Id","1")
@@ -1194,7 +1196,7 @@ public class AppleIDUtil {
                     .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
                     .header("scnt",account.getScnt())
                     .cookie(account.getCookie()));
-            }
+        }
     }
 
     /**
@@ -1229,9 +1231,9 @@ public class AppleIDUtil {
         String body = String.format(format, lang);
 
         HttpResponse rsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT, url)
-                        .body(body)
-                        .header(headers)
-                        .cookie(account.getCookie()));
+                .body(body)
+                .header(headers)
+                .cookie(account.getCookie()));
         return rsp;
     }
 
@@ -1265,9 +1267,9 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+account.getEmail()+"\"}";
         HttpResponse verifyRsp = ProxyUtil.execute(HttpUtil.createPost(url)
-                        .header(headers)
-                        .cookie(account.getCookie())
-                        .body(body));
+                .header(headers)
+                .cookie(account.getCookie())
+                .body(body));
 
         int status = verifyRsp.getStatus();
 
@@ -1310,9 +1312,9 @@ public class AppleIDUtil {
         String url = "https://appleid.apple.com/account/manage/appleid/verification";
         String body = "{\"name\":\""+account.getEmail()+"\",\"verificationInfo\":{\"id\":\""+verifyId+"\",\"answer\":\""+verifyCode+"\"}}";
         HttpResponse updateAppleIdRsp = ProxyUtil.execute(HttpUtil.createRequest(Method.PUT,url)
-                        .header(headers)
-                        .cookie(account.getCookie())
-                        .body(body),false);
+                .header(headers)
+                .cookie(account.getCookie())
+                .body(body),false);
         return updateAppleIdRsp;
     }
 
@@ -1675,7 +1677,7 @@ public class AppleIDUtil {
 
         String url = "https://appleid.apple.com/account/manage/supportpin";
         HttpResponse supportPinRsp = ProxyUtil.execute(HttpUtil.createPost(url)
-                        .header(headers));
+                .header(headers));
         return supportPinRsp;
     }
 
@@ -1687,7 +1689,7 @@ public class AppleIDUtil {
         HashMap<String, List<String>> header = buildHeader(account);
 
         HttpResponse paymentRsp = ProxyUtil.execute(HttpUtil.createGet(url)
-                        .header(header));
+                .header(header));
         return paymentRsp;
     }
 
@@ -1708,16 +1710,18 @@ public class AppleIDUtil {
         if(!StrUtil.isEmpty(account.getSstt())){
             headers.put("sstt",ListUtil.toList(account.getSstt()));
         }
+        String body="{\"type\":\"IMAGE\"}";
         return ProxyUtil.execute(HttpUtil.createGet(url)
                 .cookie(account.getCookie())
-                        .header(headers));
+//                .body(body)
+                .header(headers));
     }
 
     /**
      * 验证码并且验证通过(如果验证码不通过则重试三次)
      */
     public static HttpResponse captchaAndVerifyPost(Account account) {
-        return captchaAndVerifyPost(account,15);
+        return captchaAndVerifyPost(account,10);
     }
     public static HttpResponse captchaAndVerifyPost(Account account,Integer retry){
         account.setNote("正在获取验证码...");
@@ -1725,7 +1729,7 @@ public class AppleIDUtil {
         account.updateLoginInfo(captchaRsp);
 
         String body = captchaRsp.body();
-        if (StrUtil.isEmpty(body) || StrUtils.isEmptyJsonObject(body)){
+        if (StrUtil.isEmpty(body)){
             return captchaAndVerifyPost(account,--retry);
         }
 
@@ -1759,17 +1763,16 @@ public class AppleIDUtil {
                     return captchaAndVerifyPost(account,--retry);
                 }else if("-20210".equals(code)){
                     throw new ServiceException("这个 Apple ID 没有被激活。");
-                }else {
-                    return captchaAndVerifyPost(account,--retry);
                 }
             }else {
                 ThreadUtil.sleep(500);
                 return captchaAndVerifyPost(account,--retry);
             }
+            return verifyAppleIdRsp;
         }else{
             account.updateLoginInfo(verifyAppleIdRsp);
+            return verifyAppleIdRsp;
         }
-        return verifyAppleIdRsp;
     }
 
     /**
@@ -1780,17 +1783,17 @@ public class AppleIDUtil {
 
         HttpResponse verifyAppleIdRsp = ProxyUtil.execute(HttpUtil.createPost(url)
 
-                        .header("Accept-Encoding","gzip, deflate, br")
-                        .header("Accept-Language","zh-CN,zh;q=0.9")
-                        .header("Accept","application/json, text/javascript, */*; q=0.01")
-                        .header("Content-Type","application/json")
-                        .header("User-Agent",Constant.BROWSER_USER_AGENT)
-                        .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
-                        .header("Host","iforgot.apple.com")
-                        .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
-                        .header("sstt",account.getSstt())
-                        .body(body)
-                        .cookie(account.getCookie()));
+                .header("Accept-Encoding","gzip, deflate, br")
+                .header("Accept-Language","zh-CN,zh;q=0.9")
+                .header("Accept","application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type","application/json")
+                .header("User-Agent",Constant.BROWSER_USER_AGENT)
+                .header("Referer","https://iforgot.apple.com/password/verify/appleid?language=zh_CN")
+                .header("Host","iforgot.apple.com")
+                .header("X-Apple-I-FD-Client-Info",Constant.BROWSER_CLIENT_INFO)
+                .header("sstt",account.getSstt())
+                .body(body)
+                .cookie(account.getCookie()));
         return verifyAppleIdRsp;
     }
 
