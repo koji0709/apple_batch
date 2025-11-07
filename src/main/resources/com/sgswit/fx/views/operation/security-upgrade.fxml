@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
 <!--上下布局。上面功能区，下面表格，设置内边距14px-->
-<?import javafx.scene.Cursor?>
-<VBox spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.SecurityUpgradeController">
+
+<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.SecurityUpgradeController">
     <children>
         <!--功能区-->
         <HBox spacing="14">
             <children>
                 <!--操作-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
+                <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作" HBox.hgrow="ALWAYS">
                     <content>
                         <GridPane prefHeight="140" prefWidth="400">
                             <columnConstraints>
@@ -48,7 +49,7 @@
                                         <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                         <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                         <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
 
@@ -58,7 +59,7 @@
                 </TitledPane>
 
                 <!--配置信息-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="160.0" text="配置信息">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="160.0" text="配置信息" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="171.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                             <children>
@@ -70,13 +71,13 @@
                 </TitledPane>
 
                 <!--说明-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="450.0" text="说明">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="450.0" text="说明" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                             <children>
                                 <Label text="导入格式：帐号----密码-答案1-答案2-答案3-手机号" textFill="#169BD5" />
                                 <Label text="功能说明：开通双重认证。" textFill="#169BD5" />
-                                <Label text="操作提示：为帐户开通双重认证，设定好地区后按照导入格式导入数据执行任务。" textFill="#169BD5" wrapText="true"/>
+                                <Label text="操作提示：为帐户开通双重认证，设定好地区后按照导入格式导入数据执行任务。" textFill="#169BD5" wrapText="true" />
                             </children>
 
 
@@ -86,7 +87,7 @@
                 </TitledPane>
 
                 <!--执行结果-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="130" text="执行结果">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="130" text="执行结果" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
                             <children>
@@ -141,23 +142,23 @@
         </HBox>
 
         <HBox alignment="CENTER_LEFT" style="-fx-arc-width: 1px; -fx-border-color: gray">
-            <children >
-                <CheckBox fx:id="apiCheckBox" text="使用api接码" prefHeight="150" prefWidth="150"/>
-                <HBox prefWidth="150" prefHeight="150">
-                    <Label text="查码延迟/秒" textFill="red" prefHeight="150"/>
+            <children>
+                <CheckBox fx:id="apiCheckBox" text="使用api接码" />
+                <HBox>
+                    <Label text="查码延迟/秒" textFill="red" />
                     <TextField fx:id="apiYcTextField" disable="true" maxWidth="30" text="5" />
                 </HBox>
-                <HBox prefWidth="150" prefHeight="150">
-                    <Label text="查码次数" textFill="red" prefHeight="150" />
+                <HBox>
+                    <Label text="查码次数" textFill="red" />
                     <TextField fx:id="apiCsTextField" disable="true" maxWidth="30" text="15" />
                 </HBox>
-                <HBox prefWidth="250" prefHeight="150">
-                    <Label text="api读码配置" textFill="blue" prefWidth="80" onMouseClicked="#onPrompt" underline="true">
+                <HBox>
+                    <Label onMouseClicked="#onPrompt" prefWidth="80" text="api读码配置" textFill="blue" underline="true">
                         <cursor>
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </Label>
-                    <TextField fx:id="apiDmTextField" disable="true" maxWidth="200" />
+                    <TextField fx:id="apiDmTextField" disable="true" />
                 </HBox>
             </children>
         </HBox>
@@ -170,7 +171,7 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" text="序号" />
+                        <TableColumn fx:id="seq" maxWidth="60" minWidth="60" prefWidth="60" text="序号" />
                         <TableColumn fx:id="account" prefWidth="150" text="账号" />
                         <TableColumn fx:id="pwd" prefWidth="150" text="密码" />
                         <TableColumn fx:id="answer1" prefWidth="100" text="答案1" />
@@ -179,7 +180,7 @@
                         <TableColumn fx:id="phone" prefWidth="80" text="手机号码" />
                         <TableColumn fx:id="api" prefWidth="80" text="API" />
                         <TableColumn fx:id="area" prefWidth="80" text="地区" />
-                        <TableColumn fx:id="note" prefWidth="200" minWidth="200" text="执行信息" />
+                        <TableColumn fx:id="note" minWidth="200" prefWidth="200" text="执行信息" />
                     </columns>
                 </TableView>
             </content>

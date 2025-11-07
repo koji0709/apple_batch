@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
+<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
     <children>
         <HBox spacing="14">
             <children>
-                <TitledPane HBox.hgrow="ALWAYS" alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="165.0" prefWidth="409.0" text="操作">
+                <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="165.0" prefWidth="409.0" text="操作" HBox.hgrow="ALWAYS">
                     <content>
                         <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
                             <columnConstraints>
@@ -40,14 +40,14 @@
                                         <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <Button fx:id="importAccountButton" mnemonicParsing="false" onAction="#openImportAccountView" prefWidth="120.0" text="导入账号" />
                                         <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1" />
-                                        <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2" />
+                                        <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
                             </children>
                         </GridPane>
                     </content>
                 </TitledPane>
-                <TitledPane HBox.hgrow="ALWAYS" prefHeight="165.0" prefWidth="530.0">
+                <TitledPane prefHeight="165.0" prefWidth="530.0" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="400.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 10">
                             <children>
@@ -71,7 +71,7 @@
                         </VBox>
                     </content>
                 </TitledPane>
-                <TitledPane HBox.hgrow="ALWAYS" fx:id="accNum" prefHeight="165.0" prefWidth="130.0" text="操作说明">
+                <TitledPane fx:id="accNum" prefHeight="165.0" prefWidth="130.0" text="操作说明" HBox.hgrow="ALWAYS">
                     <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                         <children>
                             <HBox prefHeight="30.0" prefWidth="340.0">
@@ -127,9 +127,9 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" style="-fx-alignment: CENTER" text="序号" />
+                        <TableColumn fx:id="seq" maxWidth="60" minWidth="60" prefWidth="60" style="-fx-alignment: CENTER" text="序号" />
                         <TableColumn fx:id="account" prefWidth="410.99998474121094" style="-fx-alignment: CENTER" text="账号" />
-                        <TableColumn fx:id="note" prefWidth="582.0" minWidth="200.0" style="-fx-alignment: CENTER" text="执行信息" />
+                        <TableColumn fx:id="note" minWidth="200.0" prefWidth="582.0" style="-fx-alignment: CENTER" text="执行信息" />
                     </columns>
                 </TableView>
             </content>

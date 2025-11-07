@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.tool.ToolController">
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.tool.ToolController">
     <VBox prefHeight="700" prefWidth="1100">
         <HBox prefHeight="670" prefWidth="1100">
             <children>
@@ -14,31 +14,31 @@
                                 <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
                                         <Label style="-fx-font-size: 20" text="登录账号：" />
-                                        <Label style="-fx-font-size: 20" fx:id="zh" text=""/>
+                                        <Label fx:id="zh" style="-fx-font-size: 20" text="" />
                                     </children>
                                 </HBox>
                                 <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
                                         <Label style="-fx-font-size: 20" text="绑定QQ号：" />
-                                        <Label style="-fx-font-size: 20" fx:id="qq" text=""/>
+                                        <Label fx:id="qq" style="-fx-font-size: 20" text="" />
                                     </children>
                                 </HBox>
                                 <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
                                         <Label style="-fx-font-size: 20" text="注册时间：" />
-                                        <Label style="-fx-font-size: 20" fx:id="sj" text=""/>
+                                        <Label fx:id="sj" style="-fx-font-size: 20" text="" />
                                     </children>
                                 </HBox>
                                 <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
                                         <Label style="-fx-font-size: 20" text="本机地址：" />
-                                        <Label style="-fx-font-size: 20" fx:id="dz" text=""/>
+                                        <Label fx:id="dz" style="-fx-font-size: 20" text="" />
                                     </children>
                                 </HBox>
                                 <HBox style="-fx-padding: 20 0 0 300">
                                     <children>
                                         <Label style="-fx-font-size: 20" text="卡号信息：" />
-                                        <Label style="-fx-font-size: 20" fx:id="kh" text=""/>
+                                        <Label fx:id="kh" style="-fx-font-size: 20" text="" />
                                     </children>
                                 </HBox>
                             </VBox>
@@ -104,7 +104,7 @@
                                     <HBox alignment="CENTER" prefHeight="100" prefWidth="900">
                                         <children>
                                             <Label text="当前：" />
-                                            <Label fx:id="current" text="等待分割..."/>
+                                            <Label fx:id="current" text="等待分割..." />
                                         </children>
                                     </HBox>
                                 </children>
@@ -115,7 +115,7 @@
                                 <children>
                                     <VBox alignment="CENTER" onDragExited="#getFile" prefHeight="300" prefWidth="900" style="-fx-border-style: dashed;-fx-border-radius: 20px">
                                         <children>
-                                            <Label fx:id="repeat" text="拖拽需要去除重复的Txt文件至此导入"></Label>
+                                            <Label fx:id="repeat" text="拖拽需要去除重复的Txt文件至此导入" />
                                         </children>
                                     </VBox>
                                     <HBox alignment="CENTER" prefHeight="90" prefWidth="900" style="-fx-padding: 30 0 30 0">
@@ -138,7 +138,7 @@
         </HBox>
         <HBox alignment="CENTER" prefHeight="50" prefWidth="1100">
             <children>
-                <Hyperlink visited="false" onMouseClicked="#a" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;" text="打开【文本处理】文件夹" />
+                <Hyperlink onMouseClicked="#a" style="-fx-border-color: transparent;-fx-padding: 4 0 4 0;" text="打开【文本处理】文件夹" visited="false" />
             </children>
         </HBox>
     </VBox>

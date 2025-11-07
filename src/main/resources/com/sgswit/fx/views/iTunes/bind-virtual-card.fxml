@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.BindVirtualCardController">
+<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.BindVirtualCardController">
    <children>
        <HBox spacing="14">
          <children>
-             <TitledPane HBox.hgrow="ALWAYS" alignment="TOP_LEFT" contentDisplay="CENTER"  prefHeight="165.0" prefWidth="375.0" text="操作">
+             <TitledPane alignment="TOP_LEFT" contentDisplay="CENTER" prefHeight="165.0" prefWidth="375.0" text="操作" HBox.hgrow="ALWAYS">
                  <content>
                      <GridPane fx:id="outer" prefHeight="140.0" prefWidth="400.0">
                          <columnConstraints>
@@ -70,7 +70,7 @@
                      </GridPane>
                  </content>
              </TitledPane>
-             <TitledPane HBox.hgrow="ALWAYS" fx:id="accNum"  prefHeight="165.0" prefWidth="440.0" text="操作说明">
+             <TitledPane fx:id="accNum" prefHeight="165.0" prefWidth="440.0" text="操作说明" HBox.hgrow="ALWAYS">
                 <content>
                     <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="419.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                         <children>
@@ -82,7 +82,7 @@
                     </VBox>
                 </content>
             </TitledPane>
-             <TitledPane HBox.hgrow="ALWAYS" prefHeight="165.0" prefWidth="130.0" text="" >
+             <TitledPane prefHeight="165.0" prefWidth="130.0" text="" HBox.hgrow="ALWAYS">
                  <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="115.0">
                      <children>
                          <HBox prefHeight="30.0" prefWidth="340.0">
@@ -116,7 +116,7 @@
                                          <Insets top="5.0" />
                                      </HBox.margin>
                                  </Label>
-                                 <Label  fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="15" textFill="RED">
+                                 <Label fx:id="pointLabel" prefHeight="25.0" prefWidth="20.0" text="15" textFill="RED">
                                      <font>
                                          <Font name="System Bold" size="16.0" />
                                      </font>
@@ -138,11 +138,11 @@
                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                    </columnResizePolicy>
                    <columns>
-                       <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60" text="序号" />
+                       <TableColumn fx:id="seq" maxWidth="60" minWidth="60" prefWidth="60" text="序号" />
                        <TableColumn fx:id="account" prefWidth="114" text="账号" />
                        <TableColumn fx:id="pwd" prefWidth="114.0" text="密码" />
                        <TableColumn fx:id="creditInfo" prefWidth="292.0" text="卡号" />
-                       <TableColumn fx:id="note" prefWidth="371.0" minWidth="200.0" text="执行信息" />
+                       <TableColumn fx:id="note" minWidth="200.0" prefWidth="371.0" text="执行信息" />
                    </columns>
                </TableView>
            </content>

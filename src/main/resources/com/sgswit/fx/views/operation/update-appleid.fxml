@@ -8,13 +8,14 @@
 <?import javafx.scene.text.*?>
 
 <!--上下布局。上面功能区，下面表格，设置内边距14px-->
-<VBox spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.UpdateAppleIdController">
+
+<VBox prefHeight="700.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.operation.UpdateAppleIdController">
     <children>
         <!--功能区-->
         <HBox spacing="14">
             <children>
                 <!--操作-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作">
+                <TitledPane animated="false" collapsible="false" contentDisplay="CENTER" prefHeight="165" prefWidth="380" text="操作" HBox.hgrow="ALWAYS">
                     <content>
                         <GridPane prefHeight="140" prefWidth="400">
                             <columnConstraints>
@@ -49,7 +50,7 @@
                                         <Button mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="100" text="清空列表" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                         <Button mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="100" text="本地记录" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                         <Button mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="100" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <Button mnemonicParsing="false" fx:id="stopButton" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="100" text="停止任务" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     </children>
                                 </GridPane>
 
@@ -59,7 +60,7 @@
                 </TitledPane>
 
                 <!--配置信息-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="120.0" text="配置信息">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="120.0" text="配置信息" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="167.0" style="-fx-padding: 14 5 14 5;-fx-spacing: 14">
                             <children>
@@ -78,7 +79,7 @@
                 </TitledPane>
 
                 <!--修改资料-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165" prefWidth="800.0" text="修改资料">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="800.0" text="修改资料" HBox.hgrow="ALWAYS">
                     <content>
                         <HBox alignment="CENTER_LEFT" style="-fx-spacing: 10">
                             <children>
@@ -138,8 +139,7 @@
                 </TitledPane>
 
                 <!--执行结果-->
-                <TitledPane HBox.hgrow="ALWAYS" animated="false" collapsible="false" prefHeight="165"
-                            prefWidth="130" text="执行结果">
+                <TitledPane animated="false" collapsible="false" prefHeight="165" prefWidth="130" text="执行结果" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox alignment="CENTER_LEFT" style="-fx-padding: 14 14 14 14;-fx-spacing: 14">
                             <children>
@@ -199,7 +199,7 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
                     <columns>
-                        <TableColumn fx:id="seq" prefWidth="60" minWidth="60" maxWidth="60"  text="序号" />
+                        <TableColumn fx:id="seq" maxWidth="60" minWidth="60" prefWidth="60" text="序号" />
                         <TableColumn fx:id="account" prefWidth="180" text="账号" />
                         <TableColumn fx:id="pwd" prefWidth="130" text="密码" />
                         <TableColumn fx:id="answer1" prefWidth="100" text="答案1" />
@@ -209,7 +209,7 @@
                         <TableColumn fx:id="area" prefWidth="75" text="国家" />
                         <TableColumn fx:id="email" prefWidth="160" text="新账号或救援邮箱" />
                         <TableColumn fx:id="popKey" prefWidth="200" text="POP密钥" />
-                        <TableColumn fx:id="note" prefWidth="240" minWidth="200" text="执行信息" />
+                        <TableColumn fx:id="note" minWidth="200" prefWidth="240" text="执行信息" />
                     </columns>
                 </TableView>
             </content>
