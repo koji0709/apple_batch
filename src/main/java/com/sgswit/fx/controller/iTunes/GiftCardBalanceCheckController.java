@@ -1181,13 +1181,4 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             return BigDecimal.ZERO;
         }
     }
-
-    public static BigDecimal extractMoneyValue(String input) {
-        try {
-            String numStr = input.replaceAll("[^0-9.-]", "");
-            return new BigDecimal(numStr);
-        } catch (Exception e) {
-            return BigDecimal.ZERO;
-        }
-    }
 }
