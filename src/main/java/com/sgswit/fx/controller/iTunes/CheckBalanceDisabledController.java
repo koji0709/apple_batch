@@ -148,6 +148,7 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
      */
     @Override
     public void accountHandler(Account account) {
+        boolean hasTwoStep=false;
         setAndRefreshNote(account,"登录查询中...");
         //查看是否需要api接码
         boolean selected = apiCheckBox.isSelected();
@@ -202,8 +203,8 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
                 }
                 if(!StrUtil.isEmpty(smsCode)){
                     setAndRefreshNote(account, "已成功接收验证码，正在查询。");
-                    secondStepHandler(account, smsCode);
-                    return;
+                    hasTwoStep=true;
+                    account.setAuthCode(smsCode);
                 }else{
                     throw new ServiceException("查询失败：验证码解析失败");
                 }
@@ -213,21 +214,25 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         }catch (ServiceException e){
             throw e;
         }
-        HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
-        JSONObject rspJSON = PListUtil.parse(authRsp.body());
-        String balance  = rspJSON.getStr("creditDisplay","0");
-        Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
-        account.setBalance((StrUtil.isEmpty(balance) ? "0" : balance));
-        account.setDisableStatus( !isDisabledAccount ? "正常" : "禁用");
-        String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
-        String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
-        if (!StrUtil.isEmpty(country)){
-            String[] sp = country.split("-");
-            account.setAreaCode(sp[0]);
-            account.setArea(sp[1]);
+        if(!hasTwoStep){
+            HttpResponse authRsp = (HttpResponse)account.getAuthData().get("authRsp");
+            JSONObject rspJSON = PListUtil.parse(authRsp.body());
+            String balance  = rspJSON.getStr("creditDisplay","0");
+            Boolean isDisabledAccount  = rspJSON.getByPath("accountFlags.isDisabledAccount",Boolean.class);
+            account.setBalance((StrUtil.isEmpty(balance) ? "0" : balance));
+            account.setDisableStatus( !isDisabledAccount ? "正常" : "禁用");
+            String storeFront = authRsp.header(Constant.HTTPHeaderStoreFront);
+            String country = StoreFontsUtils.getCountryCode(StrUtil.split(storeFront, "-").get(0));
+            if (!StrUtil.isEmpty(country)){
+                String[] sp = country.split("-");
+                account.setAreaCode(sp[0]);
+                account.setArea(sp[1]);
+            }
+            account.setAreaId(account.getItspod());
+            setAndRefreshNote(account,"查询成功");
+        }else{
+            accountHandler(account);
         }
-        account.setAreaId(account.getItspod());
-        setAndRefreshNote(account,"查询成功");
     }
 
     @Override
