@@ -52,7 +52,7 @@ public class GiftCardUtil {
 //        String accountName="pinbinJ2157@iCloud.com";
 //        String password="Tiantian0402m.";
 //        String accountName="djli0506@163.com";
-//        String password="Gain280924";
+//        String password="Gain280926";
 
 
         Map<String,Object> authParas=new HashMap<>();

@@ -168,10 +168,7 @@ public class ProxyUtil {
         if (StringUtils.isEmpty(proxyMode)
                 || !Arrays.asList(ProxyEnum.Mode.API.getKey(), ProxyEnum.Mode.TUNNEL.getKey(), ProxyEnum.Mode.DEFAULT.getKey()).contains(proxyMode)) {
             return proxyRequest(request, sendTimeOut, readTimeOut);
-        }
-
-        // API或导入代理
-        if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
+        }else if (ProxyEnum.Mode.API.getKey().equals(proxyMode)) {
             //判断是否为空
             String proxyApiUrl = PropertiesUtil.getOtherConfig("proxyApiUrl");
             String proxyApiUser = PropertiesUtil.getOtherConfig("proxyApiUser");
@@ -181,10 +178,7 @@ public class ProxyUtil {
                 return apiProxyRequest(request, proxyApiUrl, proxyApiUser, proxyApiPass, proxyApiNeedPass, sendTimeOut, readTimeOut);
             }
             return proxyRequest(request, sendTimeOut, readTimeOut);
-        }
-
-        // 使用隧道代理
-        if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
+        }else if (ProxyEnum.Mode.TUNNEL.getKey().equals(proxyMode)) {
             String address = PropertiesUtil.getOtherConfig("proxyTunnelAddress");
             String proxyHost = address.split(":")[0];
             int proxyPort = Integer.valueOf(address.split(":")[1]);
@@ -214,7 +208,7 @@ public class ProxyUtil {
         int index = StrUtils.getWeightedRandomIndex(weights);
         Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
 
-        String proxyType = isRedeem(request) ? "1" : MapUtil.getStr(proxyConfigMap, "proxyType");
+        String proxyType =MapUtil.getStr(proxyConfigMap, "proxyType");
 
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理

@@ -63,7 +63,7 @@ public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
             String guid = DataUtil.getGuidByAppleId(appleId);
             accountModel.setGuid(guid);
 
-            String url = "";
+            String url;
             HttpResponse loginRsp;
             if (StrUtil.isEmpty(accountModel.getAuthCode())){
                 url = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate?guid="+guid;

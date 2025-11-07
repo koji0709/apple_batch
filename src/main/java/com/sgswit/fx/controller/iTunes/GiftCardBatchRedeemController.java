@@ -23,6 +23,7 @@ import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.exception.PointCostException;
 import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
@@ -568,14 +569,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         String giftCardCode=giftCardRedeem.getGiftCardCode();
         setAndRefreshNote(giftCardRedeem,"账户登录中...");
         String id=super.createId(giftCardRedeem.getAccount(),giftCardRedeem.getPwd());
-        LoginInfo loginInfo = loginSuccessMap.get(id);
-        if (loginInfo != null){
-            // X8HZ8Z7KT7DW8PML
-            ThreadUtil.sleep(200);
-        }
-
-
-
         giftCardRedeem.setExecTime(DateUtil.now());
         Map<String, Long> countList = countMap.get(account);
         if(null==countList){
@@ -587,9 +580,6 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
         }
         // 登录并缓存
         itunesLogin(giftCardRedeem);
-
-
-
 
         HttpResponse authRsp = (HttpResponse) giftCardRedeem.getAuthData().get("authRsp");
         JSONObject rspJSON = PListUtil.parse(authRsp.body());
@@ -800,7 +790,7 @@ public class GiftCardBatchRedeemController extends ItunesView<GiftCardRedeem> {
                         checkAccountDescLabel.setText("账号已被单禁");
                     }
                 });
-            }catch (ServiceException e){
+            }catch (ServiceException | TwoFactorAuthenticationException e){
                 Platform.runLater(() -> {
                     countryLabel.setText("国家：" + "");
                     balanceLabel.setText( "余额：" + "");

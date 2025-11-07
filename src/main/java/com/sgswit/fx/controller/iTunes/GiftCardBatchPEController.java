@@ -14,6 +14,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommCodePopupView;
 import com.sgswit.fx.controller.common.ItunesView;
 import com.sgswit.fx.controller.exception.ServiceException;
+import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
@@ -264,7 +265,7 @@ public class GiftCardBatchPEController extends ItunesView<GiftCardRedeem> {
                     checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));
                     checkAccountDescLabel.setText("连接异常，请检查网络");
                 });
-            } catch (ServiceException e) {
+            } catch (ServiceException | TwoFactorAuthenticationException e) {
                 Platform.runLater(() -> {
                     checkAccountDescLabel.setTextFill(Paint.valueOf("#ff0000"));
                     checkAccountDescLabel.setText(e.getMessage());

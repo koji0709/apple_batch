@@ -219,7 +219,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
         } catch (IORuntimeException e) {
             throw e;
         }catch (ServiceException ae){
-            ae.printStackTrace();
             throw ae;
         }catch (Exception e){
             e.printStackTrace();

@@ -164,9 +164,9 @@ public class CheckBalanceDisabledController extends ItunesView<Account> {
         try {
             itunesLogin(account);
         }catch (TwoFactorAuthenticationException e){
-            Boolean hasTwoFactorAuthentication = apple(account,0);
-            if(selected && hasTwoFactorAuthentication){
-                setAndRefreshNote(account, "成功发送验证码，正在解析验证码...");
+//            Boolean hasTwoFactorAuthentication = apple(account,0);
+            if(selected &&  StrUtil.isEmpty(account.getAuthCode())){
+                setAndRefreshNote(account, "正在解析验证码...");
                 // 循环查询验证码
                 Integer cs = Integer.valueOf(apiCsTextField.getText());
                 //获取接码
