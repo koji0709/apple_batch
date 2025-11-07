@@ -208,7 +208,7 @@ public class ProxyUtil {
         int index = StrUtils.getWeightedRandomIndex(weights);
         Map<String, Object> proxyConfigMap = proxyConfigList.get(index);
 
-        String proxyType =MapUtil.getStr(proxyConfigMap, "proxyType");
+        String proxyType = MapUtil.getStr(proxyConfigMap, "proxyType");
 
         if (StrUtil.isNotEmpty(proxyType)){
             // 私密代理
