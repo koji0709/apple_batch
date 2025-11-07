@@ -118,9 +118,15 @@
         </dependency>
 
         <!--本地install一下 https://gitee.com/mumangguo/ddddocr-for-java -->
-        <dependency>
+        <!-- <dependency>
             <groupId>top.gcszhn</groupId>
             <artifactId>d4ocr</artifactId>
+            <version>1.0</version>
+        </dependency> -->
+
+        <dependency>
+            <groupId>com.mmg</groupId>
+            <artifactId>ddddocr4j</artifactId>
             <version>1.0</version>
         </dependency>
 
