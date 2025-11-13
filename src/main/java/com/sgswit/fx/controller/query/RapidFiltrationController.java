@@ -1,9 +1,6 @@
 package com.sgswit.fx.controller.query;
 
-import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -13,18 +10,15 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.web.AppleIDUtil;
-import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.StrUtils;
-import com.sgswit.fx.utils.proxy.ProxyUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.input.ContextMenuEvent;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 /**
@@ -91,7 +85,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {
-                        String service_errors = JSONUtil.parseObj(verifyAppleIdRes.body()).getStr("serviceErrors");
+                        String service_errors = JSONUtil.parseObj(step1Res.body()).getStr("serviceErrors");
                         JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                         if(null!=jsonArray){
                             String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
@@ -104,7 +98,7 @@ public class RapidFiltrationController extends CustomTableView<Account> {
                     setAndRefreshNote(account,"登录中...");
                     HttpResponse step1Res = AppleIDUtil.signin(account);
                     if (step1Res.getStatus() != 409) {
-                        String service_errors = JSONUtil.parseObj(verifyAppleIdRes.body()).getStr("serviceErrors");
+                        String service_errors = JSONUtil.parseObj(step1Res.body()).getStr("serviceErrors");
                         JSONArray jsonArray = JSONUtil.parseArray(service_errors);
                         if(null!=jsonArray){
                             String message = JSONUtil.parseObj(jsonArray.get(0)).getStr("message");
