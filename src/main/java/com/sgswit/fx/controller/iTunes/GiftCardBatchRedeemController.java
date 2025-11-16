@@ -27,7 +27,6 @@ import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.iTunes.vo.GiftCardRedeem;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.*;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.log.LoggerManger;

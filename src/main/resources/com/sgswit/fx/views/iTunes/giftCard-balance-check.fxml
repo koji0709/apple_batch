@@ -89,10 +89,11 @@
                                         </ComboBox>
                                     </children>
                                 </HBox>
-                                <TextField fx:id="txtGiftcardLoadAccountTextField" layoutX="87.0" layoutY="36.0" prefHeight="23.0" prefWidth="231.0" promptText="账号格式:账号----密码" />
+                                <TextField fx:id="txtGiftCardLoadAccountTextField" layoutX="87.0" layoutY="36.0" prefHeight="23.0" prefWidth="231.0" promptText="账号格式:账号----密码" />
                                 <Button fx:id="loginBtn" layoutX="329.0" layoutY="36.0" mnemonicParsing="false" onAction="#onClickLoginBtn" text="重新登录" />
                                 <Button layoutX="413.0" layoutY="36.0" mnemonicParsing="false" onAction="#importAccountButtonAction" text="导入多个登录ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Label fx:id="alertMessage" alignment="CENTER" contentDisplay="CENTER" layoutX="280.0" layoutY="85.0" prefWidth="240.0" />
+                                <Label fx:id="processMessageLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="280.0" layoutY="85.0" prefWidth="240.0" />
+                                <Label fx:id="sessionCountLabel" layoutX="255.0" layoutY="87.0" text="0" />
                             </children>
                         </AnchorPane>
                     </content>
@@ -154,21 +155,21 @@
                 <CheckBox fx:id="balanceAlertCheckBox" disable="true" text="查询余额提示音" />
                 <HBox alignment="center">
                     <children>
-                        <Label fx:id="label1" text="间隔" textFill="#808080" />
+                        <Label text="间隔" textFill="#808080" />
                         <TextField fx:id="intervalField" disable="true" prefWidth="30" />
-                        <Label fx:id="label2" text="分钟" textFill="#808080" />
+                        <Label text="分钟" textFill="#808080" />
                     </children>
                 </HBox>
                 <HBox alignment="center">
                     <children>
-                        <Label fx:id="label3" text="定时国家" textFill="#808080" />
+                        <Label text="定时国家" textFill="#808080" />
                         <ComboBox fx:id="scheduleCountryComboBox" disable="true" maxHeight="150.0" prefWidth="100.0" />
                     </children>
                 </HBox>
                 <Button fx:id="startStopButton" disable="true" onAction="#startStopExecute" prefWidth="80" style="-fx-text-fill:#0F8DE2" text="开始计时" />
                 <Button fx:id="executeNowButton" disable="true" onAction="#handleExecute" prefWidth="80" style="-fx-text-fill:#D93228" text="直接执行" />
                 <Button fx:id="importScheduleCardsButton" disable="true" onAction="#handleImportScheduleCards" prefWidth="120" text="导入定时礼品卡" />
-                <Label fx:id="processMessage" prefHeight="15.0" prefWidth="247.0" text="未开始" textFill="#238142" />
+            <Label fx:id="scheduledProcessMessage" text="未开始" />
             </children>
         </HBox>
         <TabPane fx:id="tabPane">

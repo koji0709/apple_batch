@@ -3,7 +3,6 @@ package com.sgswit.fx.controller.common;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import com.sgswit.fx.constant.Constant;
@@ -11,7 +10,9 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.model.LoginInfo;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.CookieUtils;
+import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.log.LoggerManger;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ItunesView<T extends LoginInfo> extends CustomTableView<T> {
 

@@ -13,7 +13,7 @@ import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
-import com.sgswit.fx.utils.web.ShoppingLoginUtil;
+import com.sgswit.fx.utils.web.WebParasUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -31,36 +31,37 @@ import java.util.stream.Collectors;
  */
 public class DataUtil {
     private static List<BaseAreaInfo> baseAreaInfoList;
-    private static Map<String,Map<String,String>> ids=new HashMap<>();
-    private static String guid="guid";
-    private static String client_id="cld";
-    private static String web_client_id="wbCld";
-    private static Map<String,Object> userInfo=new HashMap<>();
+    private static Map<String, Map<String, String>> ids = new HashMap<>();
+    private static String guid = "guid";
+    private static String client_id = "cld";
+    private static String web_client_id = "wbCld";
+    private static Map<String, Object> userInfo = new HashMap<>();
     //内置代理信息
-    private static List<Map<String,Object>> proxyConfigList;
+    private static List<Map<String, Object>> proxyConfigList;
 
     static {
         scheduledExecutorService();
     }
 
-    public static List<Map<String,Object>> getProxyConfig(){
+    public static List<Map<String, Object>> getProxyConfig() {
         try {
-            if(null==proxyConfigList || proxyConfigList.size()==0){
+            if (null == proxyConfigList || proxyConfigList.size() == 0) {
                 //调接口
                 HttpResponse rsp = HttpUtils.get("/api/data/getProxyConfig");
-                JSON json=JSONUtil.parse(rsp.body());
-                if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                    proxyConfigList=json.getByPath("data",List.class);
+                JSON json = JSONUtil.parse(rsp.body());
+                if (json.getByPath("code", String.class).equals(Constant.SUCCESS)) {
+                    proxyConfigList = json.getByPath("data", List.class);
                 }
             }
-        }catch (Exception e){
-            proxyConfigList=new ArrayList<>();
+        } catch (Exception e) {
+            proxyConfigList = new ArrayList<>();
         }
         return proxyConfigList;
     }
-    public static List<Map<String,Object>> getProxyModeList(){
+
+    public static List<Map<String, Object>> getProxyModeList() {
         List<Map<String, Object>> proxyModeList = ProxyEnum.Mode.getProxyModeList();
-        if(null==proxyConfigList || proxyConfigList.size()==0){
+        if (null == proxyConfigList || proxyConfigList.size() == 0) {
             // 移除属性值为"Male"的对象
             Iterator<Map<String, Object>> iterator = proxyModeList.iterator();
             while (iterator.hasNext()) {
@@ -72,112 +73,121 @@ public class DataUtil {
         }
         return proxyModeList;
     }
-    public static List<BaseAreaInfo> getCountry(){
+
+    public static List<BaseAreaInfo> getCountry() {
         try {
-            if(null==baseAreaInfoList || baseAreaInfoList.size()==0){
+            if (null == baseAreaInfoList || baseAreaInfoList.size() == 0) {
                 String jsonString = ResourceUtil.readUtf8Str("data/support_all_country.json");
-                baseAreaInfoList= JSONUtil.toList(jsonString, BaseAreaInfo.class);
+                baseAreaInfoList = JSONUtil.toList(jsonString, BaseAreaInfo.class);
             }
-        }catch (Exception e){
-            baseAreaInfoList=new ArrayList<>();
+        } catch (Exception e) {
+            baseAreaInfoList = new ArrayList<>();
         }
         return baseAreaInfoList;
     }
-    public static List<BaseAreaInfo> getFastCountry(){
+
+    public static List<BaseAreaInfo> getFastCountry() {
         String jsonString = ResourceUtil.readUtf8Str("data/support_fast_country.json");
         return JSONUtil.toList(jsonString, BaseAreaInfo.class);
     }
 
-    public static BaseAreaInfo getInfoByCountryCode(String countryCode){
+    public static BaseAreaInfo getInfoByCountryCode(String countryCode) {
         getCountry();
-        List<BaseAreaInfo> list=new ArrayList<>();
-        if(countryCode.length()==3){
-            list= baseAreaInfoList.stream().filter(n->n.getCode().equals(countryCode)).collect(Collectors.toList());
-        }else if(countryCode.length()==2){
-            list= baseAreaInfoList.stream().filter(n->n.getCode2().equals(countryCode)).collect(Collectors.toList());
+        List<BaseAreaInfo> list = new ArrayList<>();
+        if (countryCode.length() == 3) {
+            list = baseAreaInfoList.stream().filter(n -> n.getCode().equals(countryCode)).collect(Collectors.toList());
+        } else if (countryCode.length() == 2) {
+            list = baseAreaInfoList.stream().filter(n -> n.getCode2().equals(countryCode)).collect(Collectors.toList());
         }
-        return (list.size()==0)?null:list.get(0);
+        return (list.size() == 0) ? null : list.get(0);
     }
-    public static String getNameByCountryCode(String countryCode){
-        BaseAreaInfo areaInfo=getInfoByCountryCode(countryCode);
-        return (null==areaInfo)?"":areaInfo.getNameZh();
+
+    public static String getNameByCountryCode(String countryCode) {
+        BaseAreaInfo areaInfo = getInfoByCountryCode(countryCode);
+        return (null == areaInfo) ? "" : areaInfo.getNameZh();
     }
-    public static String getAddressFormat(String countryCode){
-        Map<String,Object> result= new HashMap<>();
+
+    public static String getAddressFormat(String countryCode) {
+        Map<String, Object> result = new HashMap<>();
         try {
-            List<String> fieldsList=new ArrayList<>();
-            List<FieldModel> addressFormatList=new ArrayList<>();
+            List<String> fieldsList = new ArrayList<>();
+            List<FieldModel> addressFormatList = new ArrayList<>();
             String jsonString = ResourceUtil.readUtf8Str("data/address_format.json");
-            for(Object object:JSONUtil.parseArray(jsonString)){
-                JSON json= (JSON) object;
-                if(countryCode.equalsIgnoreCase(json.getByPath("code").toString())){
-                    JSONObject addressFormat=JSONUtil.parseObj((json.getByPath("json")));
-                    JSONObject fieldsJSONObject=addressFormat.getJSONObject("fields");
-                    JSONObject sectionsJSONObject=addressFormat.getJSONObject("sections");
+            for (Object object : JSONUtil.parseArray(jsonString)) {
+                JSON json = (JSON) object;
+                if (countryCode.equalsIgnoreCase(json.getByPath("code").toString())) {
+                    JSONObject addressFormat = JSONUtil.parseObj((json.getByPath("json")));
+                    JSONObject fieldsJSONObject = addressFormat.getJSONObject("fields");
+                    JSONObject sectionsJSONObject = addressFormat.getJSONObject("sections");
                     //主要字段
-                    String primaryAddress=sectionsJSONObject.getByPath("primaryAddress.lines").toString();
-                    List<String[]> primaryAddressList=JSONUtil.toList(primaryAddress,String[].class);
-                    for( String[] arr:primaryAddressList){
-                        for(String s:arr){
+                    String primaryAddress = sectionsJSONObject.getByPath("primaryAddress.lines").toString();
+                    List<String[]> primaryAddressList = JSONUtil.toList(primaryAddress, String[].class);
+                    for (String[] arr : primaryAddressList) {
+                        for (String s : arr) {
                             fieldsList.add(s);
                         }
                     }
                     //手机
-                    String phone=sectionsJSONObject.getByPath("phone.lines").toString();
-                    List<String[]> phoneList=JSONUtil.toList(phone,String[].class);
-                    for( String[] arr:phoneList){
-                        for(String s:arr){
+                    String phone = sectionsJSONObject.getByPath("phone.lines").toString();
+                    List<String[]> phoneList = JSONUtil.toList(phone, String[].class);
+                    for (String[] arr : phoneList) {
+                        for (String s : arr) {
                             fieldsList.add(s);
                         }
                     }
-                    for(String key:fieldsList){
-                        FieldModel fieldModel=JSONUtil.toBean(fieldsJSONObject.getStr(key), FieldModel.class);
+                    for (String key : fieldsList) {
+                        FieldModel fieldModel = JSONUtil.toBean(fieldsJSONObject.getStr(key), FieldModel.class);
                         addressFormatList.add(fieldModel);
                     }
-                    result.put("addressFormatList",addressFormatList);
-                    result.put("fieldsList",fieldsList);
+                    result.put("addressFormatList", addressFormatList);
+                    result.put("fieldsList", fieldsList);
                     break;
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return JSONUtil.toJsonStr(result);
     }
-    public static void getNews(){
+
+    public static void getNews() {
         try {
-            String platform=PropertiesUtil.getConfig("softwareInfo.platform");
-            HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo/"+platform);
+            String platform = PropertiesUtil.getConfig("softwareInfo.platform");
+            HttpResponse rsp = HttpUtils.get("/noticeInfo/getNoticeInfo/" + platform);
             boolean verify = HttpUtils.verifyRsp(rsp);
-            if (verify){
-                JSON json=JSONUtil.parse(rsp.body());
-                String title=json.getByPath("data.title",String.class);
-                String content=json.getByPath("data.content",String.class);
-                AppleBatchUtil.writeNews(title,content);
+            if (verify) {
+                JSON json = JSONUtil.parse(rsp.body());
+                String title = json.getByPath("data.title", String.class);
+                String content = json.getByPath("data.content", String.class);
+                AppleBatchUtil.writeNews(title, content);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
-    public static String getGuidByAppleId(String appleId){
-        return getId(guid,appleId);
-    }
-    public static String getClientIdByAppleId(String appleId){
-        return getId(client_id,appleId);
-    }
-    public static String getWebClientIdByAppleId(String appleId){
-        return getId(web_client_id,appleId);
-    }
-    public static List<String> getLanguageList(){
-        return  getLanguageMap().keySet().stream().collect(Collectors.toList());
+
+    public static String getGuidByAppleId(String appleId) {
+        return getId(guid, appleId);
     }
 
-    public static LinkedHashMap<String,String> getLanguageMap(){
+    public static String getClientIdByAppleId(String appleId) {
+        return getId(client_id, appleId);
+    }
+
+    public static String getWebClientIdByAppleId(String appleId) {
+        return getId(web_client_id, appleId);
+    }
+
+    public static List<String> getLanguageList() {
+        return getLanguageMap().keySet().stream().collect(Collectors.toList());
+    }
+
+    public static LinkedHashMap<String, String> getLanguageMap() {
         String lang = ResourceUtil.readUtf8Str("data/language.json");
         return JSONUtil.parse(lang).toBean(LinkedHashMap.class);
     }
 
-    public static List<List<String>> getQuestionList(){
+    public static List<List<String>> getQuestionList() {
         String questions = ResourceUtil.readUtf8Str("data/questions.json");
         JSONArray jsonArray = JSONUtil.parseArray(questions);
         List<List<String>> resultList = new ArrayList<>();
@@ -193,30 +203,31 @@ public class DataUtil {
         return resultList;
     }
 
-    public static LinkedHashMap<String,Integer> getQuestionMap(){
+    public static LinkedHashMap<String, Integer> getQuestionMap() {
         String questions = ResourceUtil.readUtf8Str("data/questions.json");
         JSONArray jsonArray = JSONUtil.parseArray(questions);
-        LinkedHashMap<String,Integer> resultMap =  new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> resultMap = new LinkedHashMap<>();
         for (Object o : jsonArray) {
             JSONArray array = (JSONArray) o;
             for (Object object : array) {
                 JSONObject json = (JSONObject) object;
-                resultMap.put(json.getStr("question"),json.getInt("id"));
+                resultMap.put(json.getStr("question"), json.getInt("id"));
             }
         }
         return resultMap;
     }
-    public static int getQuestionIndex(int id){
-        int index=1;
+
+    public static int getQuestionIndex(int id) {
+        int index = 1;
         String questions = ResourceUtil.readUtf8Str("data/questions.json");
         JSONArray jsonArray = JSONUtil.parseArray(questions);
-        LinkedHashMap<String,Integer> resultMap =  new LinkedHashMap<>();
-        for (int i=0;i<jsonArray.size();i++ ) {
+        LinkedHashMap<String, Integer> resultMap = new LinkedHashMap<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
             JSONArray array = (JSONArray) jsonArray.get(i);
             for (Object object : array) {
                 JSONObject json = (JSONObject) object;
-                if(id==json.getInt("id")){
-                    return i+1;
+                if (id == json.getInt("id")) {
+                    return i + 1;
                 }
             }
         }
@@ -224,100 +235,107 @@ public class DataUtil {
     }
 
 
-    private static String getId(String type,String appleId){
-        String id=null;
+    private static String getId(String type, String appleId) {
+        String id = null;
         try {
-            boolean f=false;
-            if(null!=ids.get(type)){
-              id= ids.get(type).get(appleId);
-              if(StringUtils.isEmpty(id)){
-                f=true;
-              }
-            }else{
-                f=true;
-                ids.put(type,new HashMap<>());
+            boolean f = false;
+            if (null != ids.get(type)) {
+                id = ids.get(type).get(appleId);
+                if (StringUtils.isEmpty(id)) {
+                    f = true;
+                }
+            } else {
+                f = true;
+                ids.put(type, new HashMap<>());
             }
-            if(f){
-                HttpResponse rsp = HttpUtils.get("/api/data/getId/"+type+"?appleId="+appleId);
-                JSON json=JSONUtil.parse(rsp.body());
-                if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                    id= json.getByPath("id",String.class);
-                }else{
-                    id=generateId(type);
+            if (f) {
+                HttpResponse rsp = HttpUtils.get("/api/data/getId/" + type + "?appleId=" + appleId);
+                JSON json = JSONUtil.parse(rsp.body());
+                if (json.getByPath("code", String.class).equals(Constant.SUCCESS)) {
+                    id = json.getByPath("id", String.class);
+                } else {
+                    id = generateId(type);
                 }
             }
-        }catch (Exception e){
-            id=generateId(type);
+        } catch (Exception e) {
+            id = generateId(type);
         }
-        ids.get(type).put(appleId,id);
+        ids.get(type).put(appleId, id);
         return id;
-   }
-   private static String generateId(String type){
-        String id="";
-        if(guid.equals(type)){
-            id=MachineInfoBuilder.generateMachineInfo().getMachineGuid();
-        }else if(web_client_id.equals(type)){
-            id= ShoppingLoginUtil.createClientId();
-        }else if(client_id.equals(type)){
-            id=IdUtil.fastUUID().toUpperCase();
+    }
+
+    private static String generateId(String type) {
+        String id = "";
+        if (guid.equals(type)) {
+            id = MachineInfoBuilder.generateMachineInfo().getMachineGuid();
+        } else if (web_client_id.equals(type)) {
+            id = WebParasUtil.createClientId();
+        } else if (client_id.equals(type)) {
+            id = IdUtil.fastUUID().toUpperCase();
         }
         return id;
-   }
-   /**
-   　* 根据国家获取随机地址
+    }
+
+    /**
+     * 根据国家获取随机地址
+     *
      * @param
-    * @param countryCode
-   　* @return java.util.Map<java.lang.String,java.lang.String>
-   　* @throws
-   　* @author DeZh
-   　* @date 2024/7/17 10:44
-   */
-   public static Map<String,String> getAddressInfo(String countryCode){
-       return getAddressInfo(countryCode,"");
-   }
-   public static Map<String,String> getAddressInfo(String countryCode,String postalCode){
-       HttpResponse rsp = HttpUtils.get("/api/data/getRandAddress?countryCode="+countryCode);
-       JSON json=JSONUtil.parse(rsp.body());
-       if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-          return json.getByPath("data",Map.class);
-       }
-       return null;
-   }
-   /**
-   　* 设置用户信息
-   　* @return void
-   　* @date 2024/1/30 10:46
-   */
-   public static void setUserInfo(String key,String val){
-        userInfo.put(key,val);
-   }
-   public static void setUserInfo(String json){
-       Map<String, Object> map = JSONUtil.parseObj(json).toBean(HashMap.class);
-       userInfo=map;
-   }
-   public static Map<String,Object> getUserInfo(){
-       return userInfo;
-   }
+     * @param countryCode * @return java.util.Map<java.lang.String,java.lang.String>
+     *                    　* @throws
+     *                    　* @author DeZh
+     *                    　* @date 2024/7/17 10:44
+     */
+    public static Map<String, String> getAddressInfo(String countryCode) {
+        return getAddressInfo(countryCode, "");
+    }
 
-   private static void scheduledExecutorService(){
-       // 创建一个单线程的ScheduledExecutorService
-       ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-       // 延迟1秒后执行任务，然后每1200秒执行一次
-       executorService.scheduleAtFixedRate(()->{
+    public static Map<String, String> getAddressInfo(String countryCode, String postalCode) {
+        HttpResponse rsp = HttpUtils.get("/api/data/getRandAddress?countryCode=" + countryCode);
+        JSON json = JSONUtil.parse(rsp.body());
+        if (json.getByPath("code", String.class).equals(Constant.SUCCESS)) {
+            return json.getByPath("data", Map.class);
+        }
+        return null;
+    }
+
+    /**
+     * 设置用户信息
+     * 　* @return void
+     * 　* @date 2024/1/30 10:46
+     */
+    public static void setUserInfo(String key, String val) {
+        userInfo.put(key, val);
+    }
+
+    public static void setUserInfo(String json) {
+        Map<String, Object> map = JSONUtil.parseObj(json).toBean(HashMap.class);
+        userInfo = map;
+    }
+
+    public static Map<String, Object> getUserInfo() {
+        return userInfo;
+    }
+
+    private static void scheduledExecutorService() {
+        // 创建一个单线程的ScheduledExecutorService
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        // 延迟1秒后执行任务，然后每1200秒执行一次
+        executorService.scheduleAtFixedRate(() -> {
             //调接口
-           try {
-               HttpResponse rsp = HttpUtils.get("/api/data/getProxyConfig");
-               JSON json=JSONUtil.parse(rsp.body());
-               if (json.getByPath("code",String.class).equals(Constant.SUCCESS)){
-                   proxyConfigList=json.getByPath("data",List.class);
-               }
-           }catch (Exception e){
+            try {
+                HttpResponse rsp = HttpUtils.get("/api/data/getProxyConfig");
+                JSON json = JSONUtil.parse(rsp.body());
+                if (json.getByPath("code", String.class).equals(Constant.SUCCESS)) {
+                    proxyConfigList = json.getByPath("data", List.class);
+                }
+            } catch (Exception e) {
 
-           }
-       }, 1, 20*60, TimeUnit.SECONDS);
+            }
+        }, 1, 20 * 60, TimeUnit.SECONDS);
 
-   }
-    public static void getData(){
+    }
+
+    public static void getData() {
         ThreadUtil.execAsync(() -> DataUtil.getCountry());
         ThreadUtil.execAsync(() -> DataUtil.getNews());
         ThreadUtil.execAsync(() -> PointUtil.getPointConfig());

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
+<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.query.WhetherAppleIdController">
     <children>
         <HBox spacing="14">
             <children>
@@ -57,7 +57,7 @@
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>
                                 </Label>
-                                <Label text="操作提示： 快速区分是否ApplelD、 帐号是否锁定、是否双重认证、是否未激活等等" textFill="#169BD5" wrapText="true">
+                                <Label text="操作提示： 快速区分是否ApplelD、 账号是否锁定、是否双重认证、是否未激活等等" textFill="#169BD5" wrapText="true">
                                     <VBox.margin>
                                         <Insets bottom="3.0" top="2.0" />
                                     </VBox.margin>

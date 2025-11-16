@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iCloud.FamilyMembersController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1150.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.ConsumptionBillController">
     <children>
         <Pane prefHeight="200.0" prefWidth="200.0">
             <children>
@@ -22,13 +22,13 @@
                                         <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="95.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Button fx:id="executeButton" mnemonicParsing="false" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142">
+                                        <Button fx:id="executeButton" mnemonicParsing="false" onAction="#executeButtonAction" prefHeight="60.0" prefWidth="100.0" text="开始执行" textFill="#238142">
                                             <font>
                                                 <Font name="System Bold" size="15.0" />
                                             </font>
-                                            <GridPane.margin>
-                                                <Insets right="2.0" />
-                                            </GridPane.margin>
+                                 <GridPane.margin>
+                                    <Insets right="2.0" />
+                                 </GridPane.margin>
                                         </Button>
                                         <GridPane alignment="CENTER" prefHeight="95.0" prefWidth="250.0" GridPane.columnIndex="1">
                                             <columnConstraints>
@@ -38,34 +38,29 @@
                                             <rowConstraints>
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                             <children>
-                                                <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1">
-                                                    <GridPane.margin>
-                                                        <Insets left="5.0" />
-                                                    </GridPane.margin>
-                                                </Button>
-                                                <Button fx:id="accountExportBtn" mnemonicParsing="false" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                    <GridPane.margin>
-                                                        <Insets left="15.0" />
-                                                    </GridPane.margin>
-                                                </Button>
-                                                <Button fx:id="importAccountButton" mnemonicParsing="false" onAction="#openImportAccountView" prefWidth="120.0" text="导入账号">
-                                                    <GridPane.margin>
-                                                        <Insets left="5.0" />
-                                                    </GridPane.margin>
-                                                </Button>
-                                                <Button fx:id="stopButton" mnemonicParsing="false" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2">
-                                                    <GridPane.margin>
-                                                        <Insets left="5.0" />
-                                                    </GridPane.margin>
-                                                </Button>
-                                                <Button fx:id="accountClearBtn" mnemonicParsing="false" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1">
-                                                    <GridPane.margin>
-                                                        <Insets left="15.0" />
-                                                    </GridPane.margin>
-                                                </Button>
+                                                <Button fx:id="areaQueryLogBtn" mnemonicParsing="false" onAction="#localHistoryButtonAction" prefWidth="120.0" text="本地记录" textAlignment="CENTER" GridPane.rowIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="5.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="accountExportBtn" mnemonicParsing="false" onAction="#exportExcelButtonAction" prefWidth="120.0" text="导出Excel" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="15.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="importAccountButton" mnemonicParsing="false" onAction="#onAccountInputBtnClick" prefWidth="120.0" text="导入账号">
+                                       <GridPane.margin>
+                                           <Insets left="5.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopTaskButtonAction" prefWidth="120.0" text="停止任务" GridPane.rowIndex="2">
+                                       <GridPane.margin>
+                                          <Insets left="5.0" />
+                                       </GridPane.margin></Button>
+                                                <Button fx:id="accountClearBtn" mnemonicParsing="false" onAction="#clearAccountListButtonAction" prefWidth="120.0" text="清空列表" GridPane.columnIndex="1">
+                                       <GridPane.margin>
+                                          <Insets left="15.0" />
+                                       </GridPane.margin></Button>
                                             </children>
                                         </GridPane>
                                     </children>
@@ -89,7 +84,6 @@
                                                 <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
-                                        <Label fx:id="successNumLabel" text="0" />
                                     </HBox>
                                     <HBox prefHeight="30.0" prefWidth="340.0">
                                         <Label text="失败数：" wrapText="true">
@@ -97,7 +91,6 @@
                                                 <Insets bottom="3.0" top="2.0" />
                                             </VBox.margin>
                                         </Label>
-                                        <Label fx:id="failNumLabel" text="0" />
                                     </HBox>
                                     <HBox prefHeight="35.0" prefWidth="340.0">
                                         <children>
@@ -124,47 +117,53 @@
                                 <TableView fx:id="accountTableView">
                                     <columns>
                                         <TableColumn fx:id="seq" prefWidth="70.0" text="序号" />
-                                        <TableColumn fx:id="account" prefWidth="180.0" text="账号" />
-                                        <TableColumn fx:id="pwd" prefWidth="180.0" text="密码" />
-                                        <TableColumn fx:id="memberAccount" prefWidth="180.0" text="成员账号或成员Dsid" />
-                                        <TableColumn fx:id="memberPwd" prefWidth="180.0" text="成员密码" />
-                                        <TableColumn fx:id="cvv" prefWidth="180.0" text="安全码（CVV）" />
-                                        <TableColumn fx:id="note" prefWidth="180.0" text="执行信息" />
+                                        <TableColumn fx:id="account" prefWidth="110.0" text="账号" />
+                                        <TableColumn fx:id="pwd" prefWidth="110.0" text="密码" />
+                                        <TableColumn fx:id="note" prefWidth="160.0" text="执行信息" />
+                                        <TableColumn fx:id="area" prefWidth="70.0" text="账号地区" />
+                                        <TableColumn fx:id="accountBalance" prefWidth="70.0" text="账号余额" />
+                                        <TableColumn fx:id="status" prefWidth="70.0" text="禁用状态" />
+                                        <TableColumn fx:id="lastPurchaseDate" prefWidth="100.0" text="最新购买日期" />
+                                        <TableColumn fx:id="earliestPurchaseDate" prefWidth="100.0" text="最早购买日期" />
+                                        <TableColumn fx:id="totalConsumption" prefWidth="100.0" text="消费总额" />
+                                        <TableColumn fx:id="totalRefundAmount" prefWidth="100.0" text="退款总额" visible="false" />
+                                        <TableColumn fx:id="purchaseRecord" prefWidth="120.0" text="购买记录" />
+                                        <TableColumn fx:id="paymentInformation" prefWidth="120.0" text="付款信息" />
+                                        <TableColumn fx:id="shippingAddress" prefWidth="120.0" text="寄送地址" />
                                     </columns>
                                 </TableView>
                             </content>
                         </TitledPane>
-                        <TitledPane layoutX="391.0" layoutY="14.0" prefHeight="165.0" prefWidth="619.0">
+                        <TitledPane animated="false" layoutX="395.0" layoutY="14.0" prefHeight="165.0" prefWidth="290.0">
                             <content>
-                                <HBox>
-                                    <VBox style="-fx-border-color: blue">
-                                        <VBox alignment="TOP_CENTER" prefHeight="30.0" prefWidth="129.0" style="-fx-background-color: blue">
-                                            <children>
-                                                <Label text="工作模式" textFill="aliceblue" />
-                                            </children>
-                                        </VBox>
-                                        <VBox alignment="BASELINE_CENTER" prefHeight="141.0" prefWidth="129.0">
-                                            <children>
-                                                <ComboBox fx:id="nameGenerationTypeChoiceBox" prefWidth="115">
-                                                </ComboBox>
-                                            </children>
-                                        </VBox>
-                                    </VBox>
-                                    <VBox alignment="CENTER_LEFT" prefHeight="141.0" prefWidth="470.0" style="-fx-padding: 10;">
-                                        <children>
-                                            <Label text="添加或移除家庭成员需要组织者账号权限。" textFill="#169BD5" />
-                                            <Label prefWidth="384.0" text="添加家庭成员导入格式：组织者账号----组织者密码----添加帐" textFill="#169BD5" />
-                                            <Label layoutX="20.0" layoutY="63.0" prefWidth="384.0" text="号----添加账号密码----安全码(CVV)" textFill="#169BD5" />
-                                            <Label text="移除家庭成员导入格式：组织者账号----组织者密码----成员账号或成员Dsid" textFill="#169BD5" />
-                                        </children>
-                                    </VBox>
-                                </HBox>
-
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="141.0" prefWidth="286.0">
+                                    <children>
+                                        <Label layoutX="6.0" layoutY="40.0" text="选择查询范围" />
+                                        <ChoiceBox fx:id="rangeSelect" layoutX="81.0" layoutY="36.0" prefHeight="23.0" prefWidth="90.0" />
+                              <CheckBox fx:id="isFilterFree" layoutX="185.0" layoutY="39.0" mnemonicParsing="false" text="过滤免费项目" />
+                              <CheckBox fx:id="customRange" layoutX="7.0" layoutY="77.0" mnemonicParsing="false" text="自定义查询范围" />
+                              <TextField fx:id="days" layoutX="120.0" layoutY="74.0" prefHeight="23.0" prefWidth="51.0" />
+                              <Label layoutX="186.0" layoutY="78.0" text="天" />
+                              <Label layoutX="205.0" layoutY="77.0" text="(0=查询全部)" />
+                                    </children>
+                                </AnchorPane>
                             </content>
                         </TitledPane>
+                  <TitledPane layoutX="695.0" layoutY="14.0" prefHeight="165.0" prefWidth="315.0">
+                     <content>
+                        <AnchorPane prefHeight="141.0" prefWidth="298.0">
+                           <children>
+                              <Label layoutX="5.0" layoutY="25.0" text="搜素关键字" />
+                              <TextField layoutX="68.0" layoutY="21.0" prefHeight="23.0" prefWidth="141.0" />
+                              <Button layoutX="243.0" layoutY="21.0" mnemonicParsing="false" text="查询" />
+                              <Label disable="true" layoutX="5.0" layoutY="60.0" prefHeight="45.0" prefWidth="181.0" text="搜索列表中已保存CSV文件内容，多个关键字请用“-&quot; (杠号)隔开" wrapText="true" />
+                              <Button layoutX="197.0" layoutY="67.0" mnemonicParsing="false" text="打开匹配目录" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </TitledPane>
                     </children>
                 </AnchorPane>
-            </children>
-        </Pane>
+            </children></Pane>
     </children>
 </VBox>

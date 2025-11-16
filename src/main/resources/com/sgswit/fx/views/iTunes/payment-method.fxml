@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.PaymentMethodController">
+<VBox prefHeight="700.0" prefWidth="1200.0" spacing="14" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgswit.fx.controller.iTunes.PaymentMethodController">
    <children>
         <HBox spacing="14">
                <children>
@@ -69,7 +69,7 @@
                      <content>
                         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" prefWidth="314.0">
                             <children>
-                                <Label prefHeight="15.0" text="注意:此功能将会删除帐号全部付款方式，请值用。" textFill="RED" wrapText="true">
+                                <Label prefHeight="15.0" text="注意:此功能将会删除账号全部付款方式，请值用。" textFill="RED" wrapText="true">
                                     <VBox.margin>
                                         <Insets top="50.0" />
                                     </VBox.margin>
