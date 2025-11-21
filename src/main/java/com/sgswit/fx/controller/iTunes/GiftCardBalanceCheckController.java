@@ -164,6 +164,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      * 定时任务运行标识
      */
     private boolean scheduledRunning = false;
+    private volatile boolean isQueryScheduled = false;
 
     //导入的多个登录ID
     private static final Queue<AccountManager.AccountForQuery> accountsForQueryQueue = new ConcurrentLinkedQueue<>();
@@ -395,6 +396,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      * 登录并初始化
      */
     protected Map<String, Object> loginAndInit(AccountManager.AccountForQuery accountForQuery,Boolean scheduleFlag,String scheduleCountryCode) throws InterruptedException {
+        isQueryScheduled=false;
         String accountName=accountForQuery.getTxtAccount();
         String password=accountForQuery.getTxtPassword();
         try {
@@ -519,16 +521,18 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     private void scheduleQueryCardLogin(){
         //随机获取
-        if(AccountManager.getAvailableAccounts().size()==0){
-            scheduleQueryCardLogin();
-            return;
-        }
-        List<AccountManager.AccountForQuery> list = new ArrayList<>(AccountManager.getAvailableAccounts());
-        int randomIndex = ThreadLocalRandom.current().nextInt(list.size());
-        AccountManager.AccountForQuery account=  list.get(randomIndex);
-        if(!scheduleQueryCardRunningLogin.contains(account.getAccountId())){
-            scheduleQueryCardRunningLogin.add(account.getAccountId());
-            ThreadUtil.execAsync(() -> loginAndInit(account,true,scheduleCountryCode));
+        if(!allLoginFailed.get()){
+            if(AccountManager.getAvailableAccounts().size()==0){
+                isQueryScheduled=false;
+                return;
+            }
+            List<AccountManager.AccountForQuery> list = new ArrayList<>(AccountManager.getAvailableAccounts());
+            int randomIndex = ThreadLocalRandom.current().nextInt(list.size());
+            AccountManager.AccountForQuery account=  list.get(randomIndex);
+            if(!scheduleQueryCardRunningLogin.contains(account.getAccountId())){
+                scheduleQueryCardRunningLogin.add(account.getAccountId());
+                ThreadUtil.execAsync(() -> loginAndInit(account,true,scheduleCountryCode));
+            }
         }
     }
 
@@ -577,17 +581,29 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             if (session != null) {
                 scheduleSessions.add(session);
             }else{
-                scheduleQueryCardLogin();
+                if(!allLoginFailed.get() && !isQueryScheduled){
+                    isQueryScheduled=true;
+                    ThreadUtil.execute(()->{
+                        scheduleQueryCardLogin();
+                    });
+                }
             }
         } else {
             session =  sessionManager.acquireAvailableSession(countryCode);
         }
         if(null==session){
-            setAndRefreshNote(giftCard, "正在登录...");
-            giftCard.runningProperty().set(false);
-            ThreadUtil.sleep(1500 + (long)(Math.random() * 500));
-            checkBalanceInternal(giftCard, countryCode);
-            return;
+            if(allLoginFailed.get()){
+                setAndRefreshNote(giftCard, failureMessage);
+                giftCard.runningProperty().set(false);
+                return;
+            }else {
+                setAndRefreshNote(giftCard, "正在登录...");
+                giftCard.runningProperty().set(false);
+                ThreadUtil.sleep(1500 + (long)(Math.random() * 500));
+                checkBalanceInternal(giftCard, countryCode);
+                return;
+            }
+
         }
 
         HttpResponse checkBalanceRes = GiftCardUtil.checkBalance(session.getCookies(), giftCard.getGiftCardCode());
