@@ -6,7 +6,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.swing.DesktopUtil;
 import cn.hutool.core.swing.clipboard.ClipboardUtil;
 import com.sgswit.fx.controller.common.CommonView;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;

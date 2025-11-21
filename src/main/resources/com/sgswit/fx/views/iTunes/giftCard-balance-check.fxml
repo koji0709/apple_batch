@@ -167,7 +167,7 @@
                     </children>
                 </HBox>
                 <Button fx:id="startStopButton" disable="true" onAction="#startStopExecute" prefWidth="80" style="-fx-text-fill:#0F8DE2" text="开始计时" />
-                <Button fx:id="executeNowButton" disable="true" onAction="#handleExecute" prefWidth="80" style="-fx-text-fill:#D93228" text="直接执行" />
+                <Button fx:id="executeNowButton" disable="true" onAction="#handleScheduledExecute" prefWidth="80" style="-fx-text-fill:#D93228" text="直接执行" />
                 <Button fx:id="importScheduleCardsButton" disable="true" onAction="#handleImportScheduleCards" prefWidth="120" text="导入定时礼品卡" />
             <Label fx:id="scheduledProcessMessage" text="未开始" />
             </children>

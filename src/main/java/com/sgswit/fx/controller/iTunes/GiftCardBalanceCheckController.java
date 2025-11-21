@@ -23,6 +23,8 @@ import com.sgswit.fx.controller.iTunes.vo.giftCard.SessionManager;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.GiftCard;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.cache.CacheDataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.stage.StageToSystemTrayUtil;
 import com.sgswit.fx.utils.web.GiftCardUtil;
@@ -44,10 +46,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
@@ -151,71 +150,97 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static int lastSelectedCountryIndex = 0;
-    private final Map<String, Map<String, Object>> scheduleLoginCookiesMap = new ConcurrentHashMap<>();
+    private static  Queue<SessionManager.SessionInfo> scheduleSessions = new ConcurrentLinkedQueue<>();
 
+    private static String countryCode="US";
+    private static String scheduleCountryCode="US";
     //定时查卡
     private static ThreadPoolExecutor scheduledExecutor=new  ThreadPoolExecutor(4, 4, 30L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
-    private CountdownService service = new CountdownService();
-    private boolean running = false;
+    /**
+     * 定时任务服务
+     */
+    private CountdownService scheduledService = new CountdownService();
+    /**
+     * 定时任务运行标识
+     */
+    private boolean scheduledRunning = false;
 
     //导入的多个登录ID
-    private static final Queue<AccountManager.AccountForQuery> accountsForQuery = new ConcurrentLinkedQueue<>();
+    private static final Queue<AccountManager.AccountForQuery> accountsForQueryQueue = new ConcurrentLinkedQueue<>();
     // 常量配置
-    private static final int MAX_SESSION_COUNT = 5;
-//    private static final int MAX_SESSION_COUNT = 20;
+    private static final int MAX_SESSION_COUNT = 40;
     private static final int MAX_CONCURRENT_LOGIN = 3;
-
-    private static final int MAX_SESSION_PER_ACCOUNT = 5;
 
     private static final long SCHEDULER_INTERVAL_MS = 1000;
     // 核心管理器
     private final SessionManager sessionManager = new SessionManager();
     private final AccountManager accountManager = new AccountManager();
-    private final AccountManager.AccountExecutionTracker accountTracker = new AccountManager.AccountExecutionTracker();
 
     // 并发控制
     private final AtomicInteger activeLoginCount = new AtomicInteger(0);
+    private final AtomicInteger activeTaskCount = new AtomicInteger(0);
     private final Semaphore loginSemaphore = new Semaphore(MAX_CONCURRENT_LOGIN);
-    private final AtomicBoolean loginPaused = new AtomicBoolean(false);
     private final AtomicBoolean allLoginFailed = new AtomicBoolean(false);
-    private final Map<String, AtomicInteger> accountSessionCount = new ConcurrentHashMap<>();
+    private final HashSet<String> scheduleQueryCardRunningLogin = new HashSet<>();
 
     // 执行器服务
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> scheduleTask;
     private final ExecutorService loginExecutor = Executors.newCachedThreadPool();
-    private final Set<Future<?>> runningTasks = ConcurrentHashMap.newKeySet();
+    private final Set<Future<?>> loginRunningTasks = ConcurrentHashMap.newKeySet();
 
-    private static String allLoginMessage="";
+    private static boolean hasLoginRunning=false;
+    private static String failureMessage;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pointLabel.setText(String.valueOf(PointUtil.getPointByCode(FunctionListEnum.GIFTCARD_BALANCE.getCode())));
         getCountry();
         //清空备用查询账户集合
-        accountsForQuery.clear();
+        accountsForQueryQueue.clear();
         parseTxtGiftCardLoadAccount(CrossPlatformAesUtil.decryptWithCompression(PropertiesUtil.getOtherConfig("txtGiftCardLoadAccount")));
         // 注册粘贴事件的监听器
-        txtGiftCardLoadAccountTextField.setOnContextMenuRequested((ContextMenuEvent event) -> {
-
-        });
-        txtGiftCardLoadAccountTextField.setOnKeyReleased(event -> {
-            if (event.isShortcutDown()) {
+        txtGiftCardLoadAccountTextField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            // 精确匹配 Ctrl+V / Cmd+V
+            if (event.isShortcutDown() && event.getCode() == KeyCode.V) {
+                event.consume(); // 阻止默认粘贴行为
                 Clipboard clipboard = Clipboard.getSystemClipboard();
-                String content = clipboard.getString().replaceAll("\t", " ");
-                txtGiftCardLoadAccountTextField.setText(content);
+                if (clipboard.hasString()) {
+                    String content = clipboard.getString().replaceAll("\t", " ");
+                    if (StrUtil.isNotEmpty(content)) {
+                        Platform.runLater(() -> {
+                            txtGiftCardLoadAccountTextField.replaceSelection(content);
+                            String[] its = AccountImportUtil.parseAccountAndPwd(content);
+                            if (its.length >= 2) {
+                                accountsForQueryQueue.offer(new AccountManager.AccountForQuery(its[0],its[1]));
+                            }
+                            AccountManager.addAccountForQueryQueue(accountsForQueryQueue);
+                        });
+                    }
+                }
+            }else{
+                String text = txtGiftCardLoadAccountTextField.getText();
+                if (StrUtil.isNotEmpty(text)) {
+                    Platform.runLater(() -> {
+                        String[] its = AccountImportUtil.parseAccountAndPwd(text);
+                        if (its.length >= 2) {
+                            accountsForQueryQueue.offer(new AccountManager.AccountForQuery(its[0],its[1]));
+                        }
+                        AccountManager.addAccountForQueryQueue(accountsForQueryQueue);
+                    });
+                }
             }
         });
-        if (CollectionUtil.isEmpty(accountsForQuery)) {
+        if (CollectionUtil.isEmpty(accountsForQueryQueue)) {
             updateUI("等待初始化....","0","");
         }
         // 定时查询礼品卡相关组件初始化
         scheduleTableViewInitialize();
+        //初始化已保存的sessions
+        SessionManager.setSessions(CacheDataUtil.getQueryCardSessions());
 
         super.initialize(url, resourceBundle);
     }
-
-
 
     /**
      * 加载国家信息
@@ -252,12 +277,15 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         countryBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object o, Object t1) {
-//                ThreadUtil.execAsync(() -> {
-//                    try {
-//                        loginAndInit();
-//                    } catch (Exception e) {
-//                    }
-//                });
+
+                countryCode= countryBox.getSelectionModel().getSelectedItem().toString();
+                ThreadUtil.execAsync(() -> {
+                    try {
+                        setLoginBtnStatus(true);
+                        startScheduler(true);
+                    } catch (Exception e) {
+                    }
+                });
             }
         });
         //定时礼品卡查询 国家信息变更监听
@@ -282,7 +310,8 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             boolean confirmed = CommonView.showConfirmationDialog("提示", "确定更改国家吗？");
             if (confirmed) {
                 lastSelectedCountryIndex = newValue.intValue();
-//                ThreadUtil.execAsync(() -> loginAndInit());
+                scheduleCountryCode =scheduleCountryComboBox.getItems().get(lastSelectedCountryIndex).get("code");
+                scheduleQueryCardLogin();
             } else {
                 Platform.runLater(() ->scheduleCountryComboBox.getSelectionModel().select(lastSelectedCountryIndex));
             }
@@ -296,8 +325,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     @FXML
     protected void onAccountInputBtnClick(ActionEvent actionEvent) throws IOException {
-        if (accountsForQuery.size() == 0) {
-            alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
+        if (!executeButtonActionBefore()) {
             return;
         }
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("views/iTunes/giftCard-input-popup.fxml"));
@@ -317,8 +345,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (null == c.getData() || "".equals(c.getData())) {
             return;
         }
-        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(txtGiftCardLoadAccountTextField.getText());
-
         String[] lineArray = c.getData().split("\n");
         for (String item : lineArray) {
             if (StringUtils.isEmpty(item)) {
@@ -326,8 +352,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
             GiftCard giftCard = new GiftCard();
             giftCard.setSeq(accountList.size() + 1);
-//            giftCard.setPwd(accountPwdArray[1]);
-//            giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
             accountList.add(giftCard);
         }
@@ -344,18 +368,19 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     @FXML
     public void onClickLoginBtn(ActionEvent actionEvent) {
-        ThreadUtil.execAsync(() -> {
-            try {
-//                startSystem();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        if (!executeButtonActionBefore()) {
+
+        }else{
+            ThreadUtil.execAsync(() -> {
+                setLoginBtnStatus(true);
+                startScheduler(true);
+            });
+        }
     }
 
     @Override
     public boolean executeButtonActionBefore() {
-        if (accountsForQuery.size()==0) {
+        if (accountsForQueryQueue.size()==0) {
             alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
             return false;
         } else {
@@ -366,36 +391,17 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     /**
      * 登录并初始化
      */
-    protected Map<String, Object> loginAndInit(AccountManager.AccountForQuery accountForQuery) throws InterruptedException {
-        if(loginPaused.get()){
-            return null;
-        }
-        String accountName;
-        String password;
+    protected Map<String, Object> loginAndInit(AccountManager.AccountForQuery accountForQuery,Boolean scheduleFlag,String scheduleCountryCode) throws InterruptedException {
+        String accountName=accountForQuery.getTxtAccount();
+        String password=accountForQuery.getTxtPassword();
         try {
             //校验账号格式是否正确
-            if(accountsForQuery.size()==0){
-                Platform.runLater(new Task<Integer>() {
-                    protected Integer call() {
-                        alert("请输入一个AppleID作为初始化，账号格式为：账号----密码", Alert.AlertType.ERROR);
-                        return 1;
-                    }
-                });
+            if(accountsForQueryQueue.size()==0){
                 return null;
             }
-            String[] its = AccountImportUtil.parseAccountAndPwd(accountForQuery.getTxtAccountAndPassword());
-            if (its.length >= 2) {
-                accountName = its[0];
-                password = its[1];
-            }else{
-                accountForQuery.setPasswordError(true);
-                return null;
-            }
-//            updateNodeStatus(true);
-            String countryCode = countryBox.getSelectionModel().getSelectedItem().get("code");
-
             Map<String,Object> authParas=new HashMap<>();
-            HttpResponse initBalanceResponse=GiftCardUtil.initBalance(countryCode);
+            String countryCodeForLogin=scheduleFlag?scheduleCountryCode:countryCode;
+            HttpResponse initBalanceResponse=GiftCardUtil.initBalance(countryCodeForLogin);
             if (initBalanceResponse.getStatus() != 303) {
                 accountForQuery.setPasswordError(false);
                 return null;
@@ -447,7 +453,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 String authType = JSONUtil.parse(signinCompeteResponse.body()).getByPath("authType", String.class);
                 if ("hsa2".equals(authType)) {
                     accountForQuery.setPasswordError(true);
-                    allLoginMessage="此Apple ID已开通双重认证，请更换Apple ID";
+                    failureMessage="此Apple ID已开通双重认证，请更换Apple ID";
                     return null;
                 }
             } else {
@@ -458,11 +464,12 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                     Iterator iterator = jsonArray.iterator();
                     while (iterator.hasNext()) {
                         JSONObject jsonObject = (JSONObject) iterator.next();
+                        m.append(jsonObject.getStr("code"));
+                        m.append("|");
                         m.append(jsonObject.getStr("message"));
-                        m.append(";");
                     }
                     accountForQuery.setPasswordError(true);
-                    allLoginMessage=m.toString();
+                    failureMessage=m.toString();
                     return null;
                 }
             }
@@ -475,7 +482,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             String x_as_actk = meta.getByPath("meta.h.x-as-actk",String.class);
 
             Map<String, Object> cookiesMap=new  HashMap<>();
-            cookiesMap.put("countryCode",countryCode);
+            cookiesMap.put("countryCode",countryCodeForLogin);
             cookiesMap.put("x-as-actk", x_as_actk);
             cookiesMap.put("locationBase", MapUtil.getStr(authParas,"locationBase"));
             cookiesMap.put("x_aos_stk", MapUtil.getStr(authParas,"x_aos_stk"));
@@ -483,17 +490,42 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             cookiesMap.put("syntax", MapUtil.getStr(authParas,"syntax"));
             cookiesMap.put("cookies", MapUtil.getStr(authParas,"cookies"));
             authParas.clear();
+            if (scheduleFlag){
+                sessionManager.updateSession(scheduleSessions);
+                scheduleSessions.add(new SessionManager.SessionInfo(countryCodeForLogin,cookiesMap,accountForQuery.getTxtAccount()));
+            }
             return cookiesMap;
         } catch (ServiceException e) {
-//            allLoginMessage=e.getMessage();
-//            accountManager.markLoginAttempt(accountForQuery,false);
-            ThreadUtil.sleep(1000);
+            failureMessage=e.getMessage();
+            accountManager.markLoginFailure(accountForQuery,false);
             throw e;
         } catch (Exception e) {
-//            allLoginMessage=e.getMessage();
-//            accountManager.markLoginAttempt(accountForQuery,false);
-            ThreadUtil.sleep(1000);
+            failureMessage="登录失败，请稍后或更换后ID重试！";
+            accountManager.markLoginFailure(accountForQuery,false);
             throw e;
+        }finally {
+            if (activeTaskCount.get()>0){
+                activeTaskCount.decrementAndGet();
+            }
+            scheduleQueryCardRunningLogin.remove(accountForQuery.getAccountId());
+        }
+    }
+
+    /**
+     * 定时查卡登录
+     */
+    private void scheduleQueryCardLogin(){
+        //随机获取
+        if(AccountManager.getAvailableAccounts().size()==0){
+            scheduleQueryCardLogin();
+            return;
+        }
+        List<AccountManager.AccountForQuery> list = new ArrayList<>(AccountManager.getAvailableAccounts());
+        int randomIndex = ThreadLocalRandom.current().nextInt(list.size());
+        AccountManager.AccountForQuery account=  list.get(randomIndex);
+        if(!scheduleQueryCardRunningLogin.contains(account.getAccountId())){
+            scheduleQueryCardRunningLogin.add(account.getAccountId());
+            ThreadUtil.execAsync(() -> loginAndInit(account,true,scheduleCountryCode));
         }
     }
 
@@ -503,7 +535,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      * @param giftCard
      * @param countryCode
      */
-    protected void checkBalance(GiftCard giftCard,String countryCode) {
+    protected void checkBalance(GiftCard giftCard,String countryCode) throws InterruptedException {
         //开启任务
         if((giftCard.isHasBalance() || giftCard.isRunning()) && giftCard.isScheduledFlag()){
             return;
@@ -516,7 +548,11 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         }
 
         giftCard.setHasFinished(false);
-        if(giftCard.getFailCount()==0){
+        if(giftCard.getFailCount()>=20){
+            giftCard.setDataStatus("0");
+            setAndRefreshNote(giftCard, "查询失败，请稍后重试。");
+            return;
+        }else if(giftCard.getFailCount()==0){
             giftCard.setLogTime(DateUtil.now());
             setAndRefreshNote(giftCard, "正在查询...");
             giftCard.setFailCount(1);
@@ -526,23 +562,31 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             setAndRefreshNote(giftCard, "查询失败，正在进行"+failCount+"次查询...");
         }
 
-        ThreadUtil.sleep(500);
+        ThreadUtil.sleep(200 + (long)(Math.random() * 200));
 
-        if (!giftCard.isScheduledFlag()) {
-            checkBalanceInternal(giftCard, countryCode, null);
-        } else {
-            checkBalanceInternal(giftCard, countryCode, scheduleLoginCookiesMap);
-        }
+        checkBalanceInternal(giftCard, countryCode);
     }
-    private void checkBalanceInternal(GiftCard giftCard, String countryCode, Map<String, Map<String, Object>> cookieMap) {
-        SessionManager.SessionInfo session =  sessionManager.acquireAvailableSession(countryCode);
+    private void checkBalanceInternal(GiftCard giftCard, String countryCode) throws InterruptedException {
+        SessionManager.SessionInfo session;
+        //定时查看
+        if (giftCard.isScheduledFlag()) {
+            session=scheduleSessions.poll();
+            if (session != null) {
+                scheduleSessions.add(session);
+            }else{
+                scheduleQueryCardLogin();
+            }
+        } else {
+            session =  sessionManager.acquireAvailableSession(countryCode);
+        }
         if(null==session){
             setAndRefreshNote(giftCard, "正在登录...");
             giftCard.runningProperty().set(false);
-            ThreadUtil.sleep(1500);
-            checkBalance(giftCard, countryCode);
+            ThreadUtil.sleep(1500 + (long)(Math.random() * 500));
+            checkBalanceInternal(giftCard, countryCode);
             return;
         }
+
         HttpResponse checkBalanceRes = GiftCardUtil.checkBalance(session.getCookies(), giftCard.getGiftCardCode());
         //设置查询次数
         giftCard.setQueryCount(giftCard.getQueryCount()+1);
@@ -550,11 +594,12 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         giftCard.runningProperty().set(false);
         if (checkBalanceRes.getStatus() != 200) {
             if(checkBalanceRes.getStatus() == 541) {
-                sessionManager.removeSession(session.getId());
-            } else {
+                //短时间内调用频繁，更换session重新查询
+                sessionManager.updateSession(session.getId());
+            }else {
                 handleFailCount(giftCard);
             }
-            ThreadUtil.sleep(500);
+            ThreadUtil.sleep(300 + (long)(Math.random() * 500));
             checkBalance(giftCard, countryCode);
             return;
         }
@@ -566,6 +611,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 handleFailCount(giftCard);
                 checkBalance(giftCard, countryCode);
             } else if (!Constant.SUCCESS.equals(status)) {
+                giftCard.setDataStatus("0");
                 throw new ServiceException("余额查询失败，请稍后重试！");
             } else {
                 giftCard.setDataStatus("1");
@@ -577,7 +623,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
     }
 
     private void handleFailCount(GiftCard giftCard) {
-        if (giftCard.getFailCount() > 10) {
+        if (giftCard.getFailCount() > 20) {
             throw new ServiceException("余额查询失败，请稍后重试！");
         } else {
             giftCard.setFailCount(giftCard.getFailCount() + 1);
@@ -642,8 +688,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     @Override
     public void accountHandler(GiftCard giftCard) {
-        String countryCode = countryBox.getSelectionModel().getSelectedItem().get("code");
-        checkBalance(giftCard,countryCode);
+        try {
+            checkBalance(giftCard,countryCode);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }catch (Exception e){
+            throw e;
+        }
     }
 
     @FXML
@@ -664,236 +715,154 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     @Override
     public void closeStageActionBefore() {
+        //关闭查卡登录任务
         shutdownSystem();
-//        executor.shutdown();
-//        //关闭定时任务
-//        scheduledExecutor.shutdown();
-//        service.cancel();
+        //保存查卡session信息
+        CacheDataUtil.saveSessions(sessionManager.getSessions());
+        //关闭定时任务
+        scheduledExecutor.shutdown();
+        scheduledService.cancel();
     }
 
-    public void startScheduler() {
+    public void startScheduler(boolean relogin) {
         if (scheduler != null && !scheduler.isShutdown()) {
-            System.out.println("[调度器] 已在运行中");
             return;
         }
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
         allLoginFailed.set(false);
-        loginPaused.set(false);
 
         scheduleTask = scheduler.scheduleAtFixedRate(() -> {
             try {
-                executeLoginCycleWithQueuePriority();
+                executeLoginCycle();
             } catch (Exception e) {
-                System.err.println("[调度器] 执行异常: " + e.getMessage());
             }
         }, 0, SCHEDULER_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        long sessionSize = sessionManager.getSizeByCountry(countryCode);
+        if(sessionSize==0){
+            updateUI("🔄 ID登录中...", "0","");
+        }else{
+            if(relogin){
+                updateUI("🔄 ID重新登录中...", String.valueOf(sessionSize),"");
+            }else{
+                updateUI("✅ 登录完成", String.valueOf(sessionSize),"2");
+            }
+        }
 
-        Platform.runLater(() -> updateUI("🔄 ID登录中...", "0",""));
     }
 
     /**
      * 支持队列优先级的调度逻辑
      */
-    private void executeLoginCycleWithQueuePriority() {
+    private void executeLoginCycle() {
         try {
-            // 1. 记录详细状态
-            logDetailedSystemStatus();
-
-            // 2. 检查Session状态（关键修复）
-            int sessionsNeeded = MAX_SESSION_COUNT - sessionManager.size();
+            //计算需要的session数量
+            int sessionSize=sessionManager.getSizeByCountry(countryCode);
+            long sessionsNeeded = MAX_SESSION_COUNT - sessionSize;
             if (sessionsNeeded > 0) {
-                sessionCountLabel.setText(String.valueOf(sessionManager.size()));
-                System.out.println("[调度器] 🔄 Session未满，需要创建 " + sessionsNeeded + " 个Session");
+                sessionCountLabel.setText(String.valueOf(sessionSize));
             } else {
-                System.out.println("[调度器] ✅ Session已满，等待中...");
+                sessionCountLabel.setText(String.valueOf(MAX_SESSION_COUNT));
                 return;
             }
-
-            // 3. 检查停止条件（修改为只检查硬性停止条件）
-            if (checkHardStopConditions()) {
-                return;
-            }
-
             // 4. 计算任务数（使用修复后的逻辑）
-            int tasksToSubmit = calculateTasksWithQueuePriority();
+            int tasksToSubmit = calculateTasks();
             if (tasksToSubmit <= 0) {
                 return;
             }
+            if (activeTaskCount.get()>=MAX_SESSION_COUNT ||
+                    (activeTaskCount.get()>=1 && accountManager.getAvailableAccountsCount()<=3)){
+                return;
+            }
+            activeTaskCount.getAndIncrement();
 
             // 5. 提交任务
-            submitTasksWithQueuePriority(tasksToSubmit);
+            submitTasks(tasksToSubmit);
 
         } catch (Exception e) {
-            System.err.println("[调度器] 执行异常: " + e.getMessage());
         }
     }
 
-    /**
-     * 修复：详细系统状态监控
-     */
-    private void logDetailedSystemStatus() {
-        int sessionsNeeded = MAX_SESSION_COUNT - sessionManager.size();
-        int availableAccounts = accountManager.getTotalAvailableAccountsCount();
-        int availablePermits = loginSemaphore.availablePermits();
-        int executingAccounts = accountTracker.getExecutingAccounts().size();
 
-        System.out.println("=== 详细系统状态 ===");
-        System.out.println("Session状态: " + sessionManager.size() + "/" + MAX_SESSION_COUNT +
-                " (需要:" + sessionsNeeded + ")");
-        System.out.println("账号状态: " + accountManager.getAccountStatus());
-        System.out.println("并发状态: 可用许可:" + availablePermits + "/" + MAX_CONCURRENT_LOGIN +
-                ", 执行中账户:" + executingAccounts);
-        System.out.println("控制状态: 暂停=" + loginPaused.get() + ", 全部失败=" + allLoginFailed.get());
-
-        // 关键指标检查
-        if (sessionsNeeded > 0 && availableAccounts > 0 && availablePermits > 0 && executingAccounts == 0) {
-            System.out.println("✅ 条件满足，可以提交任务");
-        } else {
-            System.out.println("⏳ 等待条件满足: " +
-                    (sessionsNeeded > 0 ? "" : "Session满 ") +
-                    (availableAccounts > 0 ? "" : "无账号 ") +
-                    (availablePermits > 0 ? "" : "无许可 ") +
-                    (executingAccounts == 0 ? "" : "有执行中任务"));
-        }
-        System.out.println("===================");
-    }
-
-    /**
-     * 新增：只检查硬性停止条件
-     */
-    private boolean checkHardStopConditions() {
-        // 只有这些条件才真正停止
-        if (loginPaused.get()) {
-            return true;
-        }
-
-        if (allLoginFailed.get()) {
-            return true;
-        }
-
-        if (accountManager.isAllAccountsProcessed() && sessionManager.size() >= MAX_SESSION_COUNT) {
-            return true;
-        }
-
-        return false;
-    }
     /**
      * 检查停止条件
      */
     private boolean shouldStopLoginCycle() {
+        int sessionSize=sessionManager.getSizeByCountry(countryCode);
         // 条件1: Session已满（关键修复）
-        if (sessionManager.size() >= MAX_SESSION_COUNT) {
-            System.out.println("[停止检查] ✅ Session已满 (" + sessionManager.size() + "/" + MAX_SESSION_COUNT + ")，停止登录");
-            handleSessionFull();
+        if (sessionSize >= MAX_SESSION_COUNT) {
+            // 关键修复：不关闭调度器，只记录状态
             return true;
         }
 
-        // 条件2: 登录暂停
-        if (loginPaused.get()) {
-            System.out.println("[停止检查] ⏸ 登录已暂停");
-            return true;
-        }
 
         // 条件3: 所有账号都失败
         if (allLoginFailed.get()) {
-            System.out.println("[停止检查] ❌ 所有账号已失败");
             return true;
         }
 
-        // 条件4: 没有可用账号（关键修复：Session未满时继续等待）
-        if (!accountManager.hasAvailableAccounts()) {
+        // 条件4: 没有可用账号
+        if (accountManager.getAvailableAccountsCount()==0 ) {
             // Session未满但无账号，检查是否所有账号都处理完成
-            if (accountManager.isAllAccountsProcessed()) {
-                System.out.println("[停止检查] ✅ 所有账号处理完成，Session:" + sessionManager.size() + "/" + MAX_SESSION_COUNT);
+            if (accountManager.getProcessingAccounts().size()==0) {
                 handleFinalStatus();
                 return true;
             }
-            System.out.println("[停止检查] ⏳ 无可用账号，但Session未满，等待中...");
             return false; // 关键修复：返回false，允许继续检查
         }
 
         return false;
     }
     /**
-     * 修复：Session满的处理（不停止调度器，只停止提交任务）
-     */
-    private void handleSessionFull() {
-        // 不停止调度器，只是不提交新任务
-        Platform.runLater(() -> {
-            updateUI("✅ Session池已满 (" + sessionManager.size() + "/" + MAX_SESSION_COUNT + ")",
-                    String.valueOf(sessionManager.size()),"");
-        });
-
-        // 关键修复：不关闭调度器，只记录状态
-        System.out.println("[Session管理] ✅ Session池已满，停止提交新任务");
-    }
-
-    /**
      * 修复：最终状态处理
      */
     private void handleFinalStatus() {
-        if (activeLoginCount.get() > 0) {
-            System.out.println("[最终处理] ⏳ 等待剩余任务完成: " + activeLoginCount.get());
-            return;
-        }
-
-        if (sessionManager.size() == 0) {
+        setLoginBtnStatus(false);
+        long sessionSize = sessionManager.getSizeByCountry(countryCode);
+        if (sessionSize == 0 && AccountManager.getAvailableAccountsCount()==0) {
             // 所有账号都失败
             allLoginFailed.set(true);
-            Platform.runLater(() -> updateUI("❌ 所有账号登录失败", "0","1"));
-            System.out.println("[最终结果] ❌ 所有账号登录失败");
+//            updateUI("❌ 所有账号登录失败", "0","1");
+            updateUI(failureMessage, "0","1");
             shutdownScheduler();
-        } else if (sessionManager.size() < MAX_SESSION_COUNT) {
+        } else if (sessionSize < MAX_SESSION_COUNT) {
             // 关键修复：部分成功但Session未满，继续等待
-            System.out.println("[最终结果] ⚠️ 部分成功，Session:" + sessionManager.size() + "/" + MAX_SESSION_COUNT + "，等待更多账号");
             // 不关闭调度器，继续等待
         } else {
             // Session已满
-            Platform.runLater(() -> updateUI("✅ 登录完成", String.valueOf(sessionManager.size()),"2"));
-            System.out.println("[最终结果] ✅ 登录完成，成功Session: " + sessionManager.size());
+            updateUI("✅ 登录完成", String.valueOf(sessionSize),"2");
             shutdownScheduler();
         }
     }
-
     /**
      * 基于队列优先级的任务计算
      */
-    private int calculateTasksWithQueuePriority() {
+    private int calculateTasks() {
         // 1. 检查Session需求
-        int sessionsNeeded = MAX_SESSION_COUNT - sessionManager.size();
+        int sessionsNeeded = MAX_SESSION_COUNT - sessionManager.getSizeByCountry(countryCode);
         if (sessionsNeeded <= 0) {
-            System.out.println("[任务计算] ✅ Session已满，无需提交任务");
             return 0;
         }
 
         // 2. 检查可用账号
-        if (!accountManager.hasAvailableAccounts()) {
-            System.out.println("[任务计算] ⏳ 无可用账号，等待中...");
+        if (accountManager.getAvailableAccountsCount()==0) {
             return 0;
         }
 
         // 3. 检查执行中的账户
-        if (!accountTracker.getExecutingAccounts().isEmpty()) {
-            System.out.println("[任务计算] ⏳ 有账户正在执行，等待完成");
+        if (activeLoginCount.get()>=MAX_CONCURRENT_LOGIN) {
             return 0;
         }
 
         // 4. 检查许可可用性
         int availablePermits = loginSemaphore.availablePermits();
         if (availablePermits <= 0) {
-            System.out.println("[任务计算] ⏳ 无可用许可，等待释放");
             return 0;
         }
 
         // 5. 核心修复：正确的并发计算
-        int totalAvailableAccounts = accountManager.getTotalAvailableAccountsCount();
-        int calculatedTasks = calculateOptimalConcurrency(totalAvailableAccounts, sessionsNeeded);
+        int calculatedTasks = calculateOptimalConcurrency(AccountManager.getAvailableAccountsCount(), sessionsNeeded);
 
-        System.out.println(String.format(
-                "[任务计算] ✅ 需要Session:%d, 可用账号:%d, 可用许可:%d, 计算任务数:%d",
-                sessionsNeeded, totalAvailableAccounts, availablePermits, calculatedTasks
-        ));
 
         return calculatedTasks;
     }
@@ -902,7 +871,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
      */
     private int calculateOptimalConcurrency(int availableAccounts, int sessionsNeeded) {
         // 规则1：账户少于3个时，只允许1个并发
-        if (availableAccounts < 3) {
+        if (availableAccounts <= 3) {
             return Math.min(1, sessionsNeeded);
         }
 
@@ -921,120 +890,92 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         int result = Math.min(byAccountCount, bySessionNeed);
         result = Math.min(result, loginSemaphore.availablePermits());
 
-        return Math.max(1, result); // 至少返回1个任务
+        if (accountManager.getProcessingAccounts().size()>=sessionsNeeded) {
+            result=0;
+        }else{
+            result=sessionsNeeded-accountManager.getProcessingAccounts().size();
+        }
+
+
+        return Math.max(0, result);
     }
     /**
      * 基于队列优先级的任务提交
      */
-    private void submitTasksWithQueuePriority(int maxTasks) {
-        int submitted = 0;
+    private void submitTasks(int maxTasks) {
 
         for (int i = 0; i < maxTasks; i++) {
             // 实时检查Session状态
-            if (sessionManager.size() >= MAX_SESSION_COUNT) {
-                System.out.println("[任务提交] ✅ Session已满，停止提交");
+            if (sessionManager.getSizeByCountry(countryCode) >= MAX_SESSION_COUNT) {
+                activeTaskCount.decrementAndGet();
                 break;
             }
 
             // 尝试获取许可
             if (!loginSemaphore.tryAcquire()) {
-                System.out.println("[任务提交] ⏳ 许可不足，停止提交");
+                activeTaskCount.decrementAndGet();
                 break;
             }
-
             try {
-                AccountManager.AccountForQuery account = accountManager.getNextAccountWithPriority();
+                AccountManager.AccountForQuery account = accountManager.getNextAccount();
                 if (account == null) {
                     loginSemaphore.release();
-                    System.out.println("[任务提交] ⏳ 无可用账号，停止提交");
+                    activeTaskCount.decrementAndGet();
                     break;
                 }
 
                 // 检查账户执行状态
-                if (!accountTracker.canExecuteAccount(account.getAccountId())) {
+                if (accountManager.getProcessingAccounts().contains(account.getAccountId())) {
                     loginSemaphore.release();
-                    accountManager.returnAccountToAppropriateQueue(account);
-                    System.out.println("[任务提交] ⏳ 账户正在执行，放回队列: " + account.getAccountId());
                     continue;
                 }
 
                 // 提交任务
-                if (submitSingleLoginTaskWithTracking(account)) {
-                    submitted++;
-                    System.out.println("[任务提交] ✅ 成功提交任务: " + account.getAccountId());
-                } else {
-                    loginSemaphore.release();
-                }
+                submitLoginTask(account);
 
             } catch (Exception e) {
                 loginSemaphore.release();
-                System.err.println("[任务提交] 异常: " + e.getMessage());
                 break;
             }
         }
 
-        if (submitted > 0) {
-            System.out.println(String.format(
-                    "[任务提交] ✅ 成功提交 %d/%d 个任务 (Session:%d/%d)",
-                    submitted, maxTasks, sessionManager.size(), MAX_SESSION_COUNT
-            ));
-        }
     }
 
     /**
-     * 提交单个登录任务（带执行跟踪）
+     * 提交单个登录任务
      */
-    private boolean submitSingleLoginTaskWithTracking(AccountManager.AccountForQuery account) {
-        if (!accountTracker.markAccountExecuting(account.getAccountId())) {
-            return false;
-        }
-
+    private boolean submitLoginTask(AccountManager.AccountForQuery account) {
+        AccountManager.getProcessingAccounts().add(account.getAccountId());
         activeLoginCount.incrementAndGet();
-
         Future<?> future = loginExecutor.submit(() -> {
             boolean loginSuccess = false;
             boolean isPasswordError = false;
-
             try {
                 SessionManager.SessionInfo session = performLogin(account);
-
                 if (session != null) {
-                    handleSuccessfulLogin(account, session);
+                    sessionManager.add(session);
+                    accountManager.markLoginSuccess(account);
+                    updateUI("✅ 登录成功", String.valueOf(sessionManager.getSizeByCountry(countryCode)),"2");
                     loginSuccess = true;
+                    setLoginBtnStatus(false);
                 } else {
                     isPasswordError = account.isPasswordError();
                 }
-
             } catch (Exception e) {
-                System.err.println("[任务执行] 异常: " + e.getMessage());
+
             } finally {
-                handleTaskCompletionWithTracking(account, loginSuccess, isPasswordError);
+                handleTaskCompletion(account, loginSuccess, isPasswordError);
             }
         });
 
-        runningTasks.add(future);
+        loginRunningTasks.add(future);
         return true;
-    }
-
-    /**
-     * 处理登录成功
-     */
-    private void handleSuccessfulLogin(AccountManager.AccountForQuery account, SessionManager.SessionInfo session) {
-        if (!canAccountCreateMoreSessions(account.getAccountId())) {
-            return;
-        }
-
-        sessionManager.add(session);
-        incrementAccountSessionCount(account.getAccountId());
-        accountManager.markLoginSuccess(account);
-
-        Platform.runLater(() -> updateUI("✅ 登录成功", String.valueOf(sessionManager.size()),"2"));
     }
 
     /**
      * 处理任务完成
      */
-    private void handleTaskCompletionWithTracking(AccountManager.AccountForQuery account, boolean success, boolean isPasswordError) {
+    private void handleTaskCompletion(AccountManager.AccountForQuery account, boolean success, boolean isPasswordError) {
         try {
             if (success) {
                 accountManager.markLoginSuccess(account);
@@ -1042,77 +983,35 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 accountManager.markLoginFailure(account, isPasswordError);
             }
         } finally {
-            accountTracker.markAccountCompleted(account.getAccountId());
-            activeLoginCount.decrementAndGet();
-            loginSemaphore.release();
-            runningTasks.remove(Thread.currentThread());
-
-            System.out.println(String.format(
-                    "[任务完成] 账号:%s, 结果:%s, Session:%d/%d, 活动任务:%d",
-                    account.getAccountId(), success ? "成功" : "失败",
-                    sessionManager.size(), MAX_SESSION_COUNT, activeLoginCount.get()
-            ));
-
-            checkAndSubmitNextTask();
-        }
-    }
-
-    /**
-     * 检查并提交下一个任务
-     */
-    private void checkAndSubmitNextTask() {
-        scheduler.schedule(() -> {
-            if (activeLoginCount.get() == 0 && !shouldStopLoginCycle()) {
-                executeLoginCycleWithQueuePriority();
+            if (activeLoginCount.get()>0){
+                activeLoginCount.decrementAndGet();
             }
-        }, 100, TimeUnit.MILLISECONDS);
-    }
-
-    // =================== 账号Session限制控制 ===================
-
-    /**
-     * 检查账号是否可以继续创建Session
-     */
-    private boolean canAccountCreateMoreSessions(String accountId) {
-        AtomicInteger count = accountSessionCount.get(accountId);
-        if (count == null) {
-            count = new AtomicInteger(0);
-            accountSessionCount.put(accountId, count);
+            loginSemaphore.release();
+            loginRunningTasks.remove(Thread.currentThread());
+            accountManager.getProcessingAccounts().remove(account.getAccountId());
+            //检查并提交下一个任务
+            scheduler.schedule(() -> {
+                if (activeLoginCount.get() == 0 && !shouldStopLoginCycle()) {
+                    executeLoginCycle();
+                }
+            }, 100, TimeUnit.MILLISECONDS);
         }
-        return count.get() < MAX_SESSION_PER_ACCOUNT;
     }
-
-    /**
-     * 增加账号的Session计数
-     */
-    private void incrementAccountSessionCount(String accountId) {
-        AtomicInteger count = accountSessionCount.get(accountId);
-        if (count == null) {
-            count = new AtomicInteger(0);
-            accountSessionCount.put(accountId, count);
-        }
-        int newCount = count.incrementAndGet();
-        System.out.println("[账号统计] 账号:" + accountId + " 已创建 " + newCount + "/" + MAX_SESSION_PER_ACCOUNT + " 个Session");
-    }
-
-    // =================== 业务方法实现 ===================
 
     /**
      * 执行登录逻辑
      */
     private SessionManager.SessionInfo performLogin(AccountManager.AccountForQuery account) {
         try {
-            System.out.println("[登录执行] 开始登录: " + account.getAccountId());
-            Map<String, Object> cookies = loginAndInit(account);
+            Map<String, Object> cookies = loginAndInit(account,false,"");
             if(null!= cookies) {
-                return new SessionManager.SessionInfo(MapUtil.getStr(cookies,"countryCode"), cookies);
+                return new SessionManager.SessionInfo(MapUtil.getStr(cookies,"countryCode"), cookies,account.getTxtAccount());
             }
             return null;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return null;
         } catch (Exception e) {
-            System.err.println("[登录执行] 异常: " + e.getMessage());
             return null;
         }
     }
@@ -1120,24 +1019,20 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     // =================== 控制方法 ===================
 
-
     /**
      * 中断所有任务
      */
     public void interruptAllTasks() {
-        System.out.println("[控制] ⚡ 中断所有任务");
-
-        for (Future<?> task : runningTasks) {
+        for (Future<?> task : loginRunningTasks) {
             if (!task.isDone()) {
                 task.cancel(true);
             }
         }
-
-        accountTracker.clear();
         activeLoginCount.set(0);
+        AccountManager.clearProcessingAccounts();
         loginSemaphore.drainPermits();
         loginSemaphore.release(MAX_CONCURRENT_LOGIN);
-        runningTasks.clear();
+        loginRunningTasks.clear();
     }
 
     /**
@@ -1150,7 +1045,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (scheduler != null) {
             scheduler.shutdown();
         }
-        System.out.println("[调度器] 🛑 已关闭");
     }
 
     /**
@@ -1162,88 +1056,75 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (loginExecutor != null) {
             loginExecutor.shutdown();
         }
-        System.out.println("[系统] 🛑 完全关闭");
     }
 
     // =================== UI更新方法 ===================
     private void updateUI(String processMessage,String sessionCount,String colorCode) {
-        Platform.runLater(() -> {
-            processMessageLabel.setText(processMessage);
-            processMessageLabel.setStyle("-fx-font-weight: bold;");
-            if("1".equals(colorCode)) {
-                processMessageLabel.setTextFill(Paint.valueOf("red"));
-            }else if("2".equals(colorCode)) {
-                processMessageLabel.setTextFill(Paint.valueOf("#238142"));
-            }else {
-                processMessageLabel.setTextFill(Paint.valueOf("#238142"));
-            }
-
-
-
-            sessionCountLabel.setText(sessionCount);
-        });
+        if (Platform.isFxApplicationThread()) {
+            setLabelText(colorCode,sessionCount,processMessage);
+        }else{
+            Platform.runLater(() -> {
+                setLabelText(colorCode,sessionCount,processMessage);
+            });
+        }
     }
-    // =================== 状态监控方法 ===================
+
+    private void setLabelText(String colorCode,String sessionCount,String processMessage){
+        processMessageLabel.setText(processMessage);
+        processMessageLabel.setStyle("-fx-font-weight: bold;");
+        if("1".equals(colorCode)) {
+            processMessageLabel.setTextFill(Paint.valueOf("red"));
+        }else if("2".equals(colorCode)) {
+            processMessageLabel.setTextFill(Paint.valueOf("#238142"));
+        }else {
+            processMessageLabel.setTextFill(Paint.valueOf("#238142"));
+        }
+        sessionCountLabel.setText(sessionCount);
+    }
+
 
     /**
-     * 记录队列统计
+     * 设置登录按钮状态
+     * @param isLogin
      */
-    private void logQueueStatistics() {
-        System.out.println("=== 队列统计 ===");
-        System.out.println(accountManager.getAccountQueueInfo());
-        System.out.println("Session状态: " + sessionManager.size() + "/" + MAX_SESSION_COUNT);
-        System.out.println("活动任务: " + activeLoginCount.get());
-        System.out.println("执行中账户: " + accountTracker.getExecutingAccounts());
-        System.out.println("=================");
+    private void setLoginBtnStatus(boolean isLogin) {
+        hasLoginRunning=isLogin;
+        if (Platform.isFxApplicationThread()) {
+            loginBtn.setDisable(hasLoginRunning);
+        }else{
+            Platform.runLater(() -> {
+                loginBtn.setDisable(hasLoginRunning);
+            });
+        }
     }
 
-    /**
-     * 获取详细系统状态
-     */
-    public String getDetailedSystemStatus() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== 系统详细状态 ===\n");
-        sb.append(accountManager.getAccountStatus()).append("\n");
-        sb.append("Session状态: ").append(sessionManager.size()).append("/").append(MAX_SESSION_COUNT).append("\n");
-        sb.append("活动任务: ").append(activeLoginCount.get()).append("\n");
-        sb.append("执行中账户: ").append(accountTracker.getExecutingAccounts()).append("\n");
-        sb.append("可用许可: ").append(loginSemaphore.availablePermits()).append("/").append(MAX_CONCURRENT_LOGIN).append("\n");
-        sb.append("控制状态: 暂停=").append(loginPaused.get()).append(", 全部失败=").append(allLoginFailed.get()).append("\n");
-        sb.append("====================");
-        return sb.toString();
-    }
-
-    /**
-     * 打印详细状态
-     */
-    public void printDetailedStatus() {
-        System.out.println(getDetailedSystemStatus());
-    }
-
-
-
-
-
-
-
-    private void parseTxtGiftCardLoadAccount(String txtGiftCardLoadAccount){
-        if(StrUtil.isNotEmpty(txtGiftCardLoadAccount.trim())){
-            String[] accList = txtGiftCardLoadAccount.split("\n");
+    private void parseTxtGiftCardLoadAccount(String txtGiftCardLoadAccountStr){
+        if(StrUtil.isNotEmpty(txtGiftCardLoadAccountStr.trim())){
+            String[] accList = txtGiftCardLoadAccountStr.split("\n");
             for(int i=0;i<accList.length;i++){
-                accountsForQuery.add(new AccountManager.AccountForQuery(accList[i]));
+                String[] its = AccountImportUtil.parseAccountAndPwd(accList[i]);
+                if (its.length >= 2) {
+                    accountsForQueryQueue.offer(new AccountManager.AccountForQuery(its[0],its[1]));
+                }
             }
-            if (accountsForQuery.size() ==1){
-                txtGiftCardLoadAccount=accountsForQuery.peek().getTxtAccountAndPassword();
-                txtGiftCardLoadAccountTextField.setText(txtGiftCardLoadAccount);
+            if (accountsForQueryQueue.size() ==1){
+                AccountManager.AccountForQuery accountsForQuery=accountsForQueryQueue.peek();
+                txtGiftCardLoadAccountTextField.setText(accountsForQuery.getTxtAccount()+"----"+accountsForQuery.getTxtPassword());
             }else {
-                txtGiftCardLoadAccountTextField.setText("导入的登录ID数量："+accountsForQuery.size());
+                txtGiftCardLoadAccountTextField.setText("导入的登录ID数量："+accountsForQueryQueue.size());
                 txtGiftCardLoadAccountTextField.setDisable(true);
                 loginBtn.setDisable(true);
             }
-            AccountManager.addAccountForQuery(accountsForQuery);
-            if(accountsForQuery.size()>0){
-                startScheduler();
+            AccountManager.addAccountForQueryQueue(accountsForQueryQueue);
+            if(accountsForQueryQueue.size()>0){
+                startScheduler(false);
             }
+        }else{
+            AccountManager.addAccountForQueryQueue(accountsForQueryQueue);
+            txtGiftCardLoadAccountTextField.setText("");
+            txtGiftCardLoadAccountTextField.setDisable(false);
+            loginBtn.setDisable(false);
+            AccountManager.addAccountForQueryQueue(new ConcurrentLinkedQueue());
         }
     }
 
@@ -1271,7 +1152,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         button.setOnAction(event -> {
             txtGiftCardLoadAccountTextField.setDisable(false);
             loginBtn.setDisable(false);
-            accountsForQuery.clear();
+            accountsForQueryQueue.clear();
             String txtGiftCardLoadAccount=area.getText();
             parseTxtGiftCardLoadAccount(txtGiftCardLoadAccount);
             PropertiesUtil.setOtherConfig("txtGiftCardLoadAccount",CrossPlatformAesUtil.encryptWithCompression(txtGiftCardLoadAccount));
@@ -1334,17 +1215,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
         }
         // 监听note变化,刷新table
+        // 简化列表监听器
         scheduleAccountList.addListener((ListChangeListener<GiftCard>) change -> {
+            // 只需要处理添加/移除，不需要监听单个属性变化
             while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(giftCard -> {
-                        giftCard.noteProperty().addListener((obs, oldVal, newVal) -> {
-                            int index = scheduleAccountList.indexOf(giftCard);
-                            if (index >= 0) {
-                                // 重新set一遍，局部刷新
-                                scheduleTableView.getItems().set(index, giftCard);
-                            }
-                        });
+                if (change.wasAdded() || change.wasRemoved()) {
+                    Platform.runLater(() -> {
+                        scheduleTableView.refresh();
                     });
                 }
             }
@@ -1384,14 +1261,14 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
 
     @FXML
     private void startStopExecute(){
-        if (running) {
+        if (scheduledRunning) {
             scheduledProcessMessage.setText("未开始");
             scheduledProcessMessage.setTextFill(Paint.valueOf("#238142"));
             startStopButton.setText("开始计时");
             startStopButton.setTextFill(Paint.valueOf("#0F8DE2"));
             intervalField.setDisable(false);
             //关闭定时任务
-            service.cancel();
+            scheduledService.cancel();
             scheduledExecutor.shutdown();
             //所有数据置为已完成
             handleFinishAllData(scheduleTableView);
@@ -1403,13 +1280,13 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
             intervalField.setDisable(true);
             startStopButton.setText("停止");
-            service.setCountdownSeconds(Integer.valueOf(intervalFieldText)*60);
-            service.restart();
+            scheduledService.setCountdownSeconds(Integer.valueOf(intervalFieldText)*60);
+            scheduledService.restart();
         }
-        running=!running;
+        scheduledRunning=!scheduledRunning;
     }
     @FXML
-    private void handleExecute() {
+    private void handleScheduledExecute() {
         if (CollUtil.isEmpty(scheduleAccountList)) {
             alert("请先导入定时查询的礼品卡", Alert.AlertType.ERROR);
             return;
@@ -1422,7 +1299,11 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                 continue;
             }
             scheduledExecutor.submit(()->{
-                checkBalance(giftCard,countryBox.getSelectionModel().getSelectedItem().get("code"));
+                try {
+                    checkBalance(giftCard,scheduleCountryCode);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 if (giftCard.isHasBalance() && balanceAlertCheckBox.isSelected()){
                     // 播放提示音
                     SoundUtil.playSound();
@@ -1458,8 +1339,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (null == c.getData() || "".equals(c.getData())) {
             return;
         }
-
-        String[] accountPwdArray = AccountImportUtil.parseAccountAndPwd(txtGiftCardLoadAccountTextField.getText());
         String[] lineArray = c.getData().split("\n");
         for (String item : lineArray) {
             if (StrUtil.isEmpty(item)) {
@@ -1467,8 +1346,6 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
             }
             GiftCard giftCard = new GiftCard();
             giftCard.setSeq(scheduleAccountList.size() + 1);
-            giftCard.setPwd(accountPwdArray[1]);
-            giftCard.setAccount(accountPwdArray[0]);
             giftCard.setGiftCardCode(StringUtils.deleteWhitespace(item));
             giftCard.scheduledFlagProperty().set(true);
             scheduleAccountList.add(giftCard);
@@ -1544,7 +1421,7 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
                         if (currentTime <= 0) {
                             Platform.runLater(() -> {
                                 try {
-                                    handleExecute();
+                                    handleScheduledExecute();
                                 } finally {
                                     // 任务执行完成后，准备下一轮
                                     timeLeft.set(countdownSeconds);

@@ -11,7 +11,7 @@ import com.sgswit.fx.controller.exception.TwoFactorAuthenticationException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.log.LoggerManger;

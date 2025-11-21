@@ -20,7 +20,7 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.LoginInfo;
 import com.sgswit.fx.model.Question;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.OcrUtil;
 import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.log.LoggerManger;

@@ -10,7 +10,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.setting.Setting;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.LoginUtil;
 import com.sgswit.fx.utils.PropertiesUtil;

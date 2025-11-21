@@ -15,7 +15,7 @@ import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.constant.StoreFontsUtils;
 import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;

@@ -6,6 +6,7 @@ import com.sgswit.fx.controller.UpgraderController;
 import com.sgswit.fx.controller.common.CommonView;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.db.SQLiteUtil;
 import com.sgswit.fx.utils.log.LoggerManger;
 import com.sgswit.fx.utils.stage.StageUtil;

@@ -1,4 +1,4 @@
-package com.sgswit.fx.utils;
+package com.sgswit.fx.utils.cache;
 
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.thread.ThreadUtil;
@@ -12,6 +12,10 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.iTunes.bo.FieldModel;
 import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.model.BaseAreaInfo;
+import com.sgswit.fx.utils.AppleBatchUtil;
+import com.sgswit.fx.utils.HttpUtils;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.machineInfo.MachineInfoBuilder;
 import com.sgswit.fx.utils.web.WebParasUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -95,9 +99,9 @@ public class DataUtil {
         getCountry();
         List<BaseAreaInfo> list = new ArrayList<>();
         if (countryCode.length() == 3) {
-            list = baseAreaInfoList.stream().filter(n -> n.getCode().equals(countryCode)).collect(Collectors.toList());
+            list = baseAreaInfoList.stream().filter(n -> n.getCode().equalsIgnoreCase(countryCode)).collect(Collectors.toList());
         } else if (countryCode.length() == 2) {
-            list = baseAreaInfoList.stream().filter(n -> n.getCode2().equals(countryCode)).collect(Collectors.toList());
+            list = baseAreaInfoList.stream().filter(n -> n.getCode2().equalsIgnoreCase(countryCode)).collect(Collectors.toList());
         }
         return (list.size() == 0) ? null : list.get(0);
     }

@@ -13,7 +13,7 @@ import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.operation.viewData.SecurityUpgradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;

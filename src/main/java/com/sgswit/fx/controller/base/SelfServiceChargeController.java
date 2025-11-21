@@ -6,7 +6,7 @@ import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
 import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CommonView;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.HttpUtils;
 import com.sgswit.fx.utils.PointUtil;
 import javafx.event.ActionEvent;

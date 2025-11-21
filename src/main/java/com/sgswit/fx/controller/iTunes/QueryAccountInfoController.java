@@ -9,7 +9,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.ConsumptionBill;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PListUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.icloud.ICloudUtil;

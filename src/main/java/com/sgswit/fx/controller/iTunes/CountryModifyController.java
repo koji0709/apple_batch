@@ -12,7 +12,7 @@ import com.sgswit.fx.controller.iTunes.bo.UserNationalModel;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.BaseAreaInfo;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.itunes.ITunesUtil;
 import com.sgswit.fx.utils.log.LoggerManger;

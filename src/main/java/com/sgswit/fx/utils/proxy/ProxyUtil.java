@@ -15,7 +15,7 @@ import com.sgswit.fx.controller.exception.ResponseTimeoutException;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.controller.exception.UnavailableException;
 import com.sgswit.fx.enums.ProxyEnum;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.PropertiesUtil;
 import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.log.LoggerManger;

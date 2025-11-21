@@ -230,14 +230,19 @@ public class AppleFdGenerator {
         return "" + JS_ENC_TABLE.charAt(ai) + JS_ENC_TABLE.charAt(b) + JS_ENC_TABLE.charAt(c);
     }
 
-   public  static String getFdClientInfo(){
+
+    // ===========================
+    // ====== 工具/示例 main ======
+    // ===========================
+    public static void main(String[] args) throws Exception {
+        // 示例：如果你在浏览器端采集到了 canvas/webgl 指纹（推荐用 Puppeteer/Playwright 获取）
         String ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0";
         String lang = "zh-CN";
         String tz = "GMT+08:00";
 
         // 示例 canvas/webgl 值（这些必须来自真实浏览器以保证一致）
-        String canvasHash = "e86e0780780fca8bace38d5092a8fa5354b0680e8f9e2f4052ced74c560a388e";   // 请替换为真实 canvas hash
-        String webglHash = "48oz06";         // 请替换为真实 webgl hash
+        String canvasHash = "canvas:abcd1234ef56";   // 请替换为真实 canvas hash
+        String webglHash = "webgl:xyz9876";         // 请替换为真实 webgl hash
 
         Map<String, String> extras = new HashMap<>();
         extras.put("navigator_platform", "Win32");
@@ -247,15 +252,11 @@ public class AppleFdGenerator {
 
         // 输出：把 F 放入 JSON 的 F 字段即可
         String clientInfoJson = "{\"U\":\"" + ua.replace("\"","\\\"") + "\","
-           + "\"L\":\"" + lang + "\","
-           + "\"Z\":\"" + tz + "\","
-           + "\"V\":\"1.1\","
-           + "\"F\":\"" + f + "\"}";
-        return clientInfoJson;
-   }
+                + "\"L\":\"" + lang + "\","
+                + "\"Z\":\"" + tz + "\","
+                + "\"V\":\"1.1\","
+                + "\"F\":\"" + f + "\"}";
 
-    public static void main(String[] args) {
-        System.out.println(getFdClientInfo());
+        System.out.println("X-Apple-I-FD-Client-Info: " + clientInfoJson);
     }
-
 }

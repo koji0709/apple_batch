@@ -278,7 +278,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode", ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
         headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
-        headers.put("X-Apple-Locale", ListUtil.toList("en_US"));
+        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("X-Requested-With", ListUtil.toList("XMLHttpRequest"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
@@ -327,7 +327,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode", ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
         headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
-        headers.put("X-Apple-Locale", ListUtil.toList("en_US"));
+        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("X-Requested-With", ListUtil.toList("XMLHttpRequest"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
@@ -378,7 +378,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode", ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
         headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
-        headers.put("X-Apple-Locale", ListUtil.toList("en_US"));
+        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("X-Requested-With", ListUtil.toList("XMLHttpRequest"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
@@ -431,7 +431,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode", ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
         headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
-        headers.put("X-Apple-Locale", ListUtil.toList("en_US"));
+        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("X-Requested-With", ListUtil.toList("XMLHttpRequest"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
@@ -485,7 +485,7 @@ public class GiftCardUtil {
         headers.put("X-Apple-OAuth-Response-Mode", ListUtil.toList("web_message"));
         headers.put("X-Apple-OAuth-Client-Type", ListUtil.toList("firstPartyAuth"));
         headers.put("X-Apple-Domain-Id", ListUtil.toList("39"));
-        headers.put("X-Apple-Locale", ListUtil.toList("en_US"));
+        headers.put("X-Apple-Locale", ListUtil.toList("CN-ZH"));
         headers.put("X-Requested-With", ListUtil.toList("XMLHttpRequest"));
         headers.put("Origin", ListUtil.toList("https://idmsa.apple.com"));
         headers.put("Sec-Fetch-Dest", ListUtil.toList("empty"));
@@ -605,9 +605,11 @@ public class GiftCardUtil {
      * https://secure7.store.apple.com/shop/giftcard/balancex?_a=checkBalance&_m=giftCardBalanceCheck
      * @return
      */
-    public static HttpResponse checkBalance( Map<String, Object> cookiesMap,String giftCardPin){
+    public static HttpResponse checkBalance( Map<String, Object> cookiesMap,String giftCardPin) throws InterruptedException {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new InterruptedException("登录被中断");
+        }
         HashMap<String, List<String>> headers = new HashMap<>();
-
         headers.put("Accept", ListUtil.toList("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"));
         headers.put("Accept-Encoding",ListUtil.toList("gzip, deflate, br"));
         headers.put("accept-language",ListUtil.toList("zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"));
