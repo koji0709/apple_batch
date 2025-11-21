@@ -1,7 +1,7 @@
 package com.sgswit.fx.utils;
 
 import com.dd.plist.Base64;
-import top.gcszhn.d4ocr.OCREngine;
+import com.mmg.ddddocr4j.OCREngine;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
