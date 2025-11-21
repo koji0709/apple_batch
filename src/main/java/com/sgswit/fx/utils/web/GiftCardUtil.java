@@ -51,7 +51,7 @@ public class GiftCardUtil {
             url="https://secure.store.apple.com/"+countryCode.toLowerCase()+"/shop/giftcard/balance";
         }
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(url)
-                .header(headers));
+                        .header(headers));
         return res;
     }
     /**
@@ -77,8 +77,8 @@ public class GiftCardUtil {
         headers.put("Sec-Fetch-User", ListUtil.toList("?1"));
         headers.put("Priority", ListUtil.toList("u=0, i"));
         HttpResponse res = ProxyUtil.execute(HttpUtil.createGet(initBalanceResponse.header("Location"))
-                .header(headers)
-                .cookie(CookieUtils.getCookiesFromHeader(initBalanceResponse)));
+                        .header(headers)
+                        .cookie(CookieUtils.getCookiesFromHeader(initBalanceResponse)));
         return res;
     }
 
@@ -172,8 +172,8 @@ public class GiftCardUtil {
                 +";as_sfa="+MapUtil.getStr(paras,"as_sfa")
                 +";as_pcts="+MapUtil.getStr(paras,"as_pcts_cookies");
         HttpResponse signFrameResponse = ProxyUtil.execute(HttpUtil.createGet(url)
-                .cookie(cookiesStr)
-                .header(headers));
+                        .cookie(cookiesStr)
+                        .header(headers));
 
         paras.put("as_sfa",MapUtil.getStr(paras,"as_sfa"));
         paras.put("frameId",frameId);
@@ -391,9 +391,9 @@ public class GiftCardUtil {
         cookiesMap.put("shld_bt_ck", MapUtil.getStr(paras,"shld_bt_ck"));
         String cookiesStr = MapUtil.getStr(paras,"cookiesStr")+";"+MapUtil.join(cookiesMap,";","=",true);;
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/federate?isRememberMeEnabled=true")
-                .header(headers)
-                .cookie(cookiesStr)
-                .body(body));
+                        .header(headers)
+                        .cookie(cookiesStr)
+                        .body(body));
         paras.put("cookiesStr",cookiesStr);
         return res;
     }
@@ -440,9 +440,9 @@ public class GiftCardUtil {
         String cookiesStr= MapUtil.getStr(paras,"cookiesStr")+";as_pcts="+MapUtil.getStr(paras,"as_pcts_cookies");
         String body = "{\"a\":\""+a+"\",\"accountName\":\""+account+"\",\"protocols\":[\"s2k\",\"s2k_fo\"]}";
         HttpResponse res = ProxyUtil.execute(HttpUtil.createPost("https://idmsa.apple.com/appleauth/auth/signin/init")
-                .header(headers)
-                .cookie(cookiesStr)
-                .body(body));
+                        .header(headers)
+                        .cookie(cookiesStr)
+                        .body(body));
         return res;
     }
     /**
@@ -568,9 +568,9 @@ public class GiftCardUtil {
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("grantCode","");
         HttpResponse response = ProxyUtil.execute(HttpUtil.createPost(MapUtil.getStr(paras,"callbackSignInUrl"))
-                .header(headers)
-                .form(paramMap)
-                .cookie(cookies));
+                        .header(headers)
+                        .form(paramMap)
+                        .cookie(cookies));
         CookieUtils.setCookiesToMap(response,cookiesMap);
         cookiesMap.remove("myacinfo");
         paras.put("cookies",MapUtil.join(cookiesMap,";","=",true));

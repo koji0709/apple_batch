@@ -174,7 +174,7 @@ public class SecurityUpgradeController extends SecurityUpgradeView {
                 }
                 if(!StrUtil.isEmpty(smsCode)){
                     account.getAuthData().put("verifyCode", smsCode);
-                    setAndRefreshNote(account, "已成功解析验证码，正在绑定...");
+                    setAndRefreshNote(account, "已成功接收验证码，正在绑定。");
                     accountHandler(account);
                 }else{
                     setAndRefreshNote(account, "开通双重认证失败：验证码解析失败。");
