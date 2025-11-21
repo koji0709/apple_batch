@@ -371,6 +371,9 @@ public class GiftCardBalanceCheckController extends CustomTableView<GiftCard> {
         if (!executeButtonActionBefore()) {
 
         }else{
+            if (accountManager.getAvailableAccounts().size()==0 ){
+                accountManager.addAccountForQueryQueue(accountsForQueryQueue);
+            }
             ThreadUtil.execAsync(() -> {
                 setLoginBtnStatus(true);
                 startScheduler(true);
