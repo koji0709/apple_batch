@@ -14,6 +14,7 @@ import com.sgswit.fx.controller.operation.viewData.AccountInfoModifyView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.sign.CrossPlatformAesUtil;
 import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.collections.FXCollections;
@@ -24,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**

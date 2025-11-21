@@ -13,7 +13,7 @@ import com.sgswit.fx.constant.Constant;
 import com.sgswit.fx.model.BaseAreaInfo;
 import com.sgswit.fx.utils.AppleBatchUtil;
 import com.sgswit.fx.utils.CookieUtils;
-import com.sgswit.fx.utils.DataUtil;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;

@@ -1,7 +1,6 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.util.StrUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

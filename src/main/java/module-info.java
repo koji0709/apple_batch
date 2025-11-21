@@ -22,6 +22,7 @@ open module com.sgswit.fx {
     requires commons.lang;
     requires fastjson;
     requires jdk.httpserver;
+    requires com.microsoft.onnxruntime;
     exports com.sgswit.fx;
     exports com.sgswit.fx.utils.stage;
     exports com.sgswit.fx.controller;

@@ -11,10 +11,12 @@ import com.sgswit.fx.controller.common.CustomTableView;
 import com.sgswit.fx.controller.exception.ServiceException;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
-import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.cache.DataUtil;
+import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.PropertiesUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import com.sgswit.fx.utils.web.ShoppingLoginUtil;
 import com.sgswit.fx.utils.web.ShoppingUtil;
-import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -77,10 +79,6 @@ public class DetectionGrayBalanceController extends CustomTableView<Account> {
                 paras.put("code2",code2.toLowerCase());
             }
             accountTableView.refresh();
-            //paras.clear();
-            paras.put("account",account.getAccount());
-            paras.put("pwd",account.getPwd());
-            paras.put("serviceKey", ShoppingLoginUtil.createClientId());
             // 获取产品
             setAndRefreshNote(account,"正在加载商品信息...");
             ThreadUtil.sleep(500);

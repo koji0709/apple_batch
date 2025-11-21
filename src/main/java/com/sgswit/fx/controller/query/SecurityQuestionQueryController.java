@@ -13,8 +13,8 @@ import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.model.Problem;
 import com.sgswit.fx.model.Question;
-import com.sgswit.fx.utils.web.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 import org.jsoup.Jsoup;
@@ -66,7 +66,7 @@ public class SecurityQuestionQueryController extends CustomTableView<Problem> {
         account.setPwd(problem.getPwd());
         ThreadUtil.sleep(1500);
         HttpResponse step1Res = AppleIDUtil.signin(account);
-        setAndRefreshNote(problem,"查询密保问题中...");
+        setAndRefreshNote(problem,"密保查询问题中...");
         if (step1Res.getStatus() != 409) {
             String message="Apple ID或密码不正确";
             JSONArray errorArr = JSONUtil.parseObj(step1Res.body())

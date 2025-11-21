@@ -10,10 +10,10 @@ import com.sgswit.fx.controller.operation.viewData.SecurityDowngradeView;
 import com.sgswit.fx.enums.FunctionListEnum;
 import com.sgswit.fx.model.Account;
 import com.sgswit.fx.utils.AccountImportUtil;
-import com.sgswit.fx.utils.web.AppleIDUtil;
 import com.sgswit.fx.utils.PointUtil;
 import com.sgswit.fx.utils.StrUtils;
 import com.sgswit.fx.utils.proxy.ProxyUtil;
+import com.sgswit.fx.utils.web.AppleIDUtil;
 import javafx.event.ActionEvent;
 import javafx.scene.input.ContextMenuEvent;
 

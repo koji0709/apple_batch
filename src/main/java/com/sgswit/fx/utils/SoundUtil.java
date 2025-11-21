@@ -1,9 +1,9 @@
 package com.sgswit.fx.utils;
 
 import cn.hutool.core.io.resource.ResourceUtil;
+import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.application.Platform;
 
 import java.net.URL;
 

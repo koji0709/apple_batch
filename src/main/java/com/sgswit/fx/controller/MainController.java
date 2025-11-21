@@ -14,6 +14,7 @@ import com.sgswit.fx.enums.ProxyEnum;
 import com.sgswit.fx.enums.StageEnum;
 import com.sgswit.fx.model.KeyValuePair;
 import com.sgswit.fx.utils.*;
+import com.sgswit.fx.utils.cache.DataUtil;
 import com.sgswit.fx.utils.stage.StageUtil;
 import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
