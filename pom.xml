@@ -6,7 +6,7 @@
 
     <groupId>com.sgswit</groupId>
     <artifactId>appleBatch</artifactId>
-    <version>3.3.4</version>
+    <version>3.3.5</version>
     <name>appleBatch</name>
 
     <properties>
@@ -30,22 +30,22 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>11.0.2</version>
+            <version>21.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -162,6 +162,7 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <release>17</release>
                 </configuration>
             </plugin>
 
