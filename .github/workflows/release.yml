@@ -26,8 +26,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: '17'
-        distribution: 'bellsoft'
-        java-package: 'jdk-full'   # full JDK 包含 JavaFX
+        distribution: 'temurin'
         cache: 'maven'
 
     - name: 🧱 安装本地 JAR 依赖
