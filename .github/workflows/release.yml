@@ -47,7 +47,7 @@ jobs:
         ORIGINAL_DMG_NAME=$(basename "${ORIGINAL_DMG_PATH}")
         DIR_PATH=$(dirname "${ORIGINAL_DMG_PATH}")
         SUFFIX=""
-        if [[ "${{ matrix.OS }}" == "macos-13" ]]; then
+        if [[ "${{ matrix.OS }}" == "macos-15-intel" ]]; then
           SUFFIX=".Intel"
         elif [[ "${{ matrix.OS }}" == "macos-latest" ]]; then
           SUFFIX=".M"
